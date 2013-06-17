@@ -1,0 +1,27 @@
+html, body { margin: 0; font: medium/1.5 serif; color: #555; }
+
+/*
+#bc0
+#a04
+#308
+*/
+
+h1, h2, h3 { font-weight: normal; margin: 1em; }
+h1 { min-height: 75px; margin: 0; padding: 0 20px 0 120px; line-height: 75px; color: #a04; background: url('../img/moss.png') no-repeat 20px center transparent; border-bottom: 2px solid #a04; }
+h2 { margin-top: 0; }
+h3 { margin-top: 3em; }
+h4, dt { margin-top: 1.5em; }
+
+dl { margin: 0 0 1em 2em; list-style: none; }
+dt, dd { margin: 0 0 0.5em 0; }
+p { margin: 0.25em 0 0.25em 2em; }
+a { text-decoration: none; border-bottom-width: 1px; border-bottom-style: dotted; }
+
+span { margin: 0 0.25em; }
+
+.name, a.name { color: #000; }
+.param, a.param { font-style: italic; color: #f80; }
+.typem, a.type { color: #080; }
+.default, a.default { font-style: italic; color: #080; }
+.up, a.up { text-align: right; color: #999; }
+.nodesc, .nodesc a { font-style: italic; color: #d00; }

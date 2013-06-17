@@ -1,0 +1,6 @@
+#Rewriting
+<IfModule mod_rewrite.c>
+	RewriteEngine On
+
+	RewriteRule ^.*$ web/index.php
+</IfModule>

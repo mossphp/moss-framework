@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <base href="{{ Request.baseName }}">
+
+    <title>{% trans "MOSS Autodoc" %}</title>
+
+    <link rel="author" href="./humans.txt"/>
+
+    <!--[if lt IE 9]>
+    <script type="text/javascript" src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <link rel="stylesheet" href="{% resource 'autodoc:css:normalize.css' %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% resource 'autodoc:css:autodoc.css' %}" type="text/css" media="screen"/>
+</head>
+<body>
+
+<header id="header">
+    <h1>{% trans "MOSS Autodoc" %}</h1>
+</header>
+
+<nav>
+    <h2>{% trans "Index: Packages" %}</h2>
+    <ul>
+        {% for Package in Packages %}
+            <dd>
+                <a id="{{ Package.name }}" href="{{ Request.self }}#{{ Package.name }}">{{ Package.name }}</a>
+                <ul>
+                    {% for Class in Package.classes %}
+                        <dd {% if not Class.desc %}class="nodesc"{% endif %}>
+                            <a href="{{ Request.self }}#{{ Class.name }}">{{ Class.name }}</a> -
+                            <span>{{ Class.desc }}</span>
+                        </dd>
+                    {% endfor %}
+                </ul>
+            </dd>
+        {% endfor %}
+    </ul>
+
+    <h2>{% trans "Index: Classes and methods" %}</h2>
+    <ul>
+        {% for Class in Doc %}
+            <dd>
+                <a href="{{ Request.self }}#{{ Class.name }}">{{ Class.name }}</a> - <span>{{ Class.desc }}</span>
+                <ul>
+                    {% for Method in Class.methods if Method.isUserDefined %}
+                        <dd {% if not Method.desc and Method.isUserDefined %}class="nodesc"{% endif %}>
+                            <a href="{{ Request.self }}#{{ Class.name }}::{{ Method.name }}">{{ Method.name }}</a> -
+                            <span>{{ Method.desc }}</span>
+                        </dd>
+                    {% endfor %}
+                </ul>
+            </dd>
+        {% endfor %}
+    </ul>
+</nav>
+
+<dl>
+    {% for Class in Doc %}
+        <dt id="{{ Class.name }}">
+        <h3>
+            {% if Class.interface %}<span class="type">interface</span>{% elseif Class.abstract %}<span class="type">abstract</span>{% endif %}
+            {{ Class.name }}
+            {% if Class.parent %} <span class="type">extends</span> <a href="{{ Request.self }}#{{ Class.parent }}">
+                <span class="type">{{ Class.parent }}</span></a>{% endif %}
+            {% if Class.interfaces %} <span class="type">implements</span> {% for Interface in Class.interfaces %}<a
+                href="{{ Request.self }}#{{ Interface }}"><span class="type">{{ Interface }}</span>
+                </a>{% if not loop.last %},{% endif %} {% endfor %}{% endif %}
+        </h3>
+        </dt>
+        <dd>
+            <ul>
+                <li>{{ Class.desc }}</li>
+                <li class="package"><em>Package:</em> <a
+                            href="{{ Request.self }}#{{ Class.package }}">{{ Class.package }}</a></li>
+                <li class="author"><em>Author:</em> <strong>{{ Class.author }}</strong></li>
+            </ul>
+
+            <dl>
+                {% for Method in Class.methods if Method.isUserDefined %}
+                    <dt id="{{ Class.name }}::{{ Method.name }}">
+                    <h4>
+                    <span class="type">
+                    {% if Method.isAbstract %}abstract{% endif %}
+                        {% if Method.isStatic %}static{% endif %}
+                        {% if Method.isPublic %}public{% elseif  Method.isProtected %}protected{% elseif  Method.isPrivate %}private{% endif %}
+                    </span>
+
+                        {{ Class.name }} :: {{ Method.name }} (
+
+                        {% for Attr in Method.arguments %}
+                            {% if Attr.required %}
+                                {% for type in Attr.type %}
+                                    <a href="{{ Request.self }}#{{ type }}">
+                                        <span class="type">{{ type }}</span> {% if not loop.last %}|{% endif %}
+                                    </a>
+                                {% endfor %}
+
+                                <span class="name">${{ Attr.name }}</span>
+                            {% else %}
+                                [
+                                {% for type in Attr.type %}
+                                    <a href="{{ Request.self }}#{{ type }}">
+                                        <span class="type">{{ type }}</span> {% if not loop.last %}|{% endif %}
+                                    </a>
+                                {% endfor %}
+
+                                <span class="name">{{ Attr.name }}</span> = <span
+                                    class="default">{% if Attr.default %}{{ Attr.default }}{% else %}null{% endif %}</span>
+                                ]
+                            {% endif %}
+
+                            {% if not loop.last %} , {% endif %}
+                        {% endfor %} )
+                    </h4>
+                    </dt>
+                    <dd>
+                        <p>{{ Method.desc }}</p>
+
+                        <ul>
+                            {% for Attr in Method.arguments %}
+                                <dd>
+                                    {% for type in Attr.type %}
+                                        <a href="{{ Request.self }}#{{ type }}">
+                                            <span class="type">{{ type }}</span> {% if not loop.last %}|{% endif %}
+                                        </a>
+                                    {% endfor %}
+
+                                    <span class="name">${{ Attr.name }}</span>
+                                    {{ Attr.desc }}
+                                </dd>
+                            {% endfor %}
+                        </ul>
+
+                        <a class="up" href="{{ Request.self }}#header">{% trans "Up" %}</a>
+                    </dd>
+                {% endfor %}
+            </dl>
+        </dd>
+    {% endfor %}
+</dl>
+
+</body>
+</html>
