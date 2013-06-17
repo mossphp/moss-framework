@@ -8,7 +8,7 @@ use \Moss\http\request\RequestInterface;
 use \Moss\http\response\ResponseInterface;
 use \Moss\kernel\KernelException;
 use \Moss\router\RouterException;
-use \Moss\security\AccessException;
+use \Moss\security\SecurityException;
 
 /**
  * Moss Kernel
@@ -78,7 +78,7 @@ class Kernel {
 
 			return $this->fireEvent('kernel.send', $Response);
 		}
-		catch(AccessException $e) {
+		catch(SecurityException $e) {
 			$Response = $this->fireEvent('kernel.403', null, sprintf('%s (%s line:%s)', $e->getMessage(), $e->getFile(), $e->getLine()));
 		}
 		catch(RouterException $e) {
