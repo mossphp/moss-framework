@@ -1,14 +1,14 @@
 <?php
 namespace Moss\kernel;
 
-use \Moss\container\ContainerInterface;
-use \Moss\router\RouterInterface;
-use \Moss\dispatcher\DispatcherInterface;
-use \Moss\http\request\RequestInterface;
-use \Moss\http\response\ResponseInterface;
-use \Moss\kernel\KernelException;
-use \Moss\router\RouterException;
-use \Moss\security\SecurityException;
+use Moss\container\ContainerInterface;
+use Moss\router\RouterInterface;
+use Moss\dispatcher\DispatcherInterface;
+use Moss\http\request\RequestInterface;
+use Moss\http\response\ResponseInterface;
+use Moss\kernel\KernelException;
+use Moss\router\RouterException;
+use Moss\security\SecurityException;
 
 /**
  * Moss Kernel
@@ -27,17 +27,21 @@ class Kernel {
 	/** @var DispatcherInterface */
 	protected $Dispatcher;
 
+	protected $pattern;
+
 	/**
 	 * Constructor
 	 *
 	 * @param RouterInterface     $Router
 	 * @param ContainerInterface  $Container
 	 * @param DispatcherInterface $Dispatcher
+	 * @param string              $pattern
 	 */
-	public function __construct(RouterInterface $Router, ContainerInterface $Container, DispatcherInterface $Dispatcher) {
+	public function __construct(RouterInterface $Router, ContainerInterface $Container, DispatcherInterface $Dispatcher, $pattern = '\{bundle}\controller\{controller}Controller') {
 		$this->Router = & $Router;
 		$this->Container = & $Container;
 		$this->Dispatcher = & $Dispatcher;
+		$this->pattern = $pattern;
 	}
 
 	/**
@@ -57,10 +61,6 @@ class Kernel {
 			$action = $this->Router->match($Request);
 
 			if($Response = $this->fireEvent('kernel.route')) {
-				return $this->fireEvent('kernel.send', $Response);
-			}
-
-			if($Response = $this->fireEvent('kernel.access')) {
 				return $this->fireEvent('kernel.send', $Response);
 			}
 
@@ -88,12 +88,12 @@ class Kernel {
 			$Response = $this->fireEvent('kernel.500', null, sprintf('%s (%s line:%s)', $e->getMessage(), $e->getFile(), $e->getLine()));
 		}
 
-		if(!$Response instanceof ResponseInterface) {
-			throw new KernelException(sprintf('Received response is not an instance of ResponseInterface', $Request->url()));
+		if(!empty($e) && empty($Response)) {
+			throw $e;
 		}
 
-		if(!empty($e) && empty($Request)) {
-			throw $e;
+		if(!$Response instanceof ResponseInterface) {
+			throw new KernelException(sprintf('Received response is not an instance of ResponseInterface', $Request->url()));
 		}
 
 		return $this->fireEvent('kernel.send', $Response);
@@ -124,7 +124,6 @@ class Kernel {
 	 *
 	 * @return mixed
 	 * @throws KernelException
-	 * @throws \LogicException
 	 */
 	protected function callController($controller) {
 		if(is_callable($controller)) {
@@ -136,13 +135,18 @@ class Kernel {
 				throw new KernelException(sprintf('Invalid controller identifier "%s". Controller identifier should have at least two ":".', $controller));
 			}
 
-			preg_match_all('/^(?P<controller>.+):(?P<action>[0-9a-z_]+)$/i', $controller, $matches, PREG_SET_ORDER);
+			preg_match_all('/^(?P<bundle>.*):(?P<controller>[^:]+):(?P<action>[0-9a-z_]+)$/i', $controller, $matches, PREG_SET_ORDER);
 
-			if(empty($matches[0]['controller']) || ($modPos = strpos($matches[0]['controller'], ':')) === false) {
-				throw new KernelException(sprintf('Invalid or missing controller identifier "%s"', $controller));
+			$r = array();
+			foreach(array('bundle', 'controller', 'action') as $k) {
+				if(empty($matches[0][$k])) {
+					throw new KernelException(sprintf('Invalid or missing "%s" node in controller identifier "%s"', $k, $controller));
+				}
+
+				$r['{' . $k .'}'] = str_replace(array('.', ':'), '\\', $matches[0][$k]);
 			}
 
-			$controller = sprintf('\\%s\\controller\\%sController', substr($matches[0]['controller'], 0, $modPos), str_replace(':', '\\', substr($matches[0]['controller'], $modPos + 1)));
+			$controller = strtr($this->pattern, $r);
 
 			if(!class_exists($controller)) {
 				throw new KernelException(sprintf('Unable to load controller class "%s"', $controller));
