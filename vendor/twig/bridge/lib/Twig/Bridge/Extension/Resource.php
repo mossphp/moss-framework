@@ -32,6 +32,8 @@ class Twig_Bridge_Extension_Resource extends Twig_Extension {
 		$public = strtr($this->public, $arr);
 		$bundle = strtr($this->bundle, $arr);
 
+		$this->buildDir($public);
+
 		if($this->forceCopy) {
 			$this->buildCopy($public, $bundle);
 
@@ -51,22 +53,46 @@ class Twig_Bridge_Extension_Resource extends Twig_Extension {
 	}
 
 	protected function split($identifier) {
-		preg_match_all('/^(?P<bundle>.+):(?P<file>.+)$/i', $identifier, $matches, PREG_SET_ORDER);
-		if(empty($matches[0]['bundle']) || ($modPos = strpos($matches[0]['bundle'], ':')) === false) {
-			return $identifier;
+		preg_match_all('/^(?P<bundle>.*):(?P<directory>[^:]+):(?P<file>.+)$/i', $identifier, $matches, PREG_SET_ORDER);
+
+		$r = array();
+		foreach(array('bundle', 'directory', 'file') as $k) {
+			if(empty($matches[0][$k])) {
+				throw new Twig_Error_Loader(sprintf('Invalid or missing "%s" node in view filename "%s"', $k, $identifier));
+			}
+
+			if($k == 'file') {
+				$r['{' . $k .'}'] = $matches[0][$k];
+				continue;
+			}
+
+			$r['{' . $k .'}'] = str_replace(array('.', ':'), '/', $matches[0][$k]);
 		}
 
-		$arr = array(
-			'{bundle}' => substr($matches[0]['bundle'], 0, $modPos),
-			'{directory}' => substr($matches[0]['bundle'], $modPos + 1),
-			'{file}' => $matches[0]['file']
-		);
-
-		return $arr;
+		return $r;
 	}
 
 	protected function buildResourceName($path, $directory, $file) {
 		return rtrim($path, '/') . '/' . ($directory ? $directory . '/' : null) . $file;
+	}
+
+	/**
+	 * Builds recursively directory structure matching passed path
+	 *
+	 * @param string $directory
+	 *
+	 * @throws \RuntimeException
+	 */
+	protected function buildDir($directory) {
+		$directory = rtrim(substr($directory, 0, strrpos(rtrim($directory, '/'), '/')), '/') . '/';
+
+		if(is_dir($directory)) {
+			return;
+		}
+
+		if(!mkdir($directory, 0777, true)) {
+			throw new \RuntimeException(sprintf('Unable to create directory for resource %s', $directory));
+		}
 	}
 
 	protected function buildCopy($public, $bundle) {
@@ -105,12 +131,12 @@ class Twig_Bridge_Extension_Resource extends Twig_Extension {
 			return;
 		}
 
-		if(!$bundle = realpath($bundle)) {
+		if(!$path = realpath($bundle)) {
 			throw new \Twig_Error_Runtime('Unable to resolve resource path to ' . $bundle);
 		}
 
-		if(!symlink($bundle, $public)) {
-			throw new \Twig_Error_Runtime('Unable to create symlink for resource ' . $bundle.' to '. $public);
+		if(!symlink($path, $public)) {
+			throw new \Twig_Error_Runtime('Unable to create symlink for resource ' . $path.' to '. $public);
 		}
 	}
 }

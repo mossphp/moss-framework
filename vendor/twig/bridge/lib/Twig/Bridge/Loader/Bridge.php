@@ -1,11 +1,9 @@
 <?php
 class Twig_Bridge_Loader_Bridge implements Twig_LoaderInterface {
 
-	protected $moduleSeparator;
 	protected $pattern;
 
-	public function __construct($moduleSeparator = ':', $pattern = '../src/{bundle}/view/{directory}/{file}') {
-		$this->moduleSeparator = $moduleSeparator;
+	public function __construct($pattern = '../src/{bundle}/{directory}/view/{file}.twig') {
 		$this->pattern = $pattern;
 	}
 
@@ -23,12 +21,15 @@ class Twig_Bridge_Loader_Bridge implements Twig_LoaderInterface {
 	}
 
 	protected function traslate($name) {
-		$quotedSeparator = preg_quote($this->moduleSeparator);
-		preg_match_all('/^(?P<bundle>[^' . $quotedSeparator . ']+)' . $quotedSeparator . '(?P<directory>[^'.$quotedSeparator.']*'.$quotedSeparator.')?(?P<file>.+)$/', $name, $matches, \PREG_SET_ORDER);
-		$r = array();
+		preg_match_all('/^(?P<bundle>[^:]+):(?P<directory>[^:]*:)?(?P<file>.+)$/', $name, $matches, \PREG_SET_ORDER);
 
-		foreach($matches[0] as $k => $v) {
-			$r['{'.$k.'}'] = str_replace($this->moduleSeparator, '//', $v);
+		$r = array();
+		foreach(array('bundle', 'directory', 'file') as $k) {
+			if(empty($matches[0][$k])) {
+				throw new Twig_Error_Loader(sprintf('Invalid or missing "%s" node in view filename "%s"', $k, $name));
+			}
+
+			$r['{' . $k .'}'] = str_replace(array('.', ':'), '\\', $matches[0][$k]);
 		}
 
 		$file = strtr($this->pattern, $r);
