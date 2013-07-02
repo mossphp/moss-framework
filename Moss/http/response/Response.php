@@ -1,9 +1,9 @@
 <?php
 namespace Moss\http\response;
 
-use \Moss\http\response\ResponseHeaderBag;
-use \Moss\http\response\ResponseInterface;
-use \Moss\http\response\ResponseException;
+use Moss\http\response\ResponseHeaderBag;
+use Moss\http\response\ResponseInterface;
+use Moss\http\response\ResponseException;
 
 /**
  * Response sent to client

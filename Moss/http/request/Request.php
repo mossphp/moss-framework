@@ -1,9 +1,9 @@
 <?php
 namespace Moss\http\request;
 
-use \Moss\http\request\RequestInterface,
-	\Moss\http\cookie\CookieInterface,
-	\Moss\http\session\SessionInterface;
+use Moss\http\request\RequestInterface;
+use	Moss\http\cookie\CookieInterface;
+use	Moss\http\session\SessionInterface;
 
 /**
  * Request representation

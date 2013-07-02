@@ -1,8 +1,7 @@
 <?php
 namespace Moss\http\response;
 
-use \Moss\http\response\ResponseInterface,
-	\Moss\http\response\Response;
+use Moss\http\response\Response;
 
 /**
  * Redirecting Response
@@ -11,7 +10,7 @@ use \Moss\http\response\ResponseInterface,
  * @package Moss HTTP
  * @author  Michal Wachowski <wachowski.michal@gmail.com>
  */
-class ResponseRedirect extends Response implements ResponseInterface {
+class ResponseRedirect extends Response {
 
 	protected $delay;
 	protected $address;

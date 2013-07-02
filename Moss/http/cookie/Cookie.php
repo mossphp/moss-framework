@@ -1,7 +1,7 @@
 <?php
 namespace Moss\http\cookie;
 
-use \Moss\http\cookie\CookieInterface;
+use Moss\http\cookie\CookieInterface;
 
 /**
  * Cookie object representation
