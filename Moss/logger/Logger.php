@@ -1,7 +1,7 @@
 <?php
 namespace Moss\logger;
 
-use \Moss\logger\LoggerInterface;
+use Moss\logger\LoggerInterface;
 
 /**
  * Logger implementation
