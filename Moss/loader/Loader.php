@@ -118,11 +118,9 @@ class Loader {
 					$file = ($path !== null ? $path . DIRECTORY_SEPARATOR : '') . $fileName;
 
 					if(is_file($file)) {
-//						echo '<span style="color: green">'.$file.'</span><br/>';
 						return $file;
 					}
 
-//					echo '<span style="color: red">'.$file.'</span><br/>';
 				}
 			}
 
