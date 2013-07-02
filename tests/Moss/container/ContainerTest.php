@@ -10,13 +10,6 @@ class ContainerTest extends \PHPUnit_Framework_TestCase {
 		$this->Container = new Container();
 	}
 
-	/**
-	 * @expectedException \Moss\container\ContainerException
-	 */
-	public function testRegisterInstanceAsDefinition() {
-		$this->Container->register('foo', new \stdClass(), false);
-	}
-
 	public function testRegisterDefinition() {
 		$result = $this->Container->register('foo', 'bar', false);
 
@@ -32,22 +25,8 @@ class ContainerTest extends \PHPUnit_Framework_TestCase {
 		$this->assertAttributeCount(1, 'instances', $this->Container);
 	}
 
-	/**
-	 * @expectedException \Moss\container\ContainerException
-	 */
-	public function testRegisterComponentAsInstance() {
-		$this->Container->instance('foo', new Component('\stdClass'));
-	}
-
-	/**
-	 * @expectedException \Moss\container\ContainerException
-	 */
-	public function testRegisterDefinitionAsInstance() {
-		$this->Container->instance('foo', 'bar');
-	}
-
 	public function testRegisterInstance() {
-		$result = $this->Container->instance('foo', new \stdClass());
+		$result = $this->Container->register('foo', new \stdClass());
 
 		$this->assertInstanceOf('Moss\container\Container', $result);
 		$this->assertAttributeCount(0, 'components', $this->Container);
@@ -81,7 +60,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	public function testUnRegisterInstance() {
-		$result = $this->Container->instance('foo', new \stdClass());
+		$result = $this->Container->register('foo', new \stdClass());
 
 		$this->assertInstanceOf('Moss\container\Container', $result);
 		$this->assertAttributeCount(0, 'components', $this->Container);
@@ -113,7 +92,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase {
 	public function testInstanceExists() {
 		$this->assertFalse($this->Container->exists('foo'));
 
-		$this->Container->instance('foo', new \stdClass());
+		$this->Container->register('foo', new \stdClass());
 
 		$this->assertTrue($this->Container->exists('foo'));
 	}
@@ -131,7 +110,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	public function testSharedInstance() {
-		$this->Container->instance('foo', new \stdClass());
+		$this->Container->register('foo', new \stdClass());
 
 		$this->assertTrue($this->Container->isShared('foo'));
 	}
@@ -175,7 +154,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	public function testGetInstance() {
-		$this->Container->instance('foo', new \stdClass());
+		$this->Container->register('foo', new \stdClass());
 
 		$this->assertEquals(new \stdClass(), $this->Container->get('foo'));
 	}
@@ -206,7 +185,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	public function testInstanceSharing() {
-		$this->Container->instance('foo', new \stdClass());
+		$this->Container->register('foo', new \stdClass());
 
 		$v = $this->Container->get('foo');
 		$v->v = 2;

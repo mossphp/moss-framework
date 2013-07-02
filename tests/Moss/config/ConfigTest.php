@@ -12,129 +12,15 @@ class ConfigTest extends \PHPUnit_Framework_TestCase {
 
 	protected function setUp() {
 		$cArr = array(
-			'kernel' => array(
-				'error' => array(
-					'level' => E_ALL | E_NOTICE,
-					'detail' => true
-				),
-				'session' => array(
-					'host' => true,
-					'ip' => true,
-					'agent' => true,
-					'salt' => null
-				)
+			'error' => array(
+				'level' => E_ALL | E_NOTICE,
+				'detail' => true
 			),
-			'loaders' => array(
-				'namespaces' => array(
-					'Moss' => array(
-						'../vendor/moss/lib/'
-					)
-				),
-				'prefixes' => array(
-					'Twig' => array(
-						'../vendor/twig/lib/',
-						'../vendor/twig-bridge/lib/',
-						'../vendor/twig-extension/lib/'),
-					'Swift' => array(
-						'../vendor/swift/lib/',
-						'../vendor/swift-bridge/lib/'
-					),
-					'collection' => array(),
-					'mapped' => array()
-				)
-			),
-			'container' => array(
-				'Response403' => array(
-					'class' => '\Moss\http\response\Response',
-					'arguments' => array(
-						null,
-						403,
-						'text/plain'
-					)
-				),
-				'Response404' => array(
-					'class' => '\Moss\http\response\Response',
-					'arguments' => array(
-						null,
-						404,
-						'text/plain'
-					)
-				),
-				'Response500' => array(
-					'class' => '\Moss\http\response\Response',
-					'arguments' => array(
-						null,
-						500,
-						'text/plain'
-					)
-				),
-				'Logger' => array(
-					'class' => '\Moss\logger\Logger',
-					'shared' => true,
-					'arguments' => array(
-						'../log/log.txt',
-						false
-					)
-				)
-			),
-			'dispatcher' => array(
-				'kernel.request' => array(),
-				'kernel.route' => array(),
-				'kernel.access' => array(),
-				'kernel.controller' => array(),
-				'kernel.response' => array(),
-				'kernel.send' => array(
-					array(
-						'component' => 'Logger',
-						'method' => 'write'
-					),
-				),
-				'kernel.403' => array(
-					array(
-						'component' => 'Logger',
-						'method' => 'emergency',
-						'arguments' => array('@Message')
-					),
-					array(
-						'component' => 'Response403',
-						'method' => 'content',
-						'arguments' => array('@Message')
-					)
-				),
-				'kernel.404' => array(
-					array(
-						'component' => 'Logger',
-						'method' => 'emergency',
-						'arguments' => array('@Message')),
-					array(
-						'component' => 'Response404',
-						'method' => 'content',
-						'arguments' => array('@Message'))
-				),
-				'kernel.500' => array(
-					array(
-						'component' => 'Logger',
-						'method' => 'emergency',
-						'arguments' => array('@Message')
-					),
-					array(
-						'component' => 'Response500',
-						'method' => 'content',
-						'arguments' => array('@Message')
-					)
-				)
-			),
-			'router' => array(
-				'main' => array(
-					'pattern' => '/',
-					'controller' => 'sample:Sample:index',
-					'requirements' => array(),
-					'defaults' => array(),
-					'arguments' => array(),
-					'host' => null,
-					'schema' => null,
-					'methods' => array()
-				)
+			'session' => array(
+				'host' => true,
+				'ip' => true,
+				'agent' => true,
+				'salt' => null
 			)
 		);
 
@@ -146,39 +32,14 @@ class ConfigTest extends \PHPUnit_Framework_TestCase {
 
 	public function testGet() {
 		$result = array(
-			'namespaces' => array(
-				'Moss' => array(
-					'../vendor/moss/lib/'
-				)
-			),
-			'prefixes' => array(
-				'Twig' => array(
-					'../vendor/twig/lib/',
-					'../vendor/twig-bridge/lib/',
-					'../vendor/twig-extension/lib/'),
-				'Swift' => array(
-					'../vendor/swift/lib/',
-					'../vendor/swift-bridge/lib/'
-				),
-				'collection' => array(),
-				'mapped' => array()
-			)
+			'level' => E_ALL | E_NOTICE,
+			'detail' => true
 		);
-		$this->assertEquals($result, $this->object->get('loaders'));
+		$this->assertEquals($result, $this->object->get('error'));
 	}
 
 	public function testGetDeep() {
-		$result = array(
-			'pattern' => '/',
-			'controller' => 'sample:Sample:index',
-			'requirements' => array(),
-			'defaults' => array(),
-			'arguments' => array(),
-			'host' => null,
-			'schema' => null,
-			'methods' => array()
-		);
-		$this->assertEquals($result, $this->object->get('router.main'));
+		$this->assertTrue($this->object->get('error.detail'));
 	}
 
 	public function testGetBlank() {
@@ -187,133 +48,5 @@ class ConfigTest extends \PHPUnit_Framework_TestCase {
 
 	public function testGetDeepBlank() {
 		$this->assertNull($this->object->get('directories.foo'));
-	}
-
-	public function testGetLoaders() {
-		$result = array(
-			'namespaces' => array(
-				'Moss' => array(
-					'../vendor/moss/lib/'
-				)
-			),
-			'prefixes' => array(
-				'Twig' => array(
-					'../vendor/twig/lib/',
-					'../vendor/twig-bridge/lib/',
-					'../vendor/twig-extension/lib/'),
-				'Swift' => array(
-					'../vendor/swift/lib/',
-					'../vendor/swift-bridge/lib/'
-				),
-				'collection' => array(),
-				'mapped' => array()
-			)
-		);
-		$this->assertEquals($result, $this->object->get('loaders'));
-	}
-
-	public function testGetContainer() {
-		$result = array(
-			'Response403' => array(
-				'class' => '\Moss\http\response\Response',
-				'arguments' => array(
-					null,
-					403,
-					'text/plain'
-				)
-			),
-			'Response404' => array(
-				'class' => '\Moss\http\response\Response',
-				'arguments' => array(
-					null,
-					404,
-					'text/plain'
-				)
-			),
-			'Response500' => array(
-				'class' => '\Moss\http\response\Response',
-				'arguments' => array(
-					null,
-					500,
-					'text/plain'
-				)
-			),
-			'Logger' => array(
-				'class' => '\Moss\logger\Logger',
-				'shared' => true,
-				'arguments' => array(
-					'../log/log.txt',
-					false
-				)
-			)
-		);
-		$this->assertEquals($result, $this->object->get('container'));
-	}
-
-	public function testGetRoutes() {
-		$result = array(
-			'main' => array(
-				'pattern' => '/',
-				'controller' => 'sample:Sample:index',
-				'requirements' => array(),
-				'defaults' => array(),
-				'arguments' => array(),
-				'host' => null,
-				'schema' => null,
-				'methods' => array()
-			)
-		);
-		$this->assertEquals($result, $this->object->get('router'));
-	}
-
-	public function testGetDispatcher() {
-		$result = array(
-			'kernel.request' => array(),
-			'kernel.route' => array(),
-			'kernel.access' => array(),
-			'kernel.controller' => array(),
-			'kernel.response' => array(),
-			'kernel.send' => array(
-				array(
-					'component' => 'Logger',
-					'method' => 'write'
-				),
-			),
-			'kernel.403' => array(
-				array(
-					'component' => 'Logger',
-					'method' => 'emergency',
-					'arguments' => array('@Message')
-				),
-				array(
-					'component' => 'Response403',
-					'method' => 'content',
-					'arguments' => array('@Message')
-				)
-			),
-			'kernel.404' => array(
-				array(
-					'component' => 'Logger',
-					'method' => 'emergency',
-					'arguments' => array('@Message')),
-				array(
-					'component' => 'Response404',
-					'method' => 'content',
-					'arguments' => array('@Message'))
-			),
-			'kernel.500' => array(
-				array(
-					'component' => 'Logger',
-					'method' => 'emergency',
-					'arguments' => array('@Message')
-				),
-				array(
-					'component' => 'Response500',
-					'method' => 'content',
-					'arguments' => array('@Message')
-				)
-			)
-		);
-		$this->assertEquals($result, $this->object->get('dispatcher'));
 	}
 }
