@@ -1,8 +1,8 @@
 <?php
 namespace Moss\router;
 
-use \Moss\router\RouteInterface,
-	\Moss\http\request\RequestInterface;
+use Moss\router\RouteInterface;
+use Moss\http\request\RequestInterface;
 
 /**
  * Route representation
