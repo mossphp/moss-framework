@@ -1,8 +1,8 @@
 <?php
-namespace sample\controller;
+namespace Moss\sample\controller;
 
-use \Moss\container\ContainerInterface;
-use \Moss\http\response\Response;
+use Moss\container\ContainerInterface;
+use Moss\http\response\Response;
 
 class SampleController {
 
@@ -20,6 +20,6 @@ class SampleController {
 	 * Called at the end of constructor
 	 */
 	public function index() {
-		return new Response('Hello from controller route');
+		return new Response('Hello, this is sample controller');
 	}
 }

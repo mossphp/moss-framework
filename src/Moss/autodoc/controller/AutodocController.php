@@ -1,8 +1,8 @@
 <?php
-namespace autodoc\controller;
+namespace Moss\autodoc\controller;
 
-use \Moss\container\ContainerInterface;
-use \Moss\http\response\Response;
+use Moss\container\ContainerInterface;
+use Moss\http\response\Response;
 
 /**
  * Generates documentation based on PHPDoc comments
@@ -72,7 +72,7 @@ class AutodocController {
 
 		$autodocResponseContent = $this->Container
 			->get('View')
-			->template('autodoc:autodoc.twig')
+			->template('Moss:autodoc:autodoc')
 			->set('Doc', $this->doc)
 			->set('Packages', $this->packages)
 			->render();
