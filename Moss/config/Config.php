@@ -1,7 +1,7 @@
 <?php
 namespace Moss\config;
 
-use \Moss\config\ConfigInterface;
+use Moss\config\ConfigInterface;
 
 /**
  * Configuration representation
@@ -11,15 +11,9 @@ use \Moss\config\ConfigInterface;
  */
 class Config implements ConfigInterface, \ArrayAccess {
 
-	protected $kernel = array(
-		'error' => array('level' => -1, 'detail' => true),
-		'session' => array('host' => true, 'ip' => true, 'agent' => true, 'salt' => null),
-		'cookie' => array()
-	);
-
-	protected $container = array();
-	protected $dispatcher = array();
-	protected $router = array();
+	protected $error = array('level' => -1, 'detail' => true);
+	protected $session = array('host' => true, 'ip' => true, 'agent' => true, 'salt' => null);
+	protected $cookie = array();
 
 	/**
 	 * Creates Config instance
@@ -27,18 +21,13 @@ class Config implements ConfigInterface, \ArrayAccess {
 	 * @param array $cArr
 	 */
 	public function __construct($cArr = array()) {
-		$this->kernel['error']['level'] = $this->getArrValue($cArr, 'kernel.error.level', -1);
-		$this->kernel['error']['detail'] = $this->getArrValue($cArr, 'kernel.error.detail', true);
+		$this->error['level'] = $this->getArrValue($cArr, 'error.level', -1);
+		$this->error['detail'] = $this->getArrValue($cArr, 'error.detail', true);
 
-		$this->kernel['session']['host'] = $this->getArrValue($cArr, 'kernel.session.host', true);
-		$this->kernel['session']['ip'] = $this->getArrValue($cArr, 'kernel.error.ip', true);
-		$this->kernel['session']['agent'] = $this->getArrValue($cArr, 'kernel.error.agent', true);
-		$this->kernel['session']['salt'] = $this->getArrValue($cArr, 'kernel.error.salt', null);
-
-		$this->loaders = $this->getArrValue($cArr, 'loaders', array());
-		$this->container = $this->getArrValue($cArr, 'container', array());
-		$this->dispatcher = $this->getArrValue($cArr, 'dispatcher', array());
-		$this->router = $this->getArrValue($cArr, 'router', array());
+		$this->session['host'] = $this->getArrValue($cArr, 'session.host', true);
+		$this->session['ip'] = $this->getArrValue($cArr, 'error.ip', true);
+		$this->session['agent'] = $this->getArrValue($cArr, 'error.agent', true);
+		$this->session['salt'] = $this->getArrValue($cArr, 'error.salt', null);
 	}
 
 	/**
