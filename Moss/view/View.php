@@ -1,9 +1,9 @@
 <?php
 namespace Moss\view;
 
-use \Moss\view\ViewInterface,
-	\Moss\config\ConfigInterface,
-	\Moss\http\request\RequestInterface;
+use Moss\view\ViewInterface;
+use Moss\config\ConfigInterface;
+use Moss\http\request\RequestInterface;
 
 /**
  * Moss view
