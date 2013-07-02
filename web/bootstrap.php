@@ -1,6 +1,6 @@
 <?php
-$config = array(
-	'kernel' => array(
+return array(
+	'config' => array(
 		'error' => array(
 			'level' => E_ALL | E_NOTICE,
 			'detail' => true
@@ -28,30 +28,6 @@ $config = array(
 		)
 	),
 	'container' => array(
-		'Response403' => array(
-			'class' => '\Moss\http\response\Response',
-			'arguments' => array(
-				null,
-				403,
-				'text/plain'
-			)
-		),
-		'Response404' => array(
-			'class' => '\Moss\http\response\Response',
-			'arguments' => array(
-				null,
-				404,
-				'text/plain'
-			)
-		),
-		'Response500' => array(
-			'class' => '\Moss\http\response\Response',
-			'arguments' => array(
-				null,
-				500,
-				'text/plain'
-			)
-		),
 		'Logger' => array(
 			'class' => '\Moss\logger\Logger',
 			'shared' => true,
@@ -106,54 +82,17 @@ $config = array(
 	'dispatcher' => array(
 		'kernel.request' => array(),
 		'kernel.route' => array(),
-		'kernel.access' => array(),
 		'kernel.controller' => array(),
 		'kernel.response' => array(),
-		'kernel.send' => array(
-			array(
-				'component' => 'Logger',
-				'method' => 'write'
-			),
-		),
-		'kernel.403' => array(
-			array(
-				'component' => 'Logger',
-				'method' => 'emergency',
-				'arguments' => array('@Message')
-			),
-			array(
-				'component' => 'Response403',
-				'method' => 'content',
-				'arguments' => array('@Message')
-			)
-		),
-		'kernel.404' => array(
-			array(
-				'component' => 'Logger',
-				'method' => 'emergency',
-				'arguments' => array('@Message')),
-			array(
-				'component' => 'Response404',
-				'method' => 'content',
-				'arguments' => array('@Message'))
-		),
-		'kernel.500' => array(
-			array(
-				'component' => 'Logger',
-				'method' => 'emergency',
-				'arguments' => array('@Message')
-			),
-			array(
-				'component' => 'Response500',
-				'method' => 'content',
-				'arguments' => array('@Message')
-			)
-		)
+		'kernel.send' => array(),
+		'kernel.403' => array(),
+		'kernel.404' => array(),
+		'kernel.500' => array()
 	),
 	'router' => array(
 		'main' => array(
 			'pattern' => '/',
-			'controller' => 'sample:Sample:index',
+			'controller' => 'Moss:sample:Sample:index',
 			'requirements' => array(),
 			'defaults' => array(),
 			'arguments' => array(),
@@ -163,7 +102,7 @@ $config = array(
 		),
 		'autodoc' => array(
 			'pattern' => '/autodoc/',
-			'controller' => 'autodoc:Autodoc:index',
+			'controller' => 'Moss:autodoc:Autodoc:index',
 		)
 	)
 );
