@@ -1,8 +1,8 @@
 <?php
 namespace Moss\security;
 
-use \Moss\security\TokenInterface;
-use \Moss\security\UserInterface;
+use Moss\security\TokenInterface;
+use Moss\security\UserInterface;
 
 /**
  * Security user provider

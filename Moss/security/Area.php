@@ -1,18 +1,21 @@
 <?php
-/**
- * Created by JetBrains PhpStorm.
- * User: Michal
- * Date: 18.06.13
- * Time: 01:04
- * To change this template use File | Settings | File Templates.
- */
-
 namespace Moss\security;
 
 use Moss\http\request\RequestInterface;
-use \Moss\security\AreaInterface;
+use Moss\security\AreaInterface;
 
+/**
+ * Security protected area
+ *
+ * @package Moss Security
+ * @author  Michal Wachowski <wachowski.michal@gmail.com>
+ */
 class Area implements AreaInterface {
+
+	protected $pattern;
+	protected $regexp;
+	protected $roles;
+	protected $ips;
 
 	/**
 	 * Creates ACL area instance
@@ -20,14 +23,12 @@ class Area implements AreaInterface {
 	 * @param string $pattern pattern matching blocked controller identifier
 	 * @param array  $roles
 	 * @param array  $ips
-	 * @param string $redirect
 	 */
-	public function __construct($pattern, $roles = array(), $ips = array(), $redirect = null) {
+	public function __construct($pattern, $roles = array(), $ips = array()) {
 		$this->pattern = $pattern;
 		$this->regexp = $this->buildRegExp($pattern);
 		$this->roles = $roles;
 		$this->ips = $ips;
-		$this->redirect = $redirect;
 	}
 
 	/**
@@ -145,14 +146,4 @@ class Area implements AreaInterface {
 
 		return false;
 	}
-
-	/**
-	 * Returns url (or null if not set) on which user should be redirected if has no access
-	 *
-	 * @return null|string
-	 */
-	public function redirect() {
-		return $this->redirect;
-	}
-
 }

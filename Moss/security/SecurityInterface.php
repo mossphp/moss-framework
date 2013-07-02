@@ -1,9 +1,9 @@
 <?php
 namespace Moss\security;
 
-use \Moss\security\AuthenticationException;
-use \Moss\security\UserInterface;
-use \Moss\http\request\RequestInterface;
+use Moss\security\AuthenticationException;
+use Moss\security\UserInterface;
+use Moss\http\request\RequestInterface;
 
 /**
  * Security interface
@@ -51,4 +51,11 @@ interface SecurityInterface {
 	 * @return UserInterface
 	 */
 	public function user();
+
+	/**
+	 * Returns url (or null if not set) on which user should be redirected if has no access
+	 *
+	 * @return null|string
+	 */
+	public function loginUrl();
 }

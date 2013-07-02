@@ -10,10 +10,18 @@ use Moss\security\AuthenticationException;
 use Moss\security\AuthorizationException;
 use Moss\http\request\RequestInterface;
 
+/**
+ * Security facade
+ *
+ * @package Moss Security
+ * @author  Michal Wachowski <wachowski.michal@gmail.com>
+ */
 class Security implements SecurityInterface {
 
 	/** @var TokenStashInterface */
 	protected $Stash;
+
+	protected $loginUrl;
 
 	/** @var UserInterface */
 	protected $User;
@@ -28,9 +36,11 @@ class Security implements SecurityInterface {
 	 * Constructor
 	 *
 	 * @param TokenStashInterface $Stash
+	 * @param string $loginUrl
 	 */
-	public function __construct(TokenStashInterface $Stash) {
+	public function __construct(TokenStashInterface $Stash, $loginUrl = null) {
 		$this->Stash = & $Stash;
+		$this->loginUrl = $loginUrl;
 	}
 
 	/**
@@ -131,5 +141,14 @@ class Security implements SecurityInterface {
 	 */
 	public function user() {
 		return $this->User;
+	}
+
+	/**
+	 * Returns url (or null if not set) on which user should be redirected if has no access
+	 *
+	 * @return null|string
+	 */
+	public function loginUrl() {
+		return $this->loginUrl;
 	}
 }

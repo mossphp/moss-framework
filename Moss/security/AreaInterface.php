@@ -1,8 +1,8 @@
 <?php
 namespace Moss\security;
 
-use \Moss\security\UserInterface;
-use \Moss\http\request\RequestInterface;
+use Moss\security\UserInterface;
+use Moss\http\request\RequestInterface;
 
 /**
  * Secure area interface
@@ -59,11 +59,4 @@ interface AreaInterface {
 	 * @return bool
 	 */
 	public function authorizeIP($ip);
-
-	/**
-	 * Returns url on which user should be redirected if has no access
-	 *
-	 * @return string
-	 */
-	public function redirect();
 }

@@ -1,8 +1,14 @@
 <?php
 namespace Moss\security;
 
-use \Moss\security\TokenInterface;
+use Moss\security\TokenInterface;
 
+/**
+ * Security token
+ *
+ * @package Moss Security
+ * @author  Michal Wachowski <wachowski.michal@gmail.com>
+ */
 class Token implements TokenInterface {
 
 	private $credentials;
