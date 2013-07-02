@@ -1,9 +1,9 @@
 <?php
 namespace Moss\container;
 
-use \Moss\container\ComponentInterface;
-use \Moss\container\ContainerInterface;
-use \Moss\container\ContainerException;
+use Moss\container\ComponentInterface;
+use Moss\container\ContainerInterface;
+use Moss\container\ContainerException;
 
 /**
  * Dependency Injection Component definition
@@ -84,6 +84,11 @@ class Component extends ComponentInterface {
 		foreach($arguments as $k => $arg) {
 			if(is_array($arg)) {
 				$result[$k] = $this->prepare($Container, $arg);
+				continue;
+			}
+
+			if($arg == '@Container') {
+				$result[$k] = & $Container;
 				continue;
 			}
 

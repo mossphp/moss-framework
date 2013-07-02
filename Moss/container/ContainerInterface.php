@@ -20,16 +20,6 @@ interface ContainerInterface {
 	public function register($id, $definition, $shared = false);
 
 	/**
-	 * Registers component intstance in container
-	 *
-	 * @param string $id
-	 * @param object $instance
-	 *
-	 * @return $this
-	 */
-	public function instance($id, $instance);
-
-	/**
 	 * Unregisters component from container
 	 *
 	 * @param string $id
