@@ -1,9 +1,9 @@
 <?php
 namespace Moss\dispatcher;
 
-use \Moss\dispatcher\DispatcherInterface;
-use \Moss\dispatcher\ListenerInterface;
-use \Moss\container\ContainerInterface;
+use Moss\dispatcher\DispatcherInterface;
+use Moss\dispatcher\ListenerInterface;
+use Moss\container\ContainerInterface;
 
 /**
  * Event dispatcher
@@ -16,7 +16,7 @@ class Dispatcher implements DispatcherInterface {
 	/** @var ContainerInterface */
 	private $Container;
 
-	/** @var array|callable[]|ListenerInterface[]  */
+	/** @var array */
 	private $events = array();
 
 	/**
@@ -57,6 +57,7 @@ class Dispatcher implements DispatcherInterface {
 	 * @param string                     $event
 	 * @param callable|ListenerInterface $listener
 	 * @param int                        $priority
+	 *
 	 * @throws DispatcherException
 	 */
 	private function registerListener($event, $listener, $priority) {
@@ -89,8 +90,8 @@ class Dispatcher implements DispatcherInterface {
 	 */
 	public function fire($event, $Subject = null, $message = null) {
 		try {
-			foreach(array($event . ':before', $event, $event . ':after') as $name) {
-				$Subject = $this->call($name, $Subject, $message);
+			foreach(array($event . ':before', $event, $event . ':after') as $eventName) {
+				$Subject = $this->call($eventName, $Subject, $message);
 			}
 		}
 		catch(\Exception $e) {
@@ -98,7 +99,7 @@ class Dispatcher implements DispatcherInterface {
 				throw $e;
 			}
 
-			$Subject = $this->call($event . ':exception', $Subject, $message);
+			$Subject = $this->call($event . ':exception', $e, $e->getMessage());
 		}
 
 		return $Subject;
@@ -124,7 +125,7 @@ class Dispatcher implements DispatcherInterface {
 				continue;
 			}
 
-			$Subject =  $listener($this->Container, $Subject, $message);
+			$Subject = $listener($this->Container, $Subject, $message);
 		}
 
 		return $Subject;

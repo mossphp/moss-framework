@@ -1,9 +1,9 @@
 <?php
 namespace Moss\dispatcher;
 
-use \Moss\dispatcher\ListenerInterface;
-use \Moss\container\ContainerInterface;
-use \Moss\dispatcher\DispatcherException;
+use Moss\dispatcher\ListenerInterface;
+use Moss\container\ContainerInterface;
+use Moss\dispatcher\DispatcherException;
 
 /**
  * Event dispatchers listener
@@ -42,7 +42,7 @@ class Listener implements ListenerInterface {
 	 *
 	 * @return mixed
 	 */
-	public function get(ContainerInterface $Container = null, $Subject = null, $message = null) {
+	public function get(ContainerInterface $Container, $Subject = null, $message = null) {
 		$instance = $Container->get($this->component);
 
 		if(empty($this->method)) {
@@ -72,12 +72,17 @@ class Listener implements ListenerInterface {
 	 * @return array
 	 * @throws DispatcherException
 	 */
-	protected function prepare(ContainerInterface $Container = null, $arguments = array(), $Subject = null, $message = null) {
+	protected function prepare(ContainerInterface $Container, $arguments = array(), $Subject = null, $message = null) {
 		$result = array();
 
 		foreach($arguments as $k => $arg) {
 			if(is_array($arg)) {
 				$result[$k] = $this->prepare($Container, $arg);
+				continue;
+			}
+
+			if($arg == '@Container') {
+				$result[$k] = $Container;
 				continue;
 			}
 

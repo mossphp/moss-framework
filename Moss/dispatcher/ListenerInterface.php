@@ -1,7 +1,7 @@
 <?php
 namespace Moss\dispatcher;
 
-use \Moss\container\ContainerInterface;
+use Moss\container\ContainerInterface;
 
 /**
  * Event dispatchers listener interface
@@ -20,5 +20,5 @@ interface ListenerInterface {
 	 *
 	 * @return mixed
 	 */
-	public function get(ContainerInterface $Container = null, $Subject = null, $message = null);
+	public function get(ContainerInterface $Container, $Subject = null, $message = null);
 }
