@@ -1,9 +1,24 @@
 {
-	"name": "symfony/framework-standard-edition",
-	"description": "The \"Symfony Standard Edition\" distribution",
+	"name": "moss/moss",
+	"version": "0.7RC",
+	"description": "The PHP micro-framework",
+	"keywords": ["microframework"],
+	"type": "framework",
+	"license": "MIT",
+	"authors": [
+		{
+			"name": "Michal Wachowski",
+			"email": "wachowski.michal@gmail.com"
+		}
+	],
 	"require": {
 		"php": ">=5.3.4",
 		"twig/twig": "1.*",
 		"twig/extensions": "1.0.x-dev"
+	},
+	"autoload": {
+		"psr-0": {
+			"Twig_Bridge_": "./vendor/twig/bridge/lib/"
+		}
 	}
 }
