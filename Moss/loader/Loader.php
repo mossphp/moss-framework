@@ -18,9 +18,9 @@ class Loader {
 	 *
 	 * @param array $namespaces array with namespace - path pairs
 	 */
-	public function registerNamespaces(array $namespaces) {
+	public function addNamespaces(array $namespaces) {
 		foreach($namespaces as $namespace => $locations) {
-			$this->registerNamespace($namespace, $locations);
+			$this->addNamespace($namespace, $locations);
 		}
 	}
 
@@ -30,7 +30,7 @@ class Loader {
 	 * @param string       $namespace
 	 * @param array|string $paths
 	 */
-	public function registerNamespace($namespace, $paths) {
+	public function addNamespace($namespace, $paths) {
 		foreach((array) $paths as $path) {
 			if(!isset($this->namespaces[(string) $namespace])) {
 				$this->namespaces[(string) $namespace] = array();
@@ -43,27 +43,6 @@ class Loader {
 
 			$this->namespaces[(string) $namespace][] = realpath($path);
 		}
-	}
-
-	/**
-	 * Registers an array of classes using the PEAR naming convention.
-	 *
-	 * @param array $classes
-	 */
-	public function registerPrefixes(array $classes) {
-		foreach($classes as $prefix => $locations) {
-			$this->registerPrefix($prefix, $locations);
-		}
-	}
-
-	/**
-	 * Registers a set of classes using the PEAR naming convention.
-	 *
-	 * @param string       $prefix
-	 * @param array|string $paths
-	 */
-	public function registerPrefix($prefix, $paths) {
-		$this->prefixes[$prefix] = (array) $paths;
 	}
 
 	/**
@@ -105,9 +84,8 @@ class Loader {
 	 * @return bool|string
 	 */
 	protected function findFile($className) {
-		// namespaced class name
-		if(false !== $lastNsPos = strripos($className, '\\')) {
-			foreach($this->namespaces as $namespace => $paths) {
+		foreach($this->namespaces as $namespace => $paths) {
+			if(false !== $lastNsPos = strripos($className, '\\')) {
 				if($namespace && $namespace . '\\' !== substr($className, 0, strlen($namespace . '\\'))) {
 					continue;
 				}
@@ -120,21 +98,17 @@ class Loader {
 					if(is_file($file)) {
 						return $file;
 					}
-
 				}
-			}
 
-			return false;
-		}
-
-		// PEAR-like class name
-		foreach($this->prefixes as $prefix => $dirs) {
-			if(0 !== strpos($className, $prefix)) {
 				continue;
 			}
 
-			foreach($dirs as $dir) {
-				$file = $dir . DIRECTORY_SEPARATOR . str_replace('_', DIRECTORY_SEPARATOR, $className) . '.php';
+			if($namespace !== '' && 0 !== strpos($className, $namespace)) {
+				continue;
+			}
+
+			foreach($paths as $path) {
+				$file = $path . DIRECTORY_SEPARATOR . str_replace('_', DIRECTORY_SEPARATOR, $className) . '.php';
 				if(is_file($file)) {
 					return $file;
 				}
