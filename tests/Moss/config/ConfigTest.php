@@ -12,19 +12,26 @@ class ConfigTest extends \PHPUnit_Framework_TestCase {
 
 	protected function setUp() {
 		$cArr = array(
-			'error' => array(
-				'level' => E_ALL | E_NOTICE,
-				'detail' => true
-			),
-			'session' => array(
-				'host' => true,
-				'ip' => true,
-				'agent' => true,
-				'salt' => null
+			'framework' => array(
+				'error' => array(
+					'level' => E_ALL | E_NOTICE,
+					'detail' => true
+				),
+				'session' => array(
+					'host' => true,
+					'ip' => true,
+					'agent' => true,
+					'salt' => null
+				),
+				'cookie' => array(
+					'domain' => null,
+					'path' => '/',
+					'http' => true
+				)
 			)
 		);
 
-		$this->object = new Config($cArr);
+		$Config = new Config($cArr);
 	}
 
 	protected function tearDown() {
@@ -35,18 +42,23 @@ class ConfigTest extends \PHPUnit_Framework_TestCase {
 			'level' => E_ALL | E_NOTICE,
 			'detail' => true
 		);
-		$this->assertEquals($result, $this->object->get('error'));
+
+		$Config = new Config(array('framework' => array('error' => $result)));
+		$this->assertEquals($result, $Config->get('framework.error'));
 	}
 
 	public function testGetDeep() {
-		$this->assertTrue($this->object->get('error.detail'));
+		$Config = new Config(array('framework' => array('error' => array('detail' => true))));
+		$this->assertTrue($Config->get('framework.error.detail'));
 	}
 
 	public function testGetBlank() {
-		$this->assertNull($this->object->get('foo'));
+		$Config = new Config();
+		$this->assertNull($Config->get('foo'));
 	}
 
 	public function testGetDeepBlank() {
-		$this->assertNull($this->object->get('directories.foo'));
+		$Config = new Config();
+		$this->assertNull($Config->get('directories.foo'));
 	}
 }

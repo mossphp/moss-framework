@@ -67,23 +67,32 @@ class RequestTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	public function testSession() {
-		$Request = new Request($this->getMock('\Moss\http\session\SessionInterface'));
-		$this->assertInstanceOf('\Moss\http\session\SessionInterface', $Request->Session());
+		$_SESSION['foo'] = 'foo';
+
+		$Request = new Request();
+		$this->assertEquals('foo', $Request->session('foo'));
 	}
 
-	public function testSessionDirect() {
-		$Request = new Request($this->getMock('\Moss\http\session\SessionInterface'));
-		$this->assertInstanceOf('\Moss\http\session\SessionInterface', $Request->Session);
+	public function testSessionDeep() {
+		$_SESSION['foo'] = array('bar' => 'bar');
+
+		$Request = new Request();
+		$this->assertEquals('bar', $Request->session('foo.bar'));
 	}
+
 
 	public function testCookie() {
-		$Request = new Request(null, $this->getMock('\Moss\http\cookie\CookieInterface'));
-		$this->assertInstanceOf('\Moss\http\cookie\CookieInterface', $Request->Cookie());
+		$_COOKIE['foo'] = 'foo';
+
+		$Request = new Request();
+		$this->assertEquals('foo', $Request->cookie('foo'));
 	}
 
-	public function testCookieDirect() {
-		$Request = new Request(null, $this->getMock('\Moss\http\cookie\CookieInterface'));
-		$this->assertInstanceOf('\Moss\http\cookie\CookieInterface', $Request->Cookie);
+	public function testCookieDeep() {
+		$_COOKIE['foo'] = array('bar' => 'bar');
+
+		$Request = new Request();
+		$this->assertEquals('bar', $Request->cookie('foo.bar'));
 	}
 
 	public function getServerBlank() {
