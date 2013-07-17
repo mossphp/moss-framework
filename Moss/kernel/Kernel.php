@@ -130,43 +130,43 @@ class Kernel {
 			return $controller($this->Container);
 		}
 
-		if(is_string($controller)) {
-			if(substr_count($controller, ':') < 2) {
-				throw new KernelException(sprintf('Invalid controller identifier "%s". Controller identifier should have at least two ":".', $controller));
-			}
-
-			preg_match_all('/^(?P<bundle>.*):(?P<controller>[^:]+):(?P<action>[0-9a-z_]+)$/i', $controller, $matches, PREG_SET_ORDER);
-
-			$r = array();
-			foreach(array('bundle', 'controller', 'action') as $k) {
-				if(empty($matches[0][$k])) {
-					throw new KernelException(sprintf('Invalid or missing "%s" node in controller identifier "%s"', $k, $controller));
-				}
-
-				$r['{' . $k .'}'] = str_replace(array('.', ':'), '\\', $matches[0][$k]);
-			}
-
-			$controller = strtr($this->pattern, $r);
-
-			if(!class_exists($controller)) {
-				throw new KernelException(sprintf('Unable to load controller class "%s"', $controller));
-			}
-
-			$Controller = new $controller($this->Container);
-
-			if(empty($matches[0]['action'])) {
-				throw new KernelException(sprintf('Invalid or missing action name in controller identifier "%s"', $controller));
-			}
-
-			$action = $matches[0]['action'];
-
-			if(!method_exists($Controller, $action) || !is_callable(array($Controller, $action))) {
-				throw new KernelException(sprintf('Unable to call action "%s" on controller "%s"', $controller, $action));
-			}
-
-			return $Controller->$action();
+		if(!is_string($controller)) {
+			throw new KernelException('Unable to resolve controller "%s"');
 		}
 
-		throw new KernelException('Unable to resolve controller "%s"');
+		if(substr_count($controller, ':') < 2) {
+			throw new KernelException(sprintf('Invalid controller identifier "%s". Controller identifier should have at least two ":".', $controller));
+		}
+
+		preg_match_all('/^(?P<bundle>.*):(?P<controller>[^:]+):(?P<action>[0-9a-z_]+)$/i', $controller, $matches, PREG_SET_ORDER);
+
+		$r = array();
+		foreach(array('bundle', 'controller', 'action') as $k) {
+			if(empty($matches[0][$k])) {
+				throw new KernelException(sprintf('Invalid or missing "%s" node in controller identifier "%s"', $k, $controller));
+			}
+
+			$r['{' . $k . '}'] = str_replace(array('.', ':'), '\\', $matches[0][$k]);
+		}
+
+		$controller = strtr($this->pattern, $r);
+
+		if(!class_exists($controller)) {
+			throw new KernelException(sprintf('Unable to load controller class "%s"', $controller));
+		}
+
+		$Controller = new $controller($this->Container);
+
+		if(empty($matches[0]['action'])) {
+			throw new KernelException(sprintf('Invalid or missing action name in controller identifier "%s"', $controller));
+		}
+
+		$action = $matches[0]['action'];
+
+		if(!method_exists($Controller, $action) || !is_callable(array($Controller, $action))) {
+			throw new KernelException(sprintf('Unable to call action "%s" on controller "%s"', $controller, $action));
+		}
+
+		return $Controller->$action();
 	}
 }
