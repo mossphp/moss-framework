@@ -2,8 +2,8 @@
 namespace Moss\http\request;
 
 use Moss\http\request\RequestInterface;
-use	Moss\http\cookie\CookieInterface;
-use	Moss\http\session\SessionInterface;
+use    Moss\http\cookie\CookieInterface;
+use    Moss\http\session\SessionInterface;
 
 /**
  * Request representation
@@ -28,8 +28,11 @@ class Request implements RequestInterface {
 	private $post;
 	private $file;
 
-	public $Session;
-	public $Cookie;
+	/** @var \Moss\http\session\SessionInterface|\ArrayAccess|array */
+	private $session;
+
+	/** @var \Moss\http\cookie\CookieInterface|\ArrayAccess|array */
+	private $cookie;
 
 	/**
 	 * Constructor
@@ -40,10 +43,18 @@ class Request implements RequestInterface {
 	public function __construct(SessionInterface $Session = null, CookieInterface $Cookie = null) {
 		$this->removeSlashes();
 
-		$this->Session = & $Session;
-		$this->Cookie = & $Cookie;
+		if($Session === null) {
+			$Session = & $_SESSION;
+		}
 
+		if($Cookie === null) {
+			$Cookie = & $_COOKIE;
+		}
+
+		$this->session = & $Session;
+		$this->cookie = & $Cookie;
 		$this->server = & $_SERVER;
+
 		$this->header = $this->resolveHeaders();
 		$this->language = $this->resolveLanguages();
 
@@ -351,19 +362,37 @@ class Request implements RequestInterface {
 	/**
 	 * Returns session instance
 	 *
+	 * @param string $key
+	 * @param mixed  $value
+	 *
 	 * @return SessionInterface
 	 */
-	public function &Session() {
-		return $this->Session;
+	public function session($key, $value = null) {
+		$keys = explode('.', $key);
+
+		if($value !== null) {
+			return $this->setIntoArray($this->session, $keys, $value);
+		}
+
+		return $this->getFromArray($this->session, $keys);
 	}
 
 	/**
 	 * Returns cookie instance
 	 *
+	 * @param string $key
+	 * @param mixed  $value
+	 *
 	 * @return CookieInterface
 	 */
-	public function &Cookie() {
-		return $this->Cookie;
+	public function cookie($key, $value = null) {
+		$keys = explode('.', $key);
+
+		if($value !== null) {
+			return $this->setIntoArray($this->cookie, $keys, $value);
+		}
+
+		return $this->getFromArray($this->cookie, $keys);
 	}
 
 	/**
@@ -625,8 +654,8 @@ class Request implements RequestInterface {
 			return $this->locale;
 		}
 
-		if(!empty($this->Session['locale'])) {
-			return $this->Session['locale'];
+		if(!empty($this->session['locale'])) {
+			return $this->session['locale'];
 		}
 
 		if(!empty($this->language[0])) {

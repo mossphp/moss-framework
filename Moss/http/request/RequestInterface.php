@@ -15,16 +15,22 @@ interface RequestInterface {
 	/**
 	 * Returns session instance
 	 *
+	 * @param string $key
+	 * @param mixed  $value
+	 *
 	 * @return SessionInterface
 	 */
-	public function Session();
+	public function session($key, $value = null);
 
 	/**
 	 * Returns cookie instance
 	 *
+	 * @param string $key
+	 * @param mixed  $value
+	 *
 	 * @return CookieInterface
 	 */
-	public function Cookie();
+	public function cookie($key, $value = null);
 
 	/**
 	 * Returns server param value for given key or null if key does not exists
