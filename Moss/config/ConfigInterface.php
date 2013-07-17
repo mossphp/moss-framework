@@ -10,6 +10,20 @@ namespace Moss\config;
 interface ConfigInterface {
 
 	/**
+	 * Reads configuration properties from passed array
+	 *
+	 * @param array $arr
+	 */
+	public function read($arr);
+
+	/**
+	 * Returns current stored configuration as array
+	 *
+	 * @return array
+	 */
+	public function save();
+
+	/**
 	 * Returns core variable value
 	 * If variable is undefined - returns false
 	 *

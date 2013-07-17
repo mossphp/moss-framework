@@ -9,71 +9,55 @@ require __DIR__ . '/../Moss/loader/Loader.php';
 
 // Bootstrap & config
 $bootstrap = (array) require __DIR__ . '/bootstrap.php';
-
 $Config = new \Moss\config\Config(isset($bootstrap) ? (array) $bootstrap : array());
+unset($bootstrap);
 
 // Error handling
-$ErrorHandler = new \Moss\kernel\ErrorHandler($Config->get('error.level'));
+$ErrorHandler = new \Moss\kernel\ErrorHandler($Config->get('framework.error.level'));
 $ErrorHandler->register();
 
-$ExceptionHandler = new \Moss\kernel\ExceptionHandler($Config->get('error.detail'));
+$ExceptionHandler = new \Moss\kernel\ExceptionHandler($Config->get('framework.error.detail'));
 $ExceptionHandler->register();
 
 // Loaders
 $Loader = new \Moss\loader\Loader();
-$Loader->registerNamespace('Moss', array('../'));
-$Loader->registerNamespace(null, array('../src/'));
-$Loader->register();
-if(!empty($bootstrap['loaders']['namespaces'])) {
-	foreach((array) $bootstrap['loaders']['namespaces'] as $namespace => $path) {
-		$Loader->registerNamespace($namespace, $path);
-	}
+$Loader->addNamespace('Moss', array('../'));
+$Loader->addNamespace(null, array('../src/'));
+$Loader->addNamespaces($Config->get('namespaces'));
+
+if(is_file(__DIR__ . '/../vendor/composer/autoload_namespaces.php')) {
+	$Loader->addNamespaces((array) require __DIR__ . '/../vendor/composer/autoload_namespaces.php');
 }
 
-if(!empty($bootstrap['loaders']['prefixes'])) {
-	foreach((array) $bootstrap['loaders']['prefixes'] as $prefix => $path) {
-		$Loader->registerPrefix($prefix, $path);
-	}
-}
 $Loader->register();
-unset($namespace, $path, $prefix);
 
 // Container
 $Container = new \Moss\container\Container();
-if(!empty($bootstrap['container'])) {
-	$defaults = array('arguments' => array(), 'methods' => array(), 'shared' => false);
-	foreach((array) $bootstrap['container'] as $name => $component) {
-		$component = array_merge($defaults, $component);
+foreach((array) $Config->get('container') as $name => $component) {
+	if(isset($component['class'])) {
 		$Container->register($name, new \Moss\container\Component($component['class'], $component['arguments'], $component['methods']), $component['shared']);
+		continue;
 	}
-	unset($name, $component);
+
+	$Container->register($name, $component);
 }
+unset($name, $component);
 
 // Dispatcher
 $Dispatcher = new \Moss\dispatcher\Dispatcher($Container);
-if(!empty($bootstrap['dispatcher'])) {
-	$defaults = array('method' => null, 'arguments' => array());
-	foreach((array) $bootstrap['dispatcher'] as $event => $lArr) {
-		foreach($lArr as $listener) {
-			$listener = array_merge($defaults, $listener);
-			$Dispatcher->register($event, new \Moss\dispatcher\Listener($listener['component'], $listener['method'], $listener['arguments']));
-		}
+foreach((array) $Config->get('dispatcher') as $event => $lArr) {
+	foreach($lArr as $listener) {
+		$Dispatcher->register($event, new \Moss\dispatcher\Listener($listener['component'], $listener['method'], $listener['arguments']));
 	}
-	unset($name, $event, $lArr, $listener);
 }
+unset($name, $event, $lArr, $listener);
 
 // Router
 $Router = new \Moss\router\Router();
-if(!empty($bootstrap['router'])) {
-	$defaults = array('pattern' => null, 'controller' => null, 'requirements' => array());
-	foreach((array) $bootstrap['router'] as $name => $route) {
-		$route = array_merge($defaults, $route);
-		$Router->register($name, new \Moss\router\Route($route['pattern'], $route['controller'], $route['requirements']));
-	}
-	unset($name, $route);
+foreach((array) $Config->get('router') as $name => $route) {
+	$Router->register($name, new \Moss\router\Route($route['pattern'], $route['controller'], $route['requirements']));
 }
-
-unset($bootstrap);
+unset($name, $route);
 
 $Session = new \Moss\http\session\Session($Config->get('session.agent'), $Config->get('session.ip'), $Config->get('session.host'), $Config->get('session.salt'));
 $Cookie = new \Moss\http\cookie\Cookie($Config->get('cookie.domain'), $Config->get('cookie.path'), $Config->get('cookie.http'));

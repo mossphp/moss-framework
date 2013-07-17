@@ -2,6 +2,8 @@
 namespace Moss\config;
 
 use Moss\config\ConfigInterface;
+use Moss\config\ConfigException;
+
 
 /**
  * Configuration representation
@@ -9,33 +11,149 @@ use Moss\config\ConfigInterface;
  * @package Moss Config
  * @author  Michal Wachowski <wachowski.michal@gmail.com>
  */
-class Config implements ConfigInterface, \ArrayAccess {
+class Config implements ConfigInterface {
 
-	protected $error = array('level' => -1, 'detail' => true);
-	protected $session = array('host' => true, 'ip' => true, 'agent' => true, 'salt' => null);
-	protected $cookie = array();
+	protected $config = array(
+		'framework' => array(
+			'error' => array(
+				'level' => -1,
+				'detail' => true
+			),
+			'session' => array(
+				'host' => true,
+				'ip' => true,
+				'agent' => true,
+				'salt' => null
+			),
+			'cookie' => array(
+				'domain' => null,
+				'path' => '/',
+				'http' => true
+			)
+		),
+		'namespaces' => array(),
+		'container' => array(),
+		'dispatcher' => array(),
+		'router' => array()
+	);
 
 	/**
 	 * Creates Config instance
 	 *
-	 * @param array $cArr
+	 * @param array $arr
+	 *
+	 * @throws ConfigException
 	 */
-	public function __construct($cArr = array()) {
-		$this->error['level'] = $this->getArrValue($cArr, 'error.level', -1);
-		$this->error['detail'] = $this->getArrValue($cArr, 'error.detail', true);
+	public function __construct($arr = array()) {
+		$this->read($arr);
+	}
 
-		$this->session['host'] = $this->getArrValue($cArr, 'session.host', true);
-		$this->session['ip'] = $this->getArrValue($cArr, 'error.ip', true);
-		$this->session['agent'] = $this->getArrValue($cArr, 'error.agent', true);
-		$this->session['salt'] = $this->getArrValue($cArr, 'error.salt', null);
+	/**
+	 * Reads configuration properties from passed array
+	 *
+	 * @param array $arr
+	 */
+	public function read($arr) {
+		$this->fill($this->config, $arr);
+
+		$this->applyContainerDefaults();
+		$this->applyDispatcherDefaults();
+		$this->applyRouterDefaults();
+	}
+
+	/**
+	 * Returns current stored configuration as array
+	 *
+	 * @return array
+	 */
+	public function save() {
+		return $this->config;
+	}
+
+	/**
+	 * Applies default values or missing properties for containers component definition
+	 *
+	 * @param array $defaults
+	 */
+	private function applyContainerDefaults($defaults = array('arguments' => array(), 'methods' => array(), 'shared' => false)) {
+		foreach($this->config['container'] as &$node) {
+			if(!isset($node['class'])) {
+				continue;
+			}
+
+			$node = array_merge($defaults, $node);
+			unset($node);
+		}
+	}
+
+	/**
+	 * Applies default values or missing properties for event listener definition
+	 *
+	 * @param array $defaults
+	 *
+	 * @throws ConfigException
+	 */
+	private function applyDispatcherDefaults($defaults = array('method' => null, 'arguments' => array())) {
+		foreach($this->config['dispatcher'] as &$evt) {
+			foreach($evt as &$node) {
+				if(!isset($node['component'])) {
+					throw new ConfigException('Missing required "component" property in event listener definition');
+				}
+
+				$node = array_merge($defaults, $node);
+				unset($node);
+			}
+			unset($evt);
+		}
+	}
+
+	/**
+	 * Applies default values or missing properties for route definition
+	 *
+	 * @param array $defaults
+	 *
+	 * @throws ConfigException
+	 */
+	private function applyRouterDefaults($defaults = array('requirements' => array())) {
+		foreach($this->config['router'] as &$node) {
+			if(!isset($node['pattern'])) {
+				throw new ConfigException('Missing required "pattern" property in route definition');
+			}
+
+			if(!isset($node['controller'])) {
+				throw new ConfigException('Missing required "controller" property in route definition');
+			}
+
+			$node = array_merge($defaults, $node);
+			unset($node);
+		}
+	}
+
+	/**
+	 * Fills recursively iArr nodes with values from corresponding cArr
+	 *
+	 * @param array $iArr
+	 * @param array $cArr
+	 * @param array $keys
+	 */
+	protected function fill(&$iArr, &$cArr, $keys = array()) {
+		foreach($iArr as $key => $node) {
+			if(empty($node) || is_scalar($node)) {
+				$iArr[$key] = $this->getArrValue($cArr, implode('.', array_merge($keys, array($key))), $node);
+				continue;
+			}
+
+			$this->fill($iArr[$key], $cArr, array_merge($keys, array($key)));
+		}
+
 	}
 
 	/**
 	 * Returns offset value from array or default value if offset does not exists
 	 *
-	 * @param array|\ArrayAccess  $arr
-	 * @param string              $offset
-	 * @param mixed               $default
+	 * @param array|\ArrayAccess $arr
+	 * @param string             $offset
+	 * @param mixed              $default
 	 *
 	 * @return mixed
 	 */
@@ -61,51 +179,6 @@ class Config implements ConfigInterface, \ArrayAccess {
 	 * @return mixed
 	 */
 	public function get($var) {
-		return $this->getArrValue($this, $var, null);
-	}
-
-	/**
-	 * Offset to retrieve
-	 *
-	 * @param string $offset
-	 *
-	 * @return mixed
-	 */
-	public function &offsetGet($offset) {
-		return $this->$offset;
-	}
-
-	/**
-	 * Whether a offset exists
-	 *
-	 * @param string $offset
-	 *
-	 * @return bool
-	 */
-	public function offsetExists($offset) {
-		return isset($this->$offset);
-	}
-
-	/**
-	 * Sets value for offset
-	 *
-	 * @param int|string $offset offset to set
-	 * @param mixed      $value  offsets value
-	 *
-	 * @throws \BadMethodCallException
-	 */
-	public function offsetSet($offset, $value) {
-		throw new \BadMethodCallException('Forbidden! Read only');
-	}
-
-	/**
-	 * Unsets offset
-	 *
-	 * @param int|string $offset offset to unset
-	 *
-	 * @throws \BadMethodCallException
-	 */
-	public function offsetUnset($offset) {
-		throw new \BadMethodCallException('Forbidden! Read only');
+		return $this->getArrValue($this->config, $var, null);
 	}
 }

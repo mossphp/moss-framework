@@ -1,6 +1,6 @@
 <?php
 return array(
-	'config' => array(
+	'framework' => array(
 		'error' => array(
 			'level' => E_ALL | E_NOTICE,
 			'detail' => true
@@ -17,15 +17,7 @@ return array(
 			'http' => true,
 		)
 	),
-	'loaders' => array(
-		'namespaces' => array(),
-		'prefixes' => array(
-			'Twig' => array(
-				'../vendor/twig/twig/lib/',
-				'../vendor/twig/extensions/lib/',
-				'../vendor/twig/bridge/lib/'
-			)
-		)
+	'namespaces' => array(
 	),
 	'container' => array(
 		'Logger' => array(
