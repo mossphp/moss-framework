@@ -14,12 +14,12 @@ abstract class ResponseHeaderBag {
 	/**
 	 * Returns true if response has defined header of given type
 	 *
-	 * @param string $headerType
+	 * @param string $header
 	 *
 	 * @return bool
 	 */
-	public function hasHeader($headerType) {
-		if(!isset($this->headers[$headerType])) {
+	public function hasHeader($header) {
+		if(!isset($this->headers[$header])) {
 			return false;
 		}
 
@@ -29,32 +29,28 @@ abstract class ResponseHeaderBag {
 	/**
 	 * Retrieves header by its type from response
 	 *
-	 * @param string $headerType
+	 * @param string $header
 	 *
 	 * @return null|string
 	 */
-	public function getHeader($headerType) {
-		if(!isset($this->headers[$headerType])) {
+	public function getHeader($header) {
+		if(!isset($this->headers[$header])) {
 			return null;
 		}
 
-		return $this->headers[$headerType];
+		return $this->headers[$header];
 	}
 
 	/**
 	 * Adds header to response
 	 *
 	 * @param string $header
+	 * @param string $value
 	 *
 	 * @return Response|ResponseInterface
 	 */
-	public function addHeader($header) {
-		if(array_search($header, $this->headers) !== false) {
-			return $this;
-		}
-
-		list($type, $value) = explode(':', $header, 2);
-		$this->headers[$type] = trim($value);
+	public function addHeader($header, $value) {
+		$this->headers[$header] = $value;
 
 		return $this;
 	}
@@ -89,20 +85,10 @@ abstract class ResponseHeaderBag {
 	 * @return Response|ResponseInterface
 	 */
 	public function removeHeader($header) {
-		if(($key = array_search($header, $this->headers)) === false) {
-			unset($this->headers[$key]);
-
-			return $this;
-		}
-
-		list($type, $trash) = explode(':', $header, 2);
-		if(isset($this->headers[$type])) {
-			unset($this->headers[$type]);
-
-			return $this;
+		if(isset($this->headers[$header])) {
+			unset($this->headers[$header]);
 		}
 
 		return $this;
 	}
-
 }

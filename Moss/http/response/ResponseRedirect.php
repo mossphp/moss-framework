@@ -31,27 +31,33 @@ class ResponseRedirect extends Response {
 	}
 
 	/**
-	 * Sets redirection delay
-	 *
-	 * @param int $delay redirection delay in seconds
-	 *
-	 * @return ResponseRedirect
-	 */
-	public function delay($delay) {
-		$this->delay = (int) $delay;
-		return $this;
-	}
-
-	/**
 	 * Sets redirection address
 	 *
 	 * @param string $address redirection address
 	 *
 	 * @return ResponseRedirect
 	 */
-	public function address($address) {
-		$this->address = str_replace('&amp;', '&', $address);
-		return $this;
+	public function address($address = null) {
+		if($address !== null) {
+			$this->address = str_replace('&amp;', '&', $address);
+		}
+
+		return $this->address;
+	}
+
+	/**
+	 * Sets redirection delay
+	 *
+	 * @param int $delay redirection delay in seconds
+	 *
+	 * @return ResponseRedirect
+	 */
+	public function delay($delay = null) {
+		if($delay !== null) {
+			$this->delay = (int) $delay;
+		}
+
+		return $this->delay;
 	}
 
 	/**
@@ -66,10 +72,10 @@ class ResponseRedirect extends Response {
 		}
 
 		if($this->delay) {
-			$this->addHeader('Refresh: ' . $this->delay . '; URL=' . $this->address);
+			$this->addHeader('Refresh', $this->delay . '; URL=' . $this->address);
 		}
 		else {
-			$this->addHeader('Location: ' . $this->address);
+			$this->addHeader('Location', $this->address);
 		}
 
 

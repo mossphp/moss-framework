@@ -13,7 +13,6 @@ use Moss\http\response\ResponseException;
  */
 class Response extends ResponseHeaderBag implements ResponseInterface {
 
-	protected $headers = array();
 	protected $content = 'OK';
 	protected $status = 200;
 	protected $protocol = 'HTTP/1.1';
@@ -72,7 +71,7 @@ class Response extends ResponseHeaderBag implements ResponseInterface {
 	public function __construct($content = 'OK', $status = 200, $contentType = 'text/html; charset=UTF-8') {
 		$this->content($content);
 		$this->status($status);
-		$this->addHeader('Content-Type: ' . $contentType);
+		$this->addHeader('Content-Type', $contentType);
 	}
 
 	/**
@@ -136,11 +135,11 @@ class Response extends ResponseHeaderBag implements ResponseInterface {
 	 * @return Response|ResponseInterface
 	 */
 	public function makePublic() {
-		$this->removeHeader('Cache-Control: private');
-		$this->addHeader('Cache-Control: public');
+		$this->removeHeader('Cache-Control', 'private');
+		$this->addHeader('Cache-Control', 'public');
 
-		$this->removeHeader('Pragma: private');
-		$this->addHeader('Pragma: public');
+		$this->removeHeader('Pragma', 'private');
+		$this->addHeader('Pragma', 'public');
 
 		return $this;
 	}
@@ -151,11 +150,11 @@ class Response extends ResponseHeaderBag implements ResponseInterface {
 	 * @return Response|ResponseInterface
 	 */
 	public function makePrivate() {
-		$this->removeHeader('Cache-Control: public');
-		$this->addHeader('Cache-Control: private');
+		$this->removeHeader('Cache-Control', 'public');
+		$this->addHeader('Cache-Control', 'private');
 
-		$this->removeHeader('Pragma: public');
-		$this->addHeader('Pragma: private');
+		$this->removeHeader('Pragma', 'public');
+		$this->addHeader('Pragma', 'private');
 
 		return $this;
 	}
@@ -172,7 +171,7 @@ class Response extends ResponseHeaderBag implements ResponseInterface {
 
 		header($this->protocol . ' ' . $this->status . ' ' . $this->statusTexts[$this->status], true, $this->status);
 
-		foreach($this->headers as $header => $value) {
+		foreach($this->getHeaders() as $header => $value) {
 			header($header . ': ' . $value);
 		}
 

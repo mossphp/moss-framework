@@ -31,10 +31,11 @@ interface ResponseInterface {
 	 * Adds header to response
 	 *
 	 * @param string $header
+	 * @param string $value
 	 *
 	 * @return ResponseInterface
 	 */
-	public function addHeader($header);
+	public function addHeader($header, $value);
 
 	/**
 	 * Retrieves all headers as array
