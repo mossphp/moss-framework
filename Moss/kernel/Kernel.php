@@ -37,7 +37,7 @@ class Kernel {
 	 * @param DispatcherInterface $Dispatcher
 	 * @param string              $pattern
 	 */
-	public function __construct(RouterInterface $Router, ContainerInterface $Container, DispatcherInterface $Dispatcher, $pattern = '\{bundle}\controller\{controller}Controller') {
+	public function __construct(RouterInterface $Router, ContainerInterface $Container, DispatcherInterface $Dispatcher, $pattern = '\{bundle}\controller\{controller}Controller::{action}Action') {
 		$this->Router = & $Router;
 		$this->Container = & $Container;
 		$this->Dispatcher = & $Dispatcher;
@@ -68,7 +68,7 @@ class Kernel {
 				return $this->fireEvent('kernel.send', $Response);
 			}
 
-			$Response = $this->callController($action);
+			$Response = $this->callController($action, $Request);
 
 			if(!$Response || !$Response instanceof ResponseInterface) {
 				throw new KernelException(sprintf('There was no response returned from the "%s (%s)" or is not an instance of ResponseInterface', $action, $Request->url()));
@@ -120,16 +120,55 @@ class Kernel {
 	/**
 	 * Calls controller from callable or class
 	 *
-	 * @param string|callable $controller
+	 * @param string|callable       $controller
+	 * @param null|RequestInterface $Request
 	 *
 	 * @return mixed
 	 * @throws KernelException
 	 */
-	protected function callController($controller) {
+	protected function callController($controller, RequestInterface $Request = null) {
 		if(is_callable($controller)) {
-			return $controller($this->Container);
+			return $controller($this->Container, $this->Router, $Request);
 		}
 
+		list($controller, $action) = $this->resolve($controller);
+
+		if(!class_exists($controller)) {
+			throw new KernelException(sprintf('Unable to load controller class "%s"', $controller));
+		}
+
+		if(empty($action)) {
+			throw new KernelException(sprintf('Invalid or missing action name in controller identifier "%s"', $controller));
+		}
+
+		$Controller = new $controller($this->Container, $this->Router, $Request);
+
+		if(method_exists($Controller, 'before') && is_callable(array($Controller, 'before')) && ($Response = $Controller->before())) {
+			return $Response;
+		}
+
+		if(!method_exists($Controller, $action) || !is_callable(array($Controller, $action))) {
+			throw new KernelException(sprintf('Unable to call action "%s" on controller "%s"', $action, $controller));
+		}
+
+		$Response = $Controller->$action();
+
+		if(!method_exists($Controller, 'after') && is_callable(array($Controller, 'after'))) {
+			$Response = $Controller->after($Response);
+		}
+
+		return $Response;
+	}
+
+	/**
+	 * Resolves controller and action
+	 *
+	 * @param string $controller
+	 *
+	 * @return array
+	 * @throws KernelException
+	 */
+	private function resolve($controller) {
 		if(!is_string($controller)) {
 			throw new KernelException('Unable to resolve controller "%s"');
 		}
@@ -149,24 +188,6 @@ class Kernel {
 			$r['{' . $k . '}'] = str_replace(array('.', ':'), '\\', $matches[0][$k]);
 		}
 
-		$controller = strtr($this->pattern, $r);
-
-		if(!class_exists($controller)) {
-			throw new KernelException(sprintf('Unable to load controller class "%s"', $controller));
-		}
-
-		$Controller = new $controller($this->Container);
-
-		if(empty($matches[0]['action'])) {
-			throw new KernelException(sprintf('Invalid or missing action name in controller identifier "%s"', $controller));
-		}
-
-		$action = $matches[0]['action'];
-
-		if(!method_exists($Controller, $action) || !is_callable(array($Controller, $action))) {
-			throw new KernelException(sprintf('Unable to call action "%s" on controller "%s"', $controller, $action));
-		}
-
-		return $Controller->$action();
+		return explode('::', strtr($this->pattern, $r));
 	}
 }
