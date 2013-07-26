@@ -80,7 +80,6 @@ class RequestTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals('bar', $Request->session('foo.bar'));
 	}
 
-
 	public function testCookie() {
 		$_COOKIE['foo'] = 'foo';
 
@@ -122,10 +121,6 @@ class RequestTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals('json', $Request->query('format'));
 	}
 
-	public function testGetQueryFromCLI() {
-		$this->markTestSkipped();
-	}
-
 	public function testSetQuery() {
 		$Request = new Request();
 
@@ -161,14 +156,6 @@ class RequestTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals('json', $Request->post('format', 'json'));
 		$this->assertEquals('yada', $Request->post('foo.bar.zope', 'yada'));
 		$this->assertEquals('deep', $Request->post('f.o.o.b.a.r', 'deep'));
-	}
-
-	public function testGetPostFromPUT() {
-		$this->markTestSkipped();
-	}
-
-	public function testGetPostFromDELETE() {
-		$this->markTestSkipped();
 	}
 
 	public function testGetFile() {

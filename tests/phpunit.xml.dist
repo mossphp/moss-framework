@@ -22,7 +22,7 @@
 			<directory>./Moss/dispatcher/</directory>
 			<directory>./Moss/http/request/</directory>
 			<directory>./Moss/http/response/</directory>
-			<directory>./Moss/http/cookie/</directory>
+			<!--<directory>./Moss/http/cookie/</directory>-->
 			<!--<directory>./Moss/http/session/</directory>-->
 			<directory>./Moss/router/</directory>
 			<directory>./Moss/security/</directory>

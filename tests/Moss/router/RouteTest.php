@@ -94,7 +94,7 @@ class RouteTest extends \PHPUnit_Framework_TestCase {
 
 	public function testMatchMethod() {
 		$Route = new Route('/{foo}/({bar})/', 'foo', array('foo' => '\w+', 'bar' => '\d*'));
-		$Route->methods(array('GET', 'POST'));
+		$Route->methods(array('get', 'POST'));
 		$this->assertTrue($Route->match($this->mockRequest('/foo/', null, 'GET')));
 		$this->assertFalse($Route->match($this->mockRequest('/foo/', null, 'PUT')));
 	}

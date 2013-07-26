@@ -5,37 +5,34 @@ namespace Moss\http\session;
  * @package Moss Test
  */
 class SessionTest extends \PHPUnit_Framework_TestCase {
-	/**
-	 * @var Session
-	 */
-	protected $object;
-
-	protected function setUp() {
-		$this->object = new Session();
-		$this->object->offsetSet('foo', 'bar');
-	}
 
 	/**
 	 * @runInSeparateProcess
 	 */
 	public function testReset() {
-		$this->object->reset();
-		$this->assertEquals(0, $this->object->count());
+		$Session = new Session();
+		$Session->offsetSet('foo', 'bar');
+		$Session->reset();
+		$this->assertEquals(0, $Session->count());
 	}
 
 	/**
 	 * @runInSeparateProcess
 	 */
 	public function testOffsetUnset() {
-		$this->object->offsetUnset('foo');
-		$this->assertEquals(0, $this->object->count());
+		$Session = new Session();
+		$Session->offsetSet('foo', 'bar');
+		$Session->offsetUnset('foo');
+		$this->assertEquals(0, $Session->count());
 	}
 
 	/**
 	 * @runInSeparateProcess
 	 */
 	public function testOffsetSet() {
-		$this->assertEquals('bar', $this->object['foo']);
+		$Session = new Session();
+		$Session->offsetSet('foo', 'bar');
+		$this->assertEquals('bar', $Session['foo']);
 		$this->assertEquals('bar', $_SESSION['foo']);
 	}
 
@@ -43,7 +40,9 @@ class SessionTest extends \PHPUnit_Framework_TestCase {
 	 * @runInSeparateProcess
 	 */
 	public function testOffsetGet() {
-		$this->assertEquals('bar', $this->object['foo']);
+		$Session = new Session();
+		$Session->offsetSet('foo', 'bar');
+		$this->assertEquals('bar', $Session['foo']);
 		$this->assertEquals('bar', $_SESSION['foo']);
 	}
 
@@ -51,7 +50,9 @@ class SessionTest extends \PHPUnit_Framework_TestCase {
 	 * @runInSeparateProcess
 	 */
 	public function testOffsetExists() {
-		$this->assertTrue(isset($this->object['foo']));
+		$Session = new Session();
+		$Session->offsetSet('foo', 'bar');
+		$this->assertTrue(isset($Session['foo']));
 		$this->assertTrue(isset($_SESSION['foo']));
 	}
 
@@ -59,16 +60,20 @@ class SessionTest extends \PHPUnit_Framework_TestCase {
 	 * @runInSeparateProcess
 	 */
 	public function testCurrent() {
-		$this->assertEquals(current($_SESSION), $this->object->current());
+		$Session = new Session();
+		$Session->offsetSet('foo', 'bar');
+		$this->assertEquals(current($_SESSION), $Session->current());
 	}
 
 	/**
 	 * @runInSeparateProcess
 	 */
 	public function testNext() {
+		$Session = new Session();
+		$Session->offsetSet('foo', 'bar');
 		$prev = current($_SESSION);
-		$this->object->next();
-		$this->assertEquals(current($_SESSION), $this->object->current());
+		$Session->next();
+		$this->assertEquals(current($_SESSION), $Session->current());
 		$this->assertNotEquals($prev, current($_SESSION));
 	}
 
@@ -76,29 +81,37 @@ class SessionTest extends \PHPUnit_Framework_TestCase {
 	 * @runInSeparateProcess
 	 */
 	public function testKey() {
-		$this->assertEquals(key($_SESSION), $this->object->key());
+		$Session = new Session();
+		$Session->offsetSet('foo', 'bar');
+		$this->assertEquals(key($_SESSION), $Session->key());
 	}
 
 	/**
 	 * @runInSeparateProcess
 	 */
 	public function testValid() {
-		$this->object->rewind();
-		$this->assertTrue($this->object->valid());
+		$Session = new Session();
+		$Session->offsetSet('foo', 'bar');
+		$Session->rewind();
+		$this->assertTrue($Session->valid());
 	}
 
 	/**
 	 * @runInSeparateProcess
 	 */
 	public function testRewind() {
-		$this->object->rewind();
-		$this->assertEquals(reset($_SESSION), $this->object->current());
+		$Session = new Session();
+		$Session->offsetSet('foo', 'bar');
+		$Session->rewind();
+		$this->assertEquals(reset($_SESSION), $Session->current());
 	}
 
 	/**
 	 * @runInSeparateProcess
 	 */
 	public function testCount() {
-		$this->assertEquals(count($_SESSION), $this->object->count()+1);
+		$Session = new Session();
+		$Session->offsetSet('foo', 'bar');
+		$this->assertEquals(count($_SESSION), $Session->count()+1);
 	}
 }

@@ -33,4 +33,31 @@ class ResponseTest extends \PHPUnit_Framework_TestCase {
 	public function testInvalidStatus() {
 		new Response('Foo', 999);
 	}
+
+	public function testNoCache() {
+		$Response = new Response('Foo', 200);
+		$Response->makeNoCache();
+		$this->assertEquals('no-cache', $Response->getHeader('Cache-Control'));
+		$this->assertEquals('no-cache', $Response->getHeader('Pragma'));
+	}
+
+	public function testPublic() {
+		$Response = new Response('Foo', 200);
+		$Response->makePublic();
+		$this->assertEquals('public', $Response->getHeader('Cache-Control'));
+		$this->assertEquals('public', $Response->getHeader('Pragma'));
+	}
+
+	public function testPrivate() {
+		$Response = new Response('Foo', 200);
+		$Response->makePrivate();
+		$this->assertEquals('private', $Response->getHeader('Cache-Control'));
+		$this->assertEquals('private', $Response->getHeader('Pragma'));
+	}
+
+	public function testProtocol() {
+		$Response = new Response('Foo', 200);
+		$this->assertEquals('HTTP/1.1', $Response->protocol());
+		$this->assertEquals('HTTP/1.0', $Response->protocol('HTTP/1.0'));
+	}
 }
