@@ -149,6 +149,19 @@ class Config implements ConfigInterface {
 	}
 
 	/**
+	 * Returns core variable value
+	 * If variable is undefined - returns false
+	 *
+	 * @param string $var name of core variable
+	 * @param mixed $default default value if variable not found
+	 *
+	 * @return mixed
+	 */
+	public function get($var, $default = null) {
+		return $this->getArrValue($this->config, $var, $default);
+	}
+
+	/**
 	 * Returns offset value from array or default value if offset does not exists
 	 *
 	 * @param array|\ArrayAccess $arr
@@ -168,17 +181,5 @@ class Config implements ConfigInterface {
 		}
 
 		return $arr;
-	}
-
-	/**
-	 * Returns core variable value
-	 * If variable is undefined - returns false
-	 *
-	 * @param string $var name of core variable
-	 *
-	 * @return mixed
-	 */
-	public function get($var) {
-		return $this->getArrValue($this->config, $var, null);
 	}
 }
