@@ -8,8 +8,7 @@ return array(
 		'session' => array(
 			'agent' => true,
 			'ip' => true,
-			'host' => true,
-			'salt' => null
+			'salt' => 'RandomSaltString'
 		),
 		'cookie' => array(
 			'domain' => null,
@@ -49,7 +48,9 @@ return array(
 				)
 			),
 			'methods' => array(
-				'setExtensions' => array(array('@Twig_Bridge_Extension_Resource', '@Twig_Bridge_Extension_Url', '@Twig_Bridge_Extension_Locale', '@Twig_Extensions_Extension_Text'))
+				'setExtensions' => array(
+					array('@Twig_Bridge_Extension_Resource', '@Twig_Bridge_Extension_Url', '@Twig_Bridge_Extension_Locale', '@Twig_Extensions_Extension_Text')
+				)
 			)
 		),
 		'Twig_Bridge_Loader_Bridge' => array(

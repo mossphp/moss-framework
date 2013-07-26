@@ -25,9 +25,11 @@ $Loader->addNamespace('Moss', array('../'));
 $Loader->addNamespace(null, array('../src/'));
 $Loader->addNamespaces($Config->get('namespaces'));
 
-if(is_file(__DIR__ . '/../vendor/composer/autoload_namespaces.php')) {
-	$Loader->addNamespaces((array) require __DIR__ . '/../vendor/composer/autoload_namespaces.php');
+$composerAutoloadPath = __DIR__ . '/../vendor/composer/autoload_namespaces.php';
+if(is_file($composerAutoloadPath)) {
+	$Loader->addNamespaces((array) require $composerAutoloadPath);
 }
+unset($composerAutoloadPath);
 
 $Loader->register();
 
@@ -45,12 +47,12 @@ unset($name, $component);
 
 // Dispatcher
 $Dispatcher = new \Moss\dispatcher\Dispatcher($Container);
-foreach((array) $Config->get('dispatcher') as $event => $lArr) {
-	foreach($lArr as $listener) {
+foreach((array) $Config->get('dispatcher') as $event => $listeners) {
+	foreach($listeners as $listener) {
 		$Dispatcher->register($event, new \Moss\dispatcher\Listener($listener['component'], $listener['method'], $listener['arguments']));
 	}
 }
-unset($name, $event, $lArr, $listener);
+unset($event, $listeners, $listener);
 
 // Router
 $Router = new \Moss\router\Router();
@@ -72,4 +74,4 @@ $Container->register('Request', $Request);
 
 // Kernel
 $Core = new \Moss\kernel\Kernel($Container->get('Router'), $Container, $Container->get('Dispatcher'));
-echo $Core->handle($Container->get('Request'));
+$Core->handle($Container->get('Request'))->send();
