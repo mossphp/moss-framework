@@ -19,7 +19,7 @@ class SampleController {
 	 * Method for initialisation operations
 	 * Called at the end of constructor
 	 */
-	public function index() {
+	public function indexAction() {
 		return new Response('Hello, this is sample controller');
 	}
 }

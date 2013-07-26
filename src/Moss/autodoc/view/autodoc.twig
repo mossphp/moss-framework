@@ -12,135 +12,160 @@
     <script type="text/javascript" src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
 
+    <script type="text/javascript" src="{% resource 'Moss:autodoc:js:prism.js' %}"></script>
+
     <link rel="stylesheet" href="{% resource 'Moss:autodoc:css:normalize.css' %}" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{% resource 'Moss:autodoc:css:autodoc.css' %}" type="text/css" media="screen"/>
 </head>
 <body>
 
-<header id="header">
-    <h1>{% trans "MOSS Autodoc" %}</h1>
-</header>
+<section>
+    <header id="header">
+        <h1>{% trans "MOSS Autodoc" %}</h1>
+    </header>
 
-<nav>
-    <h2>{% trans "Index: Packages" %}</h2>
-    <ul>
-        {% for Package in Packages %}
+    <nav>
+        <h2>{% trans "Index: Documentation" %}</h2>
+        <ul>
+            {% for Chapter in Documentation %}
+                <li>
+                    <a href="{{ Url() }}#{{ Chapter.name }}">{{ Chapter.name }}</a>
+                    {% if Chapter.section %}
+                    <ul>
+                        {% for Section in Chapter.section %}
+                            <li>
+                                <a href="{{ Url() }}#{{ Section.name }}">{{ Section.name }}</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+
+        <h2>{% trans "Index: Packages" %}</h2>
+        <ul>
+            {% for Package in Packages %}
+                <li>
+                    <a href="{{ Url() }}#{{ Package.name }}">{{ Package.name }}</a>
+                    <ul>
+                        {% for Class in Package.classes %}
+                            <li {% if not Class.desc %}class="nodesc"{% endif %}>
+                                <a href="{{ Url() }}#{{ Class.name }}">{{ Class.name }}</a> -
+                                <span>{{ Class.desc }}</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </li>
+            {% endfor %}
+        </ul>
+
+        <h2>{% trans "Index: Classes and methods" %}</h2>
+        <ul>
+            {% for Class in Comments %}
+                <li>
+                    <a href="{{ Url() }}#{{ Class.id }}">{{ Class.name }}</a> - <span>{{ Class.desc }}</span>
+                    <ul>
+                        {% for Method in Class.methods if Method.isUserDefined %}
+                            <li {% if not Method.desc and Method.isUserDefined %}class="nodesc"{% endif %}>
+                                <a href="{{ Url() }}#{{ Method.id }}">{{ Method.name }}</a> -
+                                <span>{{ Method.desc }}</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </li>
+            {% endfor %}
+        </ul>
+
+        <a class="up" href="{{ Url() }}#header">{% trans "Up" %}</a>
+    </nav>
+
+    <dl>
+        {% for Chapter in Documentation %}
+            <dt>
+                <h3 id="{{ Chapter.name }}">{{ Chapter.name }}</h3>
+            </dt>
             <dd>
-                <a id="{{ Package.name }}" href="{{ Request.self }}#{{ Package.name }}">{{ Package.name }}</a>
-                <ul>
-                    {% for Class in Package.classes %}
-                        <dd {% if not Class.desc %}class="nodesc"{% endif %}>
-                            <a href="{{ Request.self }}#{{ Class.name }}">{{ Class.name }}</a> -
-                            <span>{{ Class.desc }}</span>
+                {{ Chapter.content|raw }}
+                <dl>
+                    {% for Section in Chapter.section %}
+                        <dt>
+                        <h4 id="{{ Section.name }}">{{ Section.name }}</h4>
+                        </dt>
+                        <dd>
+                            {{ Section.content|raw }}
                         </dd>
                     {% endfor %}
-                </ul>
+                </dl>
             </dd>
         {% endfor %}
-    </ul>
 
-    <h2>{% trans "Index: Classes and methods" %}</h2>
-    <ul>
-        {% for Class in Doc %}
+        {% for Class in Comments %}
+            <dt id="{{ Class.id }}">
+            <h3>
+                <code>{% if Class.interface %}interface{% elseif Class.abstract %}abstract{% endif %} {{ Class.name }} {% if Class.parent %} extends {{ Class.parent }}{% endif %} {% if Class.interfaces %} implements {% for Interface in Class.interfaces %} {{ Interface }} {% if not loop.last %},{% endif %} {% endfor %}{% endif %}</code>
+            </h3>
+            </dt>
             <dd>
-                <a href="{{ Request.self }}#{{ Class.name }}">{{ Class.name }}</a> - <span>{{ Class.desc }}</span>
                 <ul>
+                    <li>{{ Class.desc }}</li>
+                    <li class="package"><em>Package:</em> {{ Class.package }}</li>
+                    <li class="author"><em>Author:</em> {{ Class.author }}</li>
+                </ul>
+
+                <dl>
                     {% for Method in Class.methods if Method.isUserDefined %}
-                        <dd {% if not Method.desc and Method.isUserDefined %}class="nodesc"{% endif %}>
-                            <a href="{{ Request.self }}#{{ Class.name }}::{{ Method.name }}">{{ Method.name }}</a> -
-                            <span>{{ Method.desc }}</span>
+                        <dt id="{{ Method.id }}">
+                        <h4 class="token-name">
+                            <code>{% if Method.isAbstract %}abstract{% endif %} {% if Method.isStatic %}static{% endif %} {% if Method.isPublic %}public{% elseif  Method.isProtected %}protected{% elseif  Method.isPrivate %}private{% endif %} {{ Class.name }} :: {{ Method.name }} ( {% for Attr in Method.arguments %}{% if not Attr.required %}[{% endif %} {% for type in Attr.type %} {{ type }} {% if not loop.last %} | {% endif %} {% endfor %} ${{ Attr.name }} {% if not Attr.required %} = {% if Attr.default %}{{ Attr.default }}{% else %}null{% endif %}{% endif %} {% if not Attr.required %}]{% endif %} {% if not loop.last %} , {% endif %}{% endfor %} )</code>
+                        </h4>
+                        </dt>
+                        <dd>
+                            <p>{{ Method.desc }}</p>
+
+                            <ul>
+                                {% for Attr in Method.arguments %}
+                                    <dd>
+                                        <code>{% for type in Attr.type %}{{ type }} {% if not loop.last %}|{% endif %}{% endfor %} ${{ Attr.name }}</code>
+                                        {{ Attr.desc }}
+                                    </dd>
+                                {% endfor %}
+                            </ul>
                         </dd>
                     {% endfor %}
-                </ul>
+                </dl>
             </dd>
         {% endfor %}
-    </ul>
-</nav>
+    </dl>
+</section>
 
-<dl>
-    {% for Class in Doc %}
-        <dt id="{{ Class.name }}">
-        <h3>
-            {% if Class.interface %}<span class="type">interface</span>{% elseif Class.abstract %}<span class="type">abstract</span>{% endif %}
-            {{ Class.name }}
-            {% if Class.parent %} <span class="type">extends</span> <a href="{{ Request.self }}#{{ Class.parent }}">
-                <span class="type">{{ Class.parent }}</span></a>{% endif %}
-            {% if Class.interfaces %} <span class="type">implements</span> {% for Interface in Class.interfaces %}<a
-                href="{{ Request.self }}#{{ Interface }}"><span class="type">{{ Interface }}</span>
-                </a>{% if not loop.last %},{% endif %} {% endfor %}{% endif %}
-        </h3>
-        </dt>
-        <dd>
-            <ul>
-                <li>{{ Class.desc }}</li>
-                <li class="package"><em>Package:</em> <a
-                            href="{{ Request.self }}#{{ Class.package }}">{{ Class.package }}</a></li>
-                <li class="author"><em>Author:</em> <strong>{{ Class.author }}</strong></li>
-            </ul>
+<script type="text/javascript">
+(function() {
+    var i, l, n, e;
 
-            <dl>
-                {% for Method in Class.methods if Method.isUserDefined %}
-                    <dt id="{{ Class.name }}::{{ Method.name }}">
-                    <h4>
-                    <span class="type">
-                    {% if Method.isAbstract %}abstract{% endif %}
-                        {% if Method.isStatic %}static{% endif %}
-                        {% if Method.isPublic %}public{% elseif  Method.isProtected %}protected{% elseif  Method.isPrivate %}private{% endif %}
-                    </span>
+    n = document.querySelectorAll('pre, code');
+    for(i = 0, l = n.length; i < l; ++i) {
+        n[i].setAttribute('class', 'language-php');
+    }
 
-                        {{ Class.name }} :: {{ Method.name }} (
+    document.addEventListener('click', function(evt) {
+        var t = evt.target, e;
+        if(!t.classList.contains('package')) {
+            return;
+        }
 
-                        {% for Attr in Method.arguments %}
-                            {% if Attr.required %}
-                                {% for type in Attr.type %}
-                                    <a href="{{ Request.self }}#{{ type }}">
-                                        <span class="type">{{ type }}</span> {% if not loop.last %}|{% endif %}
-                                    </a>
-                                {% endfor %}
+        e = '#' + t.innerHTML.replace(/(<([^>]+)>)/ig,"").toLowerCase().replace(/[^\w \-\.]+/igm, '-');
+        if(!document.querySelector(e)) {
+            return;
+        }
 
-                                <span class="name">${{ Attr.name }}</span>
-                            {% else %}
-                                [
-                                {% for type in Attr.type %}
-                                    <a href="{{ Request.self }}#{{ type }}">
-                                        <span class="type">{{ type }}</span> {% if not loop.last %}|{% endif %}
-                                    </a>
-                                {% endfor %}
+        console.log(location.href.toString().replace(/(#.*)/, '') + e);
+        history.pushState(null, null, location.href.toString().replace(/(#.*)/, '') + e);
+        window.location=window.location.href;
+    });
+})();
+</script>
 
-                                <span class="name">{{ Attr.name }}</span> = <span
-                                    class="default">{% if Attr.default %}{{ Attr.default }}{% else %}null{% endif %}</span>
-                                ]
-                            {% endif %}
-
-                            {% if not loop.last %} , {% endif %}
-                        {% endfor %} )
-                    </h4>
-                    </dt>
-                    <dd>
-                        <p>{{ Method.desc }}</p>
-
-                        <ul>
-                            {% for Attr in Method.arguments %}
-                                <dd>
-                                    {% for type in Attr.type %}
-                                        <a href="{{ Request.self }}#{{ type }}">
-                                            <span class="type">{{ type }}</span> {% if not loop.last %}|{% endif %}
-                                        </a>
-                                    {% endfor %}
-
-                                    <span class="name">${{ Attr.name }}</span>
-                                    {{ Attr.desc }}
-                                </dd>
-                            {% endfor %}
-                        </ul>
-
-                        <a class="up" href="{{ Request.self }}#header">{% trans "Up" %}</a>
-                    </dd>
-                {% endfor %}
-            </dl>
-        </dd>
-    {% endfor %}
-</dl>
 
 </body>
 </html>

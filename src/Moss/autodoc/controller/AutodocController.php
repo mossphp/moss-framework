@@ -1,6 +1,7 @@
 <?php
 namespace Moss\autodoc\controller;
 
+use Moss\autodoc\parser\Markdown;
 use Moss\container\ContainerInterface;
 use Moss\http\response\Response;
 
@@ -12,19 +13,9 @@ use Moss\http\response\Response;
  */
 class AutodocController {
 
-	protected $Container;
-
-	protected $files = array();
-	protected $doc = array();
-	protected $packages = array();
-	protected $directories = array(
-		'../Moss/'
-	);
-	protected $ignored = array();
+	private $Container;
 
 	/**
-	 * Constructor, calls init function
-	 *
 	 * @param ContainerInterface $Container
 	 */
 	public function __construct(ContainerInterface $Container) {
@@ -32,49 +23,22 @@ class AutodocController {
 	}
 
 	/**
-	 * Initializes Autodoc
-	 * Prepares View and regular expression for ignored directories
-	 */
-	public function init() {
-		if(!empty($this->ignored)) {
-			$disabled = $this->ignored;
-
-			$this->ignored = '(';
-			foreach($disabled as $dir) {
-				if(!empty($dir)) {
-					$dir = str_replace(array('/', '\\'), DIRECTORY_SEPARATOR, $dir);
-					$this->ignored .= '' . preg_quote($dir) . '|';
-				}
-			}
-
-			$this->ignored[strlen($this->directories) - 1] = ')';
-			$this->ignored = '#^' . $this->ignored . '.*$#';
-		}
-	}
-
-	/**
-	 * Creates autodoc
-	 *
 	 * @return Response
 	 */
-	public function index() {
-		$this->gather();
+	public function indexAction() {
+		$manDirs = array('../docs');
+		$docDirs = array('../Moss/');
 
-		foreach($this->files as $file => $name) {
-			include_once($file);
-			$this->doc[$name] = $this->buildClassDoc(new \ReflectionClass($name));
-		}
-
-		$this->repairParameterTypes();
-		$this->buildPackages();
-
-		usort($this->doc, array($this, 'usort'));
+		$doc = $this->buildDocumentation($manDirs);
+		$com = $this->buildComment($docDirs);
+		$pck = $this->buildPackages($com);
 
 		$autodocResponseContent = $this->Container
 			->get('View')
 			->template('Moss:autodoc:autodoc')
-			->set('Doc', $this->doc)
-			->set('Packages', $this->packages)
+			->set('Documentation', $doc)
+			->set('Comments', $com)
+			->set('Packages', $pck)
 			->render();
 
 		$autodocResponse = new Response($autodocResponseContent);
@@ -82,97 +46,154 @@ class AutodocController {
 		return $autodocResponse;
 	}
 
-	protected function usort($a, $b) {
-		if($a['namespace'] != $b['namespace']) {
-			return $a['namespace'] > $b['namespace'] ? 1 : -1;
-		}
-
-		$result = $b['isInterface'] - $a['isInterface'];
-		if($result) {
-			return $result;
-		}
-
-		if($a['name'] == $b['name']) {
-			return 0;
-		}
-
-		return $a['name'] > $b['name'] ? 1 : -1;
-	}
-
 	/**
-	 * Gathers files from directories
+	 * @param array $dirs
 	 *
-	 * @return void
+	 * @return array
 	 */
-	protected function gather() {
-		foreach($this->directories as $dir) {
+	public function buildDocumentation($dirs) {
+		$doc = array();
+
+		$MD = new Markdown();
+
+		foreach($dirs as $dir) {
 			$RecursiveIterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($dir));
 
 			foreach($RecursiveIterator as $item) {
-				if(!$this->isValid($item)) {
-					continue;
+				$chapter = array();
+				$content = $MD->transform(file_get_contents((string) $item));
+
+				$content = html_entity_decode($content);
+
+				$d = preg_split('/^(<h[0-2]>.+<\/h[0-2]>)$/im', $content, -1, PREG_SPLIT_DELIM_CAPTURE);
+				foreach($d as $k => $v) {
+					if(preg_match('/^<h([0-2])>([^<]+)/i', $v, $m)) {
+						if($m[1] == 1) {
+							$chapter = array(
+								'id' => $this->strip($m[2]),
+								'name' => $m[2],
+								'content' => isset($d[$k+1]) ? $d[$k+1] : '',
+								'section' => array()
+							);
+							continue;
+						}
+
+						if($m[1] == 2) {
+							$chapter['section'][] = array('name' => $m['2'], 'content' => isset($d[$k+1]) ? $d[$k+1] : '');
+						}
+					}
 				}
 
-				if(!$name = $this->identify((string) $item)) {
-					continue;
-				}
-
-				$this->files[(string) $item] = $name;
+				$doc[] = $chapter;
 			}
 		}
+
+		return $doc;
 	}
 
 	/**
-	 * Checks if file is valid
-	 * Valid file has .php extension and is not in ignored directories
+	 * Builds API documentation based on phpDoc
+	 *
+	 * @param array $dirs
+	 *
+	 * @return array
+	 */
+	public function buildComment($dirs) {
+		$doc = array();
+		foreach($dirs as $dir) {
+			$RecursiveIterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($dir));
+
+			foreach($RecursiveIterator as $item) {
+				if(!$name = $this->identify($item)) {
+					continue;
+				}
+
+				include_once((string) $item);
+				$doc[$name] = $this->buildClassDoc(new \ReflectionClass($name));
+			}
+		}
+
+		$namespaces = array_keys($doc);
+		foreach($namespaces as &$node) {
+			$node = substr($node, 0, strrpos($node, '\\') + 1);
+			unset($node);
+		}
+		$namespaces = array_unique($namespaces);
+
+		foreach($doc as &$class) {
+			foreach($class['methods'] as &$method) {
+				foreach($method['arguments'] as &$argument) {
+					$argument['type'] = $this->repairTypes($doc, $argument['type'], $class['namespace'], $namespaces);
+					unset($argument);
+				}
+				unset($method);
+			}
+			unset($class);
+		}
+
+		usort($doc, function ($a, $b) {
+			if($a['namespace'] != $b['namespace']) {
+				return $a['namespace'] > $b['namespace'] ? 1 : -1;
+			}
+
+			$result = $b['isInterface'] - $a['isInterface'];
+			if($result) {
+				return $result;
+			}
+
+			if($a['name'] == $b['name']) {
+				return 0;
+			}
+
+			return $a['name'] > $b['name'] ? 1 : -1;
+		});
+
+		return $doc;
+	}
+
+	/**
+	 * Identifies interface or class in file, returns namespaced name or null
 	 *
 	 * @param \SplFileInfo $file
 	 *
-	 * @return bool
+	 * @return null|string
 	 */
-	protected function isValid(\SplFileInfo $file) {
+	private function identify(\SplFileInfo $file) {
 		if(!$file->isFile()) {
-			return false;
+			return null;
 		}
 
 		if(!preg_match('/^.*\.php$/', (string) $file)) {
-			return false;
+			return null;
 		}
 
-		if($this->ignored && preg_match($this->ignored, (string) $file)) {
-			return false;
-		}
-
-		return true;
-	}
-
-	/**
-	 * Identifies namespace and interface/class declaration in file
-	 *
-	 * @param $file
-	 *
-	 * @return bool|null|string
-	 */
-	protected function identify($file) {
-		$content = file_get_contents($file, null, null, 0, 1024);
+		$content = file_get_contents((string) $file, null, null, 0, 1024);
 
 		preg_match_all('/^namespace (.+);/im', $content, $nsMatches);
 		preg_match_all('/^(abstract )?(interface|class) ([^ ]+).*$/im', $content, $nameMatches);
 
 		if(!empty($nameMatches[3][0])) {
-			return empty($nsMatches[1][0]) ? null : '\\' . $nsMatches[1][0] . '\\' . $nameMatches[3][0];
+			return empty($nsMatches[1][0]) ? null : $nsMatches[1][0] . '\\' . $nameMatches[3][0];
 		}
 
-		return false;
+		return null;
 	}
 
-	protected function buildClassDoc(\ReflectionClass $RefClass) {
+	/**
+	 * Builds single class API on its phpDoc
+	 *
+	 * @param \ReflectionClass $RefClass
+	 *
+	 * @return array
+	 */
+	private function buildClassDoc(\ReflectionClass $RefClass) {
 		$doc = array(
-			'desc' => $this->parseCommentDesc($RefClass->getDocComment(), true),
-			'author' => $this->parseCommentDesc($RefClass->getDocComment(), 'author'),
-			'package' => $this->parseCommentDesc($RefClass->getDocComment(), 'package'),
-			'name' => '\\' . $RefClass->getNamespaceName() . '\\' . basename($RefClass->getName()),
-			'namespace' => '\\' . $RefClass->getNamespaceName() . '\\',
+			'id' => $this->strip($RefClass->getNamespaceName() . '\\' . basename($RefClass->getName())),
+			'desc' => $this->commentDesc($RefClass->getDocComment(), true),
+			'author' => $this->commentDesc($RefClass->getDocComment(), 'author'),
+			'package' => $this->commentDesc($RefClass->getDocComment(), 'package'),
+			'name' => $RefClass->getNamespaceName() . '\\' . basename($RefClass->getName()),
+			'namespace' => $RefClass->getNamespaceName() . '\\',
 			'parent' => $RefClass->getParentClass() ? '\\' . $RefClass
 					->getParentClass()
 					->getName() : null,
@@ -182,11 +203,6 @@ class AutodocController {
 			'isAbstract' => $RefClass->isAbstract(),
 			'isInterface' => $RefClass->isInterface()
 		);
-
-		foreach($doc['interfaces'] as &$interface) {
-			$interface = '\\' . $interface;
-			unset($interface);
-		}
 
 		/** @var \ReflectionProperty $property */
 		foreach($RefClass->getProperties() as $property) {
@@ -199,34 +215,50 @@ class AutodocController {
 
 		/** @var \ReflectionMethod $method */
 		foreach($RefClass->getMethods() as $method) {
-			$doc['methods'][] = $this->buildMethodDoc($method);
+			$doc['methods'][] = $this->methodDoc($method);
 		}
 
 		return $doc;
 	}
 
-	protected function buildMethodDoc(\ReflectionMethod $RefMethod) {
+	/**
+	 * Builds single method description from its phpDoc
+	 *
+	 * @param \ReflectionMethod $RefMethod
+	 *
+	 * @return array
+	 */
+	private function methodDoc(\ReflectionMethod $RefMethod) {
 		$doc = array(
-			'desc' => $this->parseCommentDesc($RefMethod->getDocComment(), true),
-			'doc' => $this->parseCommentParameters($RefMethod->getDocComment()),
+			'id' => $this->strip($RefMethod->getDeclaringClass()->getNamespaceName() . '\\' . basename($RefMethod->getDeclaringClass()->getName()) . '::' . $RefMethod->getName()),
+			'desc' => $this->commentDesc($RefMethod->getDocComment(), true),
+			'doc' => $this->commentParameters($RefMethod->getDocComment()),
 			'name' => $RefMethod->getName(),
 			'isAbstract' => $RefMethod->isAbstract(),
 			'isStatic' => $RefMethod->isStatic(),
 			'isPublic' => $RefMethod->isPublic(),
-			'isProtected' => $RefMethod->isProtected(),
+			'isprivate' => $RefMethod->isprivate(),
 			'isPrivate' => $RefMethod->isPrivate(),
 			'isUserDefined' => $RefMethod->isUserDefined(),
 			'arguments' => array()
 		);
 
 		foreach($RefMethod->getParameters() as $parameter) {
-			$doc['arguments']['$' . $parameter->getName()] = $this->buildParameterDoc($parameter, $doc['doc']);
+			$doc['arguments']['$' . $parameter->getName()] = $this->parameterDoc($parameter, $doc['doc']);
 		}
 
 		return $doc;
 	}
 
-	protected function buildParameterDoc(\ReflectionParameter $RefParameter, $comment) {
+	/**
+	 * Builds methods argument description from its phpDoc
+	 *
+	 * @param \ReflectionParameter $RefParameter
+	 * @param                      $comment
+	 *
+	 * @return array
+	 */
+	private function parameterDoc(\ReflectionParameter $RefParameter, $comment) {
 		$var = '$' . $RefParameter->getName();
 
 		$doc = array(
@@ -240,7 +272,14 @@ class AutodocController {
 		return $doc;
 	}
 
-	protected function parseComment($comment) {
+	/**
+	 * Strips comment
+	 *
+	 * @param string $comment
+	 *
+	 * @return string
+	 */
+	private function comment($comment) {
 		$comment = preg_replace('#[ \t]*(?:\/\*\*|\*\/|\*)?[ ]{0,1}(.*)?#', '$1', $comment);
 		$comment = str_replace(array("\t", "\r", "\n"), array(null, null, ' '), $comment);
 		$comment = str_replace('  ', ' ', $comment);
@@ -249,86 +288,42 @@ class AutodocController {
 		return $comment;
 	}
 
-	protected function parseCommentDesc($comment, $stripParams = true) {
-		$comment = $this->parseComment($comment);
+	/**
+	 * Returns part from comment description
+	 *
+	 * @param string $comment
+	 * @param string $stripParams
+	 *
+	 * @return null|string
+	 */
+	private function commentDesc($comment, $stripParams = 'params') {
+		$comment = $this->comment($comment);
 
 		if($stripParams === 'author') {
-			if(stripos($comment, '@author') !== false) {
-				return trim(preg_replace('/^.*@author([^>]+>?).*$/', '$1', $comment));
-			}
-			else {
-				return null;
-			}
+			return stripos($comment, '@author') !== false ? trim(preg_replace('/^.*@author([^>]+>?).*$/', '$1', $comment)) : null;
 		}
-		elseif($stripParams === 'package') {
-			if(stripos($comment, '@package') !== false) {
-				return trim(preg_replace('/^.*@package([^@]+).*$/', '$1', $comment));
-			}
-			else {
-				return null;
-			}
+
+		if($stripParams === 'package') {
+			return stripos($comment, '@package') !== false ? trim(preg_replace('/^.*@package([^@]+).*$/', '$1', $comment)) : null;
 		}
-		elseif($stripParams) {
+
+		if($stripParams == 'params') {
 			return trim(preg_replace('/^([^@]*).*/i', '$1', $comment));
 		}
 
 		return $comment;
 	}
 
-	protected function repairParameterTypes() {
-		$namespaces = array_keys($this->doc);
-		foreach($namespaces as &$node) {
-			$node = substr($node, 0, strrpos($node, '\\') + 1);
-			unset($node);
-		}
-		$namespaces = array_unique($namespaces);
-
-		foreach($this->doc as &$class) {
-			foreach($class['methods'] as &$method) {
-				foreach($method['arguments'] as &$argument) {
-					$argument['type'] = $this->repairParameterNamespace($argument['type'], $class['namespace'], $namespaces);
-					unset($argument);
-				}
-				unset($method);
-			}
-			unset($class);
-		}
-	}
-
-	protected function repairParameterNamespace($type, $namespace, $namespaces) {
-		if($type === null) {
-			return null;
-		}
-
-		if(is_array($type)) {
-			foreach($type as &$node) {
-				$node = $this->repairParameterNamespace($node, $namespace, $namespaces);
-				unset($node);
-			}
-
-			return $type;
-		}
-
-		if(strpos($type, '\\') === 0 || preg_match('/^(null|mixed|bool|boolean|int|integer|float|double|string|array|closure|object).*$/i', $type)) {
-			return $type;
-		}
-
-		if(isset($this->doc[$namespace . $type])) {
-			return $namespace . $type;
-		}
-
-		foreach($namespaces as $namespace) {
-			if(isset($this->doc[$namespace . $type])) {
-				return $namespace . $type;
-			}
-		}
-
-		return '\\' . $type;
-	}
-
-	protected function parseCommentParameters($comment) {
+	/**
+	 * Splits phpDoc into param description
+	 *
+	 * @param string $comment
+	 *
+	 * @return array
+	 */
+	private function commentParameters($comment) {
 		$doc = array();
-		$comment = $this->parseComment($comment);
+		$comment = $this->comment($comment);
 
 		preg_match_all('/@[^@]+/i', $comment, $matches);
 		foreach($matches[0] as $def) {
@@ -353,22 +348,72 @@ class AutodocController {
 		return $doc;
 	}
 
-	protected function buildPackages() {
-		foreach($this->doc as $class) {
-			if(!isset($this->packages[$class['package']])) {
-				$this->packages[$class['package']] = array(
+	/**
+	 * Repairs param type found in doc
+	 *
+	 * @param array  $doc
+	 * @param string $type
+	 * @param string $namespace
+	 * @param array  $namespaces
+	 *
+	 * @return array|null|string
+	 */
+	private function repairTypes(&$doc, $type, $namespace, $namespaces) {
+		if($type === null) {
+			return null;
+		}
+
+		if(is_array($type)) {
+			foreach($type as &$node) {
+				$node = $this->repairTypes($doc, $node, $namespace, $namespaces);
+				unset($node);
+			}
+
+			return $type;
+		}
+
+		if(isset($doc[$namespace . $type])) {
+			return $namespace . $type;
+		}
+
+		foreach($namespaces as $namespace) {
+			if(isset($doc[$namespace . $type])) {
+				return $namespace . $type;
+			}
+		}
+
+		if(preg_match('/^(null|mixed|bool|boolean|int|integer|float|double|string|array|closure|object).*$/i', $type)) {
+			return $type;
+		}
+
+		return $type;
+	}
+
+	/**
+	 * Builds package list from phpDoc API
+	 *
+	 * @param array $doc
+	 *
+	 * @return array
+	 */
+	private function buildPackages($doc) {
+		$packages = array();
+
+		foreach($doc as $class) {
+			if(!isset($packages[$class['package']])) {
+				$packages[$class['package']] = array(
 					'name' => $class['package'],
 					'classes' => array()
 				);
 			}
 
-			$this->packages[$class['package']]['classes'][] = array(
+			$packages[$class['package']]['classes'][] = array(
 				'name' => $class['name'],
 				'desc' => $class['desc']
 			);
 		}
 
-		foreach($this->packages as &$package) {
+		foreach($packages as &$package) {
 			if($package['classes']) {
 				usort($package['classes'], array($this, 'sortPackages'));
 			}
@@ -376,10 +421,37 @@ class AutodocController {
 			unset($package);
 		}
 
-		usort($this->packages, array($this, 'sortPackages'));
+		usort($packages, array($this, 'sortPackages'));
+
+		return $packages;
 	}
 
-	protected function sortPackages($a, $b) {
+	/**
+	 * Sorts nodes by its name property
+	 *
+	 * @param array $a
+	 * @param array $b
+	 *
+	 * @return int
+	 */
+	private function sortPackages($a, $b) {
 		return $a['name'] > $b['name'] ? 1 : -1;
+	}
+
+	/**
+	 * Strips string from non ASCII chars
+	 *
+	 * @param string $urlString string to strip
+	 * @param string $separator char replacing non ASCII chars
+	 *
+	 * @return string
+	 */
+	protected function strip($urlString, $separator = '-') {
+		$urlString = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $urlString);
+		$urlString = strtolower($urlString);
+		$urlString = preg_replace('#[^\w \-\.]+#i', $separator, $urlString);
+		$urlString = trim($urlString, '-.');
+
+		return $urlString;
 	}
 }
