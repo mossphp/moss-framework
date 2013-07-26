@@ -198,6 +198,11 @@ class Route implements RouteInterface {
 	public function methods($methods = array()) {
 		$this->methods = empty($methods) ? array() : (array) $methods;
 
+		foreach($this->methods as &$method) {
+			$method = strtoupper($method);
+			unset($method);
+		}
+
 		return $this;
 	}
 
