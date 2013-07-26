@@ -15,7 +15,7 @@ Retrieval requires object implementing `\Moss\container\ContainerInterface`, oth
 
 	$Result = $Listener->get($Container, $Subject, $Message);
 
-## Register listener to event (or events if you want)
+## Register listener to event
 
 Register defined `$Listener` to observe `foo` event:
 
@@ -55,16 +55,16 @@ Registering aspect listeners is identical as registering normal event.
 
 Framework has basic events, fired when kernel reaches specific point (in that order):
 
- * kernel.request - when received request,
- * kernel.route - when found route matching request
- * kernel.controller - just before calling controller
- * kernel.response - after receiving response from controller
- * kernel.send - just before sending response to client
+ * `kernel.request` - when received request,
+ * `kernel.route` - when found route matching request
+ * `kernel.controller` - just before calling controller
+ * `kernel.response` - after receiving response from controller
+ * `kernel.send` - just before sending response to client
 
 There are additional tree events, occuring when something went wrong:
 
- * kernel.403 - fired when SecurityException is thrown,
- * kernel.404 - fired when RouterException is thrown,
- * kernel.500 - fired when other exception is thrown
+ * `kernel.403` - fired when SecurityException is thrown,
+ * `kernel.404` - fired when RouterException is thrown,
+ * `kernel.500` - fired when other exception is thrown
 
 

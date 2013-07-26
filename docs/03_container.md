@@ -6,7 +6,7 @@ Create component definition for class `Foo` with constructor arguments `argument
 
 	$Component = new \Moss\container\Component('Foo', $arguments);
 
-If after instantiation, definition should call methods, add third parameter to constructor containing array of methods with their arguments eg.:
+If after instantiation definition should call methods, add third parameter to constructor containing array of methods with their arguments eg.:
 
 	$calls = array(
 		'method1' => array('array', 'of', 'arguments')
@@ -64,13 +64,13 @@ Just call `$Component = $Container->get('componentIdentifier');` and thats it.
 
 ## Framework components
 
- * Config - configuration instance (_shared_),
- * Container - DI container (_shared_)
- * Cookie - cookie wrapper instance (_shared_)
- * Dispatcher - event dispatcher (_shared_)
- * Logger - logger compatible with psr (_shared_)
- * Request - received request (_shared_)
- * Router - router instance (_shared_)
- * Session - session wrapper instance (_shared_)
- * Twig - Twig template engine, used by View component
- * View - View component
+ * `Config` - configuration instance (_shared_),
+ * `Container` - DI container (_shared_)
+ * `Cookie` - cookie wrapper instance (_shared_)
+ * `Dispatcher` - event dispatcher (_shared_)
+ * `Logger` - logger compatible with psr (_shared_)
+ * `Request` - received request (_shared_)
+ * `Router` - router instance (_shared_)
+ * `Session` - session wrapper instance (_shared_)
+ * `Twig` - Twig template engine, used by View component
+ * `View` - View component, convinient template engine wrapper
