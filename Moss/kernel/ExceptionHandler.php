@@ -42,12 +42,7 @@ class ExceptionHandler {
 	 * Registers handler
 	 */
 	public function register() {
-		if($this->details) {
-			set_exception_handler(array($this, 'handlerVerbose'));
-		}
-		else {
-			set_exception_handler(array($this, 'handlerTerse'));
-		}
+		set_exception_handler( $this->details ? array($this, 'handlerVerbose') : array($this, 'handlerTerse'));
 	}
 
 
@@ -77,6 +72,8 @@ class ExceptionHandler {
 	 * @param \Exception $e
 	 */
 	public function handlerVerbose($e) {
+		header('HTTP/1.1 500 Internal Server Error', true, 500);
+		header('Content-type: text/html; charset=UTF-8');
 		echo sprintf(
 			'<!DOCTYPE html>
 		<html>
@@ -199,7 +196,12 @@ class ExceptionHandler {
 			}
 		}
 		elseif(is_array($param)) {
-			$hash = md5(serialize($param));
+			try {
+				$hash = md5(serialize($param));
+			}
+			catch(\Exception $e) {
+				$hash = null;
+			}
 
 			if(empty($param)) {
 				$str .= 'Array()';
