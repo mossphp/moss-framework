@@ -31,6 +31,46 @@ class ResponseRedirect extends Response {
 	}
 
 	/**
+	 * Sends headers
+	 *
+	 * @return ResponseInterface
+	 */
+	public function sendHeaders() {
+		if(headers_sent()) {
+			return $this;
+		}
+
+		header($this->protocol . ' ' . $this->status . ' ' . $this->statusTexts[$this->status], true, $this->status);
+
+		foreach($this->headers() as $header => $value) {
+			if($value === null) {
+				continue;
+			}
+
+			header($header . ': ' . $value);
+		}
+
+		return $this;
+	}
+
+	/**
+	 * Sends content
+	 *
+	 * @return ResponseInterface
+	 */
+	public function sendContent() {
+		if(headers_sent()) {
+			echo '<script type="text/javascript" language="javascript">setTimeout("window.location.href = \'' . $this->address . '\'", ' . ($this->delay * 1000) . ');</script>' . $this->content;
+
+			return $this;
+		}
+
+		echo $this->content;
+
+		return $this;
+	}
+
+	/**
 	 * Sets redirection address
 	 *
 	 * @param string $address redirection address
@@ -41,6 +81,8 @@ class ResponseRedirect extends Response {
 		if($address !== null) {
 			$this->address = str_replace('&amp;', '&', $address);
 		}
+
+		$this->setRedirectHeaders();
 
 		return $this->address;
 	}
@@ -57,28 +99,24 @@ class ResponseRedirect extends Response {
 			$this->delay = (int) $delay;
 		}
 
+		$this->setRedirectHeaders();
+
 		return $this->delay;
 	}
 
 	/**
-	 * Converts response content to string and sends headers
-	 *
-	 * @return string
-	 * @throws \LengthException
+	 * Sets/updated redirect headers
 	 */
-	public function __toString() {
-		if(headers_sent()) {
-			return '<script type="text/javascript" language="javascript">setTimeout("window.location.href = \'' . $this->address . '\'", ' . ($this->delay * 1000) . ');</script>' . $this->content;
-		}
+	protected function setRedirectHeaders() {
+		$this->setHeader('Location', null);
+		$this->setHeader('Refresh', null);
 
 		if($this->delay) {
-			$this->addHeader('Refresh', $this->delay . '; URL=' . $this->address);
-		}
-		else {
-			$this->addHeader('Location', $this->address);
+			$this->setHeader('Refresh', $this->delay . '; URL=' . $this->address);
+
+			return;
 		}
 
-
-		return parent::__toString();
+		$this->setHeader('Location', $this->address);
 	}
 }

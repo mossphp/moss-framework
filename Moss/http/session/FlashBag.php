@@ -23,7 +23,11 @@ class FlashBag implements FlashBagInterface {
 	 * @param SessionInterface $Session
 	 * @param string           $prefix
 	 */
-	public function __construct(SessionInterface $Session, $prefix = 'FlashBag') {
+	public function __construct(SessionInterface $Session = null, $prefix = 'FlashBag') {
+		if($Session === null) {
+			$Session = & $_SESSION;
+		}
+
 		$this->Session = & $Session;
 		$this->prefix = $prefix;
 		if(!isset($this->Session[$this->prefix])) {
@@ -34,7 +38,7 @@ class FlashBag implements FlashBagInterface {
 	/**
 	 * Removes all messages from container
 	 */
-	public function clear() {
+	public function reset() {
 		$this->Session[$this->prefix] = array();
 
 		return $this;

@@ -1,7 +1,6 @@
 <?php
 namespace Moss\http\response;
 
-use Moss\http\response\ResponseHeaderBag;
 use Moss\http\response\ResponseInterface;
 use Moss\http\response\ResponseException;
 
@@ -11,8 +10,9 @@ use Moss\http\response\ResponseException;
  * @package Moss HTTP
  * @author  Michal Wachowski <wachowski.michal@gmail.com>
  */
-class Response extends ResponseHeaderBag implements ResponseInterface {
+class Response implements ResponseInterface {
 
+	protected $headers = array();
 	protected $content = 'OK';
 	protected $status = 200;
 	protected $protocol = 'HTTP/1.1';
@@ -71,7 +71,56 @@ class Response extends ResponseHeaderBag implements ResponseInterface {
 	public function __construct($content = 'OK', $status = 200, $contentType = 'text/html; charset=UTF-8') {
 		$this->content($content);
 		$this->status($status);
-		$this->addHeader('Content-Type', $contentType);
+		$this->setHeader('Content-Type', $contentType);
+		$this->makeNoCache();
+	}
+
+	/**
+	 * Returns header value for given key
+	 *
+	 * @param string $header
+	 * @param string $default
+	 *
+	 * @return null|string
+	 */
+	public function getHeader($header, $default = null) {
+		if(!isset($this->headers[$header])) {
+			return $default;
+		}
+
+		return $this->headers[$header];
+	}
+
+	/**
+	 * Sets header value
+	 *
+	 * @param string $header
+	 * @param string $value
+	 *
+	 * @return $this
+	 */
+	public function setHeader($header, $value = null) {
+		$this->headers[$header] = $value;
+		return $this;
+	}
+
+	/**
+	 * Retrieves all headers as array
+	 *
+	 * @param array $headers
+	 *
+	 * @return array
+	 */
+	public function headers($headers = array()) {
+		if(!empty($headers)) {
+			$this->headers = array();
+
+			foreach($headers as $header => $value) {
+				$this->setHeader($header, $value);
+			}
+		}
+
+		return $this->headers;
 	}
 
 	/**
@@ -130,16 +179,25 @@ class Response extends ResponseHeaderBag implements ResponseInterface {
 	}
 
 	/**
+	 * Marks response as no-cache
+	 *
+	 * @return Response|ResponseInterface
+	 */
+	public function makeNoCache() {
+		$this->setHeader('Cache-Control', 'no-cache');
+		$this->setHeader('Pragma', 'no-cache');
+
+		return $this;
+	}
+
+	/**
 	 * Marks response as public
 	 *
 	 * @return Response|ResponseInterface
 	 */
 	public function makePublic() {
-		$this->removeHeader('Cache-Control', 'private');
-		$this->addHeader('Cache-Control', 'public');
-
-		$this->removeHeader('Pragma', 'private');
-		$this->addHeader('Pragma', 'public');
+		$this->setHeader('Cache-Control', 'public');
+		$this->setHeader('Pragma', 'public');
 
 		return $this;
 	}
@@ -150,13 +208,55 @@ class Response extends ResponseHeaderBag implements ResponseInterface {
 	 * @return Response|ResponseInterface
 	 */
 	public function makePrivate() {
-		$this->removeHeader('Cache-Control', 'public');
-		$this->addHeader('Cache-Control', 'private');
-
-		$this->removeHeader('Pragma', 'public');
-		$this->addHeader('Pragma', 'private');
+		$this->setHeader('Cache-Control', 'private');
+		$this->setHeader('Pragma', 'private');
 
 		return $this;
+	}
+
+	/**
+	 * Sends headers
+	 *
+	 * @return ResponseInterface
+	 */
+	public function sendHeaders() {
+		if(headers_sent()) {
+			return $this;
+		}
+
+		header($this->protocol . ' ' . $this->status . ' ' . $this->statusTexts[$this->status], true, $this->status);
+
+		foreach($this->headers() as $header => $value) {
+			if(empty($value)) {
+				continue;
+			}
+
+			header($header . ': ' . $value);
+		}
+
+		return $this;
+	}
+
+	/**
+	 * Sends content
+	 *
+	 * @return ResponseInterface
+	 */
+	public function sendContent() {
+		echo $this->content;
+
+		return $this;
+	}
+
+	/**
+	 * Sends response
+	 *
+	 * @return ResponseInterface
+	 */
+	public function send() {
+		return $this
+			->sendHeaders()
+			->sendContent();
 	}
 
 	/**
@@ -165,16 +265,15 @@ class Response extends ResponseHeaderBag implements ResponseInterface {
 	 * @return string;
 	 */
 	function __toString() {
-		if(headers_sent()) {
-			return (string) $this->content;
+		$headers = '';
+		foreach($this->headers as $header => $value) {
+			if(empty($value)) {
+				continue;
+			}
+
+			$headers .= $header.': '.$value."\r\n";
 		}
 
-		header($this->protocol . ' ' . $this->status . ' ' . $this->statusTexts[$this->status], true, $this->status);
-
-		foreach($this->getHeaders() as $header => $value) {
-			header($header . ': ' . $value);
-		}
-
-		return (string) $this->content;
+		return $this->protocol . ' ' . $this->status . ' ' . $this->statusTexts[$this->status]."\r\n".$headers."\r\n".$this->content;
 	}
 }

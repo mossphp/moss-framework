@@ -2,8 +2,8 @@
 namespace Moss\http\request;
 
 use Moss\http\request\RequestInterface;
-use    Moss\http\cookie\CookieInterface;
-use    Moss\http\session\SessionInterface;
+use Moss\http\cookie\CookieInterface;
+use Moss\http\session\SessionInterface;
 
 /**
  * Request representation
@@ -327,7 +327,7 @@ class Request implements RequestInterface {
 	}
 
 	/**
-	 * Splits accept header data and sorts them by quality
+	 * Splits accept header data and sorts by quality
 	 *
 	 * @param string $header
 	 *
@@ -363,48 +363,37 @@ class Request implements RequestInterface {
 	 * Returns session instance
 	 *
 	 * @param string $key
-	 * @param mixed  $value
+	 * @param mixed  $default
 	 *
 	 * @return SessionInterface
 	 */
-	public function session($key, $value = null) {
-		$keys = explode('.', $key);
-
-		if($value !== null) {
-			return $this->setIntoArray($this->session, $keys, $value);
-		}
-
-		return $this->getFromArray($this->session, $keys);
+	public function session($key, $default = null) {
+		return $this->getFromArray($this->session, explode('.', $key), $default);
 	}
 
 	/**
 	 * Returns cookie instance
 	 *
 	 * @param string $key
-	 * @param mixed  $value
+	 * @param mixed  $default
 	 *
 	 * @return CookieInterface
 	 */
-	public function cookie($key, $value = null) {
-		$keys = explode('.', $key);
-
-		if($value !== null) {
-			return $this->setIntoArray($this->cookie, $keys, $value);
-		}
-
-		return $this->getFromArray($this->cookie, $keys);
+	public function cookie($key, $default = null) {
+		return $this->getFromArray($this->cookie, explode('.', $key), $default);
 	}
 
 	/**
 	 * Returns server param value for given key or null if key does not exists
 	 *
 	 * @param string $key
+	 * @param mixed  $default
 	 *
 	 * @return null|string
 	 */
-	public function server($key) {
+	public function server($key, $default = null) {
 		if(!isset($this->server[$key])) {
-			return null;
+			return $default;
 		}
 
 		return $this->server[$key];
@@ -414,12 +403,13 @@ class Request implements RequestInterface {
 	 * Returns header value for given key or null if key does not exists
 	 *
 	 * @param string $key
+	 * @param mixed  $default
 	 *
 	 * @return null|string
 	 */
-	public function header($key) {
+	public function header($key, $default = null) {
 		if(!isset($this->header[$key])) {
-			return null;
+			return $default;
 		}
 
 		return $this->header[$key];
@@ -429,36 +419,24 @@ class Request implements RequestInterface {
 	 * Returns query value for given key or null if key does not exists
 	 *
 	 * @param string $key
-	 * @param mixed  $value
+	 * @param string $default
 	 *
 	 * @return null|string
 	 */
-	public function query($key, $value = null) {
-		$keys = explode('.', $key);
-
-		if($value !== null) {
-			return $this->setIntoArray($this->query, $keys, $value);
-		}
-
-		return $this->getFromArray($this->query, $keys);
+	public function query($key, $default = null) {
+		return $this->getFromArray($this->query, explode('.', $key), $default);
 	}
 
 	/**
 	 * Returns post value for given key or null if key does not exists
 	 *
 	 * @param string $key
-	 * @param mixed  $value
+	 * @param string $default
 	 *
 	 * @return null|string
 	 */
-	public function post($key, $value = null) {
-		$keys = explode('.', $key);
-
-		if($value !== null) {
-			return $this->setIntoArray($this->post, $keys, $value);
-		}
-
-		return $this->getFromArray($this->post, $keys);
+	public function post($key, $default = null) {
+		return $this->getFromArray($this->post, explode('.', $key), $default);
 	}
 
 	/**
@@ -473,51 +451,25 @@ class Request implements RequestInterface {
 	}
 
 	/**
-	 * Sets array elements value
-	 *
-	 * @param array  $arr
-	 * @param string $keys
-	 * @param mixed  $value
-	 *
-	 * @return mixed
-	 */
-	protected function setIntoArray(&$arr, $keys, $value) {
-		$k = array_shift($keys);
-
-		if(is_scalar($arr)) {
-			$arr = (array) $arr;
-		}
-
-		if(!isset($arr[$k])) {
-			$arr[$k] = null;
-		}
-
-		if(empty($keys)) {
-			return $arr[$k] = $value;
-		}
-
-		return $this->setIntoArray($arr[$k], $keys, $value);
-	}
-
-	/**
 	 * Returns array element matching key
 	 *
-	 * @param array $arr
-	 * @param array $keys
+	 * @param array  $arr
+	 * @param array  $keys
+	 * @param string $default
 	 *
-	 * @return mixed
+	 * @return string
 	 */
-	protected function getFromArray(&$arr, $keys) {
+	protected function getFromArray(&$arr, $keys, $default = null) {
 		$k = array_shift($keys);
 		if(!isset($arr[$k])) {
-			return null;
+			return $default;
 		}
 
 		if(empty($keys)) {
 			return $arr[$k];
 		}
 
-		return $this->getFromArray($arr[$k], $keys);
+		return $this->getFromArray($arr[$k], $keys, $default);
 	}
 
 	/**
@@ -539,7 +491,7 @@ class Request implements RequestInterface {
 			return 'CLI';
 		}
 
-		return $this->server['REQUEST_METHOD'];
+		return strtoupper($this->server['REQUEST_METHOD']);
 	}
 
 	/**

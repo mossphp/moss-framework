@@ -18,7 +18,9 @@ class Cookie implements CookieInterface {
 	protected $httponly = true;
 
 	protected $protected = array('__utma', '__utmz', 'PHPSESSID');
-	protected $storage;
+
+	private $storage;
+	private $separator = '.';
 
 	/**
 	 * Creates cookie wrapper instance
@@ -28,6 +30,10 @@ class Cookie implements CookieInterface {
 	 * @param bool   $httponly
 	 */
 	public function __construct($domain = null, $path = '/', $httponly = true) {
+		if($domain === null) {
+			$domain = empty($_SERVER['HTTP_HOST']) ? null : $_SERVER['HTTP_HOST'];
+		}
+
 		$this->domain = $domain;
 		$this->path = $path;
 		$this->httponly = $httponly;
@@ -37,65 +43,179 @@ class Cookie implements CookieInterface {
 	}
 
 	/**
-	 * Clears all cookie data in domain/path
+	 * Returns value for given key
 	 *
-	 * @return Cookie
+	 * @param string $key
+	 * @param string $default
+	 *
+	 * @return null|string
+	 */
+	public function get($key = null, $default = null) {
+		if($key === null && $default === null) {
+			return $this->all();
+		}
+
+		return $this->getFromArray($this->storage, explode($this->separator, $key), $default);
+	}
+
+	/**
+	 * Sets value for given key
+	 *
+	 * @param string $key
+	 * @param string $value
+	 *
+	 * @return $this
+	 */
+	public function set($key, $value = null) {
+		$this->putIntoArray($this->storage, explode($this->separator, $key), $value);
+
+		return $this;
+	}
+
+	/**
+	 * Retrieves all values as array
+	 *
+	 * @param array $params
+	 *
+	 * @return array
+	 */
+	public function all($params = array()) {
+		if(!empty($params)) {
+			$this->storage = array();
+
+			foreach($params as $key => $value) {
+				$this->putIntoArray($this->storage, explode($this->separator, $key), $value);
+			}
+		}
+
+		return $this->storage;
+	}
+
+	/**
+	 * Removes all values
+	 *
+	 * @return $this
 	 */
 	public function reset() {
-		foreach(array_keys($_COOKIE) as $offset) {
+		foreach(array_keys($_COOKIE) as $key) {
 			$_COOKIE = array();
-			setcookie($offset, "", time() - 3600, $this->path, $this->domain, $this->secure, $this->httponly);
+			setcookie($key, "", time() - 3600, $this->path, $this->domain, $this->secure, $this->httponly);
 		}
 	}
 
-	/**
-	 * Unsets offset
-	 *
-	 * @param int|string $offset
-	 */
-	public function offsetUnset($offset) {
-		unset($_COOKIE[$offset]);
-		setcookie($offset, "", time() - 3600, $this->path, $this->domain, $this->secure, $this->httponly);
-	}
 
 	/**
-	 * Sets offset
+	 * Sets array elements value
 	 *
-	 * @param int|string $offset
-	 * @param mixed      $value
-	 */
-	public function offsetSet($offset, $value) {
-		if(empty($offset)) {
-			$offset = array_push($_COOKIE, $value);
-		}
-
-		setcookie($offset, $value, $this->expire, $this->path, $this->domain, $this->secure, $this->httponly);
-	}
-
-	/**
-	 * Returns offset value
-	 *
-	 * @param string $offset
+	 * @param array  $arr
+	 * @param string $keys
+	 * @param mixed  $value
 	 *
 	 * @return mixed
 	 */
-	public function &offsetGet($offset) {
-		if(!isset($this->storage[$offset])) {
-			$this->storage[$offset] = null;
+	protected function putIntoArray(&$arr, $keys, $value) {
+		$k = array_shift($keys);
+
+		if(is_scalar($arr)) {
+			$arr = (array) $arr;
 		}
 
-		return $this->storage[$offset];
+		if(!isset($arr[$k])) {
+			$arr[$k] = null;
+		}
+
+		if(empty($keys)) {
+			return $arr[$k] = $value;
+		}
+
+		return $this->putIntoArray($arr[$k], $keys, $value);
+	}
+
+	/**
+	 * Returns array element matching key
+	 *
+	 * @param array $arr
+	 * @param array $keys
+	 * @param mixed $default
+	 *
+	 * @return mixed
+	 */
+	protected function getFromArray(&$arr, $keys, $default = null) {
+		$k = array_shift($keys);
+
+		if(!isset($arr[$k])) {
+			return $default;
+		}
+
+		if(empty($keys)) {
+			return $arr[$k];
+		}
+
+		return $this->getFromArray($arr[$k], $keys);
 	}
 
 	/**
 	 * Whether a offset exists
 	 *
-	 * @param string $offset
+	 * @param mixed $key
 	 *
-	 * @return bool
+	 * @return boolean true on success or false on failure.
 	 */
-	public function offsetExists($offset) {
-		return isset($this->storage[$offset]);
+	public function offsetExists($key) {
+		return isset($this->storage[$key]);
+	}
+
+	/**
+	 * Offset to retrieve
+	 *
+	 * @param mixed $key
+	 *
+	 * @return mixed Can return all value types.
+	 */
+	public function &offsetGet($key) {
+		if(!isset($this->storage[$key])) {
+			$this->storage[$key] = null;
+		}
+
+		return $this->storage[$key];
+	}
+
+	/**
+	 * Offset to set
+	 *
+	 * @param mixed $key
+	 * @param mixed $value
+	 *
+	 * @return void
+	 */
+	public function offsetSet($key, $value) {
+		if(empty($key)) {
+			$key = array_push($_COOKIE, $value);
+		}
+
+		setcookie($key, $value, $this->expire, $this->path, $this->domain, $this->secure, $this->httponly);
+	}
+
+	/**
+	 * Offset to unset
+	 *
+	 * @param mixed $key
+	 *
+	 * @return void
+	 */
+	public function offsetUnset($key) {
+		unset($_COOKIE[$key]);
+		setcookie($key, "", time() - 3600, $this->path, $this->domain, $this->secure, $this->httponly);
+	}
+
+	/**
+	 * Count elements of an object
+	 *
+	 * @return int
+	 */
+	public function count() {
+		$count = count($this->storage) - count($this->protected);
+		return $count < 0 ? 0 : $count;
 	}
 
 	/**
@@ -104,14 +224,9 @@ class Cookie implements CookieInterface {
 	 * @return mixed
 	 */
 	public function current() {
-		return current($this->storage);
-	}
+		reset($this->storage);
 
-	/**
-	 * Move forward to next element
-	 */
-	public function next() {
-		next($this->storage);
+		return array_shift($this->storage);
 	}
 
 	/**
@@ -124,9 +239,27 @@ class Cookie implements CookieInterface {
 	}
 
 	/**
+	 * Move forward to next element
+	 *
+	 * @return void
+	 */
+	public function next() {
+		reset($this->storage);
+	}
+
+	/**
+	 * Rewind the Iterator to the first element
+	 *
+	 * @return void
+	 */
+	public function rewind() {
+		reset($this->storage);
+	}
+
+	/**
 	 * Checks if current position is valid
 	 *
-	 * @return bool
+	 * @return boolean
 	 */
 	public function valid() {
 		$key = key($this->storage);
@@ -141,21 +274,5 @@ class Cookie implements CookieInterface {
 		}
 
 		return isset($this->storage[$key]);
-	}
-
-	/**
-	 * Rewind the Iterator to the first element
-	 */
-	public function rewind() {
-		reset($this->storage);
-	}
-
-	/**
-	 * Count elements of an object
-	 *
-	 * @return int
-	 */
-	public function count() {
-		return count($this->storage) - count($this->protected);
 	}
 }

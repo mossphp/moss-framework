@@ -12,7 +12,7 @@ interface FlashBagInterface extends \Iterator, \ArrayAccess, \Countable {
 	/**
 	 * Removes all messages from container
 	 */
-	public function clear();
+	public function reset();
 
 	/**
 	 * Adds message to flashbag

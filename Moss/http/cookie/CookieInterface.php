@@ -10,9 +10,38 @@ namespace Moss\http\cookie;
 interface CookieInterface extends \Iterator, \ArrayAccess, \Countable {
 
 	/**
-	 * Clears all cookie data
+	 * Returns value for given key
 	 *
-	 * @return CookieInterface
+	 * @param string $key
+	 * @param string $default
+	 *
+	 * @return mixed
+	 */
+	public function get($key, $default = null);
+
+	/**
+	 * Sets value for given key
+	 *
+	 * @param string $key
+	 * @param string $value
+	 *
+	 * @return $this
+	 */
+	public function set($key, $value = null);
+
+	/**
+	 * Retrieves all values as array
+	 *
+	 * @param array $headers
+	 *
+	 * @return array
+	 */
+	public function all($headers = array());
+
+	/**
+	 * Removes all values
+	 *
+	 * @return $this
 	 */
 	public function reset();
 }

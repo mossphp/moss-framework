@@ -10,12 +10,11 @@ use Moss\http\session\SessionInterface;
  * @author  Michal Wachowski <wachowski.michal@gmail.com>
  */
 class Session implements SessionInterface {
-	protected $agent = true;
-	protected $ip = true;
-	protected $host = true;
-	protected $salt;
 
-	protected $storage;
+	protected $authkey;
+
+	private $storage;
+	private $separator = '.';
 
 	/**
 	 * Creates session wrapper instance
@@ -23,14 +22,10 @@ class Session implements SessionInterface {
 	 *
 	 * @param bool $agent
 	 * @param bool $ip
-	 * @param bool $host
 	 * @param null $salt
 	 */
-	public function __construct($agent = true, $ip = true, $host = true, $salt = null) {
-		$this->agent = (bool) $agent;
-		$this->ip = (bool) $ip;
-		$this->host = (bool) $host;
-		$this->salt = (int) $salt;
+	public function __construct($agent = true, $ip = true, $salt = null) {
+		$this->authkey = $this->authkey($agent, $ip, $salt);
 
 		if(!session_id()) {
 			session_start();
@@ -44,45 +39,31 @@ class Session implements SessionInterface {
 	}
 
 	/**
-	 * Clears all session data
-	 *
-	 * @return Session
-	 */
-	public function reset() {
-		unset($this->storage);
-
-		$_SESSION = array();
-		session_destroy();
-		session_start();
-
-		$this->storage = & $_SESSION;
-		$this->storage['authkey'] = $this->authkey();
-
-		return $this;
-	}
-
-	/**
 	 * Validates session
 	 *
 	 * @return bool
 	 */
 	protected function validate() {
-		return !empty($this->storage['authkey']) && $this->storage['authkey'] == $this->authkey();
+		return !empty($this->storage['authkey']) && $this->storage['authkey'] === $this->authkey;
 	}
 
 	/**
 	 * Generates session auth key
 	 *
+	 * @param bool $agent
+	 * @param bool $ip
+	 * @param bool $salt
+	 *
 	 * @return string
 	 */
-	protected function authkey() {
+	protected function authkey($agent, $ip, $salt) {
 		$authkey = array();
 
-		if($this->agent) {
+		if($agent) {
 			$authkey[] = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : 'UndefinedUserAgent';
 		}
 
-		if($this->ip) {
+		if($ip) {
 			if(!empty($_SERVER['REMOTE_ADDR'])) {
 				$authkey[] = $_SERVER['REMOTE_ADDR'];
 			}
@@ -97,11 +78,7 @@ class Session implements SessionInterface {
 			}
 		}
 
-		if($this->host) {
-			$authkey[] = $_SERVER['SCRIPT_FILENAME'] . (isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : 'CGI');
-		}
-
-		return hash('sha512', implode($authkey) . $this->generateSalt($this->salt), false);
+		return hash('sha512', implode($authkey) . $salt, false);
 	}
 
 	/**
@@ -121,52 +98,185 @@ class Session implements SessionInterface {
 	}
 
 	/**
-	 * Offset to unset
+	 * Returns value for given key
 	 *
-	 * @param string $offset
-	 */
-	public function offsetUnset($offset) {
-		unset($this->storage[$offset]);
-	}
-
-	/**
-	 * Offset to set
+	 * @param string $key
+	 * @param string $default
 	 *
-	 * @param string $offset
-	 * @param mixed  $value
+	 * @return null|string
 	 */
-	public function offsetSet($offset, $value) {
-		if(empty($offset)) {
-			$offset = array_push($this->storage, $value);
+	public function get($key = null, $default = null) {
+		if($key === null && $default === null) {
+			return $this->all();
 		}
 
-		$this->storage[$offset] = $value;
+		return $this->getFromArray($this->storage, explode($this->separator, $key), $default);
 	}
 
 	/**
-	 * Offset to retrieve
+	 * Sets value for given key
 	 *
-	 * @param string $offset
+	 * @param string $key
+	 * @param string $value
+	 *
+	 * @return $this
+	 */
+	public function set($key, $value = null) {
+		$this->putIntoArray($this->storage, explode($this->separator, $key), $value);
+
+		return $this;
+	}
+
+	/**
+	 * Retrieves all values as array
+	 *
+	 * @param array $params
+	 *
+	 * @return array
+	 */
+	public function all($params = array()) {
+		if(!empty($params)) {
+			$this->storage = array();
+
+			foreach($params as $key => $value) {
+				$this->putIntoArray($this->storage, explode($this->separator, $key), $value);
+			}
+		}
+
+		return $this->storage;
+	}
+
+	/**
+	 * Removes all values
+	 *
+	 * @return $this
+	 */
+	public function reset() {
+		unset($this->storage);
+
+		$_SESSION = array();
+		session_destroy();
+		session_start();
+
+		$this->storage = & $_SESSION;
+		$this->storage['authkey'] = $this->authkey;
+
+		return $this;
+	}
+
+
+	/**
+	 * Sets array elements value
+	 *
+	 * @param array  $arr
+	 * @param string $keys
+	 * @param mixed  $value
 	 *
 	 * @return mixed
 	 */
-	public function &offsetGet($offset) {
-		if(!isset($this->storage[$offset])) {
-			$this->storage[$offset] = null;
+	protected function putIntoArray(&$arr, $keys, $value) {
+		$k = array_shift($keys);
+
+		if(is_scalar($arr)) {
+			$arr = (array) $arr;
 		}
 
-		return $this->storage[$offset];
+		if(!isset($arr[$k])) {
+			$arr[$k] = null;
+		}
+
+		if(empty($keys)) {
+			return $arr[$k] = $value;
+		}
+
+		return $this->putIntoArray($arr[$k], $keys, $value);
+	}
+
+	/**
+	 * Returns array element matching key
+	 *
+	 * @param array $arr
+	 * @param array $keys
+	 * @param mixed $default
+	 *
+	 * @return mixed
+	 */
+	protected function getFromArray(&$arr, $keys, $default = null) {
+		$k = array_shift($keys);
+
+		if(!isset($arr[$k])) {
+			return $default;
+		}
+
+		if(empty($keys)) {
+			return $arr[$k];
+		}
+
+		return $this->getFromArray($arr[$k], $keys);
 	}
 
 	/**
 	 * Whether a offset exists
 	 *
-	 * @param string $offset
+	 * @param mixed $key
 	 *
-	 * @return bool
+	 * @return boolean true on success or false on failure.
 	 */
-	public function offsetExists($offset) {
-		return isset($this->storage[$offset]);
+	public function offsetExists($key) {
+		return isset($this->storage[$key]);
+	}
+
+	/**
+	 * Offset to retrieve
+	 *
+	 * @param mixed $key
+	 *
+	 * @return mixed Can return all value types.
+	 */
+	public function &offsetGet($key) {
+		if(!isset($this->storage[$key])) {
+			$this->storage[$key] = null;
+		}
+
+		return $this->storage[$key];
+	}
+
+	/**
+	 * Offset to set
+	 *
+	 * @param mixed $key
+	 * @param mixed $value
+	 *
+	 * @return void
+	 */
+	public function offsetSet($key, $value) {
+		if($key === null) {
+			array_push($this->storage, $value);
+
+			return;
+		}
+
+		$this->storage[$key] = $value;
+	}
+
+	/**
+	 * Offset to unset
+	 *
+	 * @param mixed $key
+	 *
+	 * @return void
+	 */
+	public function offsetUnset($key) {
+		unset($this->storage[$key]);
+	}
+
+	/**
+	 * Count elements of an object
+	 *
+	 * @return int
+	 */
+	public function count() {
+		return count($this->storage) - 1;
 	}
 
 	/**
@@ -175,14 +285,9 @@ class Session implements SessionInterface {
 	 * @return mixed
 	 */
 	public function current() {
-		return current($this->storage);
-	}
+		reset($this->storage);
 
-	/**
-	 * Move forward to next element
-	 */
-	public function next() {
-		next($this->storage);
+		return array_shift($this->storage);
 	}
 
 	/**
@@ -192,6 +297,24 @@ class Session implements SessionInterface {
 	 */
 	public function key() {
 		return key($this->storage);
+	}
+
+	/**
+	 * Move forward to next element
+	 *
+	 * @return void
+	 */
+	public function next() {
+		reset($this->storage);
+	}
+
+	/**
+	 * Rewind the Iterator to the first element
+	 *
+	 * @return void
+	 */
+	public function rewind() {
+		reset($this->storage);
 	}
 
 	/**
@@ -212,21 +335,5 @@ class Session implements SessionInterface {
 		}
 
 		return isset($this->storage[$key]);
-	}
-
-	/**
-	 * Rewind the Iterator to the first element
-	 */
-	public function rewind() {
-		reset($this->storage);
-	}
-
-	/**
-	 * Count elements of an object
-	 *
-	 * @return int
-	 */
-	public function count() {
-		return count($this->storage) - 1;
 	}
 }

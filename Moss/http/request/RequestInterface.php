@@ -13,62 +13,64 @@ use Moss\http\session\SessionInterface;
 interface RequestInterface {
 
 	/**
-	 * Returns session instance
+	 * Returns session value for given key or default if key does not exists
 	 *
 	 * @param string $key
-	 * @param mixed  $value
+	 * @param mixed  $default
 	 *
 	 * @return SessionInterface
 	 */
-	public function session($key, $value = null);
+	public function session($key, $default = null);
 
 	/**
-	 * Returns cookie instance
+	 * Returns cookie value for given key or default if key does not exists
 	 *
 	 * @param string $key
-	 * @param mixed  $value
+	 * @param mixed  $default
 	 *
 	 * @return CookieInterface
 	 */
-	public function cookie($key, $value = null);
+	public function cookie($key, $default = null);
 
 	/**
-	 * Returns server param value for given key or null if key does not exists
+	 * Returns server param value for given key or default if key does not exists
 	 *
 	 * @param string $key
+	 * @param mixed  $default
 	 *
 	 * @return null|string
 	 */
-	public function server($key);
+	public function server($key, $default = null);
 
 	/**
-	 * Returns header value for given key or null if key does not exists
+	 * Returns header value for given key or default if key does not exists
 	 *
 	 * @param string $key
+	 * @param mixed  $default
 	 *
 	 * @return null|string
 	 */
-	public function header($key);
+	public function header($key, $default = null);
 
 	/**
-	 * Returns query value for given key or null if key does not exists
+	 * Returns query value for given key or default if key does not exists
 	 *
 	 * @param string $key
-	 * @param mixed  $value
+	 * @param mixed  $default
 	 *
 	 * @return null|string
 	 */
-	public function query($key, $value = null);
+	public function query($key, $default = null);
 
 	/**
-	 * Returns post value for given key or null if key does not exists
+	 * Returns post value for given key or default if key does not exists
 	 *
 	 * @param string $key
-	 * @param mixed  $value
+	 * @param mixed  $default
 	 *
 	 * @return null|string
 	 */
-	public function post($key, $value = null);
+	public function post($key, $default = null);
 
 	/**
 	 * Returns file value for given key or null if key does not exists

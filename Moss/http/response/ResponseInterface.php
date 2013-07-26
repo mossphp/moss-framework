@@ -10,57 +10,31 @@ namespace Moss\http\response;
 interface ResponseInterface {
 
 	/**
-	 * Returns true if response has defined header of given type
-	 *
-	 * @param string $headerType
-	 *
-	 * @return bool
-	 */
-	public function hasHeader($headerType);
-
-	/**
-	 * Retrieves header from response
+	 * Returns header value for given key
 	 *
 	 * @param string $header
+	 * @param string $default
 	 *
 	 * @return null|string
 	 */
-	public function getHeader($header);
+	public function getHeader($header, $default = null);
 
 	/**
-	 * Adds header to response
+	 * Sets header value
 	 *
 	 * @param string $header
 	 * @param string $value
 	 *
-	 * @return ResponseInterface
+	 * @return $this
 	 */
-	public function addHeader($header, $value);
+	public function setHeader($header, $value = null);
 
 	/**
 	 * Retrieves all headers as array
 	 *
 	 * @return array
 	 */
-	public function getHeaders();
-
-	/**
-	 * Overwrites all response headers
-	 *
-	 * @param string $headers
-	 *
-	 * @return ResponseInterface
-	 */
-	public function setHeaders($headers);
-
-	/**
-	 * Removes header from response
-	 *
-	 * @param string $header
-	 *
-	 * @return ResponseInterface
-	 */
-	public function removeHeader($header);
+	public function headers();
 
 	/**
 	 * Sets response content
@@ -104,7 +78,28 @@ interface ResponseInterface {
 	public function makePrivate();
 
 	/**
-	 * Casts response into string and sends headers
+	 * Sends headers
+	 *
+	 * @return ResponseInterface
+	 */
+	public function sendHeaders();
+
+	/**
+	 * Sends content
+	 *
+	 * @return ResponseInterface
+	 */
+	public function sendContent();
+
+	/**
+	 * Sends response
+	 *
+	 * @return ResponseInterface
+	 */
+	public function send();
+
+	/**
+	 * Casts response into string with headers
 	 *
 	 * @return string;
 	 */
