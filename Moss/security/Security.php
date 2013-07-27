@@ -3,7 +3,6 @@ namespace Moss\security;
 
 use Moss\security\SecurityInterface;
 use Moss\security\TokenStashInterface;
-use Moss\security\AuthenticationProviderInterface;
 use Moss\security\UserProviderInterface;
 use Moss\security\UserInterface;
 use Moss\security\AuthenticationException;
@@ -106,7 +105,7 @@ class Security implements SecurityInterface {
 				continue;
 			}
 
-			if(!$Area->authorizeUser($this->User) || !$Area->authorizeIP($Request->clientIp())) {
+			if(!$Area->authorize($this->User, $Request->clientIp())) {
 				throw new AuthorizationException('Access denied to area ' . $Area->pattern());
 			}
 

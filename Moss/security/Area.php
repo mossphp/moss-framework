@@ -27,8 +27,8 @@ class Area implements AreaInterface {
 	public function __construct($pattern, $roles = array(), $ips = array()) {
 		$this->pattern = $pattern;
 		$this->regexp = $this->buildRegExp($pattern);
-		$this->roles = $roles;
-		$this->ips = $ips;
+		$this->roles = (array) $roles;
+		$this->ips = (array) $ips;
 	}
 
 	/**
@@ -98,21 +98,35 @@ class Area implements AreaInterface {
 	 * @return bool
 	 */
 	public function match(RequestInterface $Request) {
-		if(preg_match($this->pattern, $Request->controller())) {
+		if(preg_match($this->regexp, $Request->controller())) {
 			return true;
 		}
 
 		return false;
 	}
 
+
+
 	/**
-	 * Returns true if use has access to area
+	 * Returns true if use has access
+	 *
+	 * @param UserInterface $User
+	 * @param string $ip
+	 *
+	 * @return bool
+	 */
+	public function authorize(UserInterface $User, $ip = null) {
+		return $this->authRole($User) && $this->authIp($ip);
+	}
+
+	/**
+	 * Returns true if use has role to access area
 	 *
 	 * @param UserInterface $User
 	 *
 	 * @return bool
 	 */
-	public function authorizeUser(UserInterface $User) {
+	protected function authRole(UserInterface $User) {
 		if(empty($this->roles)) {
 			return true;
 		}
@@ -127,19 +141,19 @@ class Area implements AreaInterface {
 	}
 
 	/**
-	 * Returns true if IP may access area
+	 * Returns true if user has IP to access area
 	 *
-	 * @param string $ip
+	 * @param string $userIp
 	 *
 	 * @return bool
 	 */
-	public function authorizeIp($ip) {
+	public function authIp($userIp) {
 		if(empty($this->ips)) {
 			return true;
 		}
 
 		foreach($this->ips as $ip) {
-			if($ip === $ip) {
+			if($userIp === $ip) {
 				return true;
 			}
 		}

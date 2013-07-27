@@ -46,17 +46,9 @@ interface AreaInterface {
 	 * Returns true if use has access to area
 	 *
 	 * @param UserInterface $User
-	 *
-	 * @return bool
-	 */
-	public function authorizeUser(UserInterface $User);
-
-	/**
-	 * Returns true if IP may access area
-	 *
 	 * @param string $ip
 	 *
 	 * @return bool
 	 */
-	public function authorizeIP($ip);
+	public function authorize(UserInterface $User, $ip = null);
 }
