@@ -1,8 +1,8 @@
 <?php
-namespace Moss\http\request;
+namespace moss\http\request;
 
-use Moss\http\cookie\CookieInterface;
-use Moss\http\session\SessionInterface;
+use moss\http\cookie\CookieInterface;
+use moss\http\session\SessionInterface;
 
 /**
  * Request representation
@@ -86,7 +86,7 @@ interface RequestInterface {
 	 *
 	 * @return bool
 	 */
-	public function isXHR();
+	public function isAjax();
 
 	/**
 	 * Returns request method

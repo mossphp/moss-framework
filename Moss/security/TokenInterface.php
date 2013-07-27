@@ -1,5 +1,5 @@
 <?php
-namespace Moss\security;
+namespace moss\security;
 
 /**
  * Security token
@@ -21,7 +21,7 @@ interface TokenInterface extends \Serializable {
 	 *
 	 * @return $this
 	 */
-	public function eraseCredentials();
+	public function remove();
 
 	/**
 	 * Returns true if token is authenticated

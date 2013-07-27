@@ -1,5 +1,5 @@
 <?php
-namespace Moss\loader;
+namespace moss\loader;
 
 /**
  * Moss APC auto load handlers

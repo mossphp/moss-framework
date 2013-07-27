@@ -1,5 +1,5 @@
 <?php
-namespace Moss\config;
+namespace moss\config;
 
 /**
  * Dependency Injection Container exception

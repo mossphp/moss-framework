@@ -1,7 +1,7 @@
 <?php
-namespace Moss\security;
+namespace moss\security;
 
-use Moss\security\TokenInterface;
+use moss\security\TokenInterface;
 
 /**
  * Security token
@@ -39,7 +39,7 @@ class Token implements TokenInterface {
 	 *
 	 * @return $this
 	 */
-	public function eraseCredentials() {
+	public function remove() {
 		$this->credentials = null;
 	}
 

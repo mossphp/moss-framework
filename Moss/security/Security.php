@@ -1,13 +1,13 @@
 <?php
-namespace Moss\security;
+namespace moss\security;
 
-use Moss\security\SecurityInterface;
-use Moss\security\TokenStashInterface;
-use Moss\security\UserProviderInterface;
-use Moss\security\UserInterface;
-use Moss\security\AuthenticationException;
-use Moss\security\AuthorizationException;
-use Moss\http\request\RequestInterface;
+use moss\security\SecurityInterface;
+use moss\security\TokenStashInterface;
+use moss\security\UserProviderInterface;
+use moss\security\UserInterface;
+use moss\security\AuthenticationException;
+use moss\security\AuthorizationException;
+use moss\http\request\RequestInterface;
 
 /**
  * Security facade

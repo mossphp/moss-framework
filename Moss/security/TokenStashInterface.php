@@ -1,5 +1,5 @@
 <?php
-namespace Moss\security;
+namespace moss\security;
 
 /**
  * Security token stash interface

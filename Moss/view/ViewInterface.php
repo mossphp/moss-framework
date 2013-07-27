@@ -1,5 +1,5 @@
 <?php
-namespace Moss\view;
+namespace moss\view;
 
 /**
  * Moss ViewInterface

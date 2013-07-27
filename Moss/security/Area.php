@@ -1,8 +1,8 @@
 <?php
-namespace Moss\security;
+namespace moss\security;
 
-use Moss\http\request\RequestInterface;
-use Moss\security\AreaInterface;
+use moss\http\request\RequestInterface;
+use moss\security\AreaInterface;
 
 /**
  * Security protected area

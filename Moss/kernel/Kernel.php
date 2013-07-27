@@ -1,14 +1,14 @@
 <?php
-namespace Moss\kernel;
+namespace moss\kernel;
 
-use Moss\container\ContainerInterface;
-use Moss\router\RouterInterface;
-use Moss\dispatcher\DispatcherInterface;
-use Moss\http\request\RequestInterface;
-use Moss\http\response\ResponseInterface;
-use Moss\kernel\KernelException;
-use Moss\router\RouterException;
-use Moss\security\SecurityException;
+use moss\container\ContainerInterface;
+use moss\router\RouterInterface;
+use moss\dispatcher\DispatcherInterface;
+use moss\http\request\RequestInterface;
+use moss\http\response\ResponseInterface;
+use moss\kernel\KernelException;
+use moss\router\RouterException;
+use moss\security\SecurityException;
 
 /**
  * Moss Kernel

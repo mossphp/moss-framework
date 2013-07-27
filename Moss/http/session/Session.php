@@ -1,7 +1,7 @@
 <?php
-namespace Moss\http\session;
+namespace moss\http\session;
 
-use Moss\http\session\SessionInterface;
+use moss\http\session\SessionInterface;
 
 /**
  * Session object representation

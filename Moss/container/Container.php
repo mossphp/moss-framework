@@ -1,8 +1,8 @@
 <?php
-namespace Moss\container;
+namespace moss\container;
 
-use Moss\container\ContainerInterface;
-use Moss\container\ComponentInterface;
+use moss\container\ContainerInterface;
+use moss\container\ComponentInterface;
 
 /**
  * Dependency Injection Container

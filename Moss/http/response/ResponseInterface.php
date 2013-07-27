@@ -1,5 +1,5 @@
 <?php
-namespace Moss\http\response;
+namespace moss\http\response;
 
 /**
  * Response interface
@@ -28,6 +28,15 @@ interface ResponseInterface {
 	 * @return $this
 	 */
 	public function setHeader($header, $value = null);
+
+	/**
+	 * Removes header
+	 *
+	 * @param string $header
+	 *
+	 * @return $this
+	 */
+	public function removeHeader($header);
 
 	/**
 	 * Retrieves all headers as array

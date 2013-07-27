@@ -1,10 +1,10 @@
 <?php
-namespace Moss\router;
+namespace moss\router;
 
-use Moss\router\RouterInterface;
-use Moss\router\RouteInterface;
-use Moss\router\RouterException;
-use Moss\http\request\RequestInterface;
+use moss\router\RouterInterface;
+use moss\router\RouteInterface;
+use moss\router\RouterException;
+use moss\http\request\RequestInterface;
 
 /**
  * Router

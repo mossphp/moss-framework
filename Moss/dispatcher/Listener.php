@@ -1,9 +1,9 @@
 <?php
-namespace Moss\dispatcher;
+namespace moss\dispatcher;
 
-use Moss\dispatcher\ListenerInterface;
-use Moss\container\ContainerInterface;
-use Moss\dispatcher\DispatcherException;
+use moss\dispatcher\ListenerInterface;
+use moss\container\ContainerInterface;
+use moss\dispatcher\DispatcherException;
 
 /**
  * Event dispatchers listener

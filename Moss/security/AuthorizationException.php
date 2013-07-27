@@ -1,7 +1,7 @@
 <?php
-namespace Moss\security;
+namespace moss\security;
 
-use Moss\security\SecurityException;
+use moss\security\SecurityException;
 
 /**
  * Authorization exception

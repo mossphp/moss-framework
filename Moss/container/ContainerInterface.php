@@ -1,5 +1,5 @@
 <?php
-namespace Moss\container;
+namespace moss\container;
 
 /**
  * Dependency Injection Container interface

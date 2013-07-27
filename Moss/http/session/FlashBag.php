@@ -1,8 +1,8 @@
 <?php
-namespace Moss\http\session;
+namespace moss\http\session;
 
-use Moss\http\session\FlashBagInterface;
-use Moss\http\session\SessionInterface;
+use moss\http\session\FlashBagInterface;
+use moss\http\session\SessionInterface;
 
 /**
  * Session flash bag

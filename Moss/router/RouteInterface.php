@@ -1,7 +1,7 @@
 <?php
-namespace Moss\router;
+namespace moss\router;
 
-use Moss\http\request\RequestInterface;
+use moss\http\request\RequestInterface;
 
 /**
  * Route definition interface for Router

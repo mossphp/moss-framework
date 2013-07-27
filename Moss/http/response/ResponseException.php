@@ -1,5 +1,5 @@
 <?php
-namespace Moss\http\response;
+namespace moss\http\response;
 
 /**
  * Response exception

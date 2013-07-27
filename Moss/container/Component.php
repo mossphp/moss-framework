@@ -1,9 +1,9 @@
 <?php
-namespace Moss\container;
+namespace moss\container;
 
-use Moss\container\ComponentInterface;
-use Moss\container\ContainerInterface;
-use Moss\container\ContainerException;
+use moss\container\ComponentInterface;
+use moss\container\ContainerInterface;
+use moss\container\ContainerException;
 
 /**
  * Dependency Injection Component definition

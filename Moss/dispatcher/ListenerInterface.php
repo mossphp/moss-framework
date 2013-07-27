@@ -1,7 +1,7 @@
 <?php
-namespace Moss\dispatcher;
+namespace moss\dispatcher;
 
-use Moss\container\ContainerInterface;
+use moss\container\ContainerInterface;
 
 /**
  * Event dispatchers listener interface

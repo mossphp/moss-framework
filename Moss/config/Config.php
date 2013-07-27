@@ -1,8 +1,8 @@
 <?php
-namespace Moss\config;
+namespace moss\config;
 
-use Moss\config\ConfigInterface;
-use Moss\config\ConfigException;
+use moss\config\ConfigInterface;
+use moss\config\ConfigException;
 
 
 /**

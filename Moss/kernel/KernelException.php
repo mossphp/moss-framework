@@ -1,5 +1,5 @@
 <?php
-namespace Moss\kernel;
+namespace moss\kernel;
 
 /**
  * Moss Kernel exception

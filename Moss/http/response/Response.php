@@ -1,8 +1,8 @@
 <?php
-namespace Moss\http\response;
+namespace moss\http\response;
 
-use Moss\http\response\ResponseInterface;
-use Moss\http\response\ResponseException;
+use moss\http\response\ResponseInterface;
+use moss\http\response\ResponseException;
 
 /**
  * Response sent to client
@@ -101,6 +101,21 @@ class Response implements ResponseInterface {
 	 */
 	public function setHeader($header, $value = null) {
 		$this->headers[$header] = $value;
+		return $this;
+	}
+
+	/**
+	 * Removes header
+	 *
+	 * @param string $header
+	 *
+	 * @return $this
+	 */
+	public function removeHeader($header) {
+		if(isset($this->headers[$header])) {
+			unset($this->headers[$header]);
+		}
+
 		return $this;
 	}
 

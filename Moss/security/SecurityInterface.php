@@ -1,9 +1,9 @@
 <?php
-namespace Moss\security;
+namespace moss\security;
 
-use Moss\security\AuthenticationException;
-use Moss\security\UserInterface;
-use Moss\http\request\RequestInterface;
+use moss\security\AuthenticationException;
+use moss\security\UserInterface;
+use moss\http\request\RequestInterface;
 
 /**
  * Security interface

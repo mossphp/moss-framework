@@ -1,7 +1,7 @@
 <?php
-namespace Moss\http\response;
+namespace moss\http\response;
 
-use Moss\http\response\Response;
+use moss\http\response\Response;
 
 /**
  * Redirecting Response

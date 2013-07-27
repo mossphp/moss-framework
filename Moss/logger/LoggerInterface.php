@@ -1,6 +1,6 @@
 <?php
 
-namespace Moss\logger;
+namespace moss\logger;
 
 /**
  * Logger interface - see PSR-3
