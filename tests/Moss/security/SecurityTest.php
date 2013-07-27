@@ -122,12 +122,7 @@ class SecurityTest extends \PHPUnit_Framework_TestCase {
 
 		$Area
 			->expects($this->any())
-			->method('authorizeUser')
-			->will($this->returnValue($access));
-
-		$Area
-			->expects($this->any())
-			->method('authorizeIP')
+			->method('authorize')
 			->will($this->returnValue($access));
 
 		return $Area;
