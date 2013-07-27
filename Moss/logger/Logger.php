@@ -181,9 +181,25 @@ class Logger implements LoggerInterface {
 	/**
 	 * Return all logged data
 	 *
+	 * @param bool $verbose
+	 *
 	 * @return array
 	 */
-	public function get() {
+	public function get($verbose = true) {
+		if(!$verbose) {
+			$log = array();
+
+			foreach($this->log as $entry) {
+				$log[] = array(
+					'level' => $entry['level'],
+					'message' => $entry['message'],
+					'context' => $entry['context']
+				);
+			}
+
+			return $log;
+		}
+
 		return $this->log;
 	}
 
@@ -225,7 +241,7 @@ class Logger implements LoggerInterface {
 				"%s (%s) - Time: %s\tMemory: %s\n%s\n%s\n\n",
 				$entry['level'],
 				$this->levels[$entry['level']],
-				date('Y-m-d H:i:s', $entry['timestamp']).':'.str_pad(substr($entry['timestamp'], strpos($entry['timestamp'], '.')+1), 4, 0, STR_PAD_RIGHT),
+				date('Y-m-d H:i:s', $entry['timestamp']) . ':' . str_pad(substr($entry['timestamp'], strpos($entry['timestamp'], '.') + 1), 4, 0, STR_PAD_RIGHT),
 				number_format($entry['memory'], 0, '.', ' '),
 				$entry['message'],
 				print_r($entry['context'], 1)
@@ -242,7 +258,7 @@ class Logger implements LoggerInterface {
 	 */
 	public function write() {
 		if(!$this->path) {
-			return;
+			throw new \InvalidArgumentException('Can not write log without path');
 		}
 
 		if(!$this->writeEmpty && !count($this->log)) {
@@ -250,7 +266,7 @@ class Logger implements LoggerInterface {
 		}
 
 		$path = substr($this->path, 0, strrpos($this->path, '/'));
-		if(!is_dir($path)) {
+		if(!empty($path) && !is_dir($path)) {
 			mkdir($path, 0777, true);
 		}
 
