@@ -1,9 +1,9 @@
 <?php
-namespace Moss\http\request;
+namespace moss\http\request;
 
-use Moss\http\request\RequestInterface;
-use Moss\http\cookie\CookieInterface;
-use Moss\http\session\SessionInterface;
+use moss\http\request\RequestInterface;
+use moss\http\cookie\CookieInterface;
+use moss\http\session\SessionInterface;
 
 /**
  * Request representation
@@ -28,10 +28,10 @@ class Request implements RequestInterface {
 	private $post;
 	private $file;
 
-	/** @var \Moss\http\session\SessionInterface|\ArrayAccess|array */
+	/** @var SessionInterface|\ArrayAccess|array */
 	private $session;
 
-	/** @var \Moss\http\cookie\CookieInterface|\ArrayAccess|array */
+	/** @var CookieInterface|\ArrayAccess|array */
 	private $cookie;
 
 	/**
@@ -477,7 +477,7 @@ class Request implements RequestInterface {
 	 *
 	 * @return bool
 	 */
-	public function isXHR() {
+	public function isAjax() {
 		return !empty($this->server['HTTP_X_REQUESTED_WITH']) && strtolower($this->server['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
 	}
 
