@@ -7,12 +7,12 @@ Routers responsibility is to translate incoming URL requests into controller nam
 
 Create route ( pointing to controller `controller:action` and two query arguments: required `foo` and optional `bar` ):
 
-	$Route = new \Moss\router\Route('/{foo}/({bar})/', 'controller:action');
+	$Route = new \moss\router\Route('/{foo}/({bar})/', 'controller:action');
 
 Or create route with closure as controller
 
-	$Route = new \Moss\router\Route('/{foo}/({bar})/', function() {
-		return new \Moss\response\Response('Hello world');
+	$Route = new \moss\router\Route('/{foo}/({bar})/', function() {
+		return new \moss\response\Response('Hello world');
 	});
 
 Set argument requirements - accepted types - by default, all values are accepted:
@@ -21,12 +21,12 @@ Set argument requirements - accepted types - by default, all values are accepted
 
 Set argument default values, needed only for required arguments:
 
-    $Route->defaults(array('foo' => 'foo'));
+    $Route->arguments(array('foo' => 'foo'));
 
 If limitation is needed - set host, method and schema:
 
     $Route->host('foo.{basename}');
-    $Route->methods(array('POST');
+    $Route->methods(array('POST'));
     $Route->schema('HTTP');
 
 ## Register route

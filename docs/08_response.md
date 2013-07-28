@@ -3,7 +3,7 @@
 `Response` represents all the things that are sent to users in response to his `Request`.
 Sending `Response` to client:
 
-	$Reponse = new \Moss\http\response\Response($responseContent);
+	$Reponse = new \moss\http\response\Response($responseContent);
 	$Response->send();
 
 This will output HTML response (`Content-Type: text/html`) with `status code` `200` (`OK`).
@@ -20,7 +20,10 @@ To add, change or remove header from response use `::header($header, $value)` me
 
 	$Response->setHeader('Content-Type', 'text/plain'); // set header
 	$Response->setHeader('Content-Type', 'text/html'); // overwrite previous
-	$Response->setHeader('Content-Type', false); // remove header
+
+To remove header
+
+	$Response->removeHeader('Content-Type');
 
 To retrieve header:
 
@@ -31,7 +34,7 @@ To retrieve header:
 
 There is different response object - `RedirectResponse`. Its purpose is to redirect user to new url.
 
-	$Redirect = new \Moss\http\response\RedirectResponse('http://google.com');
+	$Redirect = new \moss\http\response\RedirectResponse('http://google.com');
 	$Redirect->send();
 
 `RedirectResponse` extends `Response`, main difference are: `::__construct($address, $delay = 0)` and `::address($address = null)`, `::delay($delay = null)`

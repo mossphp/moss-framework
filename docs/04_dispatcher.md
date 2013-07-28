@@ -1,17 +1,22 @@
 # Event dipatcher
 
+Event dispatcher is similar to _observer pattern_, its task is respond to fired events.
+When event is fired, dispatcher checks if event is defined, if at least one event observer is registered.
+If so - all observers (either class, its method or closure) are notified about event.
+
+
 ## Event listener
 
 Create event listener, that will call `method` with array of `arguments` on `component` when event occours (event is defined elswhere).
 Method and arguments are optional.
 
-	$Listener = new \Moss\dispatcher\Listener('component', 'method', $arguments);
+	$Listener = new \moss\dispatcher\Listener('component', 'method', $arguments);
 
 Arguments are defined just like in DI component's definitions, with two additional - predefined - components: `Subject` and `Message`.
 The `Subject` is an event object (usually object firing event), while `Message` is a text assiociated with event (eg. exception message).
 
 To retrieve listening effect call `get` method on defined listener.
-Retrieval requires object implementing `\Moss\container\ContainerInterface`, other attributes are optional.
+Retrieval requires object implementing `\moss\container\ContainerInterface`, other attributes are optional.
 
 	$Result = $Listener->get($Container, $Subject, $Message);
 
@@ -19,7 +24,7 @@ Retrieval requires object implementing `\Moss\container\ContainerInterface`, oth
 
 Register defined `$Listener` to observe `foo` event:
 
-	$Dispatcher = new \Moss\dispatcher\Dispatcher($Container);
+	$Dispatcher = new \moss\dispatcher\Dispatcher($Container);
 	$Dispatcher->register('foo', $Listener);
 
 Or register closure as event listener:
@@ -40,6 +45,14 @@ To fire `foo` event, call:
 	$Dispatcher->fire('foo');
 
 All defined listeners, that observe `foo` event will be notified.
+
+## Stop
+
+To stop other listeners from being notified, call `::stop()` method.
+
+	$Dispatcher->stop();
+
+No other listeners will be notified about ongoing event.
 
 ## Aspects
 
