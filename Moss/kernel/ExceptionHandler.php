@@ -60,8 +60,10 @@ class ExceptionHandler {
 	 * @param \Exception $e
 	 */
 	public function handlerTerse($e) {
-		header('HTTP/1.1 500 Internal Server Error', true, 500);
-		header('Content-type: text/plain; charset=UTF-8');
+		if(!headers_sent()) {
+			header('HTTP/1.1 500 Internal Server Error', true, 500);
+			header('Content-type: text/plain; charset=UTF-8');
+		}
 		echo sprintf('Bad Moss: %s ( %s at line:%s )', $e->getMessage(), $e->getFile(), $e->getLine());
 	}
 
@@ -72,8 +74,11 @@ class ExceptionHandler {
 	 * @param \Exception $e
 	 */
 	public function handlerVerbose($e) {
-		header('HTTP/1.1 500 Internal Server Error', true, 500);
-		header('Content-type: text/html; charset=UTF-8');
+		if(!headers_sent()) {
+			header('HTTP/1.1 500 Internal Server Error', true, 500);
+			header('Content-type: text/html; charset=UTF-8');
+		}
+
 		echo sprintf(
 			'<!DOCTYPE html>
 		<html>
