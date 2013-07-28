@@ -1,5 +1,5 @@
 <?php
-namespace Moss\router;
+namespace moss\router;
 
 class RouterTest extends \PHPUnit_Framework_TestCase {
 
@@ -28,7 +28,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	protected function mockRequest($controller, $url, $host = null) {
-		$Request = $this->getMock('Moss\http\request\RequestInterface');
+		$Request = $this->getMock('moss\http\request\RequestInterface');
 
 		$Request
 			->expects($this->any())
@@ -54,7 +54,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	/**
-	 * @expectedException \Moss\router\RouterException
+	 * @expectedException \moss\router\RouterException
 	 */
 	public function testMatchRouteNotExists() {
 		$this->Router->match($this->mockRequest('missing-route', '/missing-route/'));
@@ -86,7 +86,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	public function testMatchQuery() {
-		$Request = $this->getMock('Moss\http\request\RequestInterface');
+		$Request = $this->getMock('moss\http\request\RequestInterface');
 		$Request
 			->expects($this->any())
 			->method('controller')
@@ -119,7 +119,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase {
 
 
 	/**
-	 * @expectedException \Moss\router\RouterException
+	 * @expectedException \moss\router\RouterException
 	 */
 	public function testMakeWithoutDefaultController() {
 		$this->Router->make();

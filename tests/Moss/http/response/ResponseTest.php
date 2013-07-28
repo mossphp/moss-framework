@@ -1,5 +1,5 @@
 <?php
-namespace Moss\http\response;
+namespace moss\http\response;
 
 
 class ResponseTest extends \PHPUnit_Framework_TestCase {
@@ -16,7 +16,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	/**
-	 * @expectedException \Moss\http\response\ResponseException
+	 * @expectedException \moss\http\response\ResponseException
 	 */
 	public function testInvaliudContent() {
 		new Response(array());
@@ -28,7 +28,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	/**
-	 * @expectedException \Moss\http\response\ResponseException
+	 * @expectedException \moss\http\response\ResponseException
 	 */
 	public function testInvalidStatus() {
 		new Response('Foo', 999);

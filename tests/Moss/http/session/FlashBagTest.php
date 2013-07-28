@@ -1,5 +1,5 @@
 <?php
-namespace Moss\http\session;
+namespace moss\http\session;
 
 /**
  * @package Moss Test

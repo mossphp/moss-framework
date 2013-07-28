@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-require_once __DIR__ . '/../Moss/loader/Loader.php';
-$Loader = new \Moss\loader\Loader();
+require_once __DIR__ . '/../moss/loader/Loader.php';
+$Loader = new \moss\loader\Loader();
 $Loader->addNamespace(null, __DIR__ . '/../');
 $Loader->register();

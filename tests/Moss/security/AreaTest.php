@@ -1,5 +1,5 @@
 <?php
-namespace Moss\security;
+namespace moss\security;
 
 
 class AreaTest extends \PHPUnit_Framework_TestCase {
@@ -22,11 +22,11 @@ class AreaTest extends \PHPUnit_Framework_TestCase {
 	public function testMatch() {
 		$Area = new Area('Bundle:*:!login|logout');
 
-		$RequestBlock = $this->getMock('\Moss\http\request\RequestInterface');
+		$RequestBlock = $this->getMock('\moss\http\request\RequestInterface');
 		$RequestBlock->expects($this->any())->method('controller')->will($this->returnValue('Bundle:something:index'));
 		$this->assertTrue($Area->match($RequestBlock));
 
-		$RequestPass = $this->getMock('\Moss\http\request\RequestInterface');
+		$RequestPass = $this->getMock('\moss\http\request\RequestInterface');
 		$RequestPass->expects($this->any())->method('controller')->will($this->returnValue('Bundle:something:login'));
 		$this->assertFalse($Area->match($RequestPass));
 	}
@@ -34,7 +34,7 @@ class AreaTest extends \PHPUnit_Framework_TestCase {
 	public function testAuthUserFail() {
 		$Area = new Area('Bundle:*:!login|logout', array('role'));
 
-		$User = $this->getMock('\Moss\security\UserInterface');
+		$User = $this->getMock('\moss\security\UserInterface');
 		$User->expects($this->any())->method('hasRole')->will($this->returnValue(false));
 
 		$this->assertFalse($Area->authorize($User));
@@ -42,7 +42,7 @@ class AreaTest extends \PHPUnit_Framework_TestCase {
 	public function testAuthUserPass() {
 		$Area = new Area('Bundle:*:!login|logout', array('role'));
 
-		$User = $this->getMock('\Moss\security\UserInterface');
+		$User = $this->getMock('\moss\security\UserInterface');
 		$User->expects($this->any())->method('hasRole')->will($this->returnValue(true));
 
 		$this->assertTrue($Area->authorize($User));
@@ -51,7 +51,7 @@ class AreaTest extends \PHPUnit_Framework_TestCase {
 	public function testAuthIpFail() {
 		$Area = new Area('Bundle:*:!login|logout', array(), array('127.0.0.1'));
 
-		$User = $this->getMock('\Moss\security\UserInterface');
+		$User = $this->getMock('\moss\security\UserInterface');
 		$User->expects($this->any())->method('hasRole')->will($this->returnValue(true));
 
 		$this->assertTrue($Area->authorize($User, '127.0.0.1'));
@@ -60,7 +60,7 @@ class AreaTest extends \PHPUnit_Framework_TestCase {
 	public function testAutIpPass() {
 		$Area = new Area('Bundle:*:!login|logout', array(), array('127.0.0.1'));
 
-		$User = $this->getMock('\Moss\security\UserInterface');
+		$User = $this->getMock('\moss\security\UserInterface');
 		$User->expects($this->any())->method('hasRole')->will($this->returnValue(true));
 
 		$this->assertFalse($Area->authorize($User, '198.162.1.1'));

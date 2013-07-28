@@ -1,5 +1,5 @@
 <?php
-namespace Moss\container;
+namespace moss\container;
 
 class ContainerTest extends \PHPUnit_Framework_TestCase {
 
@@ -13,14 +13,14 @@ class ContainerTest extends \PHPUnit_Framework_TestCase {
 	public function testRegisterDefinition() {
 		$result = $this->Container->register('foo', 'bar', false);
 
-		$this->assertInstanceOf('Moss\container\Container', $result);
+		$this->assertInstanceOf('moss\container\Container', $result);
 		$this->assertAttributeCount(1, 'components', $this->Container);
 	}
 
 	public function testRegisterSharedDefinition() {
 		$result = $this->Container->register('foo', 'bar', true);
 
-		$this->assertInstanceOf('Moss\container\Container', $result);
+		$this->assertInstanceOf('moss\container\Container', $result);
 		$this->assertAttributeCount(1, 'components', $this->Container);
 		$this->assertAttributeCount(1, 'instances', $this->Container);
 	}
@@ -28,7 +28,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase {
 	public function testRegisterInstance() {
 		$result = $this->Container->register('foo', new \stdClass());
 
-		$this->assertInstanceOf('Moss\container\Container', $result);
+		$this->assertInstanceOf('moss\container\Container', $result);
 		$this->assertAttributeCount(0, 'components', $this->Container);
 		$this->assertAttributeCount(1, 'instances', $this->Container);
 	}
@@ -36,25 +36,25 @@ class ContainerTest extends \PHPUnit_Framework_TestCase {
 	public function testUnRegisterDefinition() {
 		$result = $this->Container->register('foo', 'bar', false);
 
-		$this->assertInstanceOf('Moss\container\Container', $result);
+		$this->assertInstanceOf('moss\container\Container', $result);
 		$this->assertAttributeCount(1, 'components', $this->Container);
 
 		$result = $this->Container->unregister('foo');
 
-		$this->assertInstanceOf('Moss\container\Container', $result);
+		$this->assertInstanceOf('moss\container\Container', $result);
 		$this->assertAttributeCount(0, 'components', $this->Container);
 	}
 
 	public function testUnRegisterSharedDefinition() {
 		$result = $this->Container->register('foo', 'bar', true);
 
-		$this->assertInstanceOf('Moss\container\Container', $result);
+		$this->assertInstanceOf('moss\container\Container', $result);
 		$this->assertAttributeCount(1, 'components', $this->Container);
 		$this->assertAttributeCount(1, 'instances', $this->Container);
 
 		$result = $this->Container->unregister('foo');
 
-		$this->assertInstanceOf('Moss\container\Container', $result);
+		$this->assertInstanceOf('moss\container\Container', $result);
 		$this->assertAttributeCount(0, 'components', $this->Container);
 		$this->assertAttributeCount(0, 'instances', $this->Container);
 	}
@@ -62,13 +62,13 @@ class ContainerTest extends \PHPUnit_Framework_TestCase {
 	public function testUnRegisterInstance() {
 		$result = $this->Container->register('foo', new \stdClass());
 
-		$this->assertInstanceOf('Moss\container\Container', $result);
+		$this->assertInstanceOf('moss\container\Container', $result);
 		$this->assertAttributeCount(0, 'components', $this->Container);
 		$this->assertAttributeCount(1, 'instances', $this->Container);
 
 		$result = $this->Container->unregister('foo');
 
-		$this->assertInstanceOf('Moss\container\Container', $result);
+		$this->assertInstanceOf('moss\container\Container', $result);
 		$this->assertAttributeCount(0, 'components', $this->Container);
 		$this->assertAttributeCount(0, 'instances', $this->Container);
 	}
@@ -144,12 +144,12 @@ class ContainerTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	public function testGetComponent() {
-		$this->Container->register('foo', new Component('\Moss\container\Component', array('\stdClass')), false);
+		$this->Container->register('foo', new Component('\moss\container\Component', array('\stdClass')), false);
 		$this->assertEquals(new Component('\stdClass'), $this->Container->get('foo'));
 	}
 
 	public function testGetSharedComponent() {
-		$this->Container->register('foo', new Component('\Moss\container\Component', array('\stdClass')), true);
+		$this->Container->register('foo', new Component('\moss\container\Component', array('\stdClass')), true);
 		$this->assertEquals(new Component('\stdClass'), $this->Container->get('foo'));
 	}
 
@@ -160,7 +160,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	/**
-	 * @expectedException \Moss\container\ContainerException
+	 * @expectedException \moss\container\ContainerException
 	 */
 	public function testGetUndefined() {
 		$this->Container->get('foo');

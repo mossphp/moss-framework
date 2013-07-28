@@ -1,5 +1,5 @@
 <?php
-namespace Moss\router;
+namespace moss\router;
 
 class RouteTest extends \PHPUnit_Framework_TestCase {
 
@@ -31,28 +31,10 @@ class RouteTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	/**
-	 * @expectedException \Moss\router\RouteException
+	 * @expectedException \moss\router\RouteException
 	 */
 	public function testRequirementsMissing() {
 		$Route = new Route('/{foo}/({bar})/', 'foo', array('donk' => 'donk'));
-	}
-
-	public function testDefaults() {
-		$Route = new Route('/{foo}/({bar})/', 'foo');
-		$this->assertEquals(array('foo' => null), $Route->defaults());
-	}
-
-	public function testDefaultsSet() {
-		$Route = new Route('/{foo}/({bar})/', 'foo');
-		$this->assertEquals(array('foo' => 'foo', 'bar' => 'bar'), $Route->defaults(array('foo' => 'foo', 'bar' => 'bar')));
-	}
-
-	/**
-	 * @expectedException \Moss\router\RouteException
-	 */
-	public function testDefaultMissing() {
-		$Route = new Route('/{foo}/({bar})/', 'foo');
-		$Route->defaults(array('yada' => 'yada'));
 	}
 
 	public function testArguments() {
@@ -66,7 +48,7 @@ class RouteTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	/**
-	 * @expectedException \Moss\router\RouteException
+	 * @expectedException \moss\router\RouteException
 	 */
 	public function testArgumentsMissing() {
 		$Route = new Route('/{foo}/({bar})/', 'foo');
@@ -165,7 +147,7 @@ class RouteTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	/**
-	 * @expectedException \Moss\router\RouteException
+	 * @expectedException \moss\router\RouteException
 	 */
 	public function testMakeEmptyBasenameWithDomain() {
 		$Route = new Route('/{foo}/({bar})/', 'foo', array('foo' => '\w+', 'bar' => '\d*'));
@@ -196,7 +178,7 @@ class RouteTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	/**
-	 * @expectedException \Moss\router\RouteException
+	 * @expectedException \moss\router\RouteException
 	 */
 	public function testMakeInsufficientArg() {
 		$Route = new Route('/{foo}/({bar})/', 'foo', array('foo' => '\w+', 'bar' => '\d*'));
@@ -204,7 +186,7 @@ class RouteTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	/**
-	 * @expectedException \Moss\router\RouteException
+	 * @expectedException \moss\router\RouteException
 	 */
 	public function testMakeInvalidArg() {
 		$Route = new Route('/{foo}/({bar})/', 'foo', array('foo' => '\w+', 'bar' => '\d*'));
@@ -213,7 +195,7 @@ class RouteTest extends \PHPUnit_Framework_TestCase {
 
 
 	protected function mockRequest($url, $schema = null, $method = null, $host = null) {
-		$Request = $this->getMock('Moss\http\request\RequestInterface');
+		$Request = $this->getMock('moss\http\request\RequestInterface');
 		$Request
 			->expects($this->any())
 			->method('url')

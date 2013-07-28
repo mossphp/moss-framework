@@ -1,5 +1,5 @@
 <?php
-namespace Moss\http\cookie;
+namespace moss\http\cookie;
 
 /**
  * @package Moss Test

@@ -1,5 +1,5 @@
 <?php
-namespace Moss\http\request;
+namespace moss\http\request;
 
 /**
  * @package Moss Test
@@ -8,7 +8,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase {
 
 	public function testConstruct() {
 		$Request = new Request();
-		$this->assertInstanceOf('\Moss\http\request\RequestInterface', $Request);
+		$this->assertInstanceOf('\moss\http\request\RequestInterface', $Request);
 	}
 
 	public function testConstructContent() {
@@ -17,7 +17,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase {
 		$_SERVER['CONTENT_TYPE'] = 'text/plan';
 
 		$Request = new Request();
-		$this->assertInstanceOf('\Moss\http\request\RequestInterface', $Request);
+		$this->assertInstanceOf('\moss\http\request\RequestInterface', $Request);
 		$this->assertEquals($_SERVER['CONTENT_LENGTH'], $Request->server('CONTENT_LENGTH'));
 		$this->assertEquals($_SERVER['CONTENT_MD5'], $Request->server('CONTENT_MD5'));
 		$this->assertEquals($_SERVER['CONTENT_TYPE'], $Request->server('CONTENT_TYPE'));
@@ -31,7 +31,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase {
 		$_SERVER['PHP_AUTH_PW'] = 'pw';
 
 		$Request = new Request();
-		$this->assertInstanceOf('\Moss\http\request\RequestInterface', $Request);
+		$this->assertInstanceOf('\moss\http\request\RequestInterface', $Request);
 		$this->assertEquals($_SERVER['PHP_AUTH_USER'], $Request->server('PHP_AUTH_USER'));
 		$this->assertEquals($_SERVER['PHP_AUTH_PW'], $Request->server('PHP_AUTH_PW'));
 		$this->assertEquals($_SERVER['PHP_AUTH_USER'], $Request->header('php_auth_user'));
@@ -42,7 +42,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase {
 		$_SERVER['HTTP_AUTHORIZATION'] = 'basic ' . base64_encode('user:pw');
 
 		$Request = new Request();
-		$this->assertInstanceOf('\Moss\http\request\RequestInterface', $Request);
+		$this->assertInstanceOf('\moss\http\request\RequestInterface', $Request);
 		$this->assertEquals($_SERVER['HTTP_AUTHORIZATION'], $Request->server('HTTP_AUTHORIZATION'));
 		$this->assertEquals('Basic ' . base64_encode('user:pw'), $Request->header('authorization'));
 		$this->assertEquals('user', $Request->header('php_auth_user'));
@@ -53,7 +53,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase {
 		$_SERVER['REDIRECT_HTTP_AUTHORIZATION'] = 'basic ' . base64_encode('user:pw');
 
 		$Request = new Request();
-		$this->assertInstanceOf('\Moss\http\request\RequestInterface', $Request);
+		$this->assertInstanceOf('\moss\http\request\RequestInterface', $Request);
 		$this->assertEquals($_SERVER['REDIRECT_HTTP_AUTHORIZATION'], $Request->server('REDIRECT_HTTP_AUTHORIZATION'));
 		$this->assertEquals('user', $Request->header('php_auth_user'));
 		$this->assertEquals('pw', $Request->header('php_auth_pw'));
@@ -250,13 +250,13 @@ class RequestTest extends \PHPUnit_Framework_TestCase {
 	}
 	public function testIsXHRFalse() {
 		$Request = new Request();
-		$this->assertFalse($Request->isXHR());
+		$this->assertFalse($Request->isAjax());
 	}
 
 	public function testIsXHRTrue() {
 		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'xmlhttprequest';
 		$Request = new Request();
-		$this->assertTrue($Request->isXHR());
+		$this->assertTrue($Request->isAjax());
 	}
 
 	public function testGetMethodCLI() {
