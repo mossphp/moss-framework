@@ -17,7 +17,8 @@ class Router implements RouterInterface {
 
 	protected $defaults = array('host' => null);
 
-	protected $allowFallback = true;
+	protected $routeNormal = true;
+	protected $fallbackNormal = true;
 	protected $forceAbsolute = false;
 
 	/** @var array|RouteInterface[] */
@@ -26,12 +27,28 @@ class Router implements RouterInterface {
 	/**
 	 * Creates router instance
 	 *
+	 * @param bool $allowNormal
 	 * @param bool $allowFallback
 	 * @param bool $forceAbsolute
 	 */
-	public function __construct($allowFallback = true, $forceAbsolute = false) {
-		$this->allowFallback = (bool) $allowFallback;
+	public function __construct($allowNormal = true, $allowFallback = true, $forceAbsolute = false) {
+		$this->fallbackNormal = (bool) $allowFallback;
 		$this->forceAbsolute = (bool) $forceAbsolute;
+	}
+
+	public function routeNormal($bool) {
+		$this->routeNormal = (bool) $bool;
+		return $this;
+	}
+
+	public function fallbackNormal($bool) {
+		$this->fallbackNormal = (bool) $bool;
+		return $this;
+	}
+
+	public function forceAbsolute($bool) {
+		$this->forceAbsolute = (bool) $bool;
+		return $this;
 	}
 
 	/**
@@ -67,7 +84,7 @@ class Router implements RouterInterface {
 	 * @throws RouterException
 	 */
 	public function match(RequestInterface $Request) {
-		if($Request->query('controller')) {
+		if($this->routeNormal && $Request->query('controller')) {
 			$Request->controller($Request->query('controller'));
 
 			$this->defaults['host'] = $Request->host();
@@ -147,7 +164,7 @@ class Router implements RouterInterface {
 			return $Route->make($this->defaults['host'], $arguments, $forceAbsolute);
 		}
 
-		if($this->allowFallback) {
+		if($this->fallbackNormal) {
 			return $this->makeNormal($this->defaults['host'], $controller, $arguments, $forceAbsolute);
 		}
 

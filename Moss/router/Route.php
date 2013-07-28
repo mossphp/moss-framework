@@ -27,14 +27,19 @@ class Route implements RouteInterface {
 	 * @param string          $pattern
 	 * @param string|\Closure $controller
 	 * @param array           $requirements
+	 * @param array           $arguments
 	 */
-	public function __construct($pattern, $controller, $requirements = array()) {
+	public function __construct($pattern, $controller, $requirements = array(), $arguments = array()) {
 		$this->pattern = $pattern;
 		$this->controller = $controller;
 		$this->pattern = preg_replace_callback('/(\(?\{([^}]+)\}\)?)/i', array($this, 'callback'), $this->pattern, \PREG_SET_ORDER);
 
 		if(!empty($requirements)) {
 			$this->requirements($requirements);
+		}
+
+		if(!empty($arguments)) {
+			$this->arguments($arguments);
 		}
 	}
 
@@ -111,34 +116,6 @@ class Route implements RouteInterface {
 	}
 
 	/**
-	 * Sets default values for each argument in pattern
-	 *
-	 * @param array $defaults
-	 *
-	 * @return array
-	 * @throws RouteException
-	 */
-	public function defaults($defaults = array()) {
-		if(empty($defaults)) {
-			return $this->defaults;
-		}
-
-		foreach(array_keys($this->defaults) as $key) {
-			if(!array_key_exists($key, $defaults)) {
-				throw new RouteException(sprintf('Missing required default value for "%s"', $key));
-			}
-		}
-
-		foreach($defaults as $k => $v) {
-			$defaults[$k] = $this->strip($v);
-		}
-
-		$this->defaults = $defaults;
-
-		return $this->defaults;
-	}
-
-	/**
 	 * Sets values for each argument in pattern
 	 *
 	 * @param array $arguments
@@ -155,6 +132,8 @@ class Route implements RouteInterface {
 			if(!array_key_exists($key, $arguments)) {
 				throw new RouteException(sprintf('Missing required default value for "%s"', $key));
 			}
+
+			$this->defaults[$key] = $arguments[$key];
 		}
 
 		$this->arguments = $arguments;

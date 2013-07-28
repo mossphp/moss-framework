@@ -28,15 +28,6 @@ interface RouteInterface {
 	public function requirements($requirements = array());
 
 	/**
-	 * Sets default values for each argument in pattern
-	 *
-	 * @param array $defaults
-	 *
-	 * @return $this
-	 */
-	public function defaults($defaults = array());
-
-	/**
 	 * Sets values for each argument in pattern
 	 *
 	 * @param array $arguments
