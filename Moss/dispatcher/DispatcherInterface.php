@@ -1,5 +1,5 @@
 <?php
-namespace Moss\dispatcher;
+namespace moss\dispatcher;
 
 /**
  * Event dispatcher interface
@@ -31,5 +31,12 @@ interface DispatcherInterface {
 	 * @throws \Exception
 	 */
 	public function fire($event, $Subject = null, $message = null);
+
+	/**
+	 * Stops event handling
+	 *
+	 * @return $this
+	 */
+	public function stop();
 }
 

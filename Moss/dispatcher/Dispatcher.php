@@ -1,9 +1,9 @@
 <?php
-namespace Moss\dispatcher;
+namespace moss\dispatcher;
 
-use Moss\dispatcher\DispatcherInterface;
-use Moss\dispatcher\ListenerInterface;
-use Moss\container\ContainerInterface;
+use moss\dispatcher\DispatcherInterface;
+use moss\dispatcher\ListenerInterface;
+use moss\container\ContainerInterface;
 
 /**
  * Event dispatcher
@@ -18,6 +18,8 @@ class Dispatcher implements DispatcherInterface {
 
 	/** @var array */
 	private $events = array();
+
+	private $stop;
 
 	/**
 	 * Constructor
@@ -89,8 +91,14 @@ class Dispatcher implements DispatcherInterface {
 	 * @throws \Exception
 	 */
 	public function fire($event, $Subject = null, $message = null) {
+		$this->stop = false;
+
 		try {
 			foreach(array($event . ':before', $event, $event . ':after') as $eventName) {
+				if($this->stop) {
+					break;
+				}
+
 				$Subject = $this->call($eventName, $Subject, $message);
 			}
 		}
@@ -104,6 +112,18 @@ class Dispatcher implements DispatcherInterface {
 
 		return $Subject;
 	}
+
+	/**
+	 * Stops event handling
+	 *
+	 * @return $this
+	 */
+	public function stop() {
+		$this->stop = true;
+
+		return $this;
+	}
+
 
 	/**
 	 * Calls event listener
@@ -120,6 +140,10 @@ class Dispatcher implements DispatcherInterface {
 		}
 
 		foreach($this->events[$event] as $listener) {
+			if($this->stop) {
+				break;
+			}
+
 			if($listener instanceof ListenerInterface) {
 				$Subject = $listener->get($this->Container, $Subject, $message);
 				continue;
