@@ -11,3 +11,15 @@ By default `moss framework` is a small framework, providing basic tools that can
 But when needed they can be easily replaced with components from other frameworks or independent libraries.
 
 ## Quickstart
+
+### Instalation
+
+### Controller
+
+### Database
+
+### Template
+
+### Routes
+
+### Restrict access
