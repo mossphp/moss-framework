@@ -1,8 +1,8 @@
 <?php
-namespace Moss\sample\controller;
+namespace moss\sample\controller;
 
-use Moss\container\ContainerInterface;
-use Moss\http\response\Response;
+use moss\container\ContainerInterface;
+use moss\http\response\Response;
 
 class SampleController {
 
@@ -20,6 +20,6 @@ class SampleController {
 	 * Called at the end of constructor
 	 */
 	public function indexAction() {
-		return new Response('Hello, this is sample controller');
+		return new Response('Hello, this is sample controller. <a href="./autodoc">Go to documentation</a>');
 	}
 }

@@ -7,12 +7,13 @@ h2 { margin-top: 0; }
 h3 { margin-top: 3em; }
 h4, dt { margin-top: 1.5em; }
 
-dl, ul { margin: 0 0 1em 2em; list-style: none; }
-dd ul { list-style: disc; }
+:not(body) > dl, :not(nav) > ul, :not(nav) > ol { margin: 0 0 1em 2em; }
+body > dl, nav > ul, nav > ol, nav > ul > li > ul { list-style: none; }
 dt, dd, li { position: relative; margin: 0 0 0.5em 0; }
 p { max-width: 70em; margin: 0.25em 0 0.25em 2em; }
 pre { margin: 1em 0 1em 4em; }
-a { text-decoration: none; border-bottom-width: 1px; border-bottom-style: dotted; }
+a, a:visited { text-decoration: none; border-bottom: 1px dotted; color: #4799b1; }
+a:hover { border-style: solid; color: #4799b1; }
 
 code[class*="language-"], pre[class*="language-"] { color: black; text-shadow: 0 1px white; font-family: monospace; direction: ltr; text-align: left; white-space: pre; word-spacing: normal; tab-size: 4; hyphens: none; }
 pre[class*="language-"] { padding: 1em; margin: .5em 0; overflow: auto; }

@@ -1,9 +1,10 @@
 <?php
-namespace Moss\autodoc\controller;
+namespace moss\autodoc\controller;
 
-use Moss\autodoc\parser\Markdown;
-use Moss\container\ContainerInterface;
-use Moss\http\response\Response;
+use moss\container\ContainerInterface;
+use moss\http\response\Response;
+use moss\autodoc\parser\Markdown;
+use moss\component\cache\FileCache;
 
 /**
  * Generates documentation based on PHPDoc comments
@@ -26,8 +27,14 @@ class AutodocController {
 	 * @return Response
 	 */
 	public function indexAction() {
+		$Cache = new FileCache('../cache/');
+
+//		if($autodocResponse = $Cache->fetch('autodocResponse')) {
+//			return $autodocResponse;
+//		}
+
 		$manDirs = array('../docs');
-		$docDirs = array('../Moss/');
+		$docDirs = array('../moss/');
 
 		$doc = $this->buildDocumentation($manDirs);
 		$com = $this->buildComment($docDirs);
@@ -35,13 +42,16 @@ class AutodocController {
 
 		$autodocResponseContent = $this->Container
 			->get('View')
-			->template('Moss:autodoc:autodoc')
+			->template('moss:autodoc:autodoc')
 			->set('Documentation', $doc)
 			->set('Comments', $com)
 			->set('Packages', $pck)
 			->render();
 
 		$autodocResponse = new Response($autodocResponseContent);
+		$autodocResponse->makePublic();
+		$autodocResponse->setHeader('Cache-control', 'max-age=9200');
+		$Cache->store('autodocResponse', $autodocResponse, 9200);
 
 		return $autodocResponse;
 	}
@@ -79,14 +89,20 @@ class AutodocController {
 						}
 
 						if($m[1] == 2) {
-							$chapter['section'][] = array('name' => $m['2'], 'content' => isset($d[$k+1]) ? $d[$k+1] : '');
+							$chapter['section'][] = array(
+								'id' => $this->strip($m[2]),
+								'name' => $m['2'],
+								'content' => isset($d[$k+1]) ? $d[$k+1] : ''
+							);
 						}
 					}
 				}
 
-				$doc[] = $chapter;
+				$doc[(string) $item] = $chapter;
 			}
 		}
+
+		ksort($doc);
 
 		return $doc;
 	}
@@ -192,7 +208,7 @@ class AutodocController {
 			'desc' => $this->commentDesc($RefClass->getDocComment(), true),
 			'author' => $this->commentDesc($RefClass->getDocComment(), 'author'),
 			'package' => $this->commentDesc($RefClass->getDocComment(), 'package'),
-			'name' => $RefClass->getNamespaceName() . '\\' . basename($RefClass->getName()),
+			'name' => $RefClass->getName(),
 			'namespace' => $RefClass->getNamespaceName() . '\\',
 			'parent' => $RefClass->getParentClass() ? '\\' . $RefClass
 					->getParentClass()
@@ -237,7 +253,6 @@ class AutodocController {
 			'isAbstract' => $RefMethod->isAbstract(),
 			'isStatic' => $RefMethod->isStatic(),
 			'isPublic' => $RefMethod->isPublic(),
-			'isprivate' => $RefMethod->isprivate(),
 			'isPrivate' => $RefMethod->isPrivate(),
 			'isUserDefined' => $RefMethod->isUserDefined(),
 			'arguments' => array()
@@ -402,12 +417,14 @@ class AutodocController {
 		foreach($doc as $class) {
 			if(!isset($packages[$class['package']])) {
 				$packages[$class['package']] = array(
+					'id' => $this->strip($class['package']),
 					'name' => $class['package'],
 					'classes' => array()
 				);
 			}
 
 			$packages[$class['package']]['classes'][] = array(
+				'id' => $this->strip($class['name']),
 				'name' => $class['name'],
 				'desc' => $class['desc']
 			);
@@ -449,7 +466,7 @@ class AutodocController {
 	protected function strip($urlString, $separator = '-') {
 		$urlString = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $urlString);
 		$urlString = strtolower($urlString);
-		$urlString = preg_replace('#[^\w \-\.]+#i', $separator, $urlString);
+		$urlString = preg_replace('#[^\w\-\.]+#i', $separator, $urlString);
 		$urlString = trim($urlString, '-.');
 
 		return $urlString;

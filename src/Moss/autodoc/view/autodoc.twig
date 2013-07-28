@@ -21,20 +21,22 @@
 
 <section>
     <header id="header">
-        <h1>{% trans "MOSS Autodoc" %}</h1>
+        <h1>{% trans "MOSS" %}</h1>
     </header>
 
     <nav>
-        <h2>{% trans "Index: Documentation" %}</h2>
         <ul>
             {% for Chapter in Documentation %}
                 <li>
-                    <a href="{{ Url() }}#{{ Chapter.name }}">{{ Chapter.name }}</a>
+                    <h2><a href="{{ Url() }}#{{ Chapter.id }}">{{ Chapter.name }}</a></h2>
+                    {{ Chapter.content|raw }}
+
                     {% if Chapter.section %}
                     <ul>
                         {% for Section in Chapter.section %}
                             <li>
-                                <a href="{{ Url() }}#{{ Section.name }}">{{ Section.name }}</a>
+                                <h3><a href="{{ Url() }}#{{ Section.id }}">{{ Section.name }}</a></h3>
+                                {{ Section.content|raw }}
                             </li>
                         {% endfor %}
                     </ul>
@@ -43,15 +45,15 @@
             {% endfor %}
         </ul>
 
-        <h2>{% trans "Index: Packages" %}</h2>
+        <h2>{% trans "API: Packages" %}</h2>
         <ul>
             {% for Package in Packages %}
                 <li>
-                    <a href="{{ Url() }}#{{ Package.name }}">{{ Package.name }}</a>
+                    <a href="{{ Url() }}#{{ Package.id }}">{{ Package.name }}</a>
                     <ul>
                         {% for Class in Package.classes %}
                             <li {% if not Class.desc %}class="nodesc"{% endif %}>
-                                <a href="{{ Url() }}#{{ Class.name }}">{{ Class.name }}</a> -
+                                <a href="{{ Url() }}#{{ Class.id }}">{{ Class.name }}</a> -
                                 <span>{{ Class.desc }}</span>
                             </li>
                         {% endfor %}
@@ -60,7 +62,7 @@
             {% endfor %}
         </ul>
 
-        <h2>{% trans "Index: Classes and methods" %}</h2>
+        <h2>{% trans "API: Classes and methods" %}</h2>
         <ul>
             {% for Class in Comments %}
                 <li>
@@ -81,25 +83,6 @@
     </nav>
 
     <dl>
-        {% for Chapter in Documentation %}
-            <dt>
-                <h3 id="{{ Chapter.name }}">{{ Chapter.name }}</h3>
-            </dt>
-            <dd>
-                {{ Chapter.content|raw }}
-                <dl>
-                    {% for Section in Chapter.section %}
-                        <dt>
-                        <h4 id="{{ Section.name }}">{{ Section.name }}</h4>
-                        </dt>
-                        <dd>
-                            {{ Section.content|raw }}
-                        </dd>
-                    {% endfor %}
-                </dl>
-            </dd>
-        {% endfor %}
-
         {% for Class in Comments %}
             <dt id="{{ Class.id }}">
             <h3>
@@ -117,7 +100,7 @@
                     {% for Method in Class.methods if Method.isUserDefined %}
                         <dt id="{{ Method.id }}">
                         <h4 class="token-name">
-                            <code>{% if Method.isAbstract %}abstract{% endif %} {% if Method.isStatic %}static{% endif %} {% if Method.isPublic %}public{% elseif  Method.isProtected %}protected{% elseif  Method.isPrivate %}private{% endif %} {{ Class.name }} :: {{ Method.name }} ( {% for Attr in Method.arguments %}{% if not Attr.required %}[{% endif %} {% for type in Attr.type %} {{ type }} {% if not loop.last %} | {% endif %} {% endfor %} ${{ Attr.name }} {% if not Attr.required %} = {% if Attr.default %}{{ Attr.default }}{% else %}null{% endif %}{% endif %} {% if not Attr.required %}]{% endif %} {% if not loop.last %} , {% endif %}{% endfor %} )</code>
+                            <code>{% if Method.isAbstract %}abstract{% endif %} {% if Method.isStatic %}static{% endif %} {% if Method.isPublic %}public{% elseif Method.isProtected %}protected{% else %}private{% endif %} {{ Class.name }} :: {{ Method.name }} ( {% for Attr in Method.arguments %}{% if not Attr.required %}[{% endif %} {% for type in Attr.type %} {{ type }} {% if not loop.last %} | {% endif %} {% endfor %} ${{ Attr.name }} {% if not Attr.required %} = {% if Attr.default %}{{ Attr.default }}{% else %}null{% endif %}{% endif %} {% if not Attr.required %}]{% endif %} {% if not loop.last %} , {% endif %}{% endfor %} )</code>
                         </h4>
                         </dt>
                         <dd>
@@ -154,12 +137,12 @@
             return;
         }
 
+        console.log(t.innerHTML.replace(/(<([^>]+)>)/ig,"").toLowerCase());
         e = '#' + t.innerHTML.replace(/(<([^>]+)>)/ig,"").toLowerCase().replace(/[^\w \-\.]+/igm, '-');
         if(!document.querySelector(e)) {
             return;
         }
 
-        console.log(location.href.toString().replace(/(#.*)/, '') + e);
         history.pushState(null, null, location.href.toString().replace(/(#.*)/, '') + e);
         window.location=window.location.href;
     });

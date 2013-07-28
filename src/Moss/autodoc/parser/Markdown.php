@@ -1,5 +1,5 @@
 <?php
-namespace Moss\autodoc\parser;
+namespace moss\autodoc\parser;
 
 class Markdown {
 
