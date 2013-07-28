@@ -4,7 +4,7 @@ class Twig_Bridge_Extension_Locale extends Twig_Extension {
 
 	protected $Locale;
 
-	public function __construct(\Moss\component\locale\LocaleInterface $Locale = null) {
+	public function __construct(\moss\component\locale\LocaleInterface $Locale = null) {
 		$this->Locale = & $Locale;
 	}
 
