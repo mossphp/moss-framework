@@ -1,5 +1,4 @@
 MOSS Micro Framework
 
-For licence details see Lidence.md
-
-... more to come ...
+For licence details see LICENCE.md
+Documentation is available in ./docs/
