@@ -17,10 +17,13 @@ return array(
 		)
 	),
 	'namespaces' => array(
+		'moss' => array(
+			'../vendor/moss/lib/'
+		)
 	),
 	'container' => array(
 		'Logger' => array(
-			'class' => '\Moss\logger\Logger',
+			'class' => '\moss\logger\Logger',
 			'shared' => true,
 			'arguments' => array(
 				'../log/log.txt',
@@ -29,7 +32,7 @@ return array(
 		),
 
 		'View' => array(
-			'class' => '\Moss\view\View',
+			'class' => '\moss\view\View',
 			'arguments' => array(
 				'@Request',
 				'@Config',
@@ -85,7 +88,7 @@ return array(
 	'router' => array(
 		'main' => array(
 			'pattern' => '/',
-			'controller' => 'Moss:sample:Sample:index',
+			'controller' => 'moss:sample:Sample:index',
 			'requirements' => array(),
 			'defaults' => array(),
 			'arguments' => array(),
@@ -95,7 +98,7 @@ return array(
 		),
 		'autodoc' => array(
 			'pattern' => '/autodoc/',
-			'controller' => 'Moss:autodoc:Autodoc:index',
+			'controller' => 'moss:autodoc:Autodoc:index',
 		)
 	)
 );

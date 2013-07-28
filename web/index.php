@@ -1,27 +1,27 @@
 <?php
-require __DIR__ . '/../Moss/config/ConfigInterface.php';
-require __DIR__ . '/../Moss/config/Config.php';
+require __DIR__ . '/../moss/config/ConfigInterface.php';
+require __DIR__ . '/../moss/config/Config.php';
 
-require __DIR__ . '/../Moss/kernel/ErrorHandler.php';
-require __DIR__ . '/../Moss/kernel/ExceptionHandler.php';
+require __DIR__ . '/../moss/kernel/ErrorHandler.php';
+require __DIR__ . '/../moss/kernel/ExceptionHandler.php';
 
-require __DIR__ . '/../Moss/loader/Loader.php';
+require __DIR__ . '/../moss/loader/Loader.php';
 
 // Bootstrap & config
 $bootstrap = (array) require __DIR__ . '/bootstrap.php';
-$Config = new \Moss\config\Config(isset($bootstrap) ? (array) $bootstrap : array());
+$Config = new \moss\config\Config(isset($bootstrap) ? (array) $bootstrap : array());
 unset($bootstrap);
 
 // Error handling
-$ErrorHandler = new \Moss\kernel\ErrorHandler($Config->get('framework.error.level'));
+$ErrorHandler = new \moss\kernel\ErrorHandler($Config->get('framework.error.level'));
 $ErrorHandler->register();
 
-$ExceptionHandler = new \Moss\kernel\ExceptionHandler($Config->get('framework.error.detail'));
+$ExceptionHandler = new \moss\kernel\ExceptionHandler($Config->get('framework.error.detail'));
 $ExceptionHandler->register();
 
 // Loaders
-$Loader = new \Moss\loader\Loader();
-$Loader->addNamespace('Moss', array('../'));
+$Loader = new \moss\loader\Loader();
+$Loader->addNamespace('moss', array('../'));
 $Loader->addNamespace(null, array('../src/'));
 $Loader->addNamespaces($Config->get('namespaces'));
 
@@ -34,10 +34,10 @@ unset($composerAutoloadPath);
 $Loader->register();
 
 // Container
-$Container = new \Moss\container\Container();
+$Container = new \moss\container\Container();
 foreach((array) $Config->get('container') as $name => $component) {
 	if(isset($component['class'])) {
-		$Container->register($name, new \Moss\container\Component($component['class'], $component['arguments'], $component['methods']), $component['shared']);
+		$Container->register($name, new \moss\container\Component($component['class'], $component['arguments'], $component['methods']), $component['shared']);
 		continue;
 	}
 
@@ -46,24 +46,24 @@ foreach((array) $Config->get('container') as $name => $component) {
 unset($name, $component);
 
 // Dispatcher
-$Dispatcher = new \Moss\dispatcher\Dispatcher($Container);
+$Dispatcher = new \moss\dispatcher\Dispatcher($Container);
 foreach((array) $Config->get('dispatcher') as $event => $listeners) {
 	foreach($listeners as $listener) {
-		$Dispatcher->register($event, new \Moss\dispatcher\Listener($listener['component'], $listener['method'], $listener['arguments']));
+		$Dispatcher->register($event, new \moss\dispatcher\Listener($listener['component'], $listener['method'], $listener['arguments']));
 	}
 }
 unset($event, $listeners, $listener);
 
 // Router
-$Router = new \Moss\router\Router();
+$Router = new \moss\router\Router();
 foreach((array) $Config->get('router') as $name => $route) {
-	$Router->register($name, new \Moss\router\Route($route['pattern'], $route['controller'], $route['requirements']));
+	$Router->register($name, new \moss\router\Route($route['pattern'], $route['controller'], $route['requirements']));
 }
 unset($name, $route);
 
-$Session = new \Moss\http\session\Session($Config->get('session.agent'), $Config->get('session.ip'), $Config->get('session.host'), $Config->get('session.salt'));
-$Cookie = new \Moss\http\cookie\Cookie($Config->get('cookie.domain'), $Config->get('cookie.path'), $Config->get('cookie.http'));
-$Request = new \Moss\http\request\Request($Session, $Cookie);
+$Session = new \moss\http\session\Session($Config->get('session.agent'), $Config->get('session.ip'), $Config->get('session.host'), $Config->get('session.salt'));
+$Cookie = new \moss\http\cookie\Cookie($Config->get('cookie.domain'), $Config->get('cookie.path'), $Config->get('cookie.http'));
+$Request = new \moss\http\request\Request($Session, $Cookie);
 
 $Container->register('Config', $Config);
 $Container->register('Router', $Router);
@@ -73,5 +73,5 @@ $Container->register('Cookie', $Cookie);
 $Container->register('Request', $Request);
 
 // Kernel
-$Core = new \Moss\kernel\Kernel($Container->get('Router'), $Container, $Container->get('Dispatcher'));
+$Core = new \moss\kernel\Kernel($Container->get('Router'), $Container, $Container->get('Dispatcher'));
 $Core->handle($Container->get('Request'))->send();
