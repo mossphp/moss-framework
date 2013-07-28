@@ -2,5 +2,6 @@
 <IfModule mod_rewrite.c>
 	RewriteEngine On
 
+	RewriteRule ^resource/(.*)$ ./web/resource/$1 [L]
 	RewriteRule ^.*$ web/index.php
 </IfModule>
