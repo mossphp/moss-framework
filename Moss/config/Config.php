@@ -77,7 +77,7 @@ class Config implements ConfigInterface {
 	 */
 	private function applyContainerDefaults($defaults = array('arguments' => array(), 'methods' => array(), 'shared' => false)) {
 		foreach($this->config['container'] as &$node) {
-			if(!isset($node['class'])) {
+			if(!isset($node['class']) && !isset($node['closure'])) {
 				continue;
 			}
 
@@ -96,8 +96,8 @@ class Config implements ConfigInterface {
 	private function applyDispatcherDefaults($defaults = array('method' => null, 'arguments' => array())) {
 		foreach($this->config['dispatcher'] as &$evt) {
 			foreach($evt as &$node) {
-				if(!isset($node['component'])) {
-					throw new ConfigException('Missing required "component" property in event listener definition');
+				if(!isset($node['component']) && !isset($node['closure'])) {
+					throw new ConfigException('Missing required "component" or "closure" property in event listener definition');
 				}
 
 				$node = array_merge($defaults, $node);
