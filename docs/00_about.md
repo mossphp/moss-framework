@@ -14,12 +14,40 @@ But when needed they can be easily replaced with components from other framework
 
 ### Instalation
 
+Download from [github](https://github.com/Potfur/moss)
+Install [composer](https://getcomposer.org/) and run `composer install` or `composer update` to install all required dependencies.
+Since `moss framework` does not have any ORM yet, no further configuration is needed
+
 ### Controller
 
-### Database
+Create new controller `./src/quick/start/controller/QuickController.php` containing:
 
-### Template
+	<?php
+	namespace quick\start\controller;
+
+	use moss\container\ContainerInterface;
+    use moss\http\response\Response;
+
+	class QuickController {
+		protected $Container;
+
+		public function __construct($Container) {
+			$this->Container = &$Container;
+		}
+
+		public function indexAction() {
+			return new Response(__METHOD__);
+		}
+	}
+
+Now when you call `http://127.0.0.1/moss/web/?controller=quick_start_Quick_index (assuming that framework is available under http://127.0.0.1/moss/web/), you should see method name `quick\start\controller\QuickController::indexAction`
 
 ### Routes
 
-### Restrict access
+To register route to that action, in `./web/bootstrap.php` in section `router` add
+
+	'index' => array(
+	    'pattern' => '/index/',
+	    'controller' => 'quick:start:Quick:index'
+	)
+
