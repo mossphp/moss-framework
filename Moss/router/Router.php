@@ -85,7 +85,7 @@ class Router implements RouterInterface {
 	 */
 	public function match(RequestInterface $Request) {
 		if($this->routeNormal && $Request->query('controller')) {
-			$Request->controller($Request->query('controller'));
+			$Request->controller(str_replace('_', ':', $Request->query('controller')));
 
 			$this->defaults['host'] = $Request->host();
 			$this->defaults['controller'] = $Request->controller();
