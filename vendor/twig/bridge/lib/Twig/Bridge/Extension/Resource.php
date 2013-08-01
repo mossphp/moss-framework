@@ -135,7 +135,7 @@ class Twig_Bridge_Extension_Resource extends Twig_Extension {
 			throw new \Twig_Error_Runtime('Unable to resolve resource path to ' . $bundle);
 		}
 
-		if(!symlink($path, $public)) {
+		if(!symlink($path, rtrim($public, '/'))) {
 			throw new \Twig_Error_Runtime('Unable to create symlink for resource ' . $path.' to '. $public);
 		}
 	}
