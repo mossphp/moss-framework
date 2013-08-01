@@ -29,9 +29,9 @@ class AutodocController {
 	public function indexAction() {
 		$Cache = new FileCache('../cache/');
 
-//		if($autodocResponse = $Cache->fetch('autodocResponse')) {
-//			return $autodocResponse;
-//		}
+		if($autodocResponse = $Cache->fetch('autodocResponse')) {
+			return $autodocResponse;
+		}
 
 		$manDirs = array('../docs');
 		$docDirs = array('../moss/');
