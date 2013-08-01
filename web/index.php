@@ -41,6 +41,11 @@ foreach((array) $Config->get('container') as $name => $component) {
 		continue;
 	}
 
+	if(isset($component['closure'])) {
+		$Container->register($name, $component['closure'], isset($component['shared']));
+		continue;
+	}
+
 	$Container->register($name, $component);
 }
 unset($name, $component);
@@ -49,6 +54,11 @@ unset($name, $component);
 $Dispatcher = new \moss\dispatcher\Dispatcher($Container);
 foreach((array) $Config->get('dispatcher') as $event => $listeners) {
 	foreach($listeners as $listener) {
+		if(isset($listener['closure'])) {
+			$Dispatcher->register($event, $listener['closure']);
+			continue;
+		}
+
 		$Dispatcher->register($event, new \moss\dispatcher\Listener($listener['component'], $listener['method'], $listener['arguments']));
 	}
 }

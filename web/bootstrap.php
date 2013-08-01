@@ -23,13 +23,13 @@ return array(
 	),
 	'container' => array(
 		'Logger' => array(
-			function () {
+			'closure' => function () {
 				return new \moss\logger\Logger('../log/log.txt', false);
 			},
-			true,
+			'shared' => true,
 		),
 		'View' => array(
-			function (\moss\container\Container $Container) {
+			'closure' => function (\moss\container\Container $Container) {
 				$options = array(
 					'debug' => true,
 					'auto_reload' => true,
@@ -40,10 +40,10 @@ return array(
 				$Twig = new Twig_Environment(new Twig_Bridge_Loader_Bridge(), $options);
 				$Twig->setExtensions(
 					array(
-						new Twig_Bridge_Extension_Resource(),
-						new Twig_Bridge_Extension_Url($Container->get('Router')),
-						new Twig_Bridge_Extension_Locale(),
-						new Twig_Extensions_Extension_Text(),
+					     new Twig_Bridge_Extension_Resource(),
+					     new Twig_Bridge_Extension_Url($Container->get('Router')),
+					     new Twig_Bridge_Extension_Locale(),
+					     new Twig_Extensions_Extension_Text(),
 					)
 				);
 
@@ -53,7 +53,7 @@ return array(
 					$Twig
 				);
 			}
-		)
+		),
 	),
 	'dispatcher' => array(
 		'kernel.request' => array(),
