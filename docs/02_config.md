@@ -86,9 +86,14 @@ Minimal definition, other array elements are optional
 
 	$arr = array(
 		'container' => array(
-			'ComponentName' => array(
+			'ComponentName' => array( // as array
 				'class' => 'NamespacedComponentClass'
-			)
+			),
+			'OtherComponentName' => array( // as closure
+	            'closure' => function(\moss\container\Container $Container) {
+	                return new \stdClass();
+	            }
+	        )
 		)
 	);
 
@@ -140,7 +145,7 @@ Each event can have many listeners:
 	$arr = array(
 		'dispatcher' => array(
 			'event.name' => array(
-				array(
+				array( // as array
 					'component' => 'ComponentNameFromContainer',
 					'method' => 'methodName', // optional
 					'arguments' => array(
@@ -150,6 +155,11 @@ Each event can have many listeners:
 						'arguments'
 					) // optional
 				)
+				array( // as closure
+                    'closure' => function(\moss\container\Container $Container) {
+                        return new \stdClass();
+                    }
+                )
 			),
 		)
 	);
@@ -174,10 +184,13 @@ The simples route definition looks like this:
 
 	$arr = array(
 		'router' => array(
-			'routeName' => array(
+			'routeName' => array( // for controller class
 			    'pattern' => '/{foo}/({bar})/',
 			    'controller' => 'Moss:sample:Sample:index',
-			)
+			),
+			'otherRoute' => function() { // for closure
+				return new \moss\http\response\Response('Closure');
+			}
 		)
 	);
 
