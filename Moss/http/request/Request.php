@@ -194,12 +194,10 @@ class Request implements RequestInterface {
 	protected function resolveGET() {
 		$arr = array();
 
-		if($this->method() == 'CLI' && isset($argc, $argv) && $argc > 1) {
-			$this->url = $argv[1];
-
-			for($i = 1; $i < $argc; $i++) {
-				$arg = explode('=', $argv[$i]);
-				$arr[ltrim($arg[0], '--')] = isset($arg[1]) ? $arg[1] : null;
+		if($this->method() == 'CLI' && isset($GLOBALS['argc']) && isset($GLOBALS['argv']) && $GLOBALS['argc'] > 1) {
+			for($i = 1; $i < $GLOBALS['argc']; $i++) {
+				$arg = explode('=', $GLOBALS['argv'][$i]);
+				$arr[ltrim($arg[0], '-')] = isset($arg[1]) ? $arg[1] : null;
 			}
 		}
 
@@ -423,7 +421,11 @@ class Request implements RequestInterface {
 	 *
 	 * @return null|string
 	 */
-	public function query($key, $default = null) {
+	public function query($key = null, $default = null) {
+		if($key === null) {
+			return $this->query;
+		}
+
 		return $this->getFromArray($this->query, explode('.', $key), $default);
 	}
 
@@ -435,7 +437,11 @@ class Request implements RequestInterface {
 	 *
 	 * @return null|string
 	 */
-	public function post($key, $default = null) {
+	public function post($key = null, $default = null) {
+		if($key === null) {
+			return $this->post;
+		}
+
 		return $this->getFromArray($this->post, explode('.', $key), $default);
 	}
 
@@ -446,7 +452,11 @@ class Request implements RequestInterface {
 	 *
 	 * @return null|string
 	 */
-	public function file($key) {
+	public function file($key = null) {
+		if($key === null) {
+			return $this->file;
+		}
+
 		return $this->getFromArray($this->file, explode('.', $key));
 	}
 
