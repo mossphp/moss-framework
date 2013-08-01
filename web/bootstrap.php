@@ -23,57 +23,37 @@ return array(
 	),
 	'container' => array(
 		'Logger' => array(
-			'class' => '\moss\logger\Logger',
-			'shared' => true,
-			'arguments' => array(
-				'../log/log.txt',
-				false
-			)
+			function () {
+				return new \moss\logger\Logger('../log/log.txt', false);
+			},
+			true,
 		),
-
 		'View' => array(
-			'class' => '\moss\view\View',
-			'arguments' => array(
-				'@Request',
-				'@Config',
-				'@Twig'
-			)
-		),
-		'Twig' => array(
-			'class' => 'Twig_Environment',
-			'arguments' => array(
-				'@Twig_Bridge_Loader_Bridge',
-				array(
+			function (\moss\container\Container $Container) {
+				$options = array(
 					'debug' => true,
 					'auto_reload' => true,
 					'strict_variables' => false,
 					'cache' => '../compile/'
-				)
-			),
-			'methods' => array(
-				'setExtensions' => array(
-					array('@Twig_Bridge_Extension_Resource', '@Twig_Bridge_Extension_Url', '@Twig_Bridge_Extension_Locale', '@Twig_Extensions_Extension_Text')
-				)
-			)
-		),
-		'Twig_Bridge_Loader_Bridge' => array(
-			'class' => 'Twig_Bridge_Loader_Bridge'
-		),
-		'Twig_Bridge_Extension_Resource' => array(
-			'class' => 'Twig_Bridge_Extension_Resource'
-		),
-		'Twig_Bridge_Extension_Url' => array(
-			'class' => 'Twig_Bridge_Extension_Url',
-			'arguments' => array(
-				'@Router'
-			),
-		),
-		'Twig_Bridge_Extension_Locale' => array(
-			'class' => 'Twig_Bridge_Extension_Locale'
-		),
-		'Twig_Extensions_Extension_Text' => array(
-			'class' => 'Twig_Extensions_Extension_Text'
-		),
+				);
+
+				$Twig = new Twig_Environment(new Twig_Bridge_Loader_Bridge(), $options);
+				$Twig->setExtensions(
+					array(
+						new Twig_Bridge_Extension_Resource(),
+						new Twig_Bridge_Extension_Url($Container->get('Router')),
+						new Twig_Bridge_Extension_Locale(),
+						new Twig_Extensions_Extension_Text(),
+					)
+				);
+
+				return new \moss\view\View(
+					$Container->get('Request'),
+					$Container->get('Config'),
+					$Twig
+				);
+			}
+		)
 	),
 	'dispatcher' => array(
 		'kernel.request' => array(),
