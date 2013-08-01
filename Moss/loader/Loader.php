@@ -17,11 +17,15 @@ class Loader {
 	 * Registers an array of namespaces
 	 *
 	 * @param array $namespaces array with namespace - path pairs
+	 *
+	 * @return $this
 	 */
 	public function addNamespaces(array $namespaces) {
 		foreach($namespaces as $namespace => $locations) {
 			$this->addNamespace($namespace, $locations);
 		}
+
+		return $this;
 	}
 
 	/**
@@ -29,6 +33,8 @@ class Loader {
 	 *
 	 * @param string       $namespace
 	 * @param array|string $paths
+	 *
+	 * @return $this
 	 */
 	public function addNamespace($namespace, $paths) {
 		foreach((array) $paths as $path) {
@@ -43,6 +49,8 @@ class Loader {
 
 			$this->namespaces[(string) $namespace][] = realpath($path);
 		}
+
+		return $this;
 	}
 
 	/**
