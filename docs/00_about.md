@@ -22,7 +22,6 @@ Since `moss framework` does not have any ORM yet, no further configuration is ne
 
 Create new controller `./src/quick/start/controller/QuickController.php` containing:
 
-	<?php
 	namespace quick\start\controller;
 
 	use moss\container\ContainerInterface;
@@ -32,7 +31,7 @@ Create new controller `./src/quick/start/controller/QuickController.php` contain
 		protected $Container;
 
 		public function __construct($Container) {
-			$this->Container = &$Container;
+			$this->Container = $Container;
 		}
 
 		public function indexAction() {
