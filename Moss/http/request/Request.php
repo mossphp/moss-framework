@@ -365,7 +365,7 @@ class Request implements RequestInterface {
 	 *
 	 * @return SessionInterface
 	 */
-	public function session($key, $default = null) {
+	public function getSession($key, $default = null) {
 		return $this->getFromArray($this->session, explode('.', $key), $default);
 	}
 
@@ -377,7 +377,7 @@ class Request implements RequestInterface {
 	 *
 	 * @return CookieInterface
 	 */
-	public function cookie($key, $default = null) {
+	public function getCookie($key, $default = null) {
 		return $this->getFromArray($this->cookie, explode('.', $key), $default);
 	}
 
@@ -389,7 +389,7 @@ class Request implements RequestInterface {
 	 *
 	 * @return null|string
 	 */
-	public function server($key, $default = null) {
+	public function getServer($key, $default = null) {
 		if(!isset($this->server[$key])) {
 			return $default;
 		}
@@ -405,7 +405,7 @@ class Request implements RequestInterface {
 	 *
 	 * @return null|string
 	 */
-	public function header($key, $default = null) {
+	public function getHeader($key, $default = null) {
 		if(!isset($this->header[$key])) {
 			return $default;
 		}
@@ -421,7 +421,7 @@ class Request implements RequestInterface {
 	 *
 	 * @return null|string
 	 */
-	public function query($key = null, $default = null) {
+	public function getQuery($key = null, $default = null) {
 		if($key === null) {
 			return $this->query;
 		}
@@ -437,7 +437,7 @@ class Request implements RequestInterface {
 	 *
 	 * @return null|string
 	 */
-	public function post($key = null, $default = null) {
+	public function getPost($key = null, $default = null) {
 		if($key === null) {
 			return $this->post;
 		}
@@ -452,7 +452,7 @@ class Request implements RequestInterface {
 	 *
 	 * @return null|string
 	 */
-	public function file($key = null) {
+	public function getFile($key = null) {
 		if($key === null) {
 			return $this->file;
 		}
@@ -596,7 +596,7 @@ class Request implements RequestInterface {
 	 *
 	 * @return null|string
 	 */
-	public function referer() {
+	public function referrer() {
 		return empty($this->server['HTTP_REFERER']) ? null : $this->server['HTTP_REFERER'];
 	}
 
