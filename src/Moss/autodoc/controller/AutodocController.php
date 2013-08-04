@@ -4,7 +4,6 @@ namespace moss\autodoc\controller;
 use moss\container\ContainerInterface;
 use moss\http\response\Response;
 use moss\autodoc\parser\Markdown;
-use moss\component\cache\FileCache;
 
 /**
  * Generates documentation based on PHPDoc comments
@@ -27,12 +26,6 @@ class AutodocController {
 	 * @return Response
 	 */
 	public function indexAction() {
-		$Cache = new FileCache('../cache/');
-
-		if($autodocResponse = $Cache->fetch('autodocResponse')) {
-			return $autodocResponse;
-		}
-
 		$manDirs = array('../docs');
 		$docDirs = array('../moss/');
 
@@ -51,7 +44,6 @@ class AutodocController {
 		$autodocResponse = new Response($autodocResponseContent);
 		$autodocResponse->makePublic();
 		$autodocResponse->setHeader('Cache-control', 'max-age=9200');
-		$Cache->store('autodocResponse', $autodocResponse, 9200);
 
 		return $autodocResponse;
 	}
@@ -67,7 +59,7 @@ class AutodocController {
 		$MD = new Markdown();
 
 		foreach($dirs as $dir) {
-			$RecursiveIterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($dir));
+			$RecursiveIterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($dir, \FilesystemIterator::SKIP_DOTS));
 
 			foreach($RecursiveIterator as $item) {
 				$chapter = array();
@@ -117,7 +109,7 @@ class AutodocController {
 	public function buildComment($dirs) {
 		$doc = array();
 		foreach($dirs as $dir) {
-			$RecursiveIterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($dir));
+			$RecursiveIterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($dir, \FilesystemIterator::SKIP_DOTS));
 
 			foreach($RecursiveIterator as $item) {
 				if(!$name = $this->identify($item)) {
@@ -279,12 +271,35 @@ class AutodocController {
 		$doc = array(
 			'name' => $RefParameter->getName(),
 			'type' => isset($comment['param'][$var]) ? $comment['param'][$var]['type'] : null,
-			'default' => $RefParameter->isDefaultValueAvailable() ? $RefParameter->getDefaultValue() : null,
+			'default' => $RefParameter->isDefaultValueAvailable() ? $this->flatten($RefParameter->getDefaultValue()) : null,
 			'required' => !$RefParameter->isOptional(),
 			'desc' => isset($comment['param'][$var]) ? $comment['param'][$var]['desc'] : null,
 		);
 
 		return $doc;
+	}
+
+	/**
+	 * Flattens default values array
+	 *
+	 * @param mixed $arr
+	 *
+	 * @return string
+	 */
+	private function flatten($arr) {
+		if(!is_array($arr)) {
+			return $arr;
+		}
+
+		foreach($arr as $i => $v) {
+			if(!is_array($v)) {
+				continue;
+			}
+
+			$arr[$i] = $this->flatten($v);
+		}
+
+		return 'array('.implode(', ', $arr).')';
 	}
 
 	/**

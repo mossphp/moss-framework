@@ -1,11 +1,11 @@
 <?php
-require __DIR__ . '/../moss/config/ConfigInterface.php';
-require __DIR__ . '/../moss/config/Config.php';
+require __DIR__ . '/../Woss/config/ConfigInterface.php';
+require __DIR__ . '/../Woss/config/Config.php';
 
-require __DIR__ . '/../moss/kernel/ErrorHandler.php';
-require __DIR__ . '/../moss/kernel/ExceptionHandler.php';
+require __DIR__ . '/../Woss/kernel/ErrorHandler.php';
+require __DIR__ . '/../Woss/kernel/ExceptionHandler.php';
 
-require __DIR__ . '/../moss/loader/Loader.php';
+require __DIR__ . '/../Woss/loader/Loader.php';
 
 // Bootstrap & config
 $bootstrap = (array) require __DIR__ . '/bootstrap.php';

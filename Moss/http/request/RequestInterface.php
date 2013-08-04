@@ -20,7 +20,7 @@ interface RequestInterface {
 	 *
 	 * @return SessionInterface
 	 */
-	public function getSession($key, $default = null);
+	public function getSession($key = null, $default = null);
 
 	/**
 	 * Returns cookie value for given key or default if key does not exists
@@ -30,7 +30,7 @@ interface RequestInterface {
 	 *
 	 * @return CookieInterface
 	 */
-	public function getCookie($key, $default = null);
+	public function getCookie($key = null, $default = null);
 
 	/**
 	 * Returns server param value for given key or default if key does not exists
@@ -40,7 +40,7 @@ interface RequestInterface {
 	 *
 	 * @return null|string
 	 */
-	public function getServer($key, $default = null);
+	public function getServer($key = null, $default = null);
 
 	/**
 	 * Returns header value for given key or default if key does not exists
@@ -50,7 +50,7 @@ interface RequestInterface {
 	 *
 	 * @return null|string
 	 */
-	public function getHeader($key, $default = null);
+	public function getHeader($key = null, $default = null);
 
 	/**
 	 * Returns query value for given key or default if key does not exists
@@ -60,7 +60,7 @@ interface RequestInterface {
 	 *
 	 * @return null|string
 	 */
-	public function getQuery($key, $default = null);
+	public function getQuery($key = null, $default = null);
 
 	/**
 	 * Returns post value for given key or default if key does not exists
@@ -70,7 +70,7 @@ interface RequestInterface {
 	 *
 	 * @return null|string
 	 */
-	public function getPost($key, $default = null);
+	public function getPost($key = null, $default = null);
 
 	/**
 	 * Returns file value for given key or null if key does not exists
@@ -79,7 +79,7 @@ interface RequestInterface {
 	 *
 	 * @return null|string
 	 */
-	public function getFile($key);
+	public function getFile($key = null);
 
 	/**
 	 * Returns true if request is made via XHR

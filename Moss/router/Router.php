@@ -32,23 +32,55 @@ class Router implements RouterInterface {
 	 * @param bool $forceAbsolute
 	 */
 	public function __construct($allowNormal = true, $allowFallback = true, $forceAbsolute = false) {
+		$this->routeNormal = (bool) $allowNormal;
 		$this->fallbackNormal = (bool) $allowFallback;
 		$this->forceAbsolute = (bool) $forceAbsolute;
 	}
 
-	public function routeNormal($bool) {
-		$this->routeNormal = (bool) $bool;
-		return $this;
+	/**
+	 * If set to true, routes normal urls
+	 * Otherwise ignores them
+	 *
+	 * @param null|bool $route
+	 *
+	 * @return bool
+	 */
+	public function routeNormal($route = null) {
+		if($route !== null) {
+			$this->routeNormal = (bool) $route;
+		}
+
+		return $this->routeNormal;
 	}
 
-	public function fallbackNormal($bool) {
-		$this->fallbackNormal = (bool) $bool;
-		return $this;
+	/**
+	 * If set to true, generates normal urls when route definition is missing
+	 *
+	 * @param null|bool $fallback
+	 *
+	 * @return bool
+	 */
+	public function fallbackNormal($fallback = null) {
+		if($fallback !== null) {
+			$this->fallbackNormal = (bool) $fallback;
+		}
+
+		return $this->fallbackNormal;
 	}
 
-	public function forceAbsolute($bool) {
-		$this->forceAbsolute = (bool) $bool;
-		return $this;
+	/**
+	 * If true, generates only absolute urls
+	 *
+	 * @param null|bool $force
+	 *
+	 * @return bool
+	 */
+	public function forceAbsolute($force = null) {
+		if($force !== null) {
+			$this->forceAbsolute = (bool) $force;
+		}
+
+		return $this->forceAbsolute;
 	}
 
 	/**

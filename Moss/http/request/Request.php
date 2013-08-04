@@ -365,7 +365,11 @@ class Request implements RequestInterface {
 	 *
 	 * @return SessionInterface
 	 */
-	public function getSession($key, $default = null) {
+	public function getSession($key = null, $default = null) {
+		if($key === null) {
+			return $this->session;
+		}
+
 		return $this->getFromArray($this->session, explode('.', $key), $default);
 	}
 
@@ -377,7 +381,11 @@ class Request implements RequestInterface {
 	 *
 	 * @return CookieInterface
 	 */
-	public function getCookie($key, $default = null) {
+	public function getCookie($key = null, $default = null) {
+		if($key === null) {
+			return $this->cookie;
+		}
+
 		return $this->getFromArray($this->cookie, explode('.', $key), $default);
 	}
 
@@ -389,7 +397,11 @@ class Request implements RequestInterface {
 	 *
 	 * @return null|string
 	 */
-	public function getServer($key, $default = null) {
+	public function getServer($key = null, $default = null) {
+		if($key === null) {
+			return $this->server;
+		}
+
 		if(!isset($this->server[$key])) {
 			return $default;
 		}
@@ -405,7 +417,11 @@ class Request implements RequestInterface {
 	 *
 	 * @return null|string
 	 */
-	public function getHeader($key, $default = null) {
+	public function getHeader($key = null, $default = null) {
+		if($key === null) {
+			return $this->header;
+		}
+
 		if(!isset($this->header[$key])) {
 			return $default;
 		}
