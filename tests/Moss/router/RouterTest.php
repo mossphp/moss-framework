@@ -53,6 +53,27 @@ class RouterTest extends \PHPUnit_Framework_TestCase {
 		return $Request;
 	}
 
+	public function testRetrieve() {
+		$expected = array();
+
+		$Route = new Route('/router/{foo}/({bar})/', 'router:foo:bar');
+		$Route->requirements(array('foo' => '\w+', 'bar' => '\d*'));
+		$expected['router_foo_bar'] = $Route;
+
+		$Route = new Route('/router/{foo}/', 'router:foo');
+		$Route->requirements(array('foo' => '\w+'));
+		$expected['router_foo'] = $Route;
+
+		$Route = new Route('/router/', 'router');
+		$expected['router'] = $Route;
+
+		$Route = new Route('/router/', 'domain:router');
+		$Route->host('domain.{basename}');
+		$expected['domain_router'] = $Route;
+
+		$this->assertEquals($expected, $this->Router->retrieve());
+	}
+
 	/**
 	 * @expectedException \moss\router\RouterException
 	 */
@@ -87,14 +108,15 @@ class RouterTest extends \PHPUnit_Framework_TestCase {
 
 	public function testMatchQuery() {
 		$Request = $this->getMock('moss\http\request\RequestInterface');
+
 		$Request
 			->expects($this->any())
-			->method('controller')
+			->method('getQuery')
 			->will($this->returnValue('router'));
 
 		$Request
 			->expects($this->any())
-			->method('query')
+			->method('controller')
 			->will($this->returnValue('router'));
 
 		$Request
