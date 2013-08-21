@@ -11,7 +11,7 @@ use moss\container\ContainerException;
  * @package Moss DI Container
  * @author  Michal Wachowski <wachowski.michal@gmail.com>
  */
-class Component extends ComponentInterface {
+class Component implements ComponentInterface {
 
 	protected $class;
 	protected $arguments;
