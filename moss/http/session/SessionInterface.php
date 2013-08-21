@@ -30,6 +30,15 @@ interface SessionInterface extends \Iterator, \ArrayAccess, \Countable {
 	public function set($key, $value = null);
 
 	/**
+	 * Removes value and key
+	 *
+	 * @param string $key
+	 *
+	 * @return $this
+	 */
+	public function remove($key);
+
+	/**
 	 * Retrieves all values as array
 	 *
 	 * @param array $headers

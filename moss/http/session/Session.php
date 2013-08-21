@@ -128,6 +128,22 @@ class Session implements SessionInterface {
 	}
 
 	/**
+	 * Removes value and key
+	 *
+	 * @param string $key
+	 *
+	 * @return $this
+	 */
+	public function remove($key) {
+		if(isset($this->storage[$key])) {
+			unset($this->storage[$key]);
+		}
+
+		return $this;
+	}
+
+
+	/**
 	 * Retrieves all values as array
 	 *
 	 * @param array $params

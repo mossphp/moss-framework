@@ -73,6 +73,22 @@ class Cookie implements CookieInterface {
 	}
 
 	/**
+	 * Removes value and key
+	 *
+	 * @param string $key
+	 *
+	 * @return $this
+	 */
+	public function remove($key) {
+		if(isset($_COOKIE[$key])) {
+			unset($_COOKIE[$key]);
+		}
+
+		setcookie($key, "", time() - 3600, $this->path, $this->domain, $this->secure, $this->httponly);
+		return $this;
+	}
+
+	/**
 	 * Retrieves all values as array
 	 *
 	 * @param array $params
@@ -101,6 +117,8 @@ class Cookie implements CookieInterface {
 			$_COOKIE = array();
 			setcookie($key, "", time() - 3600, $this->path, $this->domain, $this->secure, $this->httponly);
 		}
+
+		return $this;
 	}
 
 
