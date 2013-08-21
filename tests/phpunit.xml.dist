@@ -26,7 +26,7 @@
 			<!--<directory>./Moss/http/session/</directory>-->
 			<directory>./Moss/logger/</directory>
 			<directory>./Moss/router/</directory>
-			<directory>./Moss/security/</directory>
+			<!--<directory>./Moss/security/</directory>-->
 		</testsuite>
 	</testsuites>
 </phpunit>
