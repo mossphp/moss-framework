@@ -101,13 +101,7 @@ class Listener implements ListenerInterface {
 				continue;
 			}
 
-			$arg = substr($arg, 1);
-
-			if(!$Container) {
-				throw new DispatcherException(sprintf('Unable to resolve dependency for "%s" - missing dependency "%s"', $this->component, $arg));
-			}
-
-			$result[$k] = $Container->get($arg);
+			$result[$k] = $Container->get(substr($arg, 1));
 		}
 
 		return $result;
