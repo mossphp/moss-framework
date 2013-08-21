@@ -16,7 +16,7 @@
 	</php>
 
 	<testsuites>
-		<testsuite name="Moss components">
+		<testsuite name="Moss core">
 			<directory>./Moss/config/</directory>
 			<directory>./Moss/container/</directory>
 			<directory>./Moss/dispatcher/</directory>
