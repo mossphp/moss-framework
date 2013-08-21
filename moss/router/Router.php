@@ -32,9 +32,9 @@ class Router implements RouterInterface {
 	 * @param bool $forceAbsolute
 	 */
 	public function __construct($allowNormal = true, $allowFallback = true, $forceAbsolute = false) {
-		$this->routeNormal = (bool) $allowNormal;
-		$this->fallbackNormal = (bool) $allowFallback;
-		$this->forceAbsolute = (bool) $forceAbsolute;
+		$this->routeNormal($allowNormal);
+		$this->fallbackNormal($allowFallback);
+		$this->forceAbsolute($forceAbsolute);
 	}
 
 	/**
