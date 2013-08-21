@@ -49,7 +49,7 @@ class ListenerTest extends \PHPUnit_Framework_TestCase {
 			->method('get')
 			->will($this->returnValue(new \stdClass()));
 
-		$Listener = new Listener('\tests\moss\Foobar', 'foo', array('@Foobar'));
-		$this->assertEquals(new \tests\moss\Foobar(new \stdClass()), $Listener->get($Container));
+		$Listener = new Listener('\tests\moss\Foobar', 'foo', array('@Foobar', '@Container'));
+		$this->assertEquals(new \tests\moss\Foobar(new \stdClass(), $Container), $Listener->get($Container));
 	}
 }
