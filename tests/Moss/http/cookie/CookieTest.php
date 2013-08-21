@@ -32,6 +32,7 @@ class CookieTest extends \PHPUnit_Framework_TestCase {
 	public function testOffsetSet() {
 		$Cookie = new Cookie();
 		$Cookie->offsetSet('foo', 'bar');
+		$this->assertEquals('bar', $Cookie->get('foo'));
 		$this->assertEquals('bar', $Cookie['foo']);
 		$this->assertEquals('bar', $_COOKIE['foo']);
 	}
