@@ -45,7 +45,7 @@ class Config implements ConfigInterface {
 	 * @throws ConfigException
 	 */
 	public function __construct($arr = array()) {
-		$this->read($arr);
+		$this->import($arr);
 	}
 
 	/**
@@ -53,7 +53,7 @@ class Config implements ConfigInterface {
 	 *
 	 * @param array $arr
 	 */
-	public function read($arr) {
+	public function import($arr) {
 		$this->fill($this->config, $arr);
 
 		$this->applyContainerDefaults();
@@ -66,7 +66,7 @@ class Config implements ConfigInterface {
 	 *
 	 * @return array
 	 */
-	public function save() {
+	public function export() {
 		return $this->config;
 	}
 

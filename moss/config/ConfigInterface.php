@@ -14,14 +14,14 @@ interface ConfigInterface {
 	 *
 	 * @param array $arr
 	 */
-	public function read($arr);
+	public function import($arr);
 
 	/**
 	 * Returns current stored configuration as array
 	 *
 	 * @return array
 	 */
-	public function save();
+	public function export();
 
 	/**
 	 * Returns core variable value
