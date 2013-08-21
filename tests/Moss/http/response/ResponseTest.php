@@ -34,6 +34,24 @@ class ResponseTest extends \PHPUnit_Framework_TestCase {
 		new Response('Foo', 999);
 	}
 
+	public function testAllHeaders() {
+		$headers = array('Content-Type' => 'text/html; charset=UTF-8', 'Cache-Control' => 'no-cache', 'Pragma' => 'no-cache');
+		$Response = new Response('Foo', 200);
+		$this->assertEquals($headers, $Response->headers($headers));
+	}
+
+	public function testGetHeader() {
+		$Response = new Response('Foo', 200);
+		$this->assertEquals('foo', $Response->getHeader('foo', 'foo'));
+	}
+
+	public function testRemoveHeader() {
+		$Response = new Response('Foo', 200);
+		$Response->makeNoCache();
+		$Response->removeHeader('Cache-Control');
+		$this->assertEquals(null, $Response->getHeader('Cache-Control'));
+	}
+
 	public function testNoCache() {
 		$Response = new Response('Foo', 200);
 		$Response->makeNoCache();
