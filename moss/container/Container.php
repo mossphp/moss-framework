@@ -34,7 +34,17 @@ class Container implements ContainerInterface {
 			return $this;
 		}
 
-		$this->components[$id] = $definition;
+		$keys = explode('.', $id);
+		$node = &$this->components;
+		while($key = array_shift($keys)) {
+			if(!is_array($node) || !array_key_exists($key, $node)) {
+				$node[$key] = array();
+			}
+
+			$node = &$node[$key];
+		}
+
+		$node = $definition;
 
 		if($shared) {
 			$this->instances[$id] = null;
@@ -105,18 +115,24 @@ class Container implements ContainerInterface {
 			return $this->instances[$id];
 		}
 
-		if(!array_key_exists($id, $this->components)) {
-			throw new ContainerException(sprintf('Invalid or unknown component identifier "%s"', $id));
+		$keys = explode('.', $id);
+		$node = &$this->components;
+		while($key = array_shift($keys)) {
+			if(!is_array($node) || !array_key_exists($key, $node)) {
+				throw new ContainerException(sprintf('Invalid or unknown component/parameter identifier "%s"', $id));
+			}
+
+			$node = &$node[$key];
 		}
 
-		if($this->components[$id] instanceof ComponentInterface) {
-			$result = $this->components[$id]->get($this);
+		if($node instanceof ComponentInterface) {
+			$result = $node->get($this);
 		}
-		elseif(is_callable($this->components[$id])) {
-			$result = $this->components[$id]($this);
+		elseif(is_callable($node)) {
+			$result = $node($this);
 		}
 		else {
-			$result = $this->components[$id];
+			$result = $node;
 		}
 
 		if(array_key_exists($id, $this->instances)) {
