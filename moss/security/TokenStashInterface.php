@@ -16,7 +16,7 @@ interface TokenStashInterface {
 	 *
 	 * @return $this
 	 */
-	public function stash(TokenInterface $Token);
+	public function put(TokenInterface $Token);
 
 	/**
 	 * Returns stashed token
@@ -24,4 +24,11 @@ interface TokenStashInterface {
 	 * @return TokenInterface
 	 */
 	public function get();
+
+	/**
+	 * Destroys stashed token
+	 *
+	 * @return $this
+	 */
+	public function destroy();
 }
