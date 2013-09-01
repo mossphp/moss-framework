@@ -202,7 +202,7 @@ class Session implements SessionInterface {
 		}
 
 		if(empty($keys)) {
-			return $arr[$k] = $value;
+			return $arr[$k] = & $value;
 		}
 
 		return $this->putIntoArray($arr[$k], $keys, $value);
