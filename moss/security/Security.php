@@ -75,17 +75,20 @@ class Security implements SecurityInterface {
 	 * @throws AuthenticationException
 	 */
 	public function authenticate() {
-		$Token = $this->Stash->get();
+		if(!$Token = $this->token()) {
+			return false;
+		}
+
 		foreach($this->Providers as $Provider) {
 			if(!$Provider->supports($Token)) {
 				continue;
 			}
 
 			if(!$this->User = $Provider->authenticate($Token)) {
-				throw new AuthenticationException('Unable to authenticate token. Invalid or incomplete data.');
+				return false;
 			}
 
-			return $this;
+			return true;
 		}
 
 		throw new AuthenticationException('Token was not authenticated. Missing provider supporting token');
@@ -105,8 +108,12 @@ class Security implements SecurityInterface {
 				continue;
 			}
 
+			if(!$this->User) {
+				throw new AuthorizationException(sprintf('Access denied to area %s. No authenticated user', $Area->pattern()));
+			}
+
 			if(!$Area->authorize($this->User, $Request->clientIp())) {
-				throw new AuthorizationException('Access denied to area ' . $Area->pattern());
+				throw new AuthorizationException(sprintf('Access denied to area %s. Authenticated user does not have access', $Area->pattern()));
 			}
 
 			return $this;
@@ -141,6 +148,17 @@ class Security implements SecurityInterface {
 	public function user() {
 		return $this->User;
 	}
+
+	/**
+	 * Destroys authenticated user, logs out
+	 *
+	 * @return $this
+	 */
+	public function destroy() {
+		$this->User = null;
+		$this->Stash->destroy();
+	}
+
 
 	/**
 	 * Returns url (or null if not set) on which user should be redirected if has no access

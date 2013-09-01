@@ -16,7 +16,7 @@ interface SecurityInterface {
 	/**
 	 * Authenticates token in authentication providers
 	 *
-	 * @return $this
+	 * @return bool
 	 * @throws AuthenticationException
 	 */
 	public function authenticate();
@@ -51,6 +51,13 @@ interface SecurityInterface {
 	 * @return UserInterface
 	 */
 	public function user();
+
+	/**
+	 * Destroys authenticated user, logs out
+	 *
+	 * @return $this
+	 */
+	public function destroy();
 
 	/**
 	 * Returns url (or null if not set) on which user should be redirected if has no access
