@@ -59,7 +59,7 @@ class ResponseRedirect extends Response {
 	 * @return ResponseInterface
 	 */
 	public function sendContent() {
-		if(headers_sent()) {
+		if(headers_sent() || $this->delay) {
 			echo '<script type="text/javascript" language="javascript">setTimeout("window.location.href = \'' . $this->address . '\'", ' . ($this->delay * 1000) . ');</script>' . $this->content;
 
 			return $this;
