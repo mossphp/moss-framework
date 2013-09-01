@@ -41,6 +41,8 @@ class Token implements TokenInterface {
 	 */
 	public function remove() {
 		$this->credentials = null;
+
+		return $this;
 	}
 
 
@@ -58,7 +60,7 @@ class Token implements TokenInterface {
 	 *
 	 * @param null|string $auth
 	 *
-	 * @return $this
+	 * @return string
 	 */
 	public function authenticate($auth = null) {
 		if($auth !== null) {

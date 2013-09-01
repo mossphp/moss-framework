@@ -35,7 +35,7 @@ interface TokenInterface extends \Serializable {
 	 *
 	 * @param null|string $auth
 	 *
-	 * @return $this
+	 * @return string
 	 */
 	public function authenticate($auth = null);
 }
