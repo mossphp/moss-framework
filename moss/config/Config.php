@@ -114,7 +114,7 @@ class Config implements ConfigInterface {
 	 *
 	 * @throws ConfigException
 	 */
-	private function applyRouterDefaults($defaults = array('requirements' => array())) {
+	private function applyRouterDefaults($defaults = array()) {
 		foreach($this->config['router'] as &$node) {
 			if(!isset($node['pattern'])) {
 				throw new ConfigException('Missing required "pattern" property in route definition');
