@@ -15,9 +15,13 @@ Or create route with closure as controller
 		return new \moss\response\Response('Hello world');
 	});
 
-Set argument requirements - accepted types - by default, all values are accepted:
+Set argument requirements - accepted types - by default, values matching `[a-z0-9-._]` are accepted:
 
     $Route->requirements(array('foo' => '\w+', 'bar' => '\d*'));
+
+Same defined in constructor:
+
+	$Route = new \moss\router\Route('/{foo:\w}/({bar:\d})/', 'controller:action');
 
 Set argument default values, needed only for required arguments:
 

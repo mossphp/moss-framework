@@ -87,9 +87,9 @@ interface RouteInterface {
 	 *
 	 * @param null|string $host
 	 * @param array       $arguments
-	 * @param bool        $forceAbsolute
+	 * @param bool        $forceRelative
 	 *
 	 * @return string
 	 */
-	public function make($host = null, $arguments = array(), $forceAbsolute = true);
+	public function make($host = null, $arguments = array(), $forceRelative = true);
 }

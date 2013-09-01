@@ -121,7 +121,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase {
 
 		$Request
 			->expects($this->any())
-			->method('host')
+			->method('baseName')
 			->will($this->returnValue('http://test.com'));
 
 		$Request
@@ -174,12 +174,12 @@ class RouterTest extends \PHPUnit_Framework_TestCase {
 
 	public function testMakeRelative() {
 		$this->Router->match($this->mockRequest('router:foo:bar', '/router/foo/123/'));
-		$this->assertEquals('./router/foo/123/', $this->Router->make('router:foo:bar', array('foo' => 'foo', 'bar' => 123), false, false));
+		$this->assertEquals('./router/foo/123/', $this->Router->make('router:foo:bar', array('foo' => 'foo', 'bar' => 123), false, true));
 	}
 
 	public function testMakeAbsolute() {
 		$this->Router->match($this->mockRequest('router:foo:bar', '/router/foo/123/'));
-		$this->assertEquals('./router/foo/123/', $this->Router->make('router:foo:bar', array('foo' => 'foo', 'bar' => 123), false, true));
+		$this->assertEquals('./router/foo/123/', $this->Router->make('router:foo:bar', array('foo' => 'foo', 'bar' => 123), false, false));
 	}
 
 	public function testMakeAbsoluteWithQuery() {

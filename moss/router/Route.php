@@ -26,17 +26,12 @@ class Route implements RouteInterface {
 	 *
 	 * @param string          $pattern
 	 * @param string|\Closure $controller
-	 * @param array           $requirements
 	 * @param array           $arguments
 	 */
-	public function __construct($pattern, $controller, $requirements = array(), $arguments = array()) {
+	public function __construct($pattern, $controller, $arguments = array()) {
 		$this->pattern = $pattern;
 		$this->controller = $controller;
 		$this->pattern = preg_replace_callback('/(\(?\{([^}]+)\}\)?)/i', array($this, 'callback'), $this->pattern, \PREG_SET_ORDER);
-
-		if(!empty($requirements)) {
-			$this->requirements($requirements);
-		}
 
 		if(!empty($arguments)) {
 			$this->arguments($arguments);
@@ -47,22 +42,27 @@ class Route implements RouteInterface {
 	 * Builds pattern regular expression
 	 *
 	 * @param array  $match
-	 * @param string $regexp
+	 * @param string $default
 	 *
 	 * @return string
 	 */
-	private function callback($match, $regexp = '[a-z0-9-._]') {
-		if($match[0][0] == '(') {
-			$this->requirements[$match[2]] = $regexp . '*';
-
-			return '#' . $match[2] . '#';
+	private function callback($match, $default = '[a-z0-9-._]') {
+		if(strpos($match[2], ':') === false) {
+			$match[2] .= ':'.$default;
 		}
 
-		$this->requirements[$match[2]] = $regexp . '+';
-		$this->arguments[$match[2]] = null;
-		$this->defaults[$match[2]] = null;
+		list($key, $regexp) = explode(':', $match[2]);
+		if($match[0][0] == '(') {
+			$this->requirements[$key] = $regexp . '*';
 
-		return '#' . $match[2] . '#';
+			return '#' . $key . '#';
+		}
+
+		$this->requirements[$key] = $regexp . '+';
+		$this->arguments[$key] = null;
+		$this->defaults[$key] = null;
+
+		return '#' . $key . '#';
 	}
 
 	/**
@@ -267,12 +267,12 @@ class Route implements RouteInterface {
 	 *
 	 * @param null|string $host
 	 * @param array       $arguments
-	 * @param bool        $forceAbsolute
+	 * @param bool        $forceRelative
 	 *
 	 * @return string
 	 * @throws RouteException
 	 */
-	public function make($host = null, $arguments = array(), $forceAbsolute = true) {
+	public function make($host = null, $arguments = array(), $forceRelative = false) {
 		foreach($this->requirements as $k => $r) {
 			if(!isset($arguments[$k]) && !array_key_exists($k, $this->defaults)) {
 				continue;
@@ -321,7 +321,7 @@ class Route implements RouteInterface {
 			throw new RouteException('Unable to create absolute url. Invalid or empty host name');
 		}
 
-		if(empty($this->host) && (empty($host) || $forceAbsolute === false)) {
+		if(empty($this->host) && (empty($host) || $forceRelative == true)) {
 			return './' . $url;
 		}
 

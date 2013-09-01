@@ -31,7 +31,7 @@ class Router implements RouterInterface {
 	 * @param bool $allowFallback
 	 * @param bool $forceAbsolute
 	 */
-	public function __construct($allowNormal = true, $allowFallback = true, $forceAbsolute = false) {
+	public function __construct($allowNormal = true, $allowFallback = true, $forceAbsolute = true) {
 		$this->routeNormal($allowNormal);
 		$this->fallbackNormal($allowFallback);
 		$this->forceAbsolute($forceAbsolute);
@@ -119,7 +119,7 @@ class Router implements RouterInterface {
 		if($this->routeNormal && $Request->getQuery('controller')) {
 			$Request->controller(str_replace('_', ':', $Request->getQuery('controller')));
 
-			$this->defaults['host'] = $Request->host();
+			$this->defaults['host'] = $Request->baseName();
 			$this->defaults['controller'] = $Request->controller();
 			$this->defaults['locale'] = $Request->locale();
 			$this->defaults['format'] = $Request->format();
@@ -146,7 +146,7 @@ class Router implements RouterInterface {
 
 			$Request->controller($Route->controller());
 
-			$this->defaults['host'] = $Request->host();
+			$this->defaults['host'] = $Request->baseName();
 			$this->defaults['controller'] = $Request->controller();
 			$this->defaults['locale'] = $Request->locale();
 			$this->defaults['format'] = $Request->format();
@@ -164,13 +164,13 @@ class Router implements RouterInterface {
 	 * @param null|string $controller        controller identifier, if null request controller is used
 	 * @param array       $arguments         additional arguments
 	 * @param bool        $forceNormal       if true forces normal link
-	 * @param bool        $forceAbsolute     if true forces absolute link
+	 * @param bool        $forceRelative     if true forces absolute link
 	 *
 	 * @return string
 	 * @throws RouterException
 	 */
-	public function make($controller = null, $arguments = array(), $forceNormal = false, $forceAbsolute = false) {
-		$forceAbsolute = $forceAbsolute || $this->forceAbsolute;
+	public function make($controller = null, $arguments = array(), $forceNormal = false, $forceRelative = false) {
+		$forceRelative = $forceRelative || $this->forceAbsolute;
 
 		if(!$controller) {
 			if(!isset($this->defaults['controller'])) {
@@ -181,11 +181,11 @@ class Router implements RouterInterface {
 		}
 
 		if($forceNormal) {
-			return $this->makeNormal($this->defaults['host'], $controller, $arguments, $forceAbsolute);
+			return $this->makeNormal($this->defaults['host'], $controller, $arguments, $forceRelative);
 		}
 
 		if(isset($this->routes[$controller])) {
-			return $this->routes[$controller]->make($this->defaults['host'], $arguments, $forceAbsolute);
+			return $this->routes[$controller]->make($this->defaults['host'], $arguments, $forceRelative);
 		}
 
 		foreach($this->routes as $Route) {
@@ -193,11 +193,11 @@ class Router implements RouterInterface {
 				continue;
 			}
 
-			return $Route->make($this->defaults['host'], $arguments, $forceAbsolute);
+			return $Route->make($this->defaults['host'], $arguments, $forceRelative);
 		}
 
 		if($this->fallbackNormal) {
-			return $this->makeNormal($this->defaults['host'], $controller, $arguments, $forceAbsolute);
+			return $this->makeNormal($this->defaults['host'], $controller, $arguments, $forceRelative);
 		}
 
 		throw new RouterException('Unable to make url. Matching route for "' . $controller . '" not found');
@@ -209,17 +209,17 @@ class Router implements RouterInterface {
 	 * @param string $host
 	 * @param string $controller
 	 * @param array  $arguments
-	 * @param bool   $forceAbsolute
+	 * @param bool   $forceRelative
 	 *
 	 * @return string
 	 */
-	protected function makeNormal($host, $controller, $arguments, $forceAbsolute) {
-		$url = '?controller=' . preg_replace('/[^a-z0-9]+/', '_', $controller) . (empty($arguments) ? null : '&' . http_build_query($arguments, null, '&'));
+	protected function makeNormal($host, $controller, $arguments, $forceRelative) {
+		$url = '?controller=' . preg_replace('/[^a-z0-9]+/i', '_', $controller) . (empty($arguments) ? null : '&' . http_build_query($arguments, null, '&'));
 
-		if(empty($host) || $forceAbsolute == false) {
+		if(empty($host) || $forceRelative) {
 			$host = '';
 		}
 
-		return (empty($host) || $forceAbsolute == false ? null : rtrim($host, '/') . '/') . ltrim($url, './');
+		return (empty($host) || $forceRelative == true ? null : rtrim($host, '/') . '/') . ltrim($url, './');
 	}
 }

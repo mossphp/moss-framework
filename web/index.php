@@ -67,7 +67,7 @@ unset($event, $listeners, $listener);
 // Router
 $Router = new \moss\router\Router();
 foreach((array) $Config->get('router') as $name => $route) {
-	$Router->register($name, new \moss\router\Route($route['pattern'], $route['controller'], $route['requirements']));
+	$Router->register($name, new \moss\router\Route($route['pattern'], $route['controller']));
 }
 unset($name, $route);
 

@@ -185,12 +185,15 @@ The simples route definition looks like this:
 	$arr = array(
 		'router' => array(
 			'routeName' => array( // for controller class
-			    'pattern' => '/{foo}/({bar})/',
+			    'pattern' => '/{foo:\w}/({bar:\d})/',
 			    'controller' => 'Moss:sample:Sample:index',
 			),
-			'otherRoute' => function() { // for closure
-				return new \moss\http\response\Response('Closure');
-			}
+			'otherRoute' => array( // for closure
+				'pattern' => 'yadayda',
+				'controller' => function() {
+					return new \moss\http\response\Response('Closure');
+				}
+			)
 		)
 	);
 

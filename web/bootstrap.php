@@ -69,8 +69,6 @@ return array(
 		'main' => array(
 			'pattern' => '/',
 			'controller' => 'moss:sample:Sample:index',
-			'requirements' => array(),
-			'defaults' => array(),
 			'arguments' => array(),
 			'host' => null,
 			'schema' => null,

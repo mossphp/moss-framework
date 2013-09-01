@@ -47,10 +47,10 @@ interface RouterInterface {
 	 * @param null|string $controller controller identifier, if null request controller is used
 	 * @param array       $arguments  additional arguments
 	 * @param bool        $forceNormal     if true forces normal link
-	 * @param bool        $forceAbsolute     if true forces direct link
+	 * @param bool        $forceRelative     if true forces direct link
 	 *
 	 * @return string
 	 * @throws \InvalidArgumentException|\RangeException
 	 */
-	public function make($controller = null, $arguments = array(), $forceNormal = false, $forceAbsolute = false);
+	public function make($controller = null, $arguments = array(), $forceNormal = false, $forceRelative = false);
 }
