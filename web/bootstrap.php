@@ -17,9 +17,6 @@ return array(
 		)
 	),
 	'namespaces' => array(
-		'moss' => array(
-			'../vendor/moss/lib/'
-		)
 	),
 	'container' => array(
 		'Logger' => array(
