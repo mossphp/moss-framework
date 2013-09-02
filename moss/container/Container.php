@@ -34,17 +34,7 @@ class Container implements ContainerInterface {
 			return $this;
 		}
 
-		$keys = explode('.', $id);
-		$node = &$this->components;
-		while($key = array_shift($keys)) {
-			if(!is_array($node) || !array_key_exists($key, $node)) {
-				$node[$key] = array();
-			}
-
-			$node = &$node[$key];
-		}
-
-		$node = $definition;
+		$this->components[$id] = $definition;
 
 		if($shared) {
 			$this->instances[$id] = null;

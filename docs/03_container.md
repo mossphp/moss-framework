@@ -75,6 +75,11 @@ E.g.:
 		echo 'Its Ajax request';
 	}
 
+To access some values stored in container:
+
+	$db = $Container->get('database'); // array('user' => 'foo', 'pass' => 'bar', 'table' => 'yada');
+	$dbUser = $Container->get('database.user'); // foo
+
 ## Framework components
 
 Framework always registers the following components:

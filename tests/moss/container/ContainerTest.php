@@ -19,11 +19,13 @@ class ContainerTest extends \PHPUnit_Framework_TestCase {
 		$Container->get('foo.bar');
 	}
 
+	/**
+	 * @expectedException \moss\container\ContainerException
+	 */
 	public function testDeepValueFromString() {
 		$Container = new Container();
 		$Container->register('foo.bar', 'yada');
-		$this->assertEquals(array('bar' => 'yada'), $Container->get('foo'));
-		$this->assertEquals('yada', $Container->get('foo.bar'));
+		$Container->get('foo.bar');
 	}
 
 	public function testDeepValueFromArray() {
