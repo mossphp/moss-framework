@@ -19,15 +19,6 @@ class ContainerTest extends \PHPUnit_Framework_TestCase {
 		$Container->get('foo.bar');
 	}
 
-	/**
-	 * @expectedException \moss\container\ContainerException
-	 */
-	public function testDeepValueFromString() {
-		$Container = new Container();
-		$Container->register('foo.bar', 'yada');
-		$Container->get('foo.bar');
-	}
-
 	public function testDeepValueFromArray() {
 		$Container = new Container();
 		$Container->register('foo', array('bar' => 'yada'));

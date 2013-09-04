@@ -9,7 +9,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase {
 	protected $Router;
 
 	protected function setUp() {
-		$this->Router = new Router(true);
+		$this->Router = new Router();
 
 		$Route = new Route('/router/{foo}/({bar})/', 'router:foo:bar');
 		$Route->requirements(array('foo' => '\w+', 'bar' => '\d*'));
@@ -149,17 +149,17 @@ class RouterTest extends \PHPUnit_Framework_TestCase {
 
 	public function testMakeWithDefaultController() {
 		$this->Router->match($this->mockRequest('router:foo:bar', '/router/foo/123/'));
-		$this->assertEquals('./router/foo/123/', $this->Router->make(null, array('foo' => 'foo', 'bar' => 123)));
+		$this->assertEquals('http://test.com/router/foo/123/', $this->Router->make(null, array('foo' => 'foo', 'bar' => 123)));
 	}
 
 	public function testMakeNormal() {
 		$this->Router->match($this->mockRequest('router:foo:bar', '/router/foo/123/'));
-		$this->assertEquals('?controller=router_foo_bar&foo=foo&bar=123', $this->Router->make('router:foo:bar', array('foo' => 'foo', 'bar' => 123), true, false));
+		$this->assertEquals('http://test.com/?controller=router_foo_bar&foo=foo&bar=123', $this->Router->make('router:foo:bar', array('foo' => 'foo', 'bar' => 123), true, false));
 	}
 
 	public function testMakeUnknown() {
 		$this->Router->match($this->mockRequest('router:foo:bar', '/router/foo/123/'));
-		$this->assertEquals('?controller=router_foo_bar', $this->Router->make('router:foo:bar'));
+		$this->assertEquals('http://test.com/?controller=router_foo_bar', $this->Router->make('router:foo:bar'));
 	}
 
 	public function testMakeByName() {
@@ -179,22 +179,22 @@ class RouterTest extends \PHPUnit_Framework_TestCase {
 
 	public function testMakeAbsolute() {
 		$this->Router->match($this->mockRequest('router:foo:bar', '/router/foo/123/'));
-		$this->assertEquals('./router/foo/123/', $this->Router->make('router:foo:bar', array('foo' => 'foo', 'bar' => 123), false, false));
+		$this->assertEquals('http://test.com/router/foo/123/', $this->Router->make('router:foo:bar', array('foo' => 'foo', 'bar' => 123), false, false));
 	}
 
 	public function testMakeAbsoluteWithQuery() {
 		$this->Router->match($this->mockRequest('router:foo:bar', '/router/foo/123/'));
-		$this->assertEquals('./router/foo/123/?yada=yada', $this->Router->make('router:foo:bar', array('foo' => 'foo', 'bar' => 123, 'yada' => 'yada')));
+		$this->assertEquals('http://test.com/router/foo/123/?yada=yada', $this->Router->make('router:foo:bar', array('foo' => 'foo', 'bar' => 123, 'yada' => 'yada')));
 	}
 
 	public function testMakeWithoutOptionalArguments() {
 		$this->Router->match($this->mockRequest('router:foo:bar', '/router/foo/123/'));
-		$this->assertEquals('./router/foo/', $this->Router->make('router:foo:bar', array('foo' => 'foo')));
+		$this->assertEquals('http://test.com/router/foo/', $this->Router->make('router:foo:bar', array('foo' => 'foo')));
 	}
 
 	public function testMakeWithOptionalArguments() {
 		$this->Router->match($this->mockRequest('router:foo:bar', '/router/foo/123/'));
-		$this->assertEquals('./router/foo/123/', $this->Router->make('router:foo:bar', array('foo' => 'foo', 'bar' => 123)));
+		$this->assertEquals('http://test.com/router/foo/123/', $this->Router->make('router:foo:bar', array('foo' => 'foo', 'bar' => 123)));
 	}
 
 	public function testMakeWithHost() {

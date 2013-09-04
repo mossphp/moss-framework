@@ -1,6 +1,7 @@
 <?php
 namespace moss\logger;
 
+use Psr\Log\LogLevel;
 
 class LoggerTest extends \PHPUnit_Framework_TestCase {
 
@@ -18,30 +19,86 @@ class LoggerTest extends \PHPUnit_Framework_TestCase {
 		}
 	}
 
-	public function testLogging() {
+	public function testImplements() {
+		$this->assertInstanceOf('Psr\Log\LoggerInterface', new Logger());
+	}
+
+	/**
+	 * @dataProvider provideLevelsAndMessages
+	 */
+	public function testLogsAtAllLevels($level, $message) {
 		$Logger = new Logger();
+		$Logger->{$level}($message, array('user' => 'Bob'));
+		$Logger->log($level, $message, array('user' => 'Bob'));
 
-		$Logger->debug('debug');
-		$Logger->info('info');
-		$Logger->notice('notice');
-		$Logger->warning('warning');
-		$Logger->error('error');
-		$Logger->critical('critical');
-		$Logger->alert('alert');
-		$Logger->emergency('emergency');
-
-		$result = array(
-			array('level' => 100, 'message' => 'debug', 'context' => array()),
-			array('level' => 200, 'message' => 'info', 'context' => array()),
-			array('level' => 250, 'message' => 'notice', 'context' => array()),
-			array('level' => 300, 'message' => 'warning', 'context' => array()),
-			array('level' => 400, 'message' => 'error', 'context' => array()),
-			array('level' => 500, 'message' => 'critical', 'context' => array()),
-			array('level' => 550, 'message' => 'alert', 'context' => array()),
-			array('level' => 600, 'message' => 'emergency', 'context' => array())
+		$expected = array(
+			$level . ' message of level ' . $level . ' with context: Bob',
+			$level . ' message of level ' . $level . ' with context: Bob',
 		);
 
-		$this->assertEquals($result, $Logger->get(false));
+		$this->assertEquals($expected, $Logger->get(false));
+	}
+
+	public function provideLevelsAndMessages() {
+		return array(
+			LogLevel::EMERGENCY => array(LogLevel::EMERGENCY, 'message of level emergency with context: {user}'),
+			LogLevel::ALERT => array(LogLevel::ALERT, 'message of level alert with context: {user}'),
+			LogLevel::CRITICAL => array(LogLevel::CRITICAL, 'message of level critical with context: {user}'),
+			LogLevel::ERROR => array(LogLevel::ERROR, 'message of level error with context: {user}'),
+			LogLevel::WARNING => array(LogLevel::WARNING, 'message of level warning with context: {user}'),
+			LogLevel::NOTICE => array(LogLevel::NOTICE, 'message of level notice with context: {user}'),
+			LogLevel::INFO => array(LogLevel::INFO, 'message of level info with context: {user}'),
+			LogLevel::DEBUG => array(LogLevel::DEBUG, 'message of level debug with context: {user}'),
+		);
+	}
+
+	/**
+	 * @expectedException \InvalidArgumentException
+	 */
+	public function testThrowsOnInvalidLevel() {
+		$Logger = new Logger();
+		$Logger->log('invalid level', 'Foo');
+	}
+
+	public function testContextReplacement() {
+		$Logger = new Logger();
+		$Logger->info('{Message {nothing} {user} {foo.bar} a}', array('user' => 'Bob', 'foo.bar' => 'Bar'));
+
+		$expected = array('info {Message {nothing} Bob Bar a}');
+		$this->assertEquals($expected, $Logger->get(false));
+	}
+
+	public function testObjectCastToString() {
+		$dummy = $this->getMock('\stdClass', array('__toString'));
+		$dummy
+			->expects($this->once())
+			->method('__toString')
+			->will($this->returnValue('DUMMY'));
+
+		$Logger = new Logger();
+		$Logger->warning($dummy);
+	}
+
+	public function testContextCanContainAnything() {
+		$context = array(
+			'bool' => true,
+			'null' => null,
+			'string' => 'Foo',
+			'int' => 0,
+			'float' => 0.5,
+			'nested' => array('with object' => new \stdClass),
+			'object' => new \DateTime,
+			'resource' => fopen('php://memory', 'r'),
+		);
+
+		$Logger = new Logger();
+		$Logger->warning('Crazy context data', $context);
+	}
+
+	public function testContextExceptionKeyCanBeExceptionOrOtherValues() {
+		$Logger = new Logger();
+		$Logger->warning('Random message', array('exception' => 'oops'));
+		$Logger->critical('Uncaught Exception!', array('exception' => new \LogicException('Fail')));
 	}
 
 	public function testElapsedTime() {
