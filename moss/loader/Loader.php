@@ -35,8 +35,11 @@ class Loader {
 	 * @param array|string $paths
 	 *
 	 * @return $this
+	 * @throws \InvalidArgumentException
 	 */
 	public function addNamespace($namespace, $paths) {
+		$namespace = rtrim($namespace, '\\');
+
 		foreach((array) $paths as $path) {
 			if(!isset($this->namespaces[(string) $namespace])) {
 				$this->namespaces[(string) $namespace] = array();
@@ -45,6 +48,10 @@ class Loader {
 			$length = strlen($path);
 			if($length == 0 || $path[$length - 1] != '/') {
 				$path .= '/';
+			}
+
+			if(!is_dir($path)) {
+				throw new \InvalidArgumentException(sprintf('Unable to resolve real path for "%s"', $path));
 			}
 
 			$this->namespaces[(string) $namespace][] = realpath($path);
