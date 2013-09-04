@@ -19,7 +19,7 @@ class Router implements RouterInterface {
 
 	protected $routeNormal = true;
 	protected $fallbackNormal = true;
-	protected $forceAbsolute = false;
+	protected $forceRelative = false;
 
 	/** @var array|RouteInterface[] */
 	protected $routes = array();
@@ -29,12 +29,12 @@ class Router implements RouterInterface {
 	 *
 	 * @param bool $allowNormal
 	 * @param bool $allowFallback
-	 * @param bool $forceAbsolute
+	 * @param bool $forceRelative
 	 */
-	public function __construct($allowNormal = true, $allowFallback = true, $forceAbsolute = true) {
-		$this->routeNormal($allowNormal);
+	public function __construct($allowNormal = true, $allowFallback = true, $forceRelative = false) {
+		$this->allowNormal($allowNormal);
 		$this->fallbackNormal($allowFallback);
-		$this->forceAbsolute($forceAbsolute);
+		$this->forceRelative($forceRelative);
 	}
 
 	/**
@@ -45,7 +45,7 @@ class Router implements RouterInterface {
 	 *
 	 * @return bool
 	 */
-	public function routeNormal($route = null) {
+	public function allowNormal($route = null) {
 		if($route !== null) {
 			$this->routeNormal = (bool) $route;
 		}
@@ -75,12 +75,12 @@ class Router implements RouterInterface {
 	 *
 	 * @return bool
 	 */
-	public function forceAbsolute($force = null) {
+	public function forceRelative($force = null) {
 		if($force !== null) {
-			$this->forceAbsolute = (bool) $force;
+			$this->forceRelative = (bool) $force;
 		}
 
-		return $this->forceAbsolute;
+		return $this->forceRelative;
 	}
 
 	/**
@@ -170,7 +170,7 @@ class Router implements RouterInterface {
 	 * @throws RouterException
 	 */
 	public function make($controller = null, $arguments = array(), $forceNormal = false, $forceRelative = false) {
-		$forceRelative = $forceRelative || $this->forceAbsolute;
+		$forceRelative = $forceRelative || $this->forceRelative;
 
 		if(!$controller) {
 			if(!isset($this->defaults['controller'])) {
@@ -214,7 +214,8 @@ class Router implements RouterInterface {
 	 * @return string
 	 */
 	protected function makeNormal($host, $controller, $arguments, $forceRelative) {
-		$url = '?controller=' . preg_replace('/[^a-z0-9]+/i', '_', $controller) . (empty($arguments) ? null : '&' . http_build_query($arguments, null, '&'));
+		$arguments = (empty($arguments) ? null : '&' . http_build_query(array_filter($arguments), null, '&'));
+		$url = '?controller=' . preg_replace('/[^a-z0-9]+/i', '_', $controller) . $arguments;
 
 		if(empty($host) || $forceRelative) {
 			$host = '';
