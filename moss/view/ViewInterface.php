@@ -33,11 +33,11 @@ interface ViewInterface extends \ArrayAccess, \Countable {
 	 * Retrieves variable value
 	 *
 	 * @param string $offset variable name
+	 * @param mixed $default default value if variable not found
 	 *
 	 * @return mixed
-	 * @throws \OutOfRangeException
 	 */
-	public function get($offset);
+	public function get($offset, $default = null);
 
 	/**
 	 * Renders view

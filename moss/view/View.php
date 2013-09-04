@@ -73,13 +73,13 @@ class View implements ViewInterface {
 	/**
 	 * Retrieves variable value
 	 *
-	 * @param string $offset variable name
+	 * @param string $offset  variable name
+	 * @param mixed  $default default value if variable not found
 	 *
 	 * @return mixed
-	 * @throws \OutOfRangeException
 	 */
-	public function get($offset) {
-		return $this->getFromArray($this->vars, explode('.', $offset));
+	public function get($offset, $default = null) {
+		return $this->getArrValue($this->vars, $offset, $default);
 	}
 
 	/**
@@ -110,24 +110,25 @@ class View implements ViewInterface {
 	}
 
 	/**
-	 * Returns array element matching key
+	 * Returns offset value from array or default value if offset does not exists
 	 *
-	 * @param array $arr
-	 * @param array $keys
+	 * @param array|\ArrayAccess $arr
+	 * @param string             $offset
+	 * @param mixed              $default
 	 *
 	 * @return mixed
 	 */
-	protected function getFromArray(&$arr, $keys) {
-		$k = array_shift($keys);
-		if(!isset($arr[$k])) {
-			return null;
+	protected function getArrValue($arr, $offset, $default = null) {
+		$keys = explode('.', $offset);
+		while($i = array_shift($keys)) {
+			if(!isset($arr[$i])) {
+				return $default;
+			}
+
+			$arr = $arr[$i];
 		}
 
-		if(empty($keys)) {
-			return $arr[$k];
-		}
-
-		return $this->getFromArray($arr[$k], $keys);
+		return $arr;
 	}
 
 	/**
