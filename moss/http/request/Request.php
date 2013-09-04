@@ -601,10 +601,12 @@ class Request implements RequestInterface {
 	/**
 	 * Returns requested URL
 	 *
+	 * @param bool $query
+	 *
 	 * @return string
 	 */
-	public function url() {
-		return $this->url;
+	public function url($query = false) {
+		return $this->url . ($query ? '?' . http_build_query($this->query, null, '&') : null);
 	}
 
 	/**

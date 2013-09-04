@@ -144,9 +144,11 @@ interface RequestInterface {
 	/**
 	 * Returns requested URL
 	 *
+	 * @param bool $query
+	 *
 	 * @return string
 	 */
-	public function url();
+	public function url($query = false);
 
 	/**
 	 * Returns address of page which referred user agent (if any)
