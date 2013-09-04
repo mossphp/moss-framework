@@ -27,6 +27,11 @@ To access specific variable in section:
 	$Config = new Config(array('section' => array('some' => array('var' => 'var'))));
 	$var = $Config->get('section.some.var');
 
+Or (in PHP >5.4)
+
+	$Config = new Config(array('section' => array('some' => array('var' => 'var'))));
+    $var = $Config->get('section')['some']['var'];
+
 ## Framework
 
 There are two properties determining error reporting:
