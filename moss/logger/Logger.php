@@ -1,34 +1,32 @@
 <?php
 namespace moss\logger;
 
-use moss\logger\LoggerInterface;
+use Psr\Log\AbstractLogger;
 
 /**
- * Logger implementation
+ * PSR-3 Logger implementation
  *
  * @package Moss Logger
  * @author  Michal Wachowski <wachowski.michal@gmail.com>
  */
-class Logger implements LoggerInterface {
+class Logger extends AbstractLogger {
+
+	const EMERGENCY = 'emergency';
+	const ALERT = 'alert';
+	const CRITICAL = 'critical';
+	const ERROR = 'error';
+	const WARNING = 'warning';
+	const NOTICE = 'notice';
+	const INFO = 'info';
+	const DEBUG = 'debug';
 
 	protected $log = array();
 	protected $start;
 	protected $path;
-	protected $level;
+	protected $ignoredLevels;
 
 	protected $overwrite;
 	protected $writeEmpty;
-
-	protected $levels = array(
-		100 => 'DEBUG',
-		200 => 'INFO',
-		250 => 'NOTICE',
-		300 => 'WARNING',
-		400 => 'ERROR',
-		500 => 'CRITICAL',
-		550 => 'ALERT',
-		600 => 'EMERGENCY',
-	);
 
 	/**
 	 * Constructor
@@ -38,115 +36,12 @@ class Logger implements LoggerInterface {
 	 * @param bool        $writeEmpty if true will write log whether there are messages or not
 	 * @param int         $level      all logs with lower level will be ignored
 	 */
-	public function __construct($path = null, $overwrite = true, $writeEmpty = false, $level = 0) {
+	public function __construct($path = null, $overwrite = true, $writeEmpty = false, $ignoredLevels = array()) {
 		$this->path = str_replace('\\', '/', $path);
 		$this->start = microtime(true);
 		$this->overwrite = (bool) $overwrite;
 		$this->writeEmpty = (bool) $writeEmpty;
-		$this->level = (int) $level;
-	}
-
-	/**
-	 * System is unusable.
-	 *
-	 * @param string $message
-	 * @param array  $context
-	 *
-	 * @return Logger
-	 */
-	public function emergency($message, array $context = array()) {
-		return $this->log(600, $message, $context);
-	}
-
-	/**
-	 * Action must be taken immediately.
-	 * Example: Entire website down, database unavailable, etc. This should
-	 * trigger the SMS alerts and wake you up.
-	 *
-	 * @param string $message
-	 * @param array  $context
-	 *
-	 * @return Logger
-	 */
-	public function alert($message, array $context = array()) {
-		return $this->log(550, $message, $context);
-	}
-
-	/**
-	 * Critical conditions.
-	 * Example: Application component unavailable, unexpected exception.
-	 *
-	 * @param string $message
-	 * @param array  $context
-	 *
-	 * @return Logger
-	 */
-	public function critical($message, array $context = array()) {
-		return $this->log(500, $message, $context);
-	}
-
-	/**
-	 * Runtime errors that do not require immediate action but should typically
-	 * be logged and monitored.
-	 *
-	 * @param string $message
-	 * @param array  $context
-	 *
-	 * @return Logger
-	 */
-	public function error($message, array $context = array()) {
-		return $this->log(400, $message, $context);
-	}
-
-	/**
-	 * Exceptional occurrences that are not errors.
-	 * Example: Use of deprecated APIs, poor use of an API, undesirable things
-	 * that are not necessarily wrong.
-	 *
-	 * @param string $message
-	 * @param array  $context
-	 *
-	 * @return Logger
-	 */
-	public function warning($message, array $context = array()) {
-		return $this->log(300, $message, $context);
-	}
-
-	/**
-	 * Normal but significant events.
-	 *
-	 * @param string $message
-	 * @param array  $context
-	 *
-	 * @return Logger
-	 */
-	public function notice($message, array $context = array()) {
-		return $this->log(250, $message, $context);
-	}
-
-	/**
-	 * Interesting events.
-	 * Example: User logs in, SQL logs.
-	 *
-	 * @param string $message
-	 * @param array  $context
-	 *
-	 * @return Logger
-	 */
-	public function info($message, array $context = array()) {
-		return $this->log(200, $message, $context);
-	}
-
-	/**
-	 * Detailed debug information.
-	 *
-	 * @param string $message
-	 * @param array  $context
-	 *
-	 * @return Logger
-	 */
-	public function debug($message, array $context = array()) {
-		return $this->log(100, $message, $context);
+		$this->ignoredLevels = $ignoredLevels;
 	}
 
 	/**
@@ -159,8 +54,20 @@ class Logger implements LoggerInterface {
 	 * @return Logger
 	 */
 	public function log($level, $message, array $context = array()) {
-		if($level < $this->level) {
-			return $this;
+		switch($level) {
+			case self::EMERGENCY:
+			case self::ALERT:
+			case self::CRITICAL:
+			case self::ERROR:
+			case self::WARNING:
+			case self::NOTICE:
+			case self::INFO:
+			case self::DEBUG:
+				break;
+			case in_array($level, $this->ignoredLevels):
+				return $this;
+			default:
+				throw new \InvalidArgumentException(sprintf('Invalid level submited "%s"', (string) $level));
 		}
 
 		$this->log[] = array(
@@ -170,12 +77,24 @@ class Logger implements LoggerInterface {
 			'memoryDelta' => 0,
 			'level' => $level,
 			'context' => $context,
-			'message' => $message
+			'message' => (string) $message
 		);
 
 		$this->calculateDelta();
 
 		return $this;
+	}
+
+	/**
+	 * Interpolates context values into the message placeholders.
+	 */
+	protected function interpolate($message, array $context = array()) {
+		$replace = array();
+		foreach($context as $key => $val) {
+			$replace['{' . $key . '}'] = $val;
+		}
+
+		return strtr($message, $replace);
 	}
 
 	/**
@@ -190,11 +109,7 @@ class Logger implements LoggerInterface {
 			$log = array();
 
 			foreach($this->log as $entry) {
-				$log[] = array(
-					'level' => $entry['level'],
-					'message' => $entry['message'],
-					'context' => $entry['context']
-				);
+				$log[] = sprintf('%s %s', $entry['level'], $this->interpolate($entry['message'], $entry['context']));
 			}
 
 			return $log;
