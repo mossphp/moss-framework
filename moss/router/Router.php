@@ -217,10 +217,6 @@ class Router implements RouterInterface {
 		$arguments = (empty($arguments) ? null : '&' . http_build_query(array_filter($arguments), null, '&'));
 		$url = '?controller=' . preg_replace('/[^a-z0-9]+/i', '_', $controller) . $arguments;
 
-		if(empty($host) || $forceRelative) {
-			$host = '';
-		}
-
-		return (empty($host) || $forceRelative == true ? null : rtrim($host, '/') . '/') . ltrim($url, './');
+		return (empty($host) || $forceRelative == true ? './' : rtrim($host, '/') . '/') . ltrim($url, './');
 	}
 }
