@@ -71,7 +71,8 @@ Just call `$Component = $Container->get('componentIdentifier');` and thats it.
 E.g.:
 
 	$Request = $Container->get('Request');
-	if($Request->isAjax()) {
+	if($Request->isAjax())
+	{
 		echo 'Its Ajax request';
 	}
 

@@ -27,14 +27,17 @@ Create new controller `./src/quick/start/controller/QuickController.php` contain
 	use moss\container\ContainerInterface;
     use moss\http\response\Response;
 
-	class QuickController {
+	class QuickController
+	{
 		protected $Container;
 
-		public function __construct($Container) {
+		public function __construct($Container)
+		{
 			$this->Container = $Container;
 		}
 
-		public function indexAction() {
+		public function indexAction()
+		{
 			return new Response(__METHOD__);
 		}
 	}
