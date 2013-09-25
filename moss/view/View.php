@@ -12,263 +12,281 @@ use moss\http\request\RequestInterface;
  * @package Moss View
  * @author  Michal Wachowski <wachowski.michal@gmail.com>
  */
-class View implements ViewInterface {
+class View implements ViewInterface
+{
 
-	protected $template;
-	protected $vars = array();
+    protected $template;
+    protected $vars = array();
 
-	/** @var \Twig_Environment */
-	protected $Twig;
+    /** @var \Twig_Environment */
+    protected $Twig;
 
-	/**
-	 * Creates View instance
-	 *
-	 * @param RequestInterface  $Request
-	 * @param ConfigInterface   $Config
-	 * @param \Twig_Environment $Twig
-	 */
-	public function __construct(RequestInterface $Request, ConfigInterface $Config, \Twig_Environment $Twig) {
-		$this->Request = & $Request;
-		$this->Config = & $Config;
-		$this->Twig = & $Twig;
-	}
+    /**
+     * Creates View instance
+     *
+     * @param RequestInterface  $Request
+     * @param ConfigInterface   $Config
+     * @param \Twig_Environment $Twig
+     */
+    public function __construct(RequestInterface $Request, ConfigInterface $Config, \Twig_Environment $Twig)
+    {
+        $this->Request = & $Request;
+        $this->Config = & $Config;
+        $this->Twig = & $Twig;
+    }
 
-	/**
-	 * Assigns template to view
-	 *
-	 * @param string $template path to template (supports namespaces)
-	 *
-	 * @return View
-	 */
-	public function template($template) {
-		$this->template = $template;
+    /**
+     * Assigns template to view
+     *
+     * @param string $template path to template (supports namespaces)
+     *
+     * @return View
+     */
+    public function template($template)
+    {
+        $this->template = $template;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * Sets variable to be used in template
-	 *
-	 * @param string|array $offset variable name, if array - its key will be used as variable names
-	 * @param null|mixed   $value  variable value
-	 *
-	 * @return View
-	 * @throws \InvalidArgumentException
-	 */
-	public function set($offset, $value = null) {
-		if(is_array($offset)) {
-			foreach($offset as $key => $val) {
-				$this->set($key, $val);
-				unset($val);
-			}
+    /**
+     * Sets variable to be used in template
+     *
+     * @param string|array $offset variable name, if array - its key will be used as variable names
+     * @param null|mixed   $value  variable value
+     *
+     * @return View
+     * @throws \InvalidArgumentException
+     */
+    public function set($offset, $value = null)
+    {
+        if (is_array($offset)) {
+            foreach ($offset as $key => $val) {
+                $this->set($key, $val);
+                unset($val);
+            }
 
-			return $this;
-		}
+            return $this;
+        }
 
-		$this->setIntoArray($this->vars, explode('.', $offset), $value);
+        $this->setIntoArray($this->vars, explode('.', $offset), $value);
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * Retrieves variable value
-	 *
-	 * @param string $offset  variable name
-	 * @param mixed  $default default value if variable not found
-	 *
-	 * @return mixed
-	 */
-	public function get($offset, $default = null) {
-		return $this->getArrValue($this->vars, $offset, $default);
-	}
+    /**
+     * Retrieves variable value
+     *
+     * @param string $offset  variable name
+     * @param mixed  $default default value if variable not found
+     *
+     * @return mixed
+     */
+    public function get($offset, $default = null)
+    {
+        return $this->getArrValue($this->vars, $offset, $default);
+    }
 
-	/**
-	 * Sets array elements value
-	 *
-	 * @param array  $arr
-	 * @param string $keys
-	 * @param mixed  $value
-	 *
-	 * @return mixed
-	 */
-	protected function setIntoArray(&$arr, $keys, $value) {
-		$k = array_shift($keys);
+    /**
+     * Sets array elements value
+     *
+     * @param array  $arr
+     * @param string $keys
+     * @param mixed  $value
+     *
+     * @return mixed
+     */
+    protected function setIntoArray(&$arr, $keys, $value)
+    {
+        $k = array_shift($keys);
 
-		if(is_scalar($arr)) {
-			$arr = (array) $arr;
-		}
+        if (is_scalar($arr)) {
+            $arr = (array) $arr;
+        }
 
-		if(!isset($arr[$k])) {
-			$arr[$k] = null;
-		}
+        if (!isset($arr[$k])) {
+            $arr[$k] = null;
+        }
 
-		if(empty($keys)) {
-			return $arr[$k] = $value;
-		}
+        if (empty($keys)) {
+            return $arr[$k] = $value;
+        }
 
-		return $this->setIntoArray($arr[$k], $keys, $value);
-	}
+        return $this->setIntoArray($arr[$k], $keys, $value);
+    }
 
-	/**
-	 * Returns offset value from array or default value if offset does not exists
-	 *
-	 * @param array|\ArrayAccess $arr
-	 * @param string             $offset
-	 * @param mixed              $default
-	 *
-	 * @return mixed
-	 */
-	protected function getArrValue($arr, $offset, $default = null) {
-		$keys = explode('.', $offset);
-		while($i = array_shift($keys)) {
-			if(!isset($arr[$i])) {
-				return $default;
-			}
+    /**
+     * Returns offset value from array or default value if offset does not exists
+     *
+     * @param array|\ArrayAccess $arr
+     * @param string             $offset
+     * @param mixed              $default
+     *
+     * @return mixed
+     */
+    protected function getArrValue($arr, $offset, $default = null)
+    {
+        $keys = explode('.', $offset);
+        while ($i = array_shift($keys)) {
+            if (!isset($arr[$i])) {
+                return $default;
+            }
 
-			$arr = $arr[$i];
-		}
+            $arr = $arr[$i];
+        }
 
-		return $arr;
-	}
+        return $arr;
+    }
 
-	/**
-	 * Renders view
-	 *
-	 * @return string
-	 * @throws \InvalidArgumentException
-	 */
-	public function render() {
-		if(!$this->template) {
-			throw new \InvalidArgumentException('Undefined view or view file does not exists: ' . $this->template . '!');
-		}
+    /**
+     * Renders view
+     *
+     * @return string
+     * @throws \InvalidArgumentException
+     */
+    public function render()
+    {
+        if (!$this->template) {
+            throw new \InvalidArgumentException('Undefined view or view file does not exists: ' . $this->template . '!');
+        }
 
-		$this->vars['Request'] = & $this->Request;
-		$this->vars['Config'] = & $this->Config;
+        $this->vars['Request'] = & $this->Request;
+        $this->vars['Config'] = & $this->Config;
 
-		return $this->Twig->render($this->template, $this->vars);
-	}
+        return $this->Twig->render($this->template, $this->vars);
+    }
 
-	/**
-	 * Renders and returns view as string
-	 *
-	 * @return string
-	 */
-	public function __toString() {
-		try {
-			return $this->render();
-		}
-		catch(\InvalidArgumentException $e) {
-			return sprintf('%s (%s line:%s)', $e->getMessage(), $e->getFile(), $e->getLine());
-		}
-	}
+    /**
+     * Renders and returns view as string
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        try {
+            return $this->render();
+        } catch(\InvalidArgumentException $e) {
+            return sprintf('%s (%s line:%s)', $e->getMessage(), $e->getFile(), $e->getLine());
+        }
+    }
 
-	/**
-	 * Offset to unset
-	 *
-	 * @param string $offset
-	 */
-	public function offsetUnset($offset) {
-		unset($this->vars[$offset]);
-	}
+    /**
+     * Offset to unset
+     *
+     * @param string $offset
+     */
+    public function offsetUnset($offset)
+    {
+        unset($this->vars[$offset]);
+    }
 
-	/**
-	 * Offset to set
-	 *
-	 * @param string $offset
-	 * @param mixed  $value
-	 */
-	public function offsetSet($offset, $value) {
-		if(empty($offset)) {
-			$offset = array_push($_COOKIE, $value);
-		}
+    /**
+     * Offset to set
+     *
+     * @param string $offset
+     * @param mixed  $value
+     */
+    public function offsetSet($offset, $value)
+    {
+        if (empty($offset)) {
+            $offset = array_push($_COOKIE, $value);
+        }
 
-		$this->vars[$offset] = $value;
-	}
+        $this->vars[$offset] = $value;
+    }
 
-	/**
-	 * Offset to retrieve
-	 *
-	 * @param string $offset
-	 *
-	 * @return mixed
-	 */
-	public function &offsetGet($offset) {
-		if(!isset($this->vars[$offset])) {
-			$this->vars[$offset] = null;
-		}
+    /**
+     * Offset to retrieve
+     *
+     * @param string $offset
+     *
+     * @return mixed
+     */
+    public function &offsetGet($offset)
+    {
+        if (!isset($this->vars[$offset])) {
+            $this->vars[$offset] = null;
+        }
 
-		return $this->vars[$offset];
-	}
+        return $this->vars[$offset];
+    }
 
-	/**
-	 * Whether a offset exists
-	 *
-	 * @param string $offset
-	 *
-	 * @return bool
-	 */
-	public function offsetExists($offset) {
-		return isset($this->vars[$offset]);
-	}
+    /**
+     * Whether a offset exists
+     *
+     * @param string $offset
+     *
+     * @return bool
+     */
+    public function offsetExists($offset)
+    {
+        return isset($this->vars[$offset]);
+    }
 
-	/**
-	 * Return the current element
-	 *
-	 * @return mixed
-	 */
-	public function current() {
-		return current($this->vars);
-	}
+    /**
+     * Return the current element
+     *
+     * @return mixed
+     */
+    public function current()
+    {
+        return current($this->vars);
+    }
 
-	/**
-	 * Move forward to next element
-	 */
-	public function next() {
-		next($this->vars);
-	}
+    /**
+     * Move forward to next element
+     */
+    public function next()
+    {
+        next($this->vars);
+    }
 
-	/**
-	 * Return the key of the current element
-	 *
-	 * @return mixed
-	 */
-	public function key() {
-		return key($this->vars);
-	}
+    /**
+     * Return the key of the current element
+     *
+     * @return mixed
+     */
+    public function key()
+    {
+        return key($this->vars);
+    }
 
-	/**
-	 * Checks if current position is valid
-	 *
-	 * @return boolean
-	 */
-	public function valid() {
-		$key = key($this->vars);
+    /**
+     * Checks if current position is valid
+     *
+     * @return boolean
+     */
+    public function valid()
+    {
+        $key = key($this->vars);
 
-		while($key !== null) {
-			$this->next();
-			$key = key($this->vars);
-		}
+        while ($key !== null) {
+            $this->next();
+            $key = key($this->vars);
+        }
 
-		if($key === false || $key === null) {
-			return false;
-		}
+        if ($key === false || $key === null) {
+            return false;
+        }
 
-		return isset($this->vars[$key]);
-	}
+        return isset($this->vars[$key]);
+    }
 
-	/**
-	 * Rewind the Iterator to the first element
-	 */
-	public function rewind() {
-		reset($this->vars);
-	}
+    /**
+     * Rewind the Iterator to the first element
+     */
+    public function rewind()
+    {
+        reset($this->vars);
+    }
 
-	/**
-	 * Count elements of an object
-	 *
-	 * @return int
-	 */
-	public function count() {
-		return count($this->vars);
-	}
+    /**
+     * Count elements of an object
+     *
+     * @return int
+     */
+    public function count()
+    {
+        return count($this->vars);
+    }
 }

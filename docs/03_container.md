@@ -42,7 +42,9 @@ _Component definition_ which is described above under `componentName`:
 
 _closure_ under `closureName`:
 
-	$Container->register('closureName', function($Container) { return 'closureBody'; });
+	$Container->register('closureName', function($Container) {
+		return 'closureBody';
+	});
 
 _value_ under `valueName`:
 
@@ -71,8 +73,7 @@ Just call `$Component = $Container->get('componentIdentifier');` and thats it.
 E.g.:
 
 	$Request = $Container->get('Request');
-	if($Request->isAjax())
-	{
+	if($Request->isAjax()) {
 		echo 'Its Ajax request';
 	}
 

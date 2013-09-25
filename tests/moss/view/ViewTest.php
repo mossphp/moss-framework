@@ -10,10 +10,12 @@
 namespace tests\moss\view;
 
 
-class ViewTest extends \PHPUnit_Framework_TestCase {
+class ViewTest extends \PHPUnit_Framework_TestCase
+{
 
-	public function testNotImplemented() {
-		$this->markTestIncomplete();
-	}
+    public function testNotImplemented()
+    {
+        $this->markTestIncomplete();
+    }
 
 }

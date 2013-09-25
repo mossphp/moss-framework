@@ -7,14 +7,15 @@ namespace moss\container;
  * @package Moss DI Container
  * @author  Michal Wachowski <wachowski.michal@gmail.com>
  */
-interface ComponentInterface {
+interface ComponentInterface
+{
 
-	/**
-	 * Returns component instance
-	 *
-	 * @param ContainerInterface $Container
-	 *
-	 * @return object
-	 */
-	public function get(ContainerInterface $Container = null);
+    /**
+     * Returns component instance
+     *
+     * @param ContainerInterface $Container
+     *
+     * @return object
+     */
+    public function get(ContainerInterface $Container = null);
 }

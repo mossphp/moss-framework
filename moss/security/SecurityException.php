@@ -7,6 +7,7 @@ namespace moss\security;
  * @package Moss Security
  * @author  Michal Wachowski <wachowski.michal@gmail.com>
  */
-class SecurityException extends \Exception {
+class SecurityException extends \Exception
+{
 
 }

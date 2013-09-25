@@ -7,6 +7,7 @@ namespace moss\container;
  * @package Moss DI Container
  * @author  Michal Wachowski <wachowski.michal@gmail.com>
  */
-class ContainerException extends \Exception {
+class ContainerException extends \Exception
+{
 
 }

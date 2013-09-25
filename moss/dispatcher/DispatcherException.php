@@ -7,6 +7,7 @@ namespace moss\dispatcher;
  * @package Moss Dispatcher
  * @author  Michal Wachowski <wachowski.michal@gmail.com>
  */
-class DispatcherException extends \Exception {
+class DispatcherException extends \Exception
+{
 
 }

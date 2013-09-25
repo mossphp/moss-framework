@@ -7,6 +7,7 @@ namespace moss\kernel;
  * @package Moss Kernel
  * @author  Michal Wachowski <wachowski.michal@gmail.com>
  */
-class KernelException extends \Exception {
+class KernelException extends \Exception
+{
 
 }

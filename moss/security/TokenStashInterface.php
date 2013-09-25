@@ -7,28 +7,29 @@ namespace moss\security;
  * @package Moss Security
  * @author  Michal Wachowski <wachowski.michal@gmail.com>
  */
-interface TokenStashInterface {
+interface TokenStashInterface
+{
 
-	/**
-	 * Stashes token
-	 *
-	 * @param TokenInterface $Token
-	 *
-	 * @return $this
-	 */
-	public function put(TokenInterface $Token);
+    /**
+     * Stashes token
+     *
+     * @param TokenInterface $Token
+     *
+     * @return $this
+     */
+    public function put(TokenInterface $Token);
 
-	/**
-	 * Returns stashed token
-	 *
-	 * @return TokenInterface
-	 */
-	public function get();
+    /**
+     * Returns stashed token
+     *
+     * @return TokenInterface
+     */
+    public function get();
 
-	/**
-	 * Destroys stashed token
-	 *
-	 * @return $this
-	 */
-	public function destroy();
+    /**
+     * Destroys stashed token
+     *
+     * @return $this
+     */
+    public function destroy();
 }

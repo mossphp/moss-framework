@@ -8,128 +8,135 @@ namespace moss\loader;
  * @package Moss Autoloader
  * @author  Michal Wachowski <wachowski.michal@gmail.com>
  */
-class Loader {
+class Loader
+{
 
-	protected $namespaces = array();
-	protected $prefixes = array();
+    protected $namespaces = array();
+    protected $prefixes = array();
 
-	/**
-	 * Registers an array of namespaces
-	 *
-	 * @param array $namespaces array with namespace - path pairs
-	 *
-	 * @return $this
-	 */
-	public function addNamespaces(array $namespaces) {
-		foreach($namespaces as $namespace => $locations) {
-			$this->addNamespace($namespace, $locations);
-		}
+    /**
+     * Registers an array of namespaces
+     *
+     * @param array $namespaces array with namespace - path pairs
+     *
+     * @return $this
+     */
+    public function addNamespaces(array $namespaces)
+    {
+        foreach ($namespaces as $namespace => $locations) {
+            $this->addNamespace($namespace, $locations);
+        }
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * Registers a namespace
-	 *
-	 * @param string       $namespace
-	 * @param array|string $paths
-	 *
-	 * @return $this
-	 * @throws \InvalidArgumentException
-	 */
-	public function addNamespace($namespace, $paths) {
-		$namespace = rtrim($namespace, '\\');
+    /**
+     * Registers a namespace
+     *
+     * @param string       $namespace
+     * @param array|string $paths
+     *
+     * @return $this
+     * @throws \InvalidArgumentException
+     */
+    public function addNamespace($namespace, $paths)
+    {
+        $namespace = rtrim($namespace, '\\');
 
-		foreach((array) $paths as $path) {
-			if(!isset($this->namespaces[(string) $namespace])) {
-				$this->namespaces[(string) $namespace] = array();
-			}
+        foreach ((array) $paths as $path) {
+            if (!isset($this->namespaces[(string) $namespace])) {
+                $this->namespaces[(string) $namespace] = array();
+            }
 
-			$length = strlen($path);
-			if($length == 0 || $path[$length - 1] != '/') {
-				$path .= '/';
-			}
+            $length = strlen($path);
+            if ($length == 0 || $path[$length - 1] != '/') {
+                $path .= '/';
+            }
 
-			if(!is_dir($path)) {
-				throw new \InvalidArgumentException(sprintf('Unable to resolve real path for "%s"', $path));
-			}
+            if (!is_dir($path)) {
+                throw new \InvalidArgumentException(sprintf('Unable to resolve real path for "%s"', $path));
+            }
 
-			$this->namespaces[(string) $namespace][] = realpath($path);
-		}
+            $this->namespaces[(string) $namespace][] = realpath($path);
+        }
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * Registers loader handler.
-	 *
-	 * @param bool $prepend
-	 */
-	public function register($prepend = false) {
-		spl_autoload_register(array($this, 'handler'), true, $prepend);
-	}
+    /**
+     * Registers loader handler.
+     *
+     * @param bool $prepend
+     */
+    public function register($prepend = false)
+    {
+        spl_autoload_register(array($this, 'handler'), true, $prepend);
+    }
 
-	/**
-	 * Unregisters loader handler
-	 */
-	public function unregisterHandle() {
-		spl_autoload_unregister(array($this, 'handler'));
-	}
+    /**
+     * Unregisters loader handler
+     */
+    public function unregisterHandle()
+    {
+        spl_autoload_unregister(array($this, 'handler'));
+    }
 
-	/**
-	 * Handles autoload calls
-	 *
-	 * @param string $className
-	 *
-	 * @return bool
-	 */
-	public function handler($className) {
-		if($file = $this->findFile($className)) {
-			return require $file;
-		}
+    /**
+     * Handles autoload calls
+     *
+     * @param string $className
+     *
+     * @return bool
+     */
+    public function handler($className)
+    {
+        if ($file = $this->findFile($className)) {
+            return require $file;
+        }
 
-		return false;
-	}
+        return false;
+    }
 
-	/**
-	 * Finds file in defined namespaces and prefixes
-	 *
-	 * @param string $className
-	 *
-	 * @return bool|string
-	 */
-	protected function findFile($className) {
-		foreach($this->namespaces as $namespace => $paths) {
-			if(false !== $lastNsPos = strripos($className, '\\')) {
-				if($namespace && $namespace . '\\' !== substr($className, 0, strlen($namespace . '\\'))) {
-					continue;
-				}
+    /**
+     * Finds file in defined namespaces and prefixes
+     *
+     * @param string $className
+     *
+     * @return bool|string
+     */
+    protected function findFile($className)
+    {
+        foreach ($this->namespaces as $namespace => $paths) {
+            if (false !== $lastNsPos = strripos($className, '\\')) {
+                if ($namespace && $namespace . '\\' !== substr($className, 0, strlen($namespace . '\\'))) {
+                    continue;
+                }
 
-				$fileName = str_replace('\\', DIRECTORY_SEPARATOR, substr($className, 0, $lastNsPos)) . DIRECTORY_SEPARATOR . substr($className, $lastNsPos + 1) . '.php';
+                $fileName = str_replace('\\', DIRECTORY_SEPARATOR, substr($className, 0, $lastNsPos)) . DIRECTORY_SEPARATOR . substr($className, $lastNsPos + 1) . '.php';
 
-				foreach($paths as $path) {
-					$file = ($path !== null ? $path . DIRECTORY_SEPARATOR : '') . $fileName;
+                foreach ($paths as $path) {
+                    $file = ($path !== null ? $path . DIRECTORY_SEPARATOR : '') . $fileName;
 
-					if(is_file($file)) {
-						return $file;
-					}
-				}
+                    if (is_file($file)) {
+                        return $file;
+                    }
+                }
 
-				continue;
-			}
+                continue;
+            }
 
-			if($namespace !== '' && 0 !== strpos($className, $namespace)) {
-				continue;
-			}
+            if ($namespace !== '' && 0 !== strpos($className, $namespace)) {
+                continue;
+            }
 
-			foreach($paths as $path) {
-				$file = $path . DIRECTORY_SEPARATOR . str_replace('_', DIRECTORY_SEPARATOR, $className) . '.php';
-				if(is_file($file)) {
-					return $file;
-				}
-			}
-		}
+            foreach ($paths as $path) {
+                $file = $path . DIRECTORY_SEPARATOR . str_replace('_', DIRECTORY_SEPARATOR, $className) . '.php';
+                if (is_file($file)) {
+                    return $file;
+                }
+            }
+        }
 
-		return false;
-	}
+        return false;
+    }
 }

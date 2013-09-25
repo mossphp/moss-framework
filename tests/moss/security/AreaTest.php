@@ -2,68 +2,96 @@
 namespace moss\security;
 
 
-class AreaTest extends \PHPUnit_Framework_TestCase {
+class AreaTest extends \PHPUnit_Framework_TestCase
+{
 
-	public function testPattern() {
-		$Area = new Area('Bundle:*:!login|logout');
-		$this->assertEquals('Bundle:*:!login|logout', $Area->pattern());
-	}
+    public function testPattern()
+    {
+        $Area = new Area('Bundle:*:!login|logout');
+        $this->assertEquals('Bundle:*:!login|logout', $Area->pattern());
+    }
 
-	public function testRoles() {
-		$Area = new Area('Bundle:*:!login|logout', array('some', 'roles'));
-		$this->assertEquals(array('some', 'roles'), $Area->roles());
-	}
+    public function testRoles()
+    {
+        $Area = new Area('Bundle:*:!login|logout', array('some', 'roles'));
+        $this->assertEquals(array('some', 'roles'), $Area->roles());
+    }
 
-	public function testIps() {
-		$Area = new Area('Bundle:*:!login|!logout', array(), array('127.0.0.1'));
-		$this->assertEquals(array('127.0.0.1'), $Area->ips());
-	}
+    public function testIps()
+    {
+        $Area = new Area('Bundle:*:!login|!logout', array(), array('127.0.0.1'));
+        $this->assertEquals(array('127.0.0.1'), $Area->ips());
+    }
 
-	public function testMatch() {
-		$Area = new Area('Bundle:*:!login|logout');
+    public function testMatch()
+    {
+        $Area = new Area('Bundle:*:!login|logout');
 
-		$RequestBlock = $this->getMock('\moss\http\request\RequestInterface');
-		$RequestBlock->expects($this->any())->method('controller')->will($this->returnValue('Bundle:something:index'));
-		$this->assertTrue($Area->match($RequestBlock));
+        $RequestBlock = $this->getMock('\moss\http\request\RequestInterface');
+        $RequestBlock
+            ->expects($this->any())
+            ->method('controller')
+            ->will($this->returnValue('Bundle:something:index'));
+        $this->assertTrue($Area->match($RequestBlock));
 
-		$RequestPass = $this->getMock('\moss\http\request\RequestInterface');
-		$RequestPass->expects($this->any())->method('controller')->will($this->returnValue('Bundle:something:login'));
-		$this->assertFalse($Area->match($RequestPass));
-	}
+        $RequestPass = $this->getMock('\moss\http\request\RequestInterface');
+        $RequestPass
+            ->expects($this->any())
+            ->method('controller')
+            ->will($this->returnValue('Bundle:something:login'));
+        $this->assertFalse($Area->match($RequestPass));
+    }
 
-	public function testAuthUserFail() {
-		$Area = new Area('Bundle:*:!login|logout', array('role'));
+    public function testAuthUserFail()
+    {
+        $Area = new Area('Bundle:*:!login|logout', array('role'));
 
-		$User = $this->getMock('\moss\security\UserInterface');
-		$User->expects($this->any())->method('hasRole')->will($this->returnValue(false));
+        $User = $this->getMock('\moss\security\UserInterface');
+        $User
+            ->expects($this->any())
+            ->method('hasRole')
+            ->will($this->returnValue(false));
 
-		$this->assertFalse($Area->authorize($User));
-	}
-	public function testAuthUserPass() {
-		$Area = new Area('Bundle:*:!login|logout', array('role'));
+        $this->assertFalse($Area->authorize($User));
+    }
 
-		$User = $this->getMock('\moss\security\UserInterface');
-		$User->expects($this->any())->method('hasRole')->will($this->returnValue(true));
+    public function testAuthUserPass()
+    {
+        $Area = new Area('Bundle:*:!login|logout', array('role'));
 
-		$this->assertTrue($Area->authorize($User));
-	}
+        $User = $this->getMock('\moss\security\UserInterface');
+        $User
+            ->expects($this->any())
+            ->method('hasRole')
+            ->will($this->returnValue(true));
 
-	public function testAuthIpFail() {
-		$Area = new Area('Bundle:*:!login|logout', array(), array('127.0.0.1'));
+        $this->assertTrue($Area->authorize($User));
+    }
 
-		$User = $this->getMock('\moss\security\UserInterface');
-		$User->expects($this->any())->method('hasRole')->will($this->returnValue(true));
+    public function testAuthIpFail()
+    {
+        $Area = new Area('Bundle:*:!login|logout', array(), array('127.0.0.1'));
 
-		$this->assertTrue($Area->authorize($User, '127.0.0.1'));
-	}
+        $User = $this->getMock('\moss\security\UserInterface');
+        $User
+            ->expects($this->any())
+            ->method('hasRole')
+            ->will($this->returnValue(true));
 
-	public function testAutIpPass() {
-		$Area = new Area('Bundle:*:!login|logout', array(), array('127.0.0.1'));
+        $this->assertTrue($Area->authorize($User, '127.0.0.1'));
+    }
 
-		$User = $this->getMock('\moss\security\UserInterface');
-		$User->expects($this->any())->method('hasRole')->will($this->returnValue(true));
+    public function testAutIpPass()
+    {
+        $Area = new Area('Bundle:*:!login|logout', array(), array('127.0.0.1'));
 
-		$this->assertFalse($Area->authorize($User, '198.162.1.1'));
-	}
+        $User = $this->getMock('\moss\security\UserInterface');
+        $User
+            ->expects($this->any())
+            ->method('hasRole')
+            ->will($this->returnValue(true));
+
+        $this->assertFalse($Area->authorize($User, '198.162.1.1'));
+    }
 
 }

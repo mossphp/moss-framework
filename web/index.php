@@ -26,8 +26,8 @@ $Loader->addNamespace(null, array('../src/'));
 $Loader->addNamespaces($Config->get('namespaces'));
 
 $composerAutoloadPath = __DIR__ . '/../vendor/composer/autoload_namespaces.php';
-if(is_file($composerAutoloadPath)) {
-	$Loader->addNamespaces((array) require $composerAutoloadPath);
+if (is_file($composerAutoloadPath)) {
+    $Loader->addNamespaces((array) require $composerAutoloadPath);
 }
 unset($composerAutoloadPath);
 
@@ -35,39 +35,39 @@ $Loader->register();
 
 // Container
 $Container = new \moss\container\Container();
-foreach((array) $Config->get('container') as $name => $component) {
-	if(isset($component['class'])) {
-		$Container->register($name, new \moss\container\Component($component['class'], $component['arguments'], $component['methods']), $component['shared']);
-		continue;
-	}
+foreach ((array) $Config->get('container') as $name => $component) {
+    if (isset($component['class'])) {
+        $Container->register($name, new \moss\container\Component($component['class'], $component['arguments'], $component['methods']), $component['shared']);
+        continue;
+    }
 
-	if(isset($component['closure'])) {
-		$Container->register($name, $component['closure'], isset($component['shared']));
-		continue;
-	}
+    if (isset($component['closure'])) {
+        $Container->register($name, $component['closure'], isset($component['shared']));
+        continue;
+    }
 
-	$Container->register($name, $component);
+    $Container->register($name, $component);
 }
 unset($name, $component);
 
 // Dispatcher
 $Dispatcher = new \moss\dispatcher\Dispatcher($Container);
-foreach((array) $Config->get('dispatcher') as $event => $listeners) {
-	foreach($listeners as $listener) {
-		if(isset($listener['closure'])) {
-			$Dispatcher->register($event, $listener['closure']);
-			continue;
-		}
+foreach ((array) $Config->get('dispatcher') as $event => $listeners) {
+    foreach ($listeners as $listener) {
+        if (isset($listener['closure'])) {
+            $Dispatcher->register($event, $listener['closure']);
+            continue;
+        }
 
-		$Dispatcher->register($event, new \moss\dispatcher\Listener($listener['component'], $listener['method'], $listener['arguments']));
-	}
+        $Dispatcher->register($event, new \moss\dispatcher\Listener($listener['component'], $listener['method'], $listener['arguments']));
+    }
 }
 unset($event, $listeners, $listener);
 
 // Router
 $Router = new \moss\router\Router();
-foreach((array) $Config->get('router') as $name => $route) {
-	$Router->register($name, new \moss\router\Route($route['pattern'], $route['controller']));
+foreach ((array) $Config->get('router') as $name => $route) {
+    $Router->register($name, new \moss\router\Route($route['pattern'], $route['controller']));
 }
 unset($name, $route);
 
@@ -84,4 +84,6 @@ $Container->register('Request', $Request);
 
 // Kernel
 $Core = new \moss\kernel\Kernel($Container->get('Router'), $Container, $Container->get('Dispatcher'));
-$Core->handle($Container->get('Request'))->send();
+$Core
+    ->handle($Container->get('Request'))
+    ->send();

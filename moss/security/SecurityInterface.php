@@ -11,58 +11,59 @@ use moss\http\request\RequestInterface;
  * @package Moss Security
  * @author  Michal Wachowski <wachowski.michal@gmail.com>
  */
-interface SecurityInterface {
+interface SecurityInterface
+{
 
-	/**
-	 * Authenticates token in authentication providers
-	 *
-	 * @return bool
-	 * @throws AuthenticationException
-	 */
-	public function authenticate();
+    /**
+     * Authenticates token in authentication providers
+     *
+     * @return bool
+     * @throws AuthenticationException
+     */
+    public function authenticate();
 
-	/**
-	 * Checks if authenticated user has access to requested area
-	 *
-	 * @param RequestInterface $Request
-	 *
-	 * @return $this
-	 * @throws AuthorizationException
-	 */
-	public function authorize(RequestInterface $Request);
+    /**
+     * Checks if authenticated user has access to requested area
+     *
+     * @param RequestInterface $Request
+     *
+     * @return $this
+     * @throws AuthorizationException
+     */
+    public function authorize(RequestInterface $Request);
 
-	/**
-	 * Returns token stash
-	 *
-	 * @return TokenStashInterface
-	 */
-	public function stash();
+    /**
+     * Returns token stash
+     *
+     * @return TokenStashInterface
+     */
+    public function stash();
 
-	/**
-	 * Returns token
-	 *
-	 * @return TokenInterface
-	 */
-	public function token();
+    /**
+     * Returns token
+     *
+     * @return TokenInterface
+     */
+    public function token();
 
-	/**
-	 * Returns authenticated user instance from user providers
-	 *
-	 * @return UserInterface
-	 */
-	public function user();
+    /**
+     * Returns authenticated user instance from user providers
+     *
+     * @return UserInterface
+     */
+    public function user();
 
-	/**
-	 * Destroys authenticated user, logs out
-	 *
-	 * @return $this
-	 */
-	public function destroy();
+    /**
+     * Destroys authenticated user, logs out
+     *
+     * @return $this
+     */
+    public function destroy();
 
-	/**
-	 * Returns url (or null if not set) on which user should be redirected if has no access
-	 *
-	 * @return null|string
-	 */
-	public function loginUrl();
+    /**
+     * Returns url (or null if not set) on which user should be redirected if has no access
+     *
+     * @return null|string
+     */
+    public function loginUrl();
 }

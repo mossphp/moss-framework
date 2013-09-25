@@ -7,6 +7,7 @@ namespace moss\config;
  * @package Moss DI Container
  * @author  Michal Wachowski <wachowski.michal@gmail.com>
  */
-class ConfigException extends \Exception {
+class ConfigException extends \Exception
+{
 
 }

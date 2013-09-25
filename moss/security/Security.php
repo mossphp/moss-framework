@@ -15,157 +15,168 @@ use moss\http\request\RequestInterface;
  * @package Moss Security
  * @author  Michal Wachowski <wachowski.michal@gmail.com>
  */
-class Security implements SecurityInterface {
+class Security implements SecurityInterface
+{
 
-	/** @var TokenStashInterface */
-	protected $Stash;
+    /** @var TokenStashInterface */
+    protected $Stash;
 
-	protected $loginUrl;
+    protected $loginUrl;
 
-	/** @var UserInterface */
-	protected $User;
+    /** @var UserInterface */
+    protected $User;
 
-	/** @var array|UserProviderInterface[] */
-	protected $Providers = array();
+    /** @var array|UserProviderInterface[] */
+    protected $Providers = array();
 
-	/** @var array|AreaInterface[] */
-	protected $Areas = array();
+    /** @var array|AreaInterface[] */
+    protected $Areas = array();
 
-	/**
-	 * Constructor
-	 *
-	 * @param TokenStashInterface $Stash
-	 * @param string $loginUrl
-	 */
-	public function __construct(TokenStashInterface $Stash, $loginUrl = null) {
-		$this->Stash = & $Stash;
-		$this->loginUrl = $loginUrl;
-	}
+    /**
+     * Constructor
+     *
+     * @param TokenStashInterface $Stash
+     * @param string              $loginUrl
+     */
+    public function __construct(TokenStashInterface $Stash, $loginUrl = null)
+    {
+        $this->Stash = & $Stash;
+        $this->loginUrl = $loginUrl;
+    }
 
-	/**
-	 * Adds user provider
-	 *
-	 * @param UserProviderInterface $Provider
-	 *
-	 * @return $this
-	 */
-	public function registerUserProvider(UserProviderInterface $Provider) {
-		$this->Providers[] = & $Provider;
+    /**
+     * Adds user provider
+     *
+     * @param UserProviderInterface $Provider
+     *
+     * @return $this
+     */
+    public function registerUserProvider(UserProviderInterface $Provider)
+    {
+        $this->Providers[] = & $Provider;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * Registers secure area in security
-	 *
-	 * @param AreaInterface $Area
-	 *
-	 * @return $this
-	 */
-	public function registerArea(AreaInterface $Area) {
-		$this->Areas[] = & $Area;
+    /**
+     * Registers secure area in security
+     *
+     * @param AreaInterface $Area
+     *
+     * @return $this
+     */
+    public function registerArea(AreaInterface $Area)
+    {
+        $this->Areas[] = & $Area;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * Authenticates token in authentication providers
-	 *
-	 * @return $this
-	 * @throws AuthenticationException
-	 */
-	public function authenticate() {
-		if(!$Token = $this->token()) {
-			return false;
-		}
+    /**
+     * Authenticates token in authentication providers
+     *
+     * @return $this
+     * @throws AuthenticationException
+     */
+    public function authenticate()
+    {
+        if (!$Token = $this->token()) {
+            return false;
+        }
 
-		foreach($this->Providers as $Provider) {
-			if(!$Provider->supports($Token)) {
-				continue;
-			}
+        foreach ($this->Providers as $Provider) {
+            if (!$Provider->supports($Token)) {
+                continue;
+            }
 
-			if(!$this->User = $Provider->authenticate($Token)) {
-				return false;
-			}
+            if (!$this->User = $Provider->authenticate($Token)) {
+                return false;
+            }
 
-			return true;
-		}
+            return true;
+        }
 
-		throw new AuthenticationException('Token was not authenticated. Missing provider supporting token');
-	}
+        throw new AuthenticationException('Token was not authenticated. Missing provider supporting token');
+    }
 
-	/**
-	 * Checks if authenticated user has access to requested area
-	 *
-	 * @param RequestInterface $Request
-	 *
-	 * @return $this
-	 * @throws AuthorizationException
-	 */
-	public function authorize(RequestInterface $Request) {
-		foreach($this->Areas as $Area) {
-			if(!$Area->match($Request)) {
-				continue;
-			}
+    /**
+     * Checks if authenticated user has access to requested area
+     *
+     * @param RequestInterface $Request
+     *
+     * @return $this
+     * @throws AuthorizationException
+     */
+    public function authorize(RequestInterface $Request)
+    {
+        foreach ($this->Areas as $Area) {
+            if (!$Area->match($Request)) {
+                continue;
+            }
 
-			if(!$this->User) {
-				throw new AuthorizationException(sprintf('Access denied to area %s. No authenticated user', $Area->pattern()));
-			}
+            if (!$this->User) {
+                throw new AuthorizationException(sprintf('Access denied to area %s. No authenticated user', $Area->pattern()));
+            }
 
-			if(!$Area->authorize($this->User, $Request->clientIp())) {
-				throw new AuthorizationException(sprintf('Access denied to area %s. Authenticated user does not have access', $Area->pattern()));
-			}
+            if (!$Area->authorize($this->User, $Request->clientIp())) {
+                throw new AuthorizationException(sprintf('Access denied to area %s. Authenticated user does not have access', $Area->pattern()));
+            }
 
-			return $this;
-		}
+            return $this;
+        }
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * Returns token stash
-	 *
-	 * @return TokenStashInterface
-	 */
-	public function stash() {
-		return $this->Stash;
-	}
+    /**
+     * Returns token stash
+     *
+     * @return TokenStashInterface
+     */
+    public function stash()
+    {
+        return $this->Stash;
+    }
 
-	/**
-	 * Returns token
-	 *
-	 * @return TokenInterface
-	 */
-	public function token() {
-		return $this->Stash->get();
-	}
+    /**
+     * Returns token
+     *
+     * @return TokenInterface
+     */
+    public function token()
+    {
+        return $this->Stash->get();
+    }
 
-	/**
-	 * Returns authenticated user instance from user providers
-	 *
-	 * @return UserInterface
-	 */
-	public function user() {
-		return $this->User;
-	}
+    /**
+     * Returns authenticated user instance from user providers
+     *
+     * @return UserInterface
+     */
+    public function user()
+    {
+        return $this->User;
+    }
 
-	/**
-	 * Destroys authenticated user, logs out
-	 *
-	 * @return $this
-	 */
-	public function destroy() {
-		$this->User = null;
-		$this->Stash->destroy();
-	}
+    /**
+     * Destroys authenticated user, logs out
+     *
+     * @return $this
+     */
+    public function destroy()
+    {
+        $this->User = null;
+        $this->Stash->destroy();
+    }
 
 
-	/**
-	 * Returns url (or null if not set) on which user should be redirected if has no access
-	 *
-	 * @return null|string
-	 */
-	public function loginUrl() {
-		return $this->loginUrl;
-	}
+    /**
+     * Returns url (or null if not set) on which user should be redirected if has no access
+     *
+     * @return null|string
+     */
+    public function loginUrl()
+    {
+        return $this->loginUrl;
+    }
 }

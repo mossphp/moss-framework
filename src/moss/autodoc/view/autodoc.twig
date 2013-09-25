@@ -30,14 +30,14 @@
                     {{ Chapter.content|raw }}
 
                     {% if Chapter.section %}
-                    <ul>
-                        {% for Section in Chapter.section %}
-                            <li>
-                                <h3><a href="{{ Url() }}#{{ Section.id }}">{{ Section.name }}</a></h3>
-                                {{ Section.content|raw }}
-                            </li>
-                        {% endfor %}
-                    </ul>
+                        <ul>
+                            {% for Section in Chapter.section %}
+                                <li>
+                                    <h3><a href="{{ Url() }}#{{ Section.id }}">{{ Section.name }}</a></h3>
+                                    {{ Section.content|raw }}
+                                </li>
+                            {% endfor %}
+                        </ul>
                     {% endif %}
                 </li>
             {% endfor %}
@@ -95,24 +95,28 @@
 
                 <ul>
                     {% for Method in Class.methods if Method.isUserDefined %}
-                    <li id="{{ Method.id }}">
-                        <h4 class="token-name">
-                            <code>{% if Method.isAbstract %}abstract{% endif %} {% if Method.isStatic %}static{% endif %} {% if Method.isPublic %}public{% elseif Method.isProtected %}protected{% else %}private{% endif %} {{ Class.name }} :: {{ Method.name }} ( {% for Attr in Method.arguments %}{% if not Attr.required %}[{% endif %} {% for type in Attr.type %} {{ type }} {% if not loop.last %} | {% endif %} {% endfor %} ${{ Attr.name }} {% if not Attr.required %} = {% if Attr.default %}{{ Attr.default }}{% else %}null{% endif %}{% endif %} {% if not Attr.required %}]{% endif %} {% if not loop.last %} , {% endif %}{% endfor %} )</code>
-                        </h4>
-
-                        <ul>
-                            <p>{{ Method.desc }}</p>
+                        <li id="{{ Method.id }}">
+                            <h4 class="token-name">
+                                <code>{% if Method.isAbstract %}abstract{% endif %} {% if Method.isStatic %}static{% endif %} {% if Method.isPublic %}public{% elseif Method.isProtected %}protected{% else %}private{% endif %} {{ Class.name }}
+                                    :: {{ Method.name }}
+                                    ( {% for Attr in Method.arguments %}{% if not Attr.required %}[{% endif %} {% for type in Attr.type %} {{ type }} {% if not loop.last %} | {% endif %} {% endfor %} ${{ Attr.name }} {% if not Attr.required %} = {% if Attr.default %}{{ Attr.default }}{% else %}null{% endif %}{% endif %} {% if not Attr.required %}]{% endif %} {% if not loop.last %} , {% endif %}{% endfor %}
+                                    )</code>
+                            </h4>
 
                             <ul>
-                                {% for Attr in Method.arguments %}
-                                    <dd>
-                                        <code>{% for type in Attr.type %}{{ type }} {% if not loop.last %}|{% endif %}{% endfor %} ${{ Attr.name }}</code>
-                                        {{ Attr.desc }}
-                                    </dd>
-                                {% endfor %}
+                                <p>{{ Method.desc }}</p>
+
+                                <ul>
+                                    {% for Attr in Method.arguments %}
+                                        <dd>
+                                            <code>{% for type in Attr.type %}{{ type }} {% if not loop.last %}|{% endif %}{% endfor %}
+                                                ${{ Attr.name }}</code>
+                                            {{ Attr.desc }}
+                                        </dd>
+                                    {% endfor %}
+                                </ul>
                             </ul>
-                        </ul>
-                    </li>
+                        </li>
                     {% endfor %}
                 </ul>
             </li>
@@ -121,30 +125,30 @@
 </section>
 
 <script type="text/javascript">
-(function() {
-    var i, l, n;
+    (function() {
+        var i, l, n;
 
-    n = document.querySelectorAll('pre, code');
-    for(i = 0, l = n.length; i < l; ++i) {
-        n[i].setAttribute('class', 'language-php');
-    }
-
-    document.addEventListener('click', function(evt) {
-        var t = evt.target, e;
-        if(!t.classList.contains('package')) {
-            return;
+        n = document.querySelectorAll('pre, code');
+        for(i = 0, l = n.length; i < l; ++i) {
+            n[i].setAttribute('class', 'language-php');
         }
 
-        console.log(t.innerHTML.replace(/(<([^>]+)>)/ig,"").toLowerCase());
-        e = '#' + t.innerHTML.replace(/(<([^>]+)>)/ig,"").toLowerCase().replace(/[^\w \-\.]+/igm, '-');
-        if(!document.querySelector(e)) {
-            return;
-        }
+        document.addEventListener('click', function(evt) {
+            var t = evt.target, e;
+            if(!t.classList.contains('package')) {
+                return;
+            }
 
-        history.pushState(null, null, location.href.toString().replace(/(#.*)/, '') + e);
-        window.location=window.location.href;
-    });
-})();
+            console.log(t.innerHTML.replace(/(<([^>]+)>)/ig, "").toLowerCase());
+            e = '#' + t.innerHTML.replace(/(<([^>]+)>)/ig, "").toLowerCase().replace(/[^\w \-\.]+/igm, '-');
+            if(!document.querySelector(e)) {
+                return;
+            }
+
+            history.pushState(null, null, location.href.toString().replace(/(#.*)/, '') + e);
+            window.location = window.location.href;
+        });
+    })();
 </script>
 
 

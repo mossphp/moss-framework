@@ -1,6 +1,6 @@
 {
 	"name": "moss/moss",
-	"version": "0.7RC",
+	"version": "0.7.1",
 	"description": "The PHP micro-framework",
 	"keywords": ["microframework"],
 	"type": "framework",

@@ -9,6 +9,7 @@ use moss\security\SecurityException;
  * @package Moss Security
  * @author  Michal Wachowski <wachowski.michal@gmail.com>
  */
-class AuthorizationException extends SecurityException {
+class AuthorizationException extends SecurityException
+{
 
 }

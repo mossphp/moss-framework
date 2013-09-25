@@ -7,6 +7,7 @@ namespace moss\http\response;
  * @package Moss HTTP
  * @author  Michal Wachowski <wachowski.michal@gmail.com>
  */
-class ResponseException extends \Exception {
+class ResponseException extends \Exception
+{
 
 }
