@@ -122,6 +122,10 @@ class AutodocController
                 }
 
                 include_once((string) $item);
+                if(!class_exists($name, 1)) {
+                    continue;
+                }
+
                 $doc[$name] = $this->buildClassDoc(new \ReflectionClass($name));
             }
         }
@@ -186,10 +190,10 @@ class AutodocController
         $content = file_get_contents((string) $file, null, null, 0, 1024);
 
         preg_match_all('/^namespace (.+);/im', $content, $nsMatches);
-        preg_match_all('/^(abstract )?(interface|class) ([^ ]+).*$/im', $content, $nameMatches);
+        preg_match_all('/^(abstract )?(class) ([^\n ]+).*$/im', $content, $nameMatches);
 
         if (!empty($nameMatches[3][0])) {
-            return empty($nsMatches[1][0]) ? null : $nsMatches[1][0] . '\\' . $nameMatches[3][0];
+            return '\\' . (empty($nsMatches[1][0]) ? null : $nsMatches[1][0] . '\\' . $nameMatches[3][0]);
         }
 
         return null;
