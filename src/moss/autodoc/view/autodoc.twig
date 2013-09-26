@@ -103,18 +103,16 @@
                                     )</code>
                             </h4>
 
-                            <ul>
-                                <p>{{ Method.desc }}</p>
+                            <p>{{ Method.desc }}</p>
 
-                                <ul>
-                                    {% for Attr in Method.arguments %}
-                                        <dd>
-                                            <code>{% for type in Attr.type %}{{ type }} {% if not loop.last %}|{% endif %}{% endfor %}
-                                                ${{ Attr.name }}</code>
-                                            {{ Attr.desc }}
-                                        </dd>
-                                    {% endfor %}
-                                </ul>
+                            <ul>
+                                {% for Attr in Method.arguments %}
+                                    <dd>
+                                        <code>{% for type in Attr.type %}{{ type }} {% if not loop.last %}|{% endif %}{% endfor %}
+                                            ${{ Attr.name }}</code>
+                                        {{ Attr.desc }}
+                                    </dd>
+                                {% endfor %}
                             </ul>
                         </li>
                     {% endfor %}
