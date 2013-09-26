@@ -43,11 +43,12 @@ return array(
                     )
                 );
 
-                return new \moss\view\View(
-                    $Container->get('Request'),
-                    $Container->get('Config'),
-                    $Twig
-                );
+                $View = new \moss\view\View($Twig);
+                $View
+                    ->set('Request', $Container->get('Request'))
+                    ->set('Config', $Container->get('Config'));
+
+                return $View;
             }
         ),
     ),
