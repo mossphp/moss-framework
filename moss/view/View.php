@@ -2,8 +2,6 @@
 namespace moss\view;
 
 use moss\view\ViewInterface;
-use moss\config\ConfigInterface;
-use moss\http\request\RequestInterface;
 
 /**
  * Moss view
@@ -24,14 +22,10 @@ class View implements ViewInterface
     /**
      * Creates View instance
      *
-     * @param RequestInterface  $Request
-     * @param ConfigInterface   $Config
      * @param \Twig_Environment $Twig
      */
-    public function __construct(RequestInterface $Request, ConfigInterface $Config, \Twig_Environment $Twig)
+    public function __construct(\Twig_Environment $Twig)
     {
-        $this->Request = & $Request;
-        $this->Config = & $Config;
         $this->Twig = & $Twig;
     }
 
@@ -150,9 +144,6 @@ class View implements ViewInterface
             throw new \InvalidArgumentException('Undefined view or view file does not exists: ' . $this->template . '!');
         }
 
-        $this->vars['Request'] = & $this->Request;
-        $this->vars['Config'] = & $this->Config;
-
         return $this->Twig->render($this->template, $this->vars);
     }
 
@@ -164,7 +155,7 @@ class View implements ViewInterface
     public function __toString()
     {
         try {
-            return $this->render();
+            return (string) $this->render();
         } catch(\InvalidArgumentException $e) {
             return sprintf('%s (%s line:%s)', $e->getMessage(), $e->getFile(), $e->getLine());
         }
