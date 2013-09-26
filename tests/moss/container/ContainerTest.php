@@ -100,6 +100,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     {
         $Container = new Container();
         $Container->register('foo', 'bar', true);
+        $this->assertTrue($Container->exists('foo'));
         $this->assertTrue($Container->isShared('foo'));
         $Container->Unregister('foo');
         $this->assertFalse($Container->exists('foo'));
@@ -108,7 +109,8 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     public function testUnregisterShared()
     {
         $Container = new Container();
-        $result = $Container->register('foo', 'bar', true);
+        $Container->register('foo', 'bar', true);
+        $this->assertTrue($Container->exists('foo'));
         $this->assertTrue($Container->isShared('foo'));
         $Container->Unregister('foo');
         $this->assertFalse($Container->exists('foo'));
@@ -117,7 +119,8 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     public function testUnregisterInstance()
     {
         $Container = new Container();
-        $result = $Container->register('foo', new \stdClass());
+        $Container->register('foo', new \stdClass());
+        $this->assertTrue($Container->exists('foo'));
         $this->assertTrue($Container->isShared('foo'));
         $Container->Unregister('foo');
         $this->assertFalse($Container->exists('foo'));

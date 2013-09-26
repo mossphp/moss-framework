@@ -95,4 +95,20 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('HTTP/1.1', $Response->protocol());
         $this->assertEquals('HTTP/1.0', $Response->protocol('HTTP/1.0'));
     }
+
+    public function testSendHeaders()
+    {
+        $this->markTestIncomplete();
+    }
+
+    public function testSendContent()
+    {
+        $this->markTestIncomplete();
+    }
+
+    public function testSend()
+    {
+        $this->markTestIncomplete();
+    }
+
 }

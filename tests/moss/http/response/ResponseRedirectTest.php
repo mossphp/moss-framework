@@ -17,4 +17,19 @@ class ResponseRedirectTest extends \PHPUnit_Framework_TestCase
         $Response = new ResponseRedirect('http://127.0.0.1/', 10);
         $this->assertEquals(10, $Response->delay());
     }
+
+    public function testSendHeaders()
+    {
+        $this->markTestIncomplete();
+    }
+
+    public function testSendContent()
+    {
+        $this->markTestIncomplete();
+    }
+
+    public function testSend()
+    {
+        $this->markTestIncomplete();
+    }
 }

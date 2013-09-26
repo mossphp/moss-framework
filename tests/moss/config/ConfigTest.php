@@ -7,71 +7,95 @@ namespace moss\config;
 class ConfigTest extends \PHPUnit_Framework_TestCase
 {
 
-    public function testImport()
+    /**
+     * @dataProvider importProvider
+     */
+    public function testImportExport($result)
     {
-        $result = array(
+        $default = array(
             'framework' => array(
-                'error' => array(
-                    'level' => E_ALL | E_NOTICE,
-                    'detail' => true
-                ),
-                'session' => array(
-                    'host' => true,
-                    'ip' => true,
-                    'agent' => true,
-                    'salt' => null
-                ),
-                'cookie' => array(
-                    'domain' => null,
-                    'path' => '/',
-                    'http' => true
-                )
-
+                'error' => array('level' => -1, 'detail' => true),
+                'session' => array('host' => true, 'ip' => true, 'agent' => true, 'salt' => null),
+                'cookie' => array('domain' => null, 'path' => '/', 'http' => true)
             ),
             'namespaces' => array(),
-            'container' => array(
-                'foo' => 'bar',
-                'component' => array(
-                    'class' => '\stdClass',
-                    'arguments' => array(),
-                    'methods' => array(),
-                    'shared' => false
-                )
-            ),
-            'dispatcher' => array(
-                'foo' => array(
-                    'component' => array(
-                        'component' => 'foo',
-                        'method' => array(),
-                        'arguments' => array(),
-                    )
-                )
-            ),
-            'router' => array(
-                'routeName' => array(
-                    'pattern' => '/{foo}/({bar})/',
-                    'controller' => 'Moss:sample:Sample:index',
-                    'requirements' => array(
-                        'foo' => '\w+',
-                        'bar' => '\w*'
-                    ),
-                    'defaults' => array(
-                        'foo' => 'foo'
-                    ),
-                    'arguments' => array(
-                        'locale' => 'pl',
-                        'format' => 'json'
-                    ),
-                    'host' => null,
-                    'schema' => null,
-                    'methods' => array('GET', 'POST')
-                )
-            ),
+            'container' => array(),
+            'dispatcher' => array(),
+            'router' => array(),
         );
-
         $Config = new Config();
         $Config->import($result);
-        $this->assertEquals($result, $Config->export());
+        $this->assertEquals(array_merge($default, $result), $Config->export());
+    }
+
+    public function importProvider()
+    {
+        return array(
+            array(
+                array(
+                    'framework' => array(
+                        'error' => array('level' => E_ALL | E_NOTICE, 'detail' => true),
+                        'session' => array('host' => true, 'ip' => true, 'agent' => true, 'salt' => null),
+                        'cookie' => array('domain' => null, 'path' => '/', 'http' => true)
+                    ),
+                )
+            ),
+            array(
+                array(
+                    'namespaces' => array(),
+                )
+            ),
+            array(
+                array(
+                    'container' => array(
+                        'foo' => 'bar',
+                        'component' => array(
+                            'class' => '\stdClass',
+                            'arguments' => array(),
+                            'methods' => array(),
+                            'shared' => false
+                        )
+                    ),
+                )
+            ),
+            array(
+                array(
+                    'dispatcher' => array(
+                        'foo' => array(
+                            'component' => array(
+                                'component' => 'foo',
+                                'method' => array(),
+                                'arguments' => array(),
+                            )
+                        )
+                    ),
+                )
+            ),
+            array(
+                array(
+                    'router' => array(
+                        'routeName' => array(
+                            'pattern' => '/{foo}/({bar})/',
+                            'controller' => 'Moss:sample:Sample:index',
+                            'requirements' => array(
+                                'foo' => '\w+',
+                                'bar' => '\w*'
+                            ),
+                            'defaults' => array(
+                                'foo' => 'foo'
+                            ),
+                            'arguments' => array(
+                                'locale' => 'pl',
+                                'format' => 'json'
+                            ),
+                            'host' => null,
+                            'schema' => null,
+                            'methods' => array('GET', 'POST')
+                        )
+                    )
+                )
+            )
+        );
     }
 
     /**
