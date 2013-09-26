@@ -79,13 +79,8 @@ class Config implements ConfigInterface
      *
      * @param array $defaults
      */
-    private function applyContainerDefaults(
-        $defaults = array(
-            'arguments' => array(),
-            'methods' => array(),
-            'shared' => false
-        )
-    ) {
+    private function applyContainerDefaults($defaults = array('arguments' => array(), 'methods' => array(), 'shared' => false))
+    {
         foreach ($this->config['container'] as &$node) {
             if (!isset($node['class']) && !isset($node['closure'])) {
                 continue;
