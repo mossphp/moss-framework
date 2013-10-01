@@ -27,17 +27,69 @@ class ExceptionHandler
     /**
      * Constructor
      *
-     * @param bool $details
+     * @param bool $verbose
      * @param int  $maxDepth
      * @param int  $maxCount
      * @param int  $maxStr
      */
-    public function __construct($details = false, $maxDepth = 10, $maxCount = 25, $maxStr = 128)
+    public function __construct($verbose = false, $maxDepth = 10, $maxCount = 25, $maxStr = 128)
     {
-        $this->details = (bool) $details;
-        $this->maxDepth = (int) $maxDepth;
-        $this->maxCount = (int) $maxCount;
-        $this->maxStr = (int) $maxStr;
+        $this->verbose($verbose);
+        $this->maxDepth($maxDepth);
+        $this->maxCount($maxCount);
+        $this->maxStr($maxStr);
+    }
+
+    /**
+     * Sets reporting details
+     *
+     * @param bool $verbose
+     *
+     * @return $this
+     */
+    public function verbose($verbose = false)
+    {
+        $this->details = (bool) $verbose;
+        return $this;
+    }
+
+    /**
+     * Sets maximum depth of objects/arrays
+     *
+     * @param int $depth
+     *
+     * @return $this
+     */
+    public function maxDepth($depth = 10)
+    {
+        $this->maxDepth = (int) $depth;
+        return $this;
+    }
+
+    /**
+     * Sets maximum number of array elements
+     *
+     * @param int $count
+     *
+     * @return $this
+     */
+    public function maxCount($count = 25)
+    {
+        $this->maxCount = (int) $count;
+        return $this;
+    }
+
+    /**
+     * Sets maximum string length
+     *
+     * @param int $len
+     *
+     * @return $this
+     */
+    public function maxStr($len = 25)
+    {
+        $this->maxStr = (int) $len;
+        return $this;
     }
 
     /**
