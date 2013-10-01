@@ -6,7 +6,16 @@ Also, container controls number of instances (one _shared instance_ or multiple)
 
 In short - DI Container replaces singletons and global variables.
 
-## Component - class
+## Component represented as closure
+
+Just create a function that returns object instance.
+If component depends on other components, just add `$Container` as first argument.
+
+	$component = function(\moss\container\ContainerInterface $Container) {
+		return 'closureBody';
+	}
+
+## Component represented as class
 
 Create component definition for class `Foo` with constructor arguments `arguments`.
 
@@ -30,6 +39,8 @@ Component retrieval is performed by calling `get()` method:
 
 	$Component = new \moss\container\Component('Foo');
 	$Foo = $Component->get($Container);
+
+**Component class is provided in case when default bootstrap file is replaced by any textual configuration, eg `YAML`**
 
 ## Register component, closure or value and instance
 

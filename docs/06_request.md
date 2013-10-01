@@ -7,12 +7,12 @@ Just create an instance, with optional `$_SESSION` and `$_COOKIE` wrappers:
 
 ## Basic methods
 
- * `isXHR` - will return `true` if request was sent with `XMLHttpRequest` header (it means that it is AJAX request - prototype.js and jQuery do send that header)
+ * `isAjax` - will return `true` if request was sent with `XMLHttpRequest` header (it means that it is AJAX request - prototype.js and jQuery do send that header)
  * `baseName` - returns basename - if available,
  * `clientIp` - tries to resolve clients ip or his proxy
  * `controller` - will return controller identifier if was passed in query or matching route found
  * `url` - returns requested url
- * `referer` - from where did request came
+ * `referrer` - from where did request came
  * `locale` - requested language
  * `format` - requested format - generally null - which means any format
 

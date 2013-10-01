@@ -1,9 +1,8 @@
-# Event dipatcher
+# Event dispatcher
 
 Event dispatcher is similar to _observer pattern_, its task is respond to fired events.
-When event is fired, dispatcher checks if event is defined, if at least one event observer is registered.
-If so - all observers (either class, its method or closure) are notified about event.
-
+When event is fired, dispatcher checks if event is defined and has listeners.
+If so - all listeners (either class or closure) are notified about event.
 
 ## Event listener
 
@@ -29,7 +28,9 @@ Register defined `$Listener` to observe `foo` event:
 
 Or register closure as event listener:
 
-	$Dispatcher->register('foo', function($Container, $Subject = null, $Message = null) { return 'ClosureListenerResult'; });
+	$Dispatcher->register('foo', function($Container, $Subject = null, $Message = null) {
+		return 'ClosureListenerResult';
+		});
 
 Or to multiple events:
 
@@ -56,17 +57,17 @@ No other listeners will be notified about ongoing event.
 
 ## Aspects
 
-When `foo` event is fired, `Dispatcher` actually fires tree events (called _aspects_) - `foo:before`, `foo` and `foo:after` - in that order.
+When `foo` event is fired, `Dispatcher` actually fires three events (called _aspects_) - `foo:before`, `foo` and `foo:after` - in that order.
 If any of those events, throws unhandled exception `foo:exception` will be fired - and no further listeners will be notified.
 In case when `foo:exception` has no listeners, exception will be rethrown.
 
 In case of `:exception`, the `Subject` is thrown exception and `Message` is its message.
 
-Registering aspect listeners is identical as registering normal event.
+Registering aspect listeners is identical as registering normal event, just remember aspect name `:before`, `:after` and `:exception`.
 
 ## Framework events
 
-Framework has basic events, fired when kernel reaches specific point (in that order):
+Framework has few basic events, fired when kernel reaches specific point (in that order):
 
  * `kernel.request` - when received request,
  * `kernel.route` - when found route matching request
@@ -74,7 +75,7 @@ Framework has basic events, fired when kernel reaches specific point (in that or
  * `kernel.response` - after receiving response from controller
  * `kernel.send` - just before sending response to client
 
-There are additional tree events, occuring when something went wrong:
+There are additional three events, occurring when something went wrong:
 
  * `kernel.403` - fired when SecurityException is thrown,
  * `kernel.404` - fired when RouterException is thrown,

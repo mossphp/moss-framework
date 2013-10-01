@@ -5,13 +5,13 @@ Routers responsibility is to translate incoming URL requests into controller nam
 
 ## Declaring route
 
-Create route ( pointing to controller `controller:action` and two query arguments: required `foo` and optional `bar` ):
+Create route ( pointing to controller `controller:action` and two query arguments: required `foo` and optional `bar` that accept anything:
 
 	$Route = new \moss\router\Route('/{foo}/({bar})/', 'controller:action');
 
 Or create route with closure as controller
 
-	$Route = new \moss\router\Route('/{foo}/({bar})/', function() {
+	$Route = new \moss\router\Route('/{foo:\w}/({bar:\d})/', function() {
 		return new \moss\response\Response('Hello world');
 	});
 
@@ -27,10 +27,20 @@ Set argument default values, needed only for required arguments:
 
     $Route->arguments(array('foo' => 'foo'));
 
-If limitation is needed - set host, method and schema:
+Limited to domain:
 
-    $Route->host('foo.{basename}');
+    $Route->host('foo.bar.com');
+
+Limited to domain subdomain:
+
+	$Route->host('foo.{basename}');
+
+Limited methods:
+
     $Route->methods(array('POST'));
+
+Limited schema:
+
     $Route->schema('HTTP');
 
 ## Register route
@@ -60,7 +70,7 @@ If matching route does not exist, `Router` will return normal URL.
 
 ## Twig bridge extension
 
-To generate URL from rotue in `Twig` use:
+To generate URL from route in `Twig` use:
 
 	{{ Url('controller:action', { 'foo': 'foo' }) }} // by controller, works only for non-closure routes
 	{{ Url('routeName', { 'foo': 'foo' }) }} // by route name

@@ -37,7 +37,7 @@ Or (in PHP >5.4)
 There are two properties determining error reporting:
 
   * `framework.error.level` - reported error level, just like in `error_reporting()`;
-  * `framework.error.detail` -if set to false will output only error message, if true - exception handler with verbose display will be used
+  * `framework.error.detail` - if set to false will output only error message, if true - exception handler with verbose display will be used
 
 Configuration of frameworks session and cookie wrappers is stored in `framework.session` and `framework.cookie` properties.
 
@@ -191,7 +191,7 @@ The simples route definition looks like this:
 		'router' => array(
 			'routeName' => array( // for controller class
 			    'pattern' => '/{foo:\w}/({bar:\d})/',
-			    'controller' => 'Moss:sample:Sample:index',
+			    'controller' => 'moss:sample:Sample:index',
 			),
 			'otherRoute' => array( // for closure
 				'pattern' => 'yadayda',
@@ -202,27 +202,20 @@ The simples route definition looks like this:
 		)
 	);
 
-Full route definition
+Full route definition with sample values
 
 	$arr = array(
 		'router' => array(
 			'routeName' => array(
-			    'pattern' => '/{foo}/({bar})/',
-			    'controller' => 'Moss:sample:Sample:index',
-			    'requirements' => array(
-					'foo' => '\w+',
-					'bar' => '\w*'
-			    ),
-			    'defaults' => array(
-					'foo' => 'foo'
-			    ),
+			    'pattern' => '/{foo:\w}/({bar:\d})/',
+			    'controller' => 'moss:sample:Sample:index',
 			    'arguments' => array(
-					'locale' => 'pl',
+					'locale' => 'en',
 					'format' => 'json'
 			    ),
 			    'host' => null,
 			    'schema' => null,
-			    'methods' => array('GET', 'POST')
+			    'methods' => array()
 			)
 		)
 	);
