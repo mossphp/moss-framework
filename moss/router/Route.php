@@ -33,12 +33,7 @@ class Route implements RouteInterface
     {
         $this->pattern = $pattern;
         $this->controller = $controller;
-        $this->pattern = preg_replace_callback(
-            '/(\(?\{([^}]+)\}\)?)/i', array(
-                                           $this,
-                                           'callback'
-                                      ), $this->pattern, \PREG_SET_ORDER
-        );
+        $this->pattern = preg_replace_callback('/(\(?\{([^}]+)\}\)?)/i', array($this, 'callback'), $this->pattern, \PREG_SET_ORDER);
 
         if (!empty($arguments)) {
             $this->arguments($arguments);
@@ -84,7 +79,8 @@ class Route implements RouteInterface
         $r = array();
 
         foreach ($matches as $match) {
-            $r['#' . $match[1] . '#'] = array_key_exists($match[1], $this->defaults) ? '{' . $match[1] . '}' : '({' . $match[1] . '})';
+            $def = $match[1] . ':' . substr($this->requirements[$match[1]], 0, -1);
+                $r['#' . $match[1] . '#'] = array_key_exists($match[1], $this->defaults) ? '{' .$def. '}' : '({' . $def . '})';
         }
 
         return strtr($this->pattern, $r);
@@ -116,12 +112,11 @@ class Route implements RouteInterface
 
         foreach (array_keys($this->requirements) as $key) {
             if (!array_key_exists($key, $requirements)) {
-                throw new RouteException(sprintf('Missing requirement pattern value for "%s"', $key));
+                continue;
             }
+
+            $this->requirements[$key] = $requirements[$key];
         }
-
-
-        $this->requirements = $requirements;
 
         return $this->requirements;
     }
@@ -142,7 +137,11 @@ class Route implements RouteInterface
 
         foreach (array_keys($this->defaults) as $key) {
             if (!array_key_exists($key, $arguments)) {
-                throw new RouteException(sprintf('Missing required default value for "%s"', $key));
+                continue;
+            }
+
+            if(!preg_match('/^' . $this->requirements[$key]. '$/', $arguments[$key])) {
+                throw new RouteException(sprintf('Invalid argument value "%s" for argument "%s"', $arguments[$key], $key));
             }
 
             $this->defaults[$key] = $arguments[$key];
@@ -190,11 +189,8 @@ class Route implements RouteInterface
      */
     public function methods($methods = array())
     {
-        $this->methods = empty($methods) ? array() : (array) $methods;
-
-        foreach ($this->methods as &$method) {
-            $method = strtoupper($method);
-            unset($method);
+        foreach ((array) $methods as &$method) {
+            $this->methods[] = strtoupper($method);
         }
 
         return $this;
