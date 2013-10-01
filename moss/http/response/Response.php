@@ -177,7 +177,7 @@ class Response implements ResponseInterface
     {
         if ($status !== null) {
             if (!isset($this->statusTexts[$status])) {
-                throw new ResponseException('Unsupported status code ' . $status);
+                throw new ResponseException('Unsupported status code "' . $status . '"');
             }
 
             $this->status = (int) $status;
