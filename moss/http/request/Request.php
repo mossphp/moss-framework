@@ -199,8 +199,17 @@ class Request implements RequestInterface
 
         if ($this->method() == 'CLI' && isset($GLOBALS['argc']) && isset($GLOBALS['argv']) && $GLOBALS['argc'] > 1) {
             for ($i = 1; $i < $GLOBALS['argc']; $i++) {
+                if (strpos($GLOBALS['argv'][$i], '=') === false) {
+                    $arr[$i - 1] = $GLOBALS['argv'][$i];
+                    continue;
+                }
+
                 $arg = explode('=', $GLOBALS['argv'][$i]);
                 $arr[ltrim($arg[0], '-')] = isset($arg[1]) ? $arg[1] : null;
+            }
+
+            if (empty($this->url) && isset($arr[0])) {
+                $this->url = array_shift($arr);
             }
         }
 
