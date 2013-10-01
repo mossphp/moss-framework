@@ -100,6 +100,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \moss\config\ConfigException
+     * @expectedExceptionMessage Missing required "component" or "closure" property in event listener definition
      */
     public function testInvalidDispatcherImport()
     {
@@ -117,6 +118,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \moss\config\ConfigException
+     * @expectedExceptionMessage Missing required "pattern" property in route definition
      */
     public function testInvalidRouterImportWithoutPattern()
     {
@@ -134,6 +136,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \moss\config\ConfigException
+     * @expectedExceptionMessage Missing required "controller" property in route definition
      */
     public function testInvalidRouterImportWithoutController()
     {

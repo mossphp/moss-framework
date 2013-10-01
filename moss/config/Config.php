@@ -120,7 +120,7 @@ class Config implements ConfigInterface
      *
      * @throws ConfigException
      */
-    private function applyRouterDefaults($defaults = array())
+    private function applyRouterDefaults($defaults = array('arguments' => array()))
     {
         foreach ($this->config['router'] as &$node) {
             if (!isset($node['pattern'])) {
@@ -132,6 +132,7 @@ class Config implements ConfigInterface
             }
 
             $node = array_merge($defaults, $node);
+
             unset($node);
         }
     }
