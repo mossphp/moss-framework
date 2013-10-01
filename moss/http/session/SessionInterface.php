@@ -9,6 +9,37 @@ namespace moss\http\session;
  */
 interface SessionInterface extends \Iterator, \ArrayAccess, \Countable
 {
+    /**
+     * Regenerates the session ID
+     *
+     * @return $this
+     */
+    public function regenerate();
+
+    /**
+     * Clears all session data and regenerates session ID
+     *
+     * @return $this
+     */
+    public function invalidate();
+
+    /**
+     * Returns session identifier
+     *
+     * @param string $identifier
+     *
+     * @return string
+     */
+    public function identify($identifier = null);
+
+    /**
+     * Returns session name
+     *
+     * @param string $name
+     *
+     * @return string
+     */
+    public function name($name = null);
 
     /**
      * Returns value for given key

@@ -24,20 +24,105 @@ class Session implements SessionInterface
      * @param bool $agent
      * @param bool $ip
      * @param null $salt
+     *
+     * @throws \RuntimeException
      */
     public function __construct($agent = true, $ip = true, $salt = null)
     {
         $this->authkey = $this->authkey($agent, $ip, $salt);
 
-        if (!session_id()) {
-            session_start();
+        if (!$this->identify()) {
+            if (version_compare(phpversion(), '5.4.0', '>=') && \PHP_SESSION_ACTIVE === session_status()) {
+                throw new \RuntimeException('Session already started by PHP.');
+            }
+
+            if (version_compare(phpversion(), '5.4.0', '<') && isset($_SESSION) && session_id()) {
+                throw new \RuntimeException('Session already started by PHP ($_SESSION is set).');
+            }
+
+            if (ini_get('session.use_cookies') && headers_sent($file, $line)) {
+                throw new \RuntimeException(sprintf('Unable to start session, headers have already been sent by "%s" at line %d.', $file, $line));
+            }
+
+            if (!session_start()) {
+                throw new \RuntimeException('Unable to start session');
+            }
         }
 
         $this->storage = & $_SESSION;
 
         if (!$this->validate()) {
-            $this->reset();
+            $this->invalidate();
         }
+    }
+
+    /**
+     * Clears all session data and regenerates session ID
+     *
+     * @return $this
+     */
+    public function invalidate()
+    {
+        unset($this->storage);
+
+        $_SESSION = array();
+        session_destroy();
+        session_start();
+
+        $this->storage = & $_SESSION;
+        $this->storage['authkey'] = $this->authkey;
+    }
+
+    /**
+     * Regenerates the session ID
+     *
+     * @return $this
+     */
+    public function regenerate()
+    {
+        session_regenerate_id(true);
+        session_write_close();
+
+        $backup = $_SESSION;
+        session_start();
+        $_SESSION = $backup;
+
+        $this->storage = & $_SESSION;
+        $this->storage['authkey'] = $this->authkey;
+
+        return $this;
+    }
+
+    /**
+     * Returns session identifier
+     *
+     * @param string $identifier
+     *
+     * @return string
+     */
+    public function identify($identifier = null)
+    {
+        if ($identifier !== null) {
+            session_id($identifier);
+        }
+
+        return session_id();
+    }
+
+    /**
+     * Returns session name
+     *
+     * @param string $name
+     *
+     * @return string
+     */
+    public function name($name = null)
+    {
+        if ($name !== null) {
+            session_name($name);
+        }
+
+        return session_name();
     }
 
     /**
@@ -45,7 +130,7 @@ class Session implements SessionInterface
      *
      * @return bool
      */
-    protected function validate()
+    public function validate()
     {
         return !empty($this->storage['authkey']) && $this->storage['authkey'] === $this->authkey;
     }
@@ -175,15 +260,6 @@ class Session implements SessionInterface
      */
     public function reset()
     {
-        unset($this->storage);
-
-        $_SESSION = array();
-        session_destroy();
-        session_start();
-
-        $this->storage = & $_SESSION;
-        $this->storage['authkey'] = $this->authkey;
-
         return $this;
     }
 
