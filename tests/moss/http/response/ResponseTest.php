@@ -20,8 +20,9 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \moss\http\response\ResponseException
+     * @expectedExceptionMessage Response content must be a scalar or object with __toString() method "array" given.
      */
-    public function testInvaliudContent()
+    public function testInvalidContent()
     {
         new Response(array());
     }
@@ -34,6 +35,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \moss\http\response\ResponseException
+     * @expectedExceptionMessage Unsupported status code "999"
      */
     public function testInvalidStatus()
     {
@@ -96,19 +98,17 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('HTTP/1.0', $Response->protocol('HTTP/1.0'));
     }
 
-    public function testSendHeaders()
-    {
-        $this->markTestIncomplete();
-    }
+    public function testToString() {
+        $Response = new Response('Foo', 200);
 
-    public function testSendContent()
-    {
-        $this->markTestIncomplete();
-    }
+        $result = 'HTTP/1.1 200 OK
+Content-Type: text/html; charset=UTF-8
+Cache-Control: no-cache
+Pragma: no-cache
 
-    public function testSend()
-    {
-        $this->markTestIncomplete();
+Foo';
+
+        $this->assertEquals($result, (string) $Response);
     }
 
 }
