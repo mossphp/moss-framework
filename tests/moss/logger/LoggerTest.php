@@ -60,6 +60,7 @@ class LoggerTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessage Invalid level submitted "invalid level"
      */
     public function testThrowsOnInvalidLevel()
     {
@@ -126,6 +127,7 @@ class LoggerTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessage Unable write log without path
      */
     public function testWriteWithoutName()
     {

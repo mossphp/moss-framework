@@ -70,7 +70,7 @@ class Logger extends AbstractLogger
             case in_array($level, $this->ignoredLevels):
                 return $this;
             default:
-                throw new \InvalidArgumentException(sprintf('Invalid level submited "%s"', (string) $level));
+                throw new \InvalidArgumentException(sprintf('Invalid level submitted "%s"', (string) $level));
         }
 
         $this->log[] = array(
@@ -182,7 +182,7 @@ class Logger extends AbstractLogger
     public function write()
     {
         if (!$this->path) {
-            throw new \InvalidArgumentException('Can not write log without path');
+            throw new \InvalidArgumentException('Unable write log without path');
         }
 
         if (!$this->writeEmpty && !count($this->log)) {
