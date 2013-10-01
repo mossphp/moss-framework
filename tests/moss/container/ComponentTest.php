@@ -19,6 +19,7 @@ class ComponentTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \moss\container\ContainerException
+     * @expectedExceptionMessage Foo
      */
     public function testComponentArgsWithoutContainer()
     {

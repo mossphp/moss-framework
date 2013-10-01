@@ -14,6 +14,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \moss\container\ContainerException
+     * @expectedExceptionMessage Invalid or unknown component/parameter identifier "foo.bar"
      */
     public function testInvalidValue()
     {
