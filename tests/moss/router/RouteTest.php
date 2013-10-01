@@ -9,12 +9,16 @@ class RouteTest extends \PHPUnit_Framework_TestCase
      */
     protected $Route;
 
-    protected $tArr;
-
-    public function testPattern()
+    public function testUniPattern()
     {
         $Route = new Route('/{foo}/({bar})/', 'foo');
-        $this->assertEquals('foo', $Route->controller());
+        $this->assertEquals('/{foo:[a-z0-9-._]}/({bar:[a-z0-9-._]})/', $Route->pattern());
+    }
+
+    public function testSetPattern()
+    {
+        $Route = new Route('/{foo:\w}/({bar:\d})/', 'foo');
+        $this->assertEquals('/{foo:\w}/({bar:\d})/', $Route->pattern());
     }
 
     public function testController()
@@ -32,22 +36,13 @@ class RouteTest extends \PHPUnit_Framework_TestCase
     public function testRequirementsSet()
     {
         $Route = new Route('/{foo}/({bar})/', 'foo');
-        $this->assertEquals(
-            array('foo' => 'foo', 'bar' => 'bar'), $Route->requirements(
-                array(
-                     'foo' => 'foo',
-                     'bar' => 'bar'
-                )
-            )
-        );
+        $this->assertEquals(array('foo' => '\w+', 'bar' => '\d*'), $Route->requirements(array('foo' => '\w+', 'bar' => '\d*')));
     }
 
-    /**
-     * @expectedException \moss\router\RouteException
-     */
     public function testRequirementsMissing()
     {
-        $Route = new Route('/{foo}/({bar})/', 'foo', array('donk' => 'donk'));
+        $Route = new Route('/{foo}/({bar})/', 'foo');
+        $this->assertEquals(array('foo' => '\d+', 'bar' => '[a-z0-9-._]*'), $Route->requirements(array('foo' => '\d+')));
     }
 
     public function testArguments()
@@ -59,19 +54,19 @@ class RouteTest extends \PHPUnit_Framework_TestCase
     public function testArgumentsSet()
     {
         $Route = new Route('/{foo}/({bar})/', 'foo');
-        $this->assertEquals(
-            array('foo' => 'foo', 'bar' => 'bar'), $Route->arguments(
-                array(
-                     'foo' => 'foo',
-                     'bar' => 'bar'
-                )
-            )
-        );
+        $this->assertEquals(array('foo' => 'foo', 'bar' => 'bar'), $Route->arguments(array('foo' => 'foo','bar' => 'bar')));
     }
 
     /**
      * @expectedException \moss\router\RouteException
+     * @expectedExceptionMessage Invalid argument value "123" for argument "foo"
      */
+    public function testArgumentsInvalid()
+    {
+        $Route = new Route('/{foo:[a-z]}/({bar})/', 'foo');
+        $Route->arguments(array('foo' => '123'));
+    }
+
     public function testArgumentsMissing()
     {
         $Route = new Route('/{foo}/({bar})/', 'foo');
@@ -194,6 +189,7 @@ class RouteTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \moss\router\RouteException
+     * @expectedExceptionMessage Unable to create absolute url. Invalid or empty host name
      */
     public function testMakeEmptyBasenameWithDomain()
     {
@@ -245,6 +241,7 @@ class RouteTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \moss\router\RouteException
+     * @expectedExceptionMessage Missing value for argument "foo" in route "/{foo:\w}/({bar:\d})/"
      */
     public function testMakeInsufficientArg()
     {
@@ -254,6 +251,7 @@ class RouteTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \moss\router\RouteException
+     * @expectedExceptionMessage Invalid argument value "bar" for argument "bar" in route "/{foo:\w}/({bar:\d})/"
      */
     public function testMakeInvalidArg()
     {

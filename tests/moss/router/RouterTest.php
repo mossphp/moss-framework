@@ -80,6 +80,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \moss\router\RouterException
+     * @expectedExceptionMessage Foo
      */
     public function testMatchRouteNotExists()
     {
@@ -160,6 +161,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \moss\router\RouterException
+     * @expectedExceptionMessage Foo
      */
     public function testMakeWithoutDefaultController()
     {
