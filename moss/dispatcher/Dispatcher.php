@@ -68,7 +68,7 @@ class Dispatcher implements DispatcherInterface
     private function registerListener($event, $listener, $priority)
     {
         if (!is_callable($listener) && !$listener instanceof ListenerInterface) {
-            throw new DispatcherException(sprintf('Invalid event listener. Only callables or ListenerInterface instances can be registered, got %s', gettype($listener)));
+            throw new DispatcherException(sprintf('Invalid event listener. Only callables or ListenerInterface instances can be registered, got "%s"', gettype($listener)));
         }
 
         if (!isset($this->events[$event])) {

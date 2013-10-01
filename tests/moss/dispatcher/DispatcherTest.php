@@ -7,6 +7,7 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \moss\dispatcher\DispatcherException
+     * @expectedExceptionMessage Invalid event listener. Only callables or ListenerInterface instances can be registered, got "string"
      */
     public function testRegisterInvalidElement()
     {
