@@ -121,9 +121,7 @@ class Container implements ContainerInterface
             $node = & $node[$key];
         }
 
-        if ($node instanceof ComponentInterface) {
-            $result = $node->get($this);
-        } elseif (is_callable($node)) {
+        if (is_callable($node)) {
             $result = $node($this);
         } else {
             $result = $node;
