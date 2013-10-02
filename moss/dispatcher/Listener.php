@@ -44,6 +44,19 @@ class Listener implements ListenerInterface
      *
      * @return mixed
      */
+    public function __invoke(ContainerInterface $Container, $Subject = null, $message = null) {
+        return $this->get($Container, $Subject, $message);
+    }
+
+    /**
+     * Returns component instance
+     *
+     * @param ContainerInterface $Container
+     * @param mixed              $Subject
+     * @param mixed              $message
+     *
+     * @return mixed
+     */
     public function get(ContainerInterface $Container, $Subject = null, $message = null)
     {
         $instance = $Container->get($this->component);

@@ -21,5 +21,16 @@ interface ListenerInterface
      *
      * @return mixed
      */
+    public function __invoke(ContainerInterface $Container, $Subject = null, $message = null);
+
+    /**
+     * Returns component instance
+     *
+     * @param ContainerInterface $Container
+     * @param mixed              $Subject
+     * @param mixed              $message
+     *
+     * @return mixed
+     */
     public function get(ContainerInterface $Container, $Subject = null, $message = null);
 }
