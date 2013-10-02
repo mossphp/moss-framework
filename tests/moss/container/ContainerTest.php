@@ -62,7 +62,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
         $component = $this->getMock('\moss\container\ComponentInterface');
         $component
             ->expects($this->any())
-            ->method('get')
+            ->method('__invoke')
             ->will($this->returnValue(new \stdClass()));
 
         $Container = new Container();
@@ -76,7 +76,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
         $component = $this->getMock('\moss\container\ComponentInterface');
         $component
             ->expects($this->any())
-            ->method('get')
+            ->method('__invoke')
             ->will($this->returnValue(new \stdClass()));
 
         $Container = new Container();
