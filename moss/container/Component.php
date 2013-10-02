@@ -45,6 +45,19 @@ class Component implements ComponentInterface
      *
      * @return object
      */
+    public function __invoke(ContainerInterface $Container = null)
+    {
+        return $this->get($Container);
+    }
+
+
+    /**
+     * Returns component instance
+     *
+     * @param ContainerInterface $Container
+     *
+     * @return object
+     */
     public function get(ContainerInterface $Container = null)
     {
         if (empty($this->arguments)) {

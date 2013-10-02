@@ -17,5 +17,14 @@ interface ComponentInterface
      *
      * @return object
      */
+    public function __invoke(ContainerInterface $Container = null);
+
+    /**
+     * Returns component instance
+     *
+     * @param ContainerInterface $Container
+     *
+     * @return object
+     */
     public function get(ContainerInterface $Container = null);
 }
