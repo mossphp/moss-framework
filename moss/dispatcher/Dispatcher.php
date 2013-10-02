@@ -150,11 +150,6 @@ class Dispatcher implements DispatcherInterface
                 break;
             }
 
-            if ($listener instanceof ListenerInterface) {
-                $Subject = $listener->get($this->Container, $Subject, $message);
-                continue;
-            }
-
             $Subject = $listener($this->Container, $Subject, $message);
         }
 
