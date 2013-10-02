@@ -80,7 +80,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \moss\router\RouterException
-     * @expectedExceptionMessage Foo
+     * @expectedExceptionMessage Route for "/missing-route/" not found!
      */
     public function testMatchRouteNotExists()
     {
@@ -161,7 +161,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \moss\router\RouterException
-     * @expectedExceptionMessage Foo
+     * @expectedExceptionMessage Unable to make 'self' url - default controller is not defined.
      */
     public function testMakeWithoutDefaultController()
     {
