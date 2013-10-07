@@ -18,11 +18,17 @@ class SampleController
     }
 
     /**
-     * Method for initialisation operations
-     * Called at the end of constructor
+     * Sample method, displays hello text
      */
     public function indexAction()
     {
-        return new Response('Hello, this is sample controller. <a href="./autodoc">Go to documentation</a>');
+        return new Response(
+            sprintf(
+                'Hello, this is sample controller. <a href="%s">Go to documentation</a>',
+                $this->Container
+                    ->get('Router')
+                    ->make('moss:autodoc:Autodoc:index')
+            )
+        );
     }
 }
