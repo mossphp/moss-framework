@@ -35,23 +35,17 @@ class Dispatcher implements DispatcherInterface
     /**
      * Adds listener to single event or array of events
      *
-     * @param string|array               $event
-     * @param \Closure|ListenerInterface $listener
-     * @param null|int                   $priority
+     * @param string|array $event
+     * @param callable     $listener
+     * @param null|int     $priority
      *
      * @return $this
      */
     public function register($event, $listener, $priority = null)
     {
-        if (is_array($event)) {
-            foreach ($event as $e) {
-                $this->registerListener($e, $listener, $priority);
-            }
-
-            return $this;
+        foreach ((array) $event as $e) {
+            $this->registerListener($e, $listener, $priority);
         }
-
-        $this->registerListener($event, $listener, $priority);
 
         return $this;
     }
@@ -67,7 +61,7 @@ class Dispatcher implements DispatcherInterface
      */
     private function registerListener($event, $listener, $priority)
     {
-        if (!is_callable($listener) && !$listener instanceof ListenerInterface) {
+        if (!is_callable($listener)) {
             throw new DispatcherException(sprintf('Invalid event listener. Only callables or ListenerInterface instances can be registered, got "%s"', gettype($listener)));
         }
 
