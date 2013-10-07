@@ -2,7 +2,6 @@
 namespace moss\container;
 
 use moss\container\ContainerInterface;
-use moss\container\ComponentInterface;
 
 /**
  * Dependency Injection Container
@@ -13,7 +12,7 @@ use moss\container\ComponentInterface;
 class Container implements ContainerInterface
 {
 
-    /** @var array|ContainerInterface[]|Callable[] */
+    /** @var array|Callable[] */
     private $components = array();
 
     /** @var array|Object */
@@ -31,7 +30,7 @@ class Container implements ContainerInterface
      */
     public function register($id, $definition, $shared = false)
     {
-        if (is_object($definition) && !$definition instanceof ComponentInterface && !$definition instanceof \Closure) {
+        if (is_object($definition) && !is_callable($definition)) {
             $this->instances[$id] = & $definition;
             return $this;
         }
@@ -112,6 +111,7 @@ class Container implements ContainerInterface
         }
 
         $keys = explode('.', $id);
+
         $node = & $this->components;
         while ($key = array_shift($keys)) {
             if (!is_array($node) || !array_key_exists($key, $node)) {
