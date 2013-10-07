@@ -147,13 +147,7 @@ class Kernel
 
         $Controller = new $controller($this->Container, $this->Router, $Request);
 
-        if (method_exists($Controller, 'before') && is_callable(
-                array(
-                     $Controller,
-                     'before'
-                )
-            ) && ($Response = $Controller->before())
-        ) {
+        if (method_exists($Controller, 'before') && is_callable(array($Controller, 'before')) && ($Response = $Controller->before())) {
             return $Response;
         }
 
