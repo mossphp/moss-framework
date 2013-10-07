@@ -1,7 +1,7 @@
 # Request lifecycle & Kernel
 
  1. Incoming request hits `./web/index.php` which is entry point for all requests, whether they are from browser or console,
- 1. Configuration is read from bootstrap file (default: `./web/bootstrap.php`),
+ 1. Configuration is read from bootstrap file (default: `./bootstrap/bootstrap.php`),
  1. Creates instances of the following components:
     * `Config` - where all framework configuration is held,
     * `Container` which provides acces to other components and services,

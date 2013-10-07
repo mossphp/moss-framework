@@ -5,7 +5,7 @@
 ## Configuration array / bootstrap
 
 Entire configuration is read from plain php arrays, just call `::read($arr)` and pass array containing data to add, update existing configuration.
-Configuration array must be properly formated, otherwise `ConfigException` will be thrown.
+Configuration array must be properly formatted, otherwise `ConfigException` will be thrown.
 
 Configuration is split into sections:
 
