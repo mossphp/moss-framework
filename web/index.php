@@ -1,14 +1,16 @@
 <?php
-require __DIR__ . '/../moss/config/ConfigInterface.php';
-require __DIR__ . '/../moss/config/Config.php';
+const __ROOT__ = __DIR__;
 
-require __DIR__ . '/../moss/kernel/ErrorHandler.php';
-require __DIR__ . '/../moss/kernel/ExceptionHandler.php';
+require __ROOT__ . '/../moss/config/ConfigInterface.php';
+require __ROOT__ . '/../moss/config/Config.php';
 
-require __DIR__ . '/../moss/loader/Loader.php';
+require __ROOT__ . '/../moss/kernel/ErrorHandler.php';
+require __ROOT__ . '/../moss/kernel/ExceptionHandler.php';
+
+require __ROOT__ . '/../moss/loader/Loader.php';
 
 // Bootstrap & config
-$bootstrap = (array) require __DIR__ . '/bootstrap.php';
+$bootstrap = (array) require __ROOT__ . '/../bootstrap/bootstrap.php';
 $Config = new \moss\config\Config(isset($bootstrap) ? (array) $bootstrap : array());
 unset($bootstrap);
 
@@ -16,21 +18,20 @@ unset($bootstrap);
 $ErrorHandler = new \moss\kernel\ErrorHandler($Config->get('framework.error.level'));
 $ErrorHandler->register();
 
-$ExceptionHandler = new \moss\kernel\ExceptionHandler($Config->get('framework.error.detail'));
+$ExceptionHandler = new \moss\kernel\ExceptionHandler($Config->get('framework.error.detail') && isset($_SERVER['REQUEST_METHOD']));
 $ExceptionHandler->register();
 
 // Loaders
 $Loader = new \moss\loader\Loader();
-$Loader->addNamespace('moss', array('../'));
-$Loader->addNamespace(null, array('../src/'));
+$Loader->addNamespace('moss', array(__ROOT__ . '/../'));
+$Loader->addNamespace(null, array(__ROOT__ . '/../src/'));
 $Loader->addNamespaces($Config->get('namespaces'));
 
-$composerAutoloadPath = __DIR__ . '/../vendor/composer/autoload_namespaces.php';
+$composerAutoloadPath = __ROOT__ . '/../vendor/composer/autoload_namespaces.php';
 if (is_file($composerAutoloadPath)) {
     $Loader->addNamespaces((array) require $composerAutoloadPath);
 }
 unset($composerAutoloadPath);
-
 $Loader->register();
 
 // Container
@@ -67,9 +68,25 @@ unset($event, $listeners, $listener);
 // Router
 $Router = new \moss\router\Router();
 foreach ((array) $Config->get('router') as $name => $route) {
-    $Router->register($name, new \moss\router\Route($route['pattern'], $route['controller']));
+    $Route = new \moss\router\Route($route['pattern'], $route['controller'], $route['arguments']);
+
+    foreach ($route as $key => $value) {
+        switch ($key) {
+            case 'methods':
+                $Route->methods($value);
+                break;
+            case 'host':
+                $Route->host($value);
+                break;
+            case 'schema':
+                $Route->schema($value);
+                break;
+        }
+    }
+
+    $Router->register($name, $Route);
 }
-unset($name, $route);
+unset($name, $route, $value);
 
 $Session = new \moss\http\session\Session($Config->get('session.agent'), $Config->get('session.ip'), $Config->get('session.host'), $Config->get('session.salt'));
 $Cookie = new \moss\http\cookie\Cookie($Config->get('cookie.domain'), $Config->get('cookie.path'), $Config->get('cookie.http'));
