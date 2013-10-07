@@ -32,10 +32,10 @@ class Logger extends AbstractLogger
     /**
      * Constructor
      *
-     * @param null|string $path       path to log file
-     * @param bool        $overwrite  if true - will overwrite log file
-     * @param bool        $writeEmpty if true will write log whether there are messages or not
-     * @param int         $level      all logs with lower level will be ignored
+     * @param null|string $path               path to log file
+     * @param bool        $overwrite          if true - will overwrite log file
+     * @param bool        $writeEmpty         if true will write log whether there are messages or not
+     * @param array       $ignoredLevels      all logs with lower level will be ignored
      */
     public function __construct($path = null, $overwrite = true, $writeEmpty = false, $ignoredLevels = array())
     {
@@ -49,11 +49,12 @@ class Logger extends AbstractLogger
     /**
      * Logs with an arbitrary level.
      *
-     * @param mixed  $level
+     * @param string $level
      * @param string $message
      * @param array  $context
      *
-     * @return Logger
+     * @return $this
+     * @throws \InvalidArgumentException
      */
     public function log($level, $message, array $context = array())
     {
@@ -161,9 +162,8 @@ class Logger extends AbstractLogger
 
         foreach ($this->log as $entry) {
             echo sprintf(
-                "%s (%s) - Time: %s\tMemory: %s\n%s\n%s\n\n",
+                "%s - Time: %s\tMemory: %s\n%s\n%s\n\n",
                 $entry['level'],
-                $this->levels[$entry['level']],
                 date('Y-m-d H:i:s', $entry['timestamp']) . ':' . str_pad(substr($entry['timestamp'], strpos($entry['timestamp'], '.') + 1), 4, 0, STR_PAD_RIGHT),
                 number_format($entry['memory'], 0, '.', ' '),
                 $entry['message'],
