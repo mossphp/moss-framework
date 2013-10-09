@@ -1,78 +1,71 @@
 <?php
 class Twig_Bridge_TokenParser_Trans extends Twig_TokenParser
 {
-    /**
-     * Parses a token and returns a node.
-     *
-     * @param Twig_Token $token A Twig_Token instance
-     *
-     * @return Twig_NodeInterface A Twig_NodeInterface instance
-     */
-    public function parse(Twig_Token $token)
+    public function parse(\Twig_Token $token)
     {
         $lineno = $token->getLine();
         $stream = $this->parser->getStream();
-        $count = null;
-        $plural = null;
 
-        if (!$stream->test(Twig_Token::BLOCK_END_TYPE)) {
-            $body = $this->parser
-                ->getExpressionParser()
-                ->parseExpression();
-        } else {
-            $stream->expect(Twig_Token::BLOCK_END_TYPE);
-            $body = $this->parser->subparse(array($this, 'decideForFork'));
-            if ('plural' === $stream
-                    ->next()
-                    ->getValue()
-            ) {
-                $count = $this->parser
+        $vars = new \Twig_Node_Expression_Array(array(), $lineno);
+        $body = null;
+        $locale = null;
+        if (!$stream->test(\Twig_Token::BLOCK_END_TYPE)) {
+            if ($stream->test('with')) {
+                // {% trans with vars %}
+                $stream->next();
+                $vars = $this->parser
                     ->getExpressionParser()
                     ->parseExpression();
-                $stream->expect(Twig_Token::BLOCK_END_TYPE);
-                $plural = $this->parser->subparse(array($this, 'decideForEnd'), true);
             }
+
+            if ($stream->test('into')) {
+                // {% trans into "fr" %}
+                $stream->next();
+                $locale = $this->parser
+                    ->getExpressionParser()
+                    ->parseExpression();
+            }
+
+            if(!$stream->test(Twig_Token::BLOCK_END_TYPE)) {
+                $body = $this->parser
+                    ->getExpressionParser()
+                    ->parseExpression();
+            }
+//                throw new \Twig_Error_Syntax('Unexpected token. Twig was looking for the "with" keyword.');
         }
 
-        $stream->expect(Twig_Token::BLOCK_END_TYPE);
+        $stream->expect(\Twig_Token::BLOCK_END_TYPE);
 
-        $this->checkTransString($body, $lineno);
+        // {% trans "message" %}
+        if($body) {
+            $this->assertBody($body);
+            return new Twig_Bridge_Node_Trans($body, null, $vars, $locale, $lineno, $this->getTag());
+        }
 
-        return new Twig_Bridge_Node_Trans($body, $plural, $count, $lineno, $this->getTag());
+        // {% trans %}message{% endtrans %}
+
+        $body = $this->parser->subparse(array($this, 'decideTransFork'), true);
+
+        $this->assertBody($body);
+
+        $stream->expect(\Twig_Token::BLOCK_END_TYPE);
+
+        return new Twig_Bridge_Node_Trans($body, null, $vars, $locale, $lineno, $this->getTag());
     }
 
-    public function decideForFork($token)
+    public function assertBody($body) {
+        if (!$body instanceof \Twig_Node_Text && !$body instanceof \Twig_Node_Expression) {
+            throw new \Twig_Error_Syntax('A message inside a trans tag must be a simple text');
+        }
+    }
+
+    public function decideTransFork($token)
     {
-        return $token->test(array('plural', 'endtrans'));
+        return $token->test(array('endtrans'));
     }
 
-    public function decideForEnd($token)
-    {
-        return $token->test('endtrans');
-    }
-
-    /**
-     * Gets the tag name associated with this token parser.
-     *
-     * @param string The tag name
-     */
     public function getTag()
     {
         return 'trans';
-    }
-
-    protected function checkTransString(Twig_NodeInterface $body, $lineno)
-    {
-        foreach ($body as $i => $node) {
-            if (
-                $node instanceof Twig_Node_Text
-                ||
-                ($node instanceof Twig_Node_Print && $node->getNode('expr') instanceof Twig_Node_Expression_Name)
-            ) {
-                continue;
-            }
-
-            throw new Twig_Error_Syntax(sprintf('The text to be translated with "trans" can only contain references to simple variables'), $lineno);
-        }
     }
 }

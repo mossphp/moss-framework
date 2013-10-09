@@ -38,7 +38,7 @@ return array(
                     array(
                          new Twig_Bridge_Extension_Resource(),
                          new Twig_Bridge_Extension_Url($Container->get('Router')),
-                         new Twig_Bridge_Extension_Locale(),
+                         new Twig_Bridge_Extension_Trans(),
                          new Twig_Extensions_Extension_Text(),
                     )
                 );
