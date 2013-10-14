@@ -10,10 +10,46 @@ class CookieTest extends \PHPUnit_Framework_TestCase
     /**
      * @runInSeparateProcess
      */
+    public function testGetSet()
+    {
+        $Cookie = new Cookie();
+        $Cookie->set('foo', 'bar');
+        $this->assertEquals($_COOKIE['foo'], $Cookie->get('foo'));
+    }
+
+    /**
+     * @runInSeparateProcess
+     */
+    public function testRemove()
+    {
+        $Cookie = new Cookie();
+        $Cookie->set('foo', 'bar');
+        $this->assertEquals($_COOKIE['foo'], $Cookie->get('foo'));
+        $Cookie->remove('foo');
+        $this->assertArrayNotHasKey('foo', $_COOKIE);
+        $this->assertNull($Cookie->get('foo'));
+    }
+
+    /**
+     * @runInSeparateProcess
+     */
+    public function testAll()
+    {
+        $Cookie = new Cookie();
+        $Cookie->set('foo', 'bar');
+        $Cookie->set('yada', 'yada');
+        $this->assertEquals(array('foo' => 'bar', 'yada' => 'yada'), $Cookie->all());
+    }
+
+    /**
+     * @runInSeparateProcess
+     */
     public function testReset()
     {
         $Cookie = new Cookie();
-        $Cookie->offsetSet('foo', 'bar');
+        $Cookie->set('foo', 'bar');
+        $Cookie->set('yada', 'yada');
+        $this->assertEquals(2, $Cookie->count());
         $Cookie->reset();
         $this->assertEquals(0, $Cookie->count());
     }
@@ -125,6 +161,6 @@ class CookieTest extends \PHPUnit_Framework_TestCase
     {
         $Cookie = new Cookie();
         $Cookie->offsetSet('foo', 'bar');
-        $this->assertEquals(count($_COOKIE), $Cookie->count() + 1);
+        $this->assertEquals(count($_COOKIE), $Cookie->count());
     }
 }

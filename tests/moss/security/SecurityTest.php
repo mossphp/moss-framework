@@ -4,65 +4,70 @@ namespace moss\security;
 
 class SecurityTest extends \PHPUnit_Framework_TestCase
 {
-
-
-    public function testRegisterUserProvider()
+    /**
+     * @expectedException \moss\security\TokenException
+     * @expectedExceptionMessage Unable to authenticate, token is missing
+     */
+    public function testAuthWithoutToken()
     {
-        $Security = new Security($this->mockStash());
-        $Security->registerUserProvider($this->mockUserProvider(false));
-    }
-
-    public function testRegisterArea()
-    {
-        $Security = new Security($this->mockStash());
-        $Security->registerArea($this->mockArea(false, false));
-    }
-
-    public function testAuthenticated()
-    {
-        $Security = new Security($this->mockStash());
-        $Security->registerUserProvider($this->mockUserProvider(false));
-        $Security->registerUserProvider($this->mockUserProvider(true));
-        $Security->authenticate();
+        $Security = new Security($this->getMock('\moss\security\TokenStashInterface'));
+        $Security->registerArea($this->mockArea());
+        $Security->registerUserProvider($this->mockProvider(true, false));
+        $Security->authenticate($this->getMock('\moss\http\request\RequestInterface'));
     }
 
     /**
      * @expectedException \moss\security\AuthenticationException
+     * @expectedExceptionMessage Token could not be authenticated in provider
      */
-    public function testAuthenticationFailed()
+    public function testAuthFailure()
     {
         $Security = new Security($this->mockStash());
-        $Security->registerUserProvider($this->mockUserProvider(true, false));
-        $Security->authenticate();
+        $Security->registerArea($this->mockArea());
+        $Security->registerUserProvider($this->mockProvider(true, false));
+        $Security->authenticate($this->getMock('\moss\http\request\RequestInterface'));
     }
 
-    public function testAuthorizeSuccessful()
+    /**
+     * @expectedException \moss\security\AuthenticationException
+     * @expectedExceptionMessage Missing provider supporting token
+     */
+    public function testAuthWithoutMatchingProvider()
     {
         $Security = new Security($this->mockStash());
-        $Security->registerUserProvider($this->mockUserProvider(false, false));
-        $Security->registerUserProvider($this->mockUserProvider());
-        $Security->authenticate();
+        $Security->registerArea($this->mockArea());
+        $Security->registerUserProvider($this->mockProvider(false, false));
+        $Security->authenticate($this->getMock('\moss\http\request\RequestInterface'));
+    }
+
+    public function testAuthSuccess()
+    {
+        $Security = new Security($this->mockStash());
+        $Security->registerUserProvider($this->mockProvider(false, false));
+        $Security->registerUserProvider($this->mockProvider());
         $Security->registerArea($this->mockArea(false, false));
         $Security->registerArea($this->mockArea(true, true));
+        $Security->authenticate($this->getMock('\moss\http\request\RequestInterface'));
         $Security->authorize($this->getMock('\moss\http\request\RequestInterface'));
     }
 
-    public function testAuthorizeSuccessfulNoAreas()
+    public function testAuthSuccessNoAreas()
     {
         $Security = new Security($this->mockStash());
-        $Security->authorize($this->getMock('\moss\http\request\RequestInterface'));
+        $this->assertInstanceOf('\moss\security\SecurityInterface', $Security->authorize($this->getMock('\moss\http\request\RequestInterface')));
     }
 
     /**
      * @expectedException \moss\security\AuthorizationException
+     * @expectedExceptionMessage Access denied to area "sample_area". Authenticated user does not have access
      */
     public function testAuthorizeDenied()
     {
         $Security = new Security($this->mockStash());
-        $Security->registerUserProvider($this->mockUserProvider(false, true));
-        $Security->registerUserProvider($this->mockUserProvider(true, true));
-        $Security->authenticate();
+        $Security->registerUserProvider($this->mockProvider(false, true));
+        $Security->registerUserProvider($this->mockProvider(true, true));
         $Security->registerArea($this->mockArea(true, false));
+        $Security->authenticate($this->getMock('\moss\http\request\RequestInterface'));
         $Security->authorize($this->getMock('\moss\http\request\RequestInterface'));
     }
 
@@ -81,9 +86,10 @@ class SecurityTest extends \PHPUnit_Framework_TestCase
     public function testUser()
     {
         $Security = new Security($this->mockStash());
-        $Security->registerUserProvider($this->mockUserProvider(false, true));
-        $Security->registerUserProvider($this->mockUserProvider(true, true));
-        $Security->authenticate();
+        $Security->registerUserProvider($this->mockProvider(true, true));
+        $Security->registerArea($this->mockArea(true, true));
+        $Security->authenticate($this->getMock('\moss\http\request\RequestInterface'));
+
         $this->assertInstanceOf('\moss\security\UserInterface', $Security->user());
     }
 
@@ -106,7 +112,7 @@ class SecurityTest extends \PHPUnit_Framework_TestCase
         return $Stash;
     }
 
-    protected function mockUserProvider($support = true, $auth = true)
+    protected function mockProvider($support = true, $auth = true)
     {
         $Provider = $this->getMock('\moss\security\UserProviderInterface');
         $Provider
@@ -117,7 +123,7 @@ class SecurityTest extends \PHPUnit_Framework_TestCase
         $Provider
             ->expects($this->any())
             ->method('authenticate')
-            ->will($this->returnValue($auth ? $this->getMock('\moss\security\UserInterface') : false));
+            ->will($this->returnValue($auth));
 
         $Provider
             ->expects($this->any())
@@ -130,6 +136,11 @@ class SecurityTest extends \PHPUnit_Framework_TestCase
     protected function mockArea($match = true, $access = true)
     {
         $Area = $this->getMock('\moss\security\AreaInterface');
+        $Area
+            ->expects($this->any())
+            ->method('pattern')
+            ->will($this->returnValue('sample_area'));
+
         $Area
             ->expects($this->any())
             ->method('match')

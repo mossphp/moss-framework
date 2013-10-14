@@ -6,6 +6,87 @@ namespace moss\http\session;
  */
 class SessionTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @runInSeparateProcess
+     */
+    public function testRegenerate()
+    {
+        $Session = new Session();
+        $id = $Session->identify();
+        $Session->regenerate();
+        $this->assertNotEquals($id, $Session->identify());
+    }
+
+    /**
+     * @runInSeparateProcess
+     */
+    public function testIdentify()
+    {
+        $Session = new Session();
+        $this->assertEquals('someSessionIdentifier', $Session->identify('someSessionIdentifier'));
+    }
+
+    /**
+     * @runInSeparateProcess
+     */
+    public function testName()
+    {
+        $Session = new Session();
+        $this->assertEquals('someSessionName', $Session->name('someSessionName'));
+    }
+
+    /**
+     * @runInSeparateProcess
+     */
+    public function testIsValid()
+    {
+        $Session = new Session();
+        $this->assertTrue($Session->validate());
+    }
+
+    /**
+     * @runInSeparateProcess
+     */
+    public function testIsInvalid()
+    {
+        $Session = new Session();
+        $_SESSION['authkey'] = null;
+        $this->assertFalse($Session->validate());
+    }
+
+    /**
+     * @runInSeparateProcess
+     */
+    public function testGetSet()
+    {
+        $Session = new Session();
+        $Session->set('foo', 'bar');
+        $this->assertEquals($_SESSION['foo'], $Session->get('foo'));
+    }
+
+    /**
+     * @runInSeparateProcess
+     */
+    public function testRemove()
+    {
+        $Session = new Session();
+        $Session->set('foo', 'bar');
+        $this->assertEquals($_SESSION['foo'], $Session->get('foo'));
+        $Session->remove('foo');
+        $this->assertArrayNotHasKey('foo', $_SESSION);
+        $this->assertNull($Session->get('foo'));
+    }
+
+    /**
+     * @runInSeparateProcess
+     */
+    public function testAll()
+    {
+        $Session = new Session();
+        $Session->set('foo', 'bar');
+        $Session->set('yada', 'yada');
+        $this->assertEquals(array('foo' => 'bar', 'yada' => 'yada'), $Session->all());
+    }
 
     /**
      * @runInSeparateProcess
@@ -13,7 +94,9 @@ class SessionTest extends \PHPUnit_Framework_TestCase
     public function testReset()
     {
         $Session = new Session();
-        $Session->offsetSet('foo', 'bar');
+        $Session->set('foo', 'bar');
+        $Session->set('yada', 'yada');
+        $this->assertEquals(2, $Session->count());
         $Session->reset();
         $this->assertEquals(0, $Session->count());
     }
