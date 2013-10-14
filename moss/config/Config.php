@@ -54,14 +54,28 @@ class Config implements ConfigInterface
      * Reads configuration properties from passed array
      *
      * @param array $arr
+     *
+     * @return $this
      */
     public function import($arr)
     {
-        $this->fill($this->config, $arr);
+        foreach ($arr as $key => $node) {
+            switch ($key) {
+                case 'container':
+                    $node = $this->applyContainerDefaults($node);
+                    break;
+                case 'dispatcher':
+                    $node = $this->applyDispatcherDefaults($node);
+                    break;
+                case 'router':
+                    $node = $this->applyRouterDefaults($node);
+                    break;
+            }
 
-        $this->applyContainerDefaults();
-        $this->applyDispatcherDefaults();
-        $this->applyRouterDefaults();
+            $this->config[$key] = array_merge($this->config[$key], $node);
+        }
+
+        return $this;
     }
 
     /**
@@ -77,11 +91,14 @@ class Config implements ConfigInterface
     /**
      * Applies default values or missing properties for containers component definition
      *
+     * @param array $arr
      * @param array $defaults
+     *
+     * @return array
      */
-    private function applyContainerDefaults($defaults = array('arguments' => array(), 'methods' => array(), 'shared' => false))
+    private function applyContainerDefaults(array $arr, $defaults = array('arguments' => array(), 'methods' => array(), 'shared' => false))
     {
-        foreach ($this->config['container'] as &$node) {
+        foreach ($arr as &$node) {
             if (!isset($node['class']) && !isset($node['closure'])) {
                 continue;
             }
@@ -89,18 +106,22 @@ class Config implements ConfigInterface
             $node = array_merge($defaults, $node);
             unset($node);
         }
+
+        return $arr;
     }
 
     /**
      * Applies default values or missing properties for event listener definition
      *
+     * @param array $arr
      * @param array $defaults
      *
+     * @return array
      * @throws ConfigException
      */
-    private function applyDispatcherDefaults($defaults = array('method' => null, 'arguments' => array()))
+    private function applyDispatcherDefaults(array $arr, $defaults = array('method' => null, 'arguments' => array()))
     {
-        foreach ($this->config['dispatcher'] as &$evt) {
+        foreach ($arr as &$evt) {
             foreach ($evt as &$node) {
                 if (!isset($node['component']) && !isset($node['closure'])) {
                     throw new ConfigException('Missing required "component" or "closure" property in event listener definition');
@@ -111,18 +132,22 @@ class Config implements ConfigInterface
             }
             unset($evt);
         }
+
+        return $arr;
     }
 
     /**
      * Applies default values or missing properties for route definition
      *
+     * @param array $arr
      * @param array $defaults
      *
+     * @return array
      * @throws ConfigException
      */
-    private function applyRouterDefaults($defaults = array('arguments' => array()))
+    private function applyRouterDefaults(array $arr, $defaults = array('arguments' => array()))
     {
-        foreach ($this->config['router'] as &$node) {
+        foreach ($arr as &$node) {
             if (!isset($node['pattern'])) {
                 throw new ConfigException('Missing required "pattern" property in route definition');
             }
@@ -135,26 +160,8 @@ class Config implements ConfigInterface
 
             unset($node);
         }
-    }
 
-    /**
-     * Fills recursively iArr nodes with values from corresponding cArr
-     *
-     * @param array $iArr
-     * @param array $cArr
-     * @param array $keys
-     */
-    protected function fill(&$iArr, &$cArr, $keys = array())
-    {
-        foreach ($iArr as $key => $node) {
-            if (empty($node) || is_scalar($node)) {
-                $iArr[$key] = $this->getArrValue($cArr, implode('.', array_merge($keys, array($key))), $node);
-                continue;
-            }
-
-            $this->fill($iArr[$key], $cArr, array_merge($keys, array($key)));
-        }
-
+        return $arr;
     }
 
     /**
