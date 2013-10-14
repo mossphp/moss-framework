@@ -96,7 +96,7 @@ class FlashBag implements FlashBagInterface
         $result = array();
 
         foreach ($this->Session[$this->prefix] as $i => $message) {
-            if ($message['type'] !== $type) {
+            if ($type === null || $message['type'] === $type) {
                 $result[] = $message;
                 unset($this->Session[$this->prefix][$i]);
             }
@@ -140,7 +140,7 @@ class FlashBag implements FlashBagInterface
             return null;
         }
 
-        $result = $this->Session[$offset];
+        $result = $this->Session[$this->prefix][$offset];
         unset($this->Session[$this->prefix][$offset]);
 
         return $result;
