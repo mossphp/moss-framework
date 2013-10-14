@@ -15,12 +15,32 @@ interface SecurityInterface
 {
 
     /**
+     * Adds user provider
+     *
+     * @param UserProviderInterface $Provider
+     *
+     * @return $this
+     */
+    public function registerUserProvider(UserProviderInterface $Provider);
+
+    /**
+     * Registers secure area in security
+     *
+     * @param AreaInterface $Area
+     *
+     * @return $this
+     */
+    public function registerArea(AreaInterface $Area);
+
+    /**
      * Authenticates token in authentication providers
+     *
+     * @param RequestInterface $Request
      *
      * @return bool
      * @throws AuthenticationException
      */
-    public function authenticate();
+    public function authenticate(RequestInterface $Request);
 
     /**
      * Checks if authenticated user has access to requested area

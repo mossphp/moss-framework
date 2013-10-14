@@ -6,6 +6,7 @@ use moss\security\TokenStashInterface;
 use moss\security\UserProviderInterface;
 use moss\security\UserInterface;
 use moss\security\AuthenticationException;
+use moss\security\TokenException;
 use moss\security\AuthorizationException;
 use moss\http\request\RequestInterface;
 
@@ -75,28 +76,40 @@ class Security implements SecurityInterface
     /**
      * Authenticates token in authentication providers
      *
+     * @param RequestInterface $Request
+     *
      * @return $this
      * @throws AuthenticationException
      */
-    public function authenticate()
+    public function authenticate(RequestInterface $Request)
     {
-        if (!$Token = $this->token()) {
-            return false;
-        }
-
-        foreach ($this->Providers as $Provider) {
-            if (!$Provider->supports($Token)) {
+        foreach ($this->Areas as $Area) {
+            if (!$Area->match($Request)) {
                 continue;
             }
 
-            if (!$this->User = $Provider->authenticate($Token)) {
-                return false;
+            if (!$Token = $this->token()) {
+                throw new TokenException('Unable to authenticate, token is missing');
             }
 
-            return true;
+            foreach ($this->Providers as $Provider) {
+                if (!$Provider->supports($Token)) {
+                    continue;
+                }
+
+                if (!$Provider->authenticate($Token)) {
+                    throw new AuthenticationException(sprintf('Token could not be authenticated in provider "%s".', get_class($Provider)));
+                }
+
+                $this->User = $Provider->get($Token);
+
+                return $this;
+            }
+
+            throw new AuthenticationException(sprintf('Missing provider supporting token "%s"', get_class($Token)));
         }
 
-        throw new AuthenticationException('Token was not authenticated. Missing provider supporting token');
+        return $this;
     }
 
     /**
@@ -115,11 +128,11 @@ class Security implements SecurityInterface
             }
 
             if (!$this->User) {
-                throw new AuthorizationException(sprintf('Access denied to area %s. No authenticated user', $Area->pattern()));
+                throw new AuthorizationException(sprintf('Access denied to area "%s". No authenticated user', $Area->pattern()));
             }
 
             if (!$Area->authorize($this->User, $Request->clientIp())) {
-                throw new AuthorizationException(sprintf('Access denied to area %s. Authenticated user does not have access', $Area->pattern()));
+                throw new AuthorizationException(sprintf('Access denied to area "%s". Authenticated user does not have access', $Area->pattern()));
             }
 
             return $this;
