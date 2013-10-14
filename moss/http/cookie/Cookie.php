@@ -220,7 +220,10 @@ class Cookie implements CookieInterface
     public function offsetSet($key, $value)
     {
         if (empty($key)) {
-            $key = array_push($_COOKIE, $value);
+            $key = array_push($this->storage, $value);
+        }
+        else {
+            $this->storage[$key] = $value;
         }
 
         setcookie($key, $value, $this->expire, $this->path, $this->domain, $this->secure, $this->httponly);
@@ -235,7 +238,7 @@ class Cookie implements CookieInterface
      */
     public function offsetUnset($key)
     {
-        unset($_COOKIE[$key]);
+        unset($this->storage[$key]);
         setcookie($key, "", time() - 3600, $this->path, $this->domain, $this->secure, $this->httponly);
     }
 
@@ -246,7 +249,7 @@ class Cookie implements CookieInterface
      */
     public function count()
     {
-        $count = count($this->storage) - count($this->protected);
+        $count = count($this->storage) - count(array_intersect_key($this->storage, $this->protected));
         return $count < 0 ? 0 : $count;
     }
 
