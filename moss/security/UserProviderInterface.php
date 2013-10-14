@@ -24,10 +24,11 @@ interface UserProviderInterface
 
     /**
      * Authenticates token and sets user identifier in token
+     * Removes used credentials from token
      *
      * @param TokenInterface $Token
      *
-     * @return bool|UserInterface
+     * @return bool
      * @throws AuthenticationException
      */
     public function authenticate(TokenInterface $Token);
