@@ -12,7 +12,7 @@ use moss\security\TokenInterface;
 class Token implements TokenInterface
 {
 
-    private $credentials;
+    private $credentials = array();
     private $auth;
     private $user;
 
@@ -30,21 +30,42 @@ class Token implements TokenInterface
     /**
      * Returns set authentication credentials
      *
-     * @return array
+     * @param int|string $offset
+     *
+     * @return mixed
      */
-    public function credentials()
+    public function credentials($offset = null)
     {
-        return $this->credentials;
+        if ($offset === null) {
+            return $this->credentials;
+        }
+
+        if (!isset($this->credentials[$offset])) {
+            return null;
+        }
+
+        return $this->credentials[$offset];
     }
 
     /**
      * Removes credentials
      *
+     * @param int|string $offset
+     *
      * @return $this
      */
-    public function remove()
+    public function remove($offset = null)
     {
-        $this->credentials = null;
+        if ($offset === null) {
+            $this->credentials = array();
+            return $this;
+        }
+
+        if (!isset($this->credentials[$offset])) {
+            return $this;
+        }
+
+        unset($this->credentials[$offset]);
 
         return $this;
     }
@@ -70,6 +91,7 @@ class Token implements TokenInterface
     public function authenticate($auth = null)
     {
         if ($auth !== null) {
+            $this->credentials = array();
             $this->auth = $auth;
         }
 

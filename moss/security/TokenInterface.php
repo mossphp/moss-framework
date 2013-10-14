@@ -13,16 +13,20 @@ interface TokenInterface extends \Serializable
     /**
      * Returns set authentication credentials
      *
+     * @param int|string $offset
+     *
      * @return array
      */
-    public function credentials();
+    public function credentials($offset = null);
 
     /**
      * Removes credentials
      *
+     * @param int|string $offset
+     *
      * @return $this
      */
-    public function remove();
+    public function remove($offset = null);
 
     /**
      * Returns true if token is authenticated
@@ -39,4 +43,13 @@ interface TokenInterface extends \Serializable
      * @return string
      */
     public function authenticate($auth = null);
+
+    /**
+     * Sets user identifier
+     *
+     * @param null|int|string $user
+     *
+     * @return int|string
+     */
+    public function user($user = null);
 }
