@@ -153,11 +153,11 @@ class Session implements SessionInterface
         }
 
         if ($ip) {
-            if (!empty($_SERVER['REMOTE_ADDR'])) {
+            if (isset($_SERVER['REMOTE_ADDR'])) {
                 $authkey[] = $_SERVER['REMOTE_ADDR'];
-            } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+            } elseif (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
                 $authkey[] = $_SERVER['HTTP_X_FORWARDED_FOR'];
-            } elseif (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+            } elseif (isset($_SERVER['HTTP_CLIENT_IP'])) {
                 $authkey[] = $_SERVER['HTTP_CLIENT_IP'];
             } else {
                 $authkey[] = 'UnknownIp';
@@ -236,21 +236,15 @@ class Session implements SessionInterface
     /**
      * Retrieves all values as array
      *
-     * @param array $params
-     *
      * @return array
      */
-    public function all($params = array())
+    public function all()
     {
-        if (!empty($params)) {
-            $this->storage = array();
+        $storage = $this->storage;
 
-            foreach ($params as $key => $value) {
-                $this->putIntoArray($this->storage, explode($this->separator, $key), $value);
-            }
-        }
+        unset($storage['authkey']);
 
-        return $this->storage;
+        return $storage;
     }
 
     /**
@@ -260,6 +254,14 @@ class Session implements SessionInterface
      */
     public function reset()
     {
+        foreach (array_keys($this->storage) as $key) {
+            if($key === 'authkey') {
+                continue;
+            }
+
+            unset($this->storage[$key]);
+        }
+
         return $this;
     }
 

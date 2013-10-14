@@ -73,11 +73,9 @@ interface SessionInterface extends \Iterator, \ArrayAccess, \Countable
     /**
      * Retrieves all values as array
      *
-     * @param array $headers
-     *
      * @return array
      */
-    public function all($headers = array());
+    public function all();
 
     /**
      * Removes all values
