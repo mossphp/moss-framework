@@ -11,6 +11,13 @@ interface UserInterface
 {
 
     /**
+     * Returns user identifier
+     *
+     * @return int|string
+     */
+    public function identify();
+
+    /**
      * Returns all roles as an array
      *
      * @return array
