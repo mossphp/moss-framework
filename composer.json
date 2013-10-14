@@ -1,6 +1,6 @@
 {
 	"name": "moss/moss",
-	"version": "0.7.1",
+	"version": "0.7.2",
 	"description": "The PHP micro-framework",
 	"keywords": ["microframework"],
 	"type": "framework",
@@ -11,11 +11,66 @@
 			"email": "wachowski.michal@gmail.com"
 		}
 	],
+	"repositories": [
+		{
+			"type": "package",
+			"package": {
+				"name": "moss/storage",
+				"version": "0.1",
+				"dist": {
+					"url": "http://github.com/Potfur/moss-storage/archive/master.zip",
+					"type": "zip"
+				},
+				"autoload": {
+					"psr-0": {
+						"moss\\storage\\": ""
+					}
+				}
+			}
+		},
+		{
+			"type": "package",
+			"package": {
+				"name": "moss/form",
+				"version": "0.1",
+				"dist": {
+					"url": "http://github.com/Potfur/moss-form/archive/master.zip",
+					"type": "zip"
+				},
+				"autoload": {
+					"psr-0": {
+						"moss\\form\\": ""
+					}
+				}
+			}
+		},
+		{
+			"type": "package",
+			"package": {
+				"name": "moss/locale",
+				"version": "0.1",
+				"dist": {
+					"url": "http://github.com/Potfur/moss-locale/archive/master.zip",
+					"type": "zip"
+				},
+				"autoload": {
+					"psr-0": {
+						"moss\\locale\\": ""
+					}
+				}
+			}
+		}
+	],
 	"require": {
 		"php": ">=5.3.4",
 		"psr/log": "dev-master",
 		"twig/twig": "1.*",
 		"twig/extensions": "1.0.x-dev"
+	},
+	"suggest": {
+		"moss/storage": "Simple ORM (data mapper), accelerates logic development",
+		"moss/form": "Easy form builder, can be used in Twig",
+		"moss/locale": "Translation module, based on Symfony 2 Translator"
 	},
 	"autoload": {
 		"psr-0": {
