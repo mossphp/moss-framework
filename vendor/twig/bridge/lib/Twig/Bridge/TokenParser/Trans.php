@@ -31,7 +31,6 @@ class Twig_Bridge_TokenParser_Trans extends Twig_TokenParser
                     ->getExpressionParser()
                     ->parseExpression();
             }
-//                throw new \Twig_Error_Syntax('Unexpected token. Twig was looking for the "with" keyword.');
         }
 
         $stream->expect(\Twig_Token::BLOCK_END_TYPE);
