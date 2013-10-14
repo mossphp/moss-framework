@@ -3,17 +3,27 @@
 class Twig_Bridge_Extension_Trans extends Twig_Extension
 {
     private $translator;
+    private $stringLoader;
 
     public function __construct(Twig_Bridge_Extension_TransInterface $translator = null)
     {
         $this->translator = $translator;
+        $this->stringLoader = new Twig_Bridge_Loader_String();
     }
 
     public function getFilters()
     {
         return array(
             'trans' => new \Twig_Filter_Method($this, 'trans'),
+            'translate' => new \Twig_Filter_Method($this, 'trans'),
             'transchoice' => new \Twig_Filter_Method($this, 'transchoice'),
+        );
+    }
+
+    public function getFunctions()
+    {
+        return array(
+            'string' => new Twig_SimpleFunction('string', array($this, 'fromString'), array('needs_environment' => true)),
         );
     }
 
@@ -33,7 +43,7 @@ class Twig_Bridge_Extension_Trans extends Twig_Extension
 
     public function trans($message, array $arguments = array(), $locale = null)
     {
-        if(!$this->translator) {
+        if (!$this->translator) {
             return strtr($message, $arguments);
         }
 
@@ -42,7 +52,7 @@ class Twig_Bridge_Extension_Trans extends Twig_Extension
 
     public function transchoice($message, $count, array $arguments = array(), $locale = null)
     {
-        if(!$this->translator) {
+        if (!$this->translator) {
             return strtr($message, $arguments);
         }
 
@@ -52,5 +62,30 @@ class Twig_Bridge_Extension_Trans extends Twig_Extension
     public function getName()
     {
         return 'translator';
+    }
+
+    public function fromString(Twig_Environment $env, $template)
+    {
+        $current = array(
+            'cache' => $env->getCache(),
+            'loader' => $env->getLoader()
+        );
+
+        $env->setCache(false);
+        $env->setLoader($this->stringLoader);
+
+        try {
+            $template = $env->loadTemplate($template);
+
+            $env->setCache($current['cache']);
+            $env->setLoader($current['loader']);
+
+            return $template;
+        } catch(Exception $e) {
+            $env->setCache($current['cache']);
+            $env->setLoader($current['loader']);
+
+            throw $e;
+        }
     }
 }
