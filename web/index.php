@@ -10,9 +10,8 @@ require __ROOT__ . '/../moss/kernel/ExceptionHandler.php';
 require __ROOT__ . '/../moss/loader/Loader.php';
 
 // Bootstrap & config
-$bootstrap = (array) require __ROOT__ . '/../bootstrap/bootstrap.php';
-$Config = new \moss\config\Config(isset($bootstrap) ? (array) $bootstrap : array());
-unset($bootstrap);
+$Config = new \moss\config\Config();
+$Config->import((array) require __ROOT__ . '/../bootstrap/bootstrap.php');
 
 // Error handling
 $ErrorHandler = new \moss\kernel\ErrorHandler($Config->get('framework.error.level'));
