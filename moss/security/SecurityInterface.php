@@ -33,11 +33,21 @@ interface SecurityInterface
     public function registerArea(AreaInterface $Area);
 
     /**
-     * Authenticates token in authentication providers
+     * Creates token from credentials via user providers
+     *
+     * @param array $credentials
+     *
+     * @return $this
+     * @throws AuthenticationException
+     */
+    public function tokenize(array $credentials);
+
+    /**
+     * Authenticates token in user providers for requested area
      *
      * @param RequestInterface $Request
      *
-     * @return bool
+     * @return $this
      * @throws AuthenticationException
      */
     public function authenticate(RequestInterface $Request);

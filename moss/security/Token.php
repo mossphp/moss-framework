@@ -12,61 +12,42 @@ use moss\security\TokenInterface;
 class Token implements TokenInterface
 {
 
-    private $credentials = array();
     private $auth;
     private $user;
 
     /**
      * Constructor
      *
-     * @param null|string $login
-     * @param null|string $password
+     * @param string     $auth
+     * @param int|string $user
      */
-    public function __construct($login = null, $password = null)
+    public function __construct($auth = null, $user = null)
     {
-        $this->credentials = array('login' => $login, 'password' => $password);
+        $this->auth = $auth;
+        $this->user = $user;
     }
 
     /**
      * Returns set authentication credentials
      *
-     * @param int|string $offset
-     *
-     * @return mixed
+     * @return array
      */
-    public function credentials($offset = null)
+    public function credentials()
     {
-        if ($offset === null) {
-            return $this->credentials;
-        }
-
-        if (!isset($this->credentials[$offset])) {
-            return null;
-        }
-
-        return $this->credentials[$offset];
+        return array(
+            'auth' => $this->auth,
+            'user' => $this->user
+        );
     }
 
     /**
      * Removes credentials
      *
-     * @param int|string $offset
-     *
      * @return $this
      */
-    public function remove($offset = null)
-    {
-        if ($offset === null) {
-            $this->credentials = array();
-            return $this;
-        }
-
-        if (!isset($this->credentials[$offset])) {
-            return $this;
-        }
-
-        unset($this->credentials[$offset]);
-
+    public function remove() {
+        $this->auth = null;
+        $this->user = null;
         return $this;
     }
 
@@ -91,7 +72,6 @@ class Token implements TokenInterface
     public function authenticate($auth = null)
     {
         if ($auth !== null) {
-            $this->credentials = array();
             $this->auth = $auth;
         }
 

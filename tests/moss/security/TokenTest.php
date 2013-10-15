@@ -9,17 +9,18 @@ class TokenTest extends \PHPUnit_Framework_TestCase
     public function testCredentials()
     {
         $Token = new Token('foo', 'bar');
-        $this->assertEquals(array('login' => 'foo', 'password' => 'bar'), $Token->credentials());
+        $this->assertEquals(array('auth' => 'foo', 'user' => 'bar'), $Token->credentials());
     }
 
     public function testRemove()
     {
+
         $Token = new Token('foo', 'bar');
-        $this->assertEquals(array('login' => 'foo', 'password' => 'bar'), $Token->credentials());
+        $this->assertEquals(array('auth' => 'foo', 'user' => 'bar'), $Token->credentials());
 
         $Token->remove();
 
-        $this->assertEquals(array(), $Token->credentials());
+        $this->assertEquals(array('auth' => null, 'user' => null), $Token->credentials());
     }
 
     public function testIsAuthenticated()

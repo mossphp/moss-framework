@@ -14,13 +14,31 @@ interface UserProviderInterface
 {
 
     /**
+     * Returns true if provider can handle credentials
+     *
+     * @param array $credentials
+     *
+     * @return bool
+     */
+    public function supportsCredentials(array $credentials);
+
+    /**
+     * Creates token from credentials via user providers
+     *
+     * @param array $credentials
+     *
+     * @return $this
+     */
+    public function tokenize(array $credentials);
+
+    /**
      * Returns true if provider can handle token
      *
      * @param TokenInterface $Token
      *
      * @return bool
      */
-    public function supports(TokenInterface $Token);
+    public function supportsToken(TokenInterface $Token);
 
     /**
      * Authenticates token and sets user identifier in token

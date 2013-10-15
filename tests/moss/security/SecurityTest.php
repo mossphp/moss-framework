@@ -4,8 +4,48 @@ namespace moss\security;
 
 class SecurityTest extends \PHPUnit_Framework_TestCase
 {
+    public function testTokenize()
+    {
+        $Security = new Security($this->getMock('\moss\security\TokenStashInterface'));
+        $Security->registerUserProvider($this->mockProvider(true, true));
+        $Security->tokenize(array('foo', 'bar'));
+    }
+
     /**
-     * @expectedException \moss\security\TokenException
+     * @expectedException \moss\security\AuthenticationException
+     * @expectedExceptionMessage Unable to tokenize, empty credentials
+     */
+    public function testTokenizeWithEmptyCredentials()
+    {
+        $Security = new Security($this->getMock('\moss\security\TokenStashInterface'));
+        $Security->registerUserProvider($this->mockProvider(true, false));
+        $Security->tokenize(array());
+    }
+
+    /**
+     * @expectedException \moss\security\AuthenticationException
+     * @expectedExceptionMessage Credentials could not be tokenized in provider
+     */
+    public function testTokenizeFailure()
+    {
+        $Security = new Security($this->getMock('\moss\security\TokenStashInterface'));
+        $Security->registerUserProvider($this->mockProvider(true, false));
+        $Security->tokenize(array('foo', 'bar'));
+    }
+
+    /**
+     * @expectedException \moss\security\AuthenticationException
+     * @expectedExceptionMessage Missing provider supporting credentials
+     */
+    public function testTokenizeMissingProvider()
+    {
+        $Security = new Security($this->getMock('\moss\security\TokenStashInterface'));
+        $Security->registerUserProvider($this->mockProvider(false, false));
+        $Security->tokenize(array('foo', 'bar'));
+    }
+
+    /**
+     * @expectedException \moss\security\AuthenticationException
      * @expectedExceptionMessage Unable to authenticate, token is missing
      */
     public function testAuthWithoutToken()
@@ -115,9 +155,20 @@ class SecurityTest extends \PHPUnit_Framework_TestCase
     protected function mockProvider($support = true, $auth = true)
     {
         $Provider = $this->getMock('\moss\security\UserProviderInterface');
+
         $Provider
             ->expects($this->any())
-            ->method('supports')
+            ->method('supportsCredentials')
+            ->will($this->returnValue($support));
+
+        $Provider
+            ->expects($this->any())
+            ->method('tokenize')
+            ->will($this->returnValue($auth ? $this->getMock('\moss\security\TokenInterface') : false));
+
+        $Provider
+            ->expects($this->any())
+            ->method('supportsToken')
             ->will($this->returnValue($support));
 
         $Provider

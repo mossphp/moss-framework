@@ -74,7 +74,39 @@ class Security implements SecurityInterface
     }
 
     /**
-     * Authenticates token in authentication providers
+     * Creates token from credentials via user providers
+     *
+     * @param array $credentials
+     *
+     * @return $this
+     * @throws AuthenticationException
+     */
+    public function tokenize(array $credentials)
+    {
+        if (empty($credentials)) {
+            throw new AuthenticationException('Unable to tokenize, empty credentials');
+        }
+
+        foreach ($this->Providers as $Provider) {
+            if (!$Provider->supportsCredentials($credentials)) {
+                continue;
+            }
+
+            if (!$Token = $Provider->tokenize($credentials)) {
+                throw new AuthenticationException(sprintf('Credentials could not be tokenized in provider "%s".', get_class($Provider)));
+            }
+
+            $this->stash()->put($Token);
+
+            return $this;
+        }
+
+        throw new AuthenticationException(sprintf('Missing provider supporting credentials "%s"', implode(', ', array_keys($credentials))));
+    }
+
+
+    /**
+     * Authenticates token in user providers for requested area
      *
      * @param RequestInterface $Request
      *
@@ -83,33 +115,29 @@ class Security implements SecurityInterface
      */
     public function authenticate(RequestInterface $Request)
     {
-        foreach ($this->Areas as $Area) {
-            if (!$Area->match($Request)) {
+        if(!$this->findMatchingArea($Request)) {
+            return $this;
+        }
+
+        if (!$Token = $this->token()) {
+            throw new AuthenticationException('Unable to authenticate, token is missing');
+        }
+
+        foreach ($this->Providers as $Provider) {
+            if (!$Provider->supportsToken($Token)) {
                 continue;
             }
 
-            if (!$Token = $this->token()) {
-                throw new TokenException('Unable to authenticate, token is missing');
+            if (!$Provider->authenticate($Token)) {
+                throw new AuthenticationException(sprintf('Token could not be authenticated in provider "%s".', get_class($Provider)));
             }
 
-            foreach ($this->Providers as $Provider) {
-                if (!$Provider->supports($Token)) {
-                    continue;
-                }
+            $this->User = $Provider->get($Token);
 
-                if (!$Provider->authenticate($Token)) {
-                    throw new AuthenticationException(sprintf('Token could not be authenticated in provider "%s".', get_class($Provider)));
-                }
-
-                $this->User = $Provider->get($Token);
-
-                return $this;
-            }
-
-            throw new AuthenticationException(sprintf('Missing provider supporting token "%s"', get_class($Token)));
+            return $this;
         }
 
-        return $this;
+        throw new AuthenticationException(sprintf('Missing provider supporting token "%s"', get_class($Token)));
     }
 
     /**
@@ -122,23 +150,31 @@ class Security implements SecurityInterface
      */
     public function authorize(RequestInterface $Request)
     {
+        if(!$Area = $this->findMatchingArea($Request)) {
+            return $this;
+        }
+
+        if (!$this->User) {
+            throw new AuthorizationException(sprintf('Access denied to area "%s". No authenticated user', $Area->pattern()));
+        }
+
+        if (!$Area->authorize($this->User, $Request->clientIp())) {
+            throw new AuthorizationException(sprintf('Access denied to area "%s". Authenticated user does not have access', $Area->pattern()));
+        }
+
+        return $this;
+    }
+
+    protected function findMatchingArea(RequestInterface $Request) {
         foreach ($this->Areas as $Area) {
             if (!$Area->match($Request)) {
                 continue;
             }
 
-            if (!$this->User) {
-                throw new AuthorizationException(sprintf('Access denied to area "%s". No authenticated user', $Area->pattern()));
-            }
-
-            if (!$Area->authorize($this->User, $Request->clientIp())) {
-                throw new AuthorizationException(sprintf('Access denied to area "%s". Authenticated user does not have access', $Area->pattern()));
-            }
-
-            return $this;
+            return $Area;
         }
 
-        return $this;
+        return null;
     }
 
     /**
