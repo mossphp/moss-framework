@@ -12,10 +12,10 @@ use moss\container\ContainerInterface;
 class Container implements ContainerInterface
 {
 
-    /** @var array|Callable[] */
+    /** @var array|callable[] */
     private $components = array();
 
-    /** @var array|Object */
+    /** @var array|object */
     private $instances = array();
 
     /**
