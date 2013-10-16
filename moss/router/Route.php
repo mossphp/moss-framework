@@ -310,23 +310,23 @@ class Route implements RouteInterface
             $arguments[$k] = isset($this->defaults[$k]) ? $this->defaults[$k] : null;
         }
 
-        $uArr = array();
-        $qArr = array();
+        $url = array();
+        $query = array();
 
         foreach ($arguments as $k => $v) {
             if (isset($this->requirements[$k])) {
-                $uArr['#' . $k . '#'] = $v;
+                $url['#' . $k . '#'] = $v;
                 continue;
             }
 
-            $qArr[$k] = $v;
+            $query[$k] = $v;
         }
 
-        $url = strtr($this->pattern, $uArr);
+        $url = strtr($this->pattern, $url);
         $url = str_replace('//', '/', $url);
 
-        if (!empty($qArr)) {
-            $url .= '?' . http_build_query($qArr, null, '&');
+        if (!empty($query)) {
+            $url .= '?' . http_build_query($query, null, '&');
         }
 
         $url = ltrim($url, './');
