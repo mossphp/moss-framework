@@ -53,13 +53,13 @@ class Config implements ConfigInterface
     /**
      * Reads configuration properties from passed array
      *
-     * @param array $array
+     * @param array $import
      *
      * @return $this
      */
-    public function import(array $array)
+    public function import(array $import)
     {
-        foreach ($array as $key => $node) {
+        foreach ($import as $key => $node) {
             switch ($key) {
                 case 'container':
                     $node = $this->applyContainerDefaults($node);
