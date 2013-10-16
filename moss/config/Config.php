@@ -53,13 +53,13 @@ class Config implements ConfigInterface
     /**
      * Reads configuration properties from passed array
      *
-     * @param array $arr
+     * @param array $array
      *
      * @return $this
      */
-    public function import($arr)
+    public function import(array $array)
     {
-        foreach ($arr as $key => $node) {
+        foreach ($array as $key => $node) {
             switch ($key) {
                 case 'container':
                     $node = $this->applyContainerDefaults($node);
@@ -91,14 +91,14 @@ class Config implements ConfigInterface
     /**
      * Applies default values or missing properties for containers component definition
      *
-     * @param array $arr
+     * @param array $array
      * @param array $defaults
      *
      * @return array
      */
-    private function applyContainerDefaults(array $arr, $defaults = array('arguments' => array(), 'methods' => array(), 'shared' => false))
+    private function applyContainerDefaults(array $array, $defaults = array('arguments' => array(), 'methods' => array(), 'shared' => false))
     {
-        foreach ($arr as &$node) {
+        foreach ($array as &$node) {
             if (!isset($node['class']) && !isset($node['closure'])) {
                 continue;
             }
@@ -107,21 +107,21 @@ class Config implements ConfigInterface
             unset($node);
         }
 
-        return $arr;
+        return $array;
     }
 
     /**
      * Applies default values or missing properties for event listener definition
      *
-     * @param array $arr
+     * @param array $array
      * @param array $defaults
      *
      * @return array
      * @throws ConfigException
      */
-    private function applyDispatcherDefaults(array $arr, $defaults = array('method' => null, 'arguments' => array()))
+    private function applyDispatcherDefaults(array $array, $defaults = array('method' => null, 'arguments' => array()))
     {
-        foreach ($arr as &$evt) {
+        foreach ($array as &$evt) {
             foreach ($evt as &$node) {
                 if (!isset($node['component']) && !isset($node['closure'])) {
                     throw new ConfigException('Missing required "component" or "closure" property in event listener definition');
@@ -133,21 +133,21 @@ class Config implements ConfigInterface
             unset($evt);
         }
 
-        return $arr;
+        return $array;
     }
 
     /**
      * Applies default values or missing properties for route definition
      *
-     * @param array $arr
+     * @param array $array
      * @param array $defaults
      *
      * @return array
      * @throws ConfigException
      */
-    private function applyRouterDefaults(array $arr, $defaults = array('arguments' => array()))
+    private function applyRouterDefaults(array $array, $defaults = array('arguments' => array()))
     {
-        foreach ($arr as &$node) {
+        foreach ($array as &$node) {
             if (!isset($node['pattern'])) {
                 throw new ConfigException('Missing required "pattern" property in route definition');
             }
@@ -161,7 +161,7 @@ class Config implements ConfigInterface
             unset($node);
         }
 
-        return $arr;
+        return $array;
     }
 
     /**
@@ -181,23 +181,23 @@ class Config implements ConfigInterface
     /**
      * Returns offset value from array or default value if offset does not exists
      *
-     * @param array|\ArrayAccess $arr
+     * @param array|\ArrayAccess $array
      * @param string             $offset
      * @param mixed              $default
      *
      * @return mixed
      */
-    protected function getArrValue($arr, $offset, $default = null)
+    protected function getArrValue($array, $offset, $default = null)
     {
         $keys = explode('.', $offset);
         while ($i = array_shift($keys)) {
-            if (!isset($arr[$i])) {
+            if (!isset($array[$i])) {
                 return $default;
             }
 
-            $arr = $arr[$i];
+            $array = $array[$i];
         }
 
-        return $arr;
+        return $array;
     }
 }

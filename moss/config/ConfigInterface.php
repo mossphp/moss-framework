@@ -13,9 +13,9 @@ interface ConfigInterface
     /**
      * Reads configuration properties from passed array
      *
-     * @param array $arr
+     * @param array $array
      */
-    public function import($arr);
+    public function import(array $array);
 
     /**
      * Returns current stored configuration as array
