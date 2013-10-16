@@ -6,7 +6,6 @@ use moss\security\TokenStashInterface;
 use moss\security\UserProviderInterface;
 use moss\security\UserInterface;
 use moss\security\AuthenticationException;
-use moss\security\TokenException;
 use moss\security\AuthorizationException;
 use moss\http\request\RequestInterface;
 
@@ -165,6 +164,13 @@ class Security implements SecurityInterface
         return $this;
     }
 
+    /**
+     * Returns matching area or null if not found
+     *
+     * @param RequestInterface $Request
+     *
+     * @return AreaInterface|null
+     */
     protected function findMatchingArea(RequestInterface $Request) {
         foreach ($this->Areas as $Area) {
             if (!$Area->match($Request)) {
