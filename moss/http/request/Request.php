@@ -195,25 +195,25 @@ class Request implements RequestInterface
      */
     protected function resolveGET()
     {
-        $arr = array();
+        $array = array();
 
         if ($this->method() == 'CLI' && isset($GLOBALS['argc']) && isset($GLOBALS['argv']) && $GLOBALS['argc'] > 1) {
             for ($i = 1; $i < $GLOBALS['argc']; $i++) {
                 if (strpos($GLOBALS['argv'][$i], '=') === false) {
-                    $arr[$i - 1] = $GLOBALS['argv'][$i];
+                    $array[$i - 1] = $GLOBALS['argv'][$i];
                     continue;
                 }
 
                 $arg = explode('=', $GLOBALS['argv'][$i]);
-                $arr[ltrim($arg[0], '-')] = isset($arg[1]) ? $arg[1] : null;
+                $array[ltrim($arg[0], '-')] = isset($arg[1]) ? $arg[1] : null;
             }
 
-            if (empty($this->url) && isset($arr[0])) {
-                $this->url = array_shift($arr);
+            if (empty($this->url) && isset($array[0])) {
+                $this->url = array_shift($array);
             }
         }
 
-        return array_merge($_GET, $arr);
+        return array_merge($_GET, $array);
     }
 
     /**
@@ -223,13 +223,13 @@ class Request implements RequestInterface
      */
     protected function resolvePOST()
     {
-        $arr = array();
+        $array = array();
 
         if ($this->method() == 'PUT' || $this->method() == 'DELETE') {
-            parse_str(file_get_contents('php://input'), $arr);
+            parse_str(file_get_contents('php://input'), $array);
         }
 
-        return array_merge($_POST, $arr);
+        return array_merge($_POST, $array);
     }
 
     /**
