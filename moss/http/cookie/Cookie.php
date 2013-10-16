@@ -132,29 +132,29 @@ class Cookie implements CookieInterface
     /**
      * Sets array elements value
      *
-     * @param array  $arr
+     * @param array  $array
      * @param string $keys
      * @param mixed  $value
      *
      * @return mixed
      */
-    protected function putIntoArray(&$arr, $keys, $value)
+    protected function putIntoArray(&$array, $keys, $value)
     {
         $k = array_shift($keys);
 
-        if (is_scalar($arr)) {
-            $arr = (array) $arr;
+        if (is_scalar($array)) {
+            $array = (array) $array;
         }
 
-        if (!isset($arr[$k])) {
-            $arr[$k] = null;
+        if (!isset($array[$k])) {
+            $array[$k] = null;
         }
 
         if (empty($keys)) {
-            return $arr[$k] = $value;
+            return $array[$k] = $value;
         }
 
-        return $this->putIntoArray($arr[$k], $keys, $value);
+        return $this->putIntoArray($array[$k], $keys, $value);
     }
 
     /**
