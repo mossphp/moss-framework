@@ -114,8 +114,6 @@ class Token implements TokenInterface
      */
     public function unserialize($serialized)
     {
-        $arr = unserialize($serialized);
-        $this->auth = $arr[0];
-        $this->user = $arr[1];
+        list($this->auth, $this->user) = unserialize($serialized);
     }
 }
