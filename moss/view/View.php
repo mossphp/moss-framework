@@ -84,52 +84,52 @@ class View implements ViewInterface
     /**
      * Sets array elements value
      *
-     * @param array  $arr
+     * @param array  $array
      * @param string $keys
      * @param mixed  $value
      *
      * @return mixed
      */
-    protected function setIntoArray(&$arr, $keys, $value)
+    protected function setIntoArray(&$array, $keys, $value)
     {
         $k = array_shift($keys);
 
-        if (is_scalar($arr)) {
-            $arr = (array) $arr;
+        if (is_scalar($array)) {
+            $array = (array) $array;
         }
 
-        if (!isset($arr[$k])) {
-            $arr[$k] = null;
+        if (!isset($array[$k])) {
+            $array[$k] = null;
         }
 
         if (empty($keys)) {
-            return $arr[$k] = $value;
+            return $array[$k] = $value;
         }
 
-        return $this->setIntoArray($arr[$k], $keys, $value);
+        return $this->setIntoArray($array[$k], $keys, $value);
     }
 
     /**
      * Returns offset value from array or default value if offset does not exists
      *
-     * @param array|\ArrayAccess $arr
+     * @param array|\ArrayAccess $array
      * @param string             $offset
      * @param mixed              $default
      *
      * @return mixed
      */
-    protected function getArrValue($arr, $offset, $default = null)
+    protected function getArrValue($array, $offset, $default = null)
     {
         $keys = explode('.', $offset);
         while ($i = array_shift($keys)) {
-            if (!isset($arr[$i])) {
+            if (!isset($array[$i])) {
                 return $default;
             }
 
-            $arr = $arr[$i];
+            $array = $array[$i];
         }
 
-        return $arr;
+        return $array;
     }
 
     /**
