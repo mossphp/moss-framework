@@ -25,13 +25,13 @@ interface DispatcherInterface
      * Fires event
      *
      * @param string $event
-     * @param mixed  $Subject
+     * @param mixed  $subject
      * @param mixed  $message
      *
      * @return mixed
      * @throws \Exception
      */
-    public function fire($event, $Subject = null, $message = null);
+    public function fire($event, $subject = null, $message = null);
 
     /**
      * Stops event handling
@@ -40,4 +40,3 @@ interface DispatcherInterface
      */
     public function stop();
 }
-

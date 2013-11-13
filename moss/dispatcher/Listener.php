@@ -1,9 +1,7 @@
 <?php
 namespace moss\dispatcher;
 
-use moss\dispatcher\ListenerInterface;
 use moss\container\ContainerInterface;
-use moss\dispatcher\DispatcherException;
 
 /**
  * Event dispatchers listener
@@ -38,28 +36,29 @@ class Listener implements ListenerInterface
     /**
      * Returns component instance
      *
-     * @param ContainerInterface $Container
-     * @param mixed              $Subject
+     * @param ContainerInterface $container
+     * @param mixed              $subject
      * @param mixed              $message
      *
      * @return mixed
      */
-    public function __invoke(ContainerInterface $Container, $Subject = null, $message = null) {
-        return $this->get($Container, $Subject, $message);
+    public function __invoke(ContainerInterface $container, $subject = null, $message = null)
+    {
+        return $this->get($container, $subject, $message);
     }
 
     /**
      * Returns component instance
      *
-     * @param ContainerInterface $Container
-     * @param mixed              $Subject
+     * @param ContainerInterface $container
+     * @param mixed              $subject
      * @param mixed              $message
      *
      * @return mixed
      */
-    public function get(ContainerInterface $Container, $Subject = null, $message = null)
+    public function get(ContainerInterface $container, $subject = null, $message = null)
     {
-        $instance = $Container->get($this->component);
+        $instance = $container->get($this->component);
 
         if (empty($this->method)) {
             return $instance;
@@ -69,10 +68,11 @@ class Listener implements ListenerInterface
 
         if (empty($this->arguments)) {
             $ref->invoke($instance);
+
             return $instance;
         }
 
-        $ref->invokeArgs($instance, $this->prepare($Container, $this->arguments, $Subject, $message));
+        $ref->invokeArgs($instance, $this->prepare($container, $this->arguments, $subject, $message));
 
         return $instance;
     }
@@ -80,31 +80,31 @@ class Listener implements ListenerInterface
     /**
      * Retrieves needed arguments from container and returns them
      *
-     * @param ContainerInterface $Container
+     * @param ContainerInterface $container
      * @param array              $arguments
-     * @param mixed              $Subject
+     * @param mixed              $subject
      * @param mixed              $message
      *
      * @return array
      * @throws DispatcherException
      */
-    protected function prepare(ContainerInterface $Container, $arguments = array(), $Subject = null, $message = null)
+    protected function prepare(ContainerInterface $container, $arguments = array(), $subject = null, $message = null)
     {
         $result = array();
 
         foreach ($arguments as $k => $arg) {
             if (is_array($arg)) {
-                $result[$k] = $this->prepare($Container, $arg);
+                $result[$k] = $this->prepare($container, $arg);
                 continue;
             }
 
             if ($arg == '@Container') {
-                $result[$k] = $Container;
+                $result[$k] = $container;
                 continue;
             }
 
             if ($arg == '@Subject') {
-                $result[$k] = $Subject;
+                $result[$k] = $subject;
                 continue;
             }
 
@@ -118,7 +118,7 @@ class Listener implements ListenerInterface
                 continue;
             }
 
-            $result[$k] = $Container->get(substr($arg, 1));
+            $result[$k] = $container->get(substr($arg, 1));
         }
 
         return $result;

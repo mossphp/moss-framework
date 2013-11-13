@@ -15,22 +15,22 @@ interface ListenerInterface
     /**
      * Returns component instance
      *
-     * @param ContainerInterface $Container
-     * @param mixed              $Subject
+     * @param ContainerInterface $container
+     * @param mixed              $subject
      * @param mixed              $message
      *
      * @return mixed
      */
-    public function __invoke(ContainerInterface $Container, $Subject = null, $message = null);
+    public function __invoke(ContainerInterface $container, $subject = null, $message = null);
 
     /**
      * Returns component instance
      *
-     * @param ContainerInterface $Container
-     * @param mixed              $Subject
+     * @param ContainerInterface $container
+     * @param mixed              $subject
      * @param mixed              $message
      *
      * @return mixed
      */
-    public function get(ContainerInterface $Container, $Subject = null, $message = null);
+    public function get(ContainerInterface $container, $subject = null, $message = null);
 }

@@ -1,8 +1,6 @@
 <?php
 namespace moss\dispatcher;
 
-use moss\dispatcher\DispatcherInterface;
-use moss\dispatcher\ListenerInterface;
 use moss\container\ContainerInterface;
 
 /**
@@ -15,7 +13,7 @@ class Dispatcher implements DispatcherInterface
 {
 
     /** @var ContainerInterface */
-    private $Container;
+    private $container;
 
     /** @var array */
     private $events = array();
@@ -25,11 +23,11 @@ class Dispatcher implements DispatcherInterface
     /**
      * Constructor
      *
-     * @param ContainerInterface $Container
+     * @param ContainerInterface $container
      */
-    public function __construct(ContainerInterface $Container = null)
+    public function __construct(ContainerInterface $container = null)
     {
-        $this->Container = & $Container;
+        $this->container = & $container;
     }
 
     /**
@@ -82,13 +80,13 @@ class Dispatcher implements DispatcherInterface
      * Fires event
      *
      * @param string $event
-     * @param mixed  $Subject
+     * @param mixed  $subject
      * @param mixed  $message
      *
      * @return mixed
      * @throws \Exception
      */
-    public function fire($event, $Subject = null, $message = null)
+    public function fire($event, $subject = null, $message = null)
     {
         $this->stop = false;
 
@@ -98,17 +96,17 @@ class Dispatcher implements DispatcherInterface
                     break;
                 }
 
-                $Subject = $this->call($eventName, $Subject, $message);
+                $subject = $this->call($eventName, $subject, $message);
             }
         } catch(\Exception $e) {
             if (!isset($this->events[$event . ':exception'])) {
                 throw $e;
             }
 
-            $Subject = $this->call($event . ':exception', $e, $e->getMessage());
+            $subject = $this->call($event . ':exception', $e, $e->getMessage());
         }
 
-        return $Subject;
+        return $subject;
     }
 
     /**
@@ -128,15 +126,15 @@ class Dispatcher implements DispatcherInterface
      * Calls event listener
      *
      * @param string $event
-     * @param mixed  $Subject
+     * @param mixed  $subject
      * @param mixed  $message
      *
      * @return mixed
      */
-    protected function call($event, $Subject = null, $message = null)
+    protected function call($event, $subject = null, $message = null)
     {
         if (!isset($this->events[$event])) {
-            return $Subject;
+            return $subject;
         }
 
         foreach ($this->events[$event] as $listener) {
@@ -144,9 +142,9 @@ class Dispatcher implements DispatcherInterface
                 break;
             }
 
-            $Subject = $listener($this->Container, $Subject, $message);
+            $subject = $listener($this->container, $subject, $message);
         }
 
-        return $Subject;
+        return $subject;
     }
 }
