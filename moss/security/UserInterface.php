@@ -27,11 +27,11 @@ interface UserInterface
     /**
      * Returns true if user has role
      *
-     * @param string $roleIdentifier
+     * @param string $role
      *
      * @return bool
      */
-    public function hasRole($roleIdentifier);
+    public function hasRole($role);
 
     /**
      * Returns all role access as an array
@@ -43,9 +43,9 @@ interface UserInterface
     /**
      * Returns true if user has access
      *
-     * @param string $accessIdentifier
+     * @param string $access
      *
      * @return bool
      */
-    public function hasAccess($accessIdentifier);
+    public function hasAccess($access);
 }
