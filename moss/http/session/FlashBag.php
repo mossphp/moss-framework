@@ -1,9 +1,6 @@
 <?php
 namespace moss\http\session;
 
-use moss\http\session\FlashBagInterface;
-use moss\http\session\SessionInterface;
-
 /**
  * Session flash bag
  *
@@ -14,26 +11,26 @@ class FlashBag implements FlashBagInterface
 {
 
     /** @var SessionInterface */
-    private $Session;
+    private $session;
     private $prefix;
 
     /**
      * Constructor
      * Binds flashbag with container array
      *
-     * @param SessionInterface $Session
+     * @param SessionInterface $session
      * @param string           $prefix
      */
-    public function __construct(SessionInterface $Session = null, $prefix = 'FlashBag')
+    public function __construct(SessionInterface $session = null, $prefix = 'FlashBag')
     {
-        if ($Session === null) {
-            $Session = & $_SESSION;
+        if ($session === null) {
+            $session = & $_SESSION;
         }
 
-        $this->Session = & $Session;
+        $this->session = & $session;
         $this->prefix = $prefix;
-        if (!isset($this->Session[$this->prefix])) {
-            $this->Session[$this->prefix] = array();
+        if (!isset($this->session[$this->prefix])) {
+            $this->session[$this->prefix] = array();
         }
     }
 
@@ -42,7 +39,7 @@ class FlashBag implements FlashBagInterface
      */
     public function reset()
     {
-        $this->Session[$this->prefix] = array();
+        $this->session[$this->prefix] = array();
 
         return $this;
     }
@@ -57,7 +54,7 @@ class FlashBag implements FlashBagInterface
      */
     public function add($message, $type = 'error')
     {
-        $this->Session[$this->prefix][] = array('message' => $message, 'type' => $type);
+        $this->session[$this->prefix][] = array('message' => $message, 'type' => $type);
 
         return $this;
     }
@@ -72,10 +69,10 @@ class FlashBag implements FlashBagInterface
     public function has($type = null)
     {
         if (!$type) {
-            return !empty($this->Session[$this->prefix]);
+            return !empty($this->session[$this->prefix]);
         }
 
-        foreach ($this->Session[$this->prefix] as $message) {
+        foreach ($this->session[$this->prefix] as $message) {
             if ($message['type'] === $type) {
                 return true;
             }
@@ -95,10 +92,10 @@ class FlashBag implements FlashBagInterface
     {
         $result = array();
 
-        foreach ($this->Session[$this->prefix] as $i => $message) {
+        foreach ($this->session[$this->prefix] as $i => $message) {
             if ($type === null || $message['type'] === $type) {
                 $result[] = $message;
-                unset($this->Session[$this->prefix][$i]);
+                unset($this->session[$this->prefix][$i]);
             }
         }
 
@@ -112,7 +109,7 @@ class FlashBag implements FlashBagInterface
      */
     public function retrieve()
     {
-        return array_shift($this->Session[$this->prefix]);
+        return array_shift($this->session[$this->prefix]);
     }
 
     /**
@@ -124,7 +121,7 @@ class FlashBag implements FlashBagInterface
      */
     public function offsetExists($offset)
     {
-        return isset($this->Session[$this->prefix][$offset]);
+        return isset($this->session[$this->prefix][$offset]);
     }
 
     /**
@@ -136,12 +133,12 @@ class FlashBag implements FlashBagInterface
      */
     public function offsetGet($offset)
     {
-        if (!isset($this->Session[$this->prefix][$offset])) {
+        if (!isset($this->session[$this->prefix][$offset])) {
             return null;
         }
 
-        $result = $this->Session[$this->prefix][$offset];
-        unset($this->Session[$this->prefix][$offset]);
+        $result = $this->session[$this->prefix][$offset];
+        unset($this->session[$this->prefix][$offset]);
 
         return $result;
     }
@@ -157,10 +154,10 @@ class FlashBag implements FlashBagInterface
     public function offsetSet($offset, $value)
     {
         if ($offset === null) {
-            $offset = count($this->Session[$this->prefix]);
+            $offset = count($this->session[$this->prefix]);
         }
 
-        $this->Session[$this->prefix][$offset] = $value;
+        $this->session[$this->prefix][$offset] = $value;
     }
 
     /**
@@ -172,7 +169,7 @@ class FlashBag implements FlashBagInterface
      */
     public function offsetUnset($offset)
     {
-        unset($this->Session[$this->prefix][$offset]);
+        unset($this->session[$this->prefix][$offset]);
     }
 
     /**
@@ -182,7 +179,7 @@ class FlashBag implements FlashBagInterface
      */
     public function count()
     {
-        return count($this->Session[$this->prefix]);
+        return count($this->session[$this->prefix]);
     }
 
 
@@ -193,9 +190,9 @@ class FlashBag implements FlashBagInterface
      */
     public function current()
     {
-        reset($this->Session[$this->prefix]);
+        reset($this->session[$this->prefix]);
 
-        return array_shift($this->Session[$this->prefix]);
+        return array_shift($this->session[$this->prefix]);
     }
 
     /**
@@ -205,7 +202,7 @@ class FlashBag implements FlashBagInterface
      */
     public function key()
     {
-        return key($this->Session[$this->prefix]);
+        return key($this->session[$this->prefix]);
     }
 
     /**
@@ -215,7 +212,7 @@ class FlashBag implements FlashBagInterface
      */
     public function next()
     {
-        reset($this->Session[$this->prefix]);
+        reset($this->session[$this->prefix]);
     }
 
     /**
@@ -225,7 +222,7 @@ class FlashBag implements FlashBagInterface
      */
     public function rewind()
     {
-        reset($this->Session[$this->prefix]);
+        reset($this->session[$this->prefix]);
     }
 
     /**
@@ -235,6 +232,6 @@ class FlashBag implements FlashBagInterface
      */
     public function valid()
     {
-        return reset($this->Session[$this->prefix]);
+        return reset($this->session[$this->prefix]);
     }
 }

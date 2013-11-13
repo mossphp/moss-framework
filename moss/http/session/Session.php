@@ -1,8 +1,6 @@
 <?php
 namespace moss\http\session;
 
-use moss\http\session\SessionInterface;
-
 /**
  * Session object representation
  *
@@ -11,9 +9,6 @@ use moss\http\session\SessionInterface;
  */
 class Session implements SessionInterface
 {
-
-    protected $authkey;
-
     private $storage;
     private $separator = '.';
 
@@ -21,38 +16,40 @@ class Session implements SessionInterface
      * Creates session wrapper instance
      * Also validates existing session - if session is invalid, resets it
      *
-     * @param bool $agent
-     * @param bool $ip
-     * @param null $salt
-     *
-     * @throws \RuntimeException
+     * @param string $name
      */
-    public function __construct($agent = true, $ip = true, $salt = null)
+    public function __construct($name = null)
     {
-        $this->authkey = $this->authkey($agent, $ip, $salt);
+        $this->name($name);
 
         if (!$this->identify()) {
-            if (version_compare(phpversion(), '5.4.0', '>=') && \PHP_SESSION_ACTIVE === session_status()) {
-                throw new \RuntimeException('Session already started by PHP.');
-            }
-
-            if (version_compare(phpversion(), '5.4.0', '<') && isset($_SESSION) && session_id()) {
-                throw new \RuntimeException('Session already started by PHP ($_SESSION is set).');
-            }
-
-            if (ini_get('session.use_cookies') && headers_sent($file, $line)) {
-                throw new \RuntimeException(sprintf('Unable to start session, headers have already been sent by "%s" at line %d.', $file, $line));
-            }
-
-            if (!session_start()) {
-                throw new \RuntimeException('Unable to start session');
-            }
+            $this->startSession();
         }
 
         $this->storage = & $_SESSION;
+    }
 
-        if (!$this->validate()) {
-            $this->invalidate();
+    /**
+     * Starts session
+     *
+     * @throws \RuntimeException
+     */
+    protected function startSession()
+    {
+        if (version_compare(phpversion(), '5.4.0', '>=') && \PHP_SESSION_ACTIVE === session_status()) {
+            throw new \RuntimeException('Session already started by PHP.');
+        }
+
+        if (version_compare(phpversion(), '5.4.0', '<') && isset($_SESSION) && session_id()) {
+            throw new \RuntimeException('Session already started by PHP ($_SESSION is set).');
+        }
+
+        if (ini_get('session.use_cookies') && headers_sent($file, $line)) {
+            throw new \RuntimeException(sprintf('Unable to start session, headers have already been sent by "%s" at line %d.', $file, $line));
+        }
+
+        if (!session_start()) {
+            throw new \RuntimeException('Unable to start session');
         }
     }
 
@@ -67,10 +64,9 @@ class Session implements SessionInterface
 
         $_SESSION = array();
         session_destroy();
-        session_start();
+        $this->startSession();
 
         $this->storage = & $_SESSION;
-        $this->storage['authkey'] = $this->authkey;
     }
 
     /**
@@ -84,11 +80,10 @@ class Session implements SessionInterface
         session_write_close();
 
         $backup = $_SESSION;
-        session_start();
+        $this->startSession();
         $_SESSION = $backup;
 
         $this->storage = & $_SESSION;
-        $this->storage['authkey'] = $this->authkey;
 
         return $this;
     }
@@ -123,65 +118,6 @@ class Session implements SessionInterface
         }
 
         return session_name();
-    }
-
-    /**
-     * Validates session
-     *
-     * @return bool
-     */
-    public function validate()
-    {
-        return !empty($this->storage['authkey']) && $this->storage['authkey'] === $this->authkey;
-    }
-
-    /**
-     * Generates session auth key
-     *
-     * @param bool $agent
-     * @param bool $ip
-     * @param bool $salt
-     *
-     * @return string
-     */
-    protected function authkey($agent, $ip, $salt)
-    {
-        $authkey = array();
-
-        if ($agent) {
-            $authkey[] = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : 'UndefinedUserAgent';
-        }
-
-        if ($ip) {
-            if (isset($_SERVER['REMOTE_ADDR'])) {
-                $authkey[] = $_SERVER['REMOTE_ADDR'];
-            } elseif (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-                $authkey[] = $_SERVER['HTTP_X_FORWARDED_FOR'];
-            } elseif (isset($_SERVER['HTTP_CLIENT_IP'])) {
-                $authkey[] = $_SERVER['HTTP_CLIENT_IP'];
-            } else {
-                $authkey[] = 'UnknownIp';
-            }
-        }
-
-        return hash('sha512', implode($authkey) . $salt, false);
-    }
-
-    /**
-     * Generates salt
-     *
-     * @param int $length
-     *
-     * @return string
-     */
-    protected function generateSalt($length)
-    {
-        $r = array();
-        for ($i = 0; $i < $length; ++$i) {
-            $r[] = pack('S', mt_rand(0, 0xffff));
-        }
-
-        return substr(base64_encode(implode($r)), 0, 2);
     }
 
     /**
@@ -242,8 +178,6 @@ class Session implements SessionInterface
     {
         $storage = $this->storage;
 
-        unset($storage['authkey']);
-
         return $storage;
     }
 
@@ -255,10 +189,6 @@ class Session implements SessionInterface
     public function reset()
     {
         foreach (array_keys($this->storage) as $key) {
-            if($key === 'authkey') {
-                continue;
-            }
-
             unset($this->storage[$key]);
         }
 
@@ -305,17 +235,17 @@ class Session implements SessionInterface
      */
     protected function getFromArray(&$arr, $keys, $default = null)
     {
-        $k = array_shift($keys);
+        $key = array_shift($keys);
 
-        if (!isset($arr[$k])) {
+        if (!isset($arr[$key])) {
             return $default;
         }
 
         if (empty($keys)) {
-            return $arr[$k];
+            return $arr[$key];
         }
 
-        return $this->getFromArray($arr[$k], $keys);
+        return $this->getFromArray($arr[$key], $keys);
     }
 
     /**
@@ -438,7 +368,7 @@ class Session implements SessionInterface
     {
         $key = key($this->storage);
 
-        while ($key !== null && $key !== 'authkey') {
+        while ($key !== null) {
             $this->next();
             $key = key($this->storage);
         }
