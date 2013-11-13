@@ -1,8 +1,6 @@
 <?php
 namespace moss\container;
 
-use moss\container\ContainerInterface;
-
 /**
  * Dependency Injection Container
  *
@@ -32,6 +30,7 @@ class Container implements ContainerInterface
     {
         if (is_object($definition) && !is_callable($definition)) {
             $this->instances[$id] = & $definition;
+
             return $this;
         }
 

@@ -1,10 +1,6 @@
 <?php
 namespace moss\container;
 
-use moss\container\ComponentInterface;
-use moss\container\ContainerInterface;
-use moss\container\ContainerException;
-
 /**
  * Dependency Injection Component definition
  *
@@ -41,30 +37,30 @@ class Component implements ComponentInterface
     /**
      * Returns component instance
      *
-     * @param ContainerInterface $Container
+     * @param ContainerInterface $container
      *
      * @return object
      */
-    public function __invoke(ContainerInterface $Container = null)
+    public function __invoke(ContainerInterface $container = null)
     {
-        return $this->get($Container);
+        return $this->get($container);
     }
 
 
     /**
      * Returns component instance
      *
-     * @param ContainerInterface $Container
+     * @param ContainerInterface $container
      *
      * @return object
      */
-    public function get(ContainerInterface $Container = null)
+    public function get(ContainerInterface $container = null)
     {
         if (empty($this->arguments)) {
             $instance = new $this->class();
         } else {
-            $Ref = new \ReflectionClass($this->class);
-            $instance = $Ref->newInstanceArgs($this->prepare($Container, $this->arguments));
+            $ref = new \ReflectionClass($this->class);
+            $instance = $ref->newInstanceArgs($this->prepare($container, $this->arguments));
         }
 
         if (empty($this->methods)) {
@@ -78,7 +74,7 @@ class Component implements ComponentInterface
                 $ref->invoke($instance);
             }
 
-            $ref->invokeArgs($instance, $this->prepare($Container, $methodArguments));
+            $ref->invokeArgs($instance, $this->prepare($container, $methodArguments));
         }
 
         return $instance;
@@ -87,24 +83,24 @@ class Component implements ComponentInterface
     /**
      * Retrieves needed arguments from container and returns them
      *
-     * @param ContainerInterface $Container
+     * @param ContainerInterface $container
      * @param array              $arguments
      *
      * @return array
      * @throws ContainerException
      */
-    protected function prepare(ContainerInterface $Container = null, $arguments = array())
+    protected function prepare(ContainerInterface $container = null, $arguments = array())
     {
         $result = array();
 
         foreach ($arguments as $k => $arg) {
             if (is_array($arg)) {
-                $result[$k] = $this->prepare($Container, $arg);
+                $result[$k] = $this->prepare($container, $arg);
                 continue;
             }
 
             if ($arg == '@Container') {
-                $result[$k] = & $Container;
+                $result[$k] = & $container;
                 continue;
             }
 
@@ -115,11 +111,11 @@ class Component implements ComponentInterface
 
             $arg = substr($arg, 1);
 
-            if (!$Container) {
+            if (!$container) {
                 throw new ContainerException(sprintf('Unable to resolve dependency for "%s" - missing dependency "%s"', $this->class, $arg));
             }
 
-            $result[$k] = $Container->get($arg);
+            $result[$k] = $container->get($arg);
         }
 
         return $result;
