@@ -1,9 +1,6 @@
 <?php
 namespace moss\http\response;
 
-use moss\http\response\ResponseInterface;
-use moss\http\response\ResponseException;
-
 /**
  * Response sent to client
  *
@@ -105,6 +102,7 @@ class Response implements ResponseInterface
     public function setHeader($header, $value = null)
     {
         $this->headers[$header] = $value;
+
         return $this;
     }
 
@@ -294,7 +292,7 @@ class Response implements ResponseInterface
      *
      * @return string;
      */
-    function __toString()
+    public function __toString()
     {
         $headers = '';
         foreach ($this->headers as $header => $value) {

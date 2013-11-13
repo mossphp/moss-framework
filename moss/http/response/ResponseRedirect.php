@@ -1,8 +1,6 @@
 <?php
 namespace moss\http\response;
 
-use moss\http\response\Response;
-
 /**
  * Redirecting Response
  * Response redirects (Status 302) client to given address
