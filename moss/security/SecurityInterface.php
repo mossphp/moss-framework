@@ -1,8 +1,6 @@
 <?php
 namespace moss\security;
 
-use moss\security\AuthenticationException;
-use moss\security\UserInterface;
 use moss\http\request\RequestInterface;
 
 /**
@@ -17,20 +15,20 @@ interface SecurityInterface
     /**
      * Adds user provider
      *
-     * @param UserProviderInterface $Provider
+     * @param UserProviderInterface $provider
      *
      * @return $this
      */
-    public function registerUserProvider(UserProviderInterface $Provider);
+    public function registerUserProvider(UserProviderInterface $provider);
 
     /**
      * Registers secure area in security
      *
-     * @param AreaInterface $Area
+     * @param AreaInterface $area
      *
      * @return $this
      */
-    public function registerArea(AreaInterface $Area);
+    public function registerArea(AreaInterface $area);
 
     /**
      * Creates token from credentials via user providers
@@ -45,22 +43,22 @@ interface SecurityInterface
     /**
      * Authenticates token in user providers for requested area
      *
-     * @param RequestInterface $Request
+     * @param RequestInterface $request
      *
      * @return $this
      * @throws AuthenticationException
      */
-    public function authenticate(RequestInterface $Request);
+    public function authenticate(RequestInterface $request);
 
     /**
      * Checks if authenticated user has access to requested area
      *
-     * @param RequestInterface $Request
+     * @param RequestInterface $request
      *
      * @return $this
      * @throws AuthorizationException
      */
-    public function authorize(RequestInterface $Request);
+    public function authorize(RequestInterface $request);
 
     /**
      * Returns token stash
