@@ -1,12 +1,6 @@
 <?php
 namespace moss\security;
 
-use moss\security\SecurityInterface;
-use moss\security\TokenStashInterface;
-use moss\security\UserProviderInterface;
-use moss\security\UserInterface;
-use moss\security\AuthenticationException;
-use moss\security\AuthorizationException;
 use moss\http\request\RequestInterface;
 
 /**
@@ -19,41 +13,41 @@ class Security implements SecurityInterface
 {
 
     /** @var TokenStashInterface */
-    protected $Stash;
+    protected $stash;
 
     protected $loginUrl;
 
     /** @var UserInterface */
-    protected $User;
+    protected $user;
 
     /** @var array|UserProviderInterface[] */
-    protected $Providers = array();
+    protected $providers = array();
 
     /** @var array|AreaInterface[] */
-    protected $Areas = array();
+    protected $areas = array();
 
     /**
      * Constructor
      *
-     * @param TokenStashInterface $Stash
+     * @param TokenStashInterface $stash
      * @param string              $loginUrl
      */
-    public function __construct(TokenStashInterface $Stash, $loginUrl = null)
+    public function __construct(TokenStashInterface $stash, $loginUrl = null)
     {
-        $this->Stash = & $Stash;
+        $this->stash = & $stash;
         $this->loginUrl = $loginUrl;
     }
 
     /**
      * Adds user provider
      *
-     * @param UserProviderInterface $Provider
+     * @param UserProviderInterface $provider
      *
      * @return $this
      */
-    public function registerUserProvider(UserProviderInterface $Provider)
+    public function registerUserProvider(UserProviderInterface $provider)
     {
-        $this->Providers[] = & $Provider;
+        $this->providers[] = & $provider;
 
         return $this;
     }
@@ -61,13 +55,13 @@ class Security implements SecurityInterface
     /**
      * Registers secure area in security
      *
-     * @param AreaInterface $Area
+     * @param AreaInterface $area
      *
      * @return $this
      */
-    public function registerArea(AreaInterface $Area)
+    public function registerArea(AreaInterface $area)
     {
-        $this->Areas[] = & $Area;
+        $this->areas[] = & $area;
 
         return $this;
     }
@@ -86,79 +80,86 @@ class Security implements SecurityInterface
             throw new AuthenticationException('Unable to tokenize, empty credentials');
         }
 
-        foreach ($this->Providers as $Provider) {
-            if (!$Provider->supportsCredentials($credentials)) {
+        foreach ($this->providers as $provider) {
+            if (!$provider->supportsCredentials($credentials)) {
                 continue;
             }
 
-            if (!$Token = $Provider->tokenize($credentials)) {
-                throw new AuthenticationException(sprintf('Credentials could not be tokenized in provider "%s".', get_class($Provider)));
+            if (!$token = $provider->tokenize($credentials)) {
+                $this->stash()->destroy();
+                throw new AuthenticationException(sprintf('Credentials could not be tokenized in provider "%s", destroying token', get_class($provider)));
             }
 
-            $this->stash()->put($Token);
+            $this->stash()
+                 ->put($token);
 
             return $this;
         }
 
-        throw new AuthenticationException(sprintf('Missing provider supporting credentials "%s"', implode(', ', array_keys($credentials))));
+        $this->stash()->destroy();
+        throw new AuthenticationException(sprintf('Missing provider supporting credentials "%s", destroying token', implode(', ', array_keys($credentials))));
     }
 
 
     /**
      * Authenticates token in user providers for requested area
      *
-     * @param RequestInterface $Request
+     * @param RequestInterface $request
      *
      * @return $this
      * @throws AuthenticationException
      */
-    public function authenticate(RequestInterface $Request)
+    public function authenticate(RequestInterface $request)
     {
-        if(!$this->findMatchingArea($Request)) {
+        $token = $this->token();
+
+        if (!$token && !$this->findMatchingArea($request)) {
             return $this;
         }
 
-        if (!$Token = $this->token()) {
+        if (!$token) {
             throw new AuthenticationException('Unable to authenticate, token is missing');
         }
 
-        foreach ($this->Providers as $Provider) {
-            if (!$Provider->supportsToken($Token)) {
+        foreach ($this->providers as $provider) {
+            if (!$provider->supportsToken($token)) {
                 continue;
             }
 
-            if (!$Provider->authenticate($Token)) {
-                throw new AuthenticationException(sprintf('Token could not be authenticated in provider "%s".', get_class($Provider)));
+            if (!$provider->authenticate($token)) {
+                $this->stash()->destroy();
+                throw new AuthenticationException(sprintf('Token could not be authenticated in provider "%s", destroying token', get_class($provider)));
             }
 
-            $this->User = $Provider->get($Token);
+            $this->user = $provider->get($token);
 
             return $this;
         }
 
-        throw new AuthenticationException(sprintf('Missing provider supporting token "%s"', get_class($Token)));
+        $this->stash()->destroy();
+        throw new AuthenticationException(sprintf('Missing provider supporting token "%s", destroying token', get_class($token)));
     }
 
     /**
      * Checks if authenticated user has access to requested area
      *
-     * @param RequestInterface $Request
+     * @param RequestInterface $request
      *
      * @return $this
      * @throws AuthorizationException
      */
-    public function authorize(RequestInterface $Request)
+    public function authorize(RequestInterface $request)
     {
-        if(!$Area = $this->findMatchingArea($Request)) {
+        if (!$area = $this->findMatchingArea($request)) {
             return $this;
         }
 
-        if (!$this->User) {
-            throw new AuthorizationException(sprintf('Access denied to area "%s". No authenticated user', $Area->pattern()));
+        if (!$this->user) {
+            throw new AuthorizationException(sprintf('Access denied to area "%s". No authenticated user', $area->pattern()));
         }
 
-        if (!$Area->authorize($this->User, $Request->clientIp())) {
-            throw new AuthorizationException(sprintf('Access denied to area "%s". Authenticated user does not have access', $Area->pattern()));
+        if (!$area->authorize($this->user, $request->clientIp())) {
+            throw new AuthorizationException(sprintf('Access denied to area "%s". Authenticated user does not have access', $area->pattern()));
         }
 
         return $this;
@@ -167,17 +168,18 @@ class Security implements SecurityInterface
     /**
      * Returns matching area or null if not found
      *
-     * @param RequestInterface $Request
+     * @param RequestInterface $request
      *
      * @return AreaInterface|null
      */
-    protected function findMatchingArea(RequestInterface $Request) {
-        foreach ($this->Areas as $Area) {
-            if (!$Area->match($Request)) {
+    protected function findMatchingArea(RequestInterface $request)
+    {
+        foreach ($this->areas as $area) {
+            if (!$area->match($request)) {
                 continue;
             }
 
-            return $Area;
+            return $area;
         }
 
         return null;
@@ -190,7 +192,7 @@ class Security implements SecurityInterface
      */
     public function stash()
     {
-        return $this->Stash;
+        return $this->stash;
     }
 
     /**
@@ -200,7 +202,7 @@ class Security implements SecurityInterface
      */
     public function token()
     {
-        return $this->Stash->get();
+        return $this->stash->get();
     }
 
     /**
@@ -210,7 +212,7 @@ class Security implements SecurityInterface
      */
     public function user()
     {
-        return $this->User;
+        return $this->user;
     }
 
     /**
@@ -220,8 +222,8 @@ class Security implements SecurityInterface
      */
     public function destroy()
     {
-        $this->User = null;
-        $this->Stash->destroy();
+        $this->user = null;
+        $this->stash->destroy();
     }
 
 
