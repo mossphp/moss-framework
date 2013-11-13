@@ -1,7 +1,6 @@
 <?php
 namespace moss\security;
 
-use moss\security\UserInterface;
 use moss\http\request\RequestInterface;
 
 /**
@@ -37,19 +36,19 @@ interface AreaInterface
     /**
      * Returns true if area matches request
      *
-     * @param RequestInterface $Request
+     * @param RequestInterface $request
      *
      * @return bool
      */
-    public function match(RequestInterface $Request);
+    public function match(RequestInterface $request);
 
     /**
      * Returns true if use has access to area
      *
-     * @param UserInterface $User
+     * @param UserInterface $user
      * @param string        $ip
      *
      * @return bool
      */
-    public function authorize(UserInterface $User, $ip = null);
+    public function authorize(UserInterface $user, $ip = null);
 }

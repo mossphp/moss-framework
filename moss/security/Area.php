@@ -2,7 +2,6 @@
 namespace moss\security;
 
 use moss\http\request\RequestInterface;
-use moss\security\AreaInterface;
 
 /**
  * Security protected area
@@ -59,6 +58,7 @@ class Area implements AreaInterface
         $pattern = str_replace($patternMatches[0], $patternMatches[1], $pattern);
         $pattern = str_replace('\\', '\\\\', $pattern);
         $pattern = '/^' . $pattern . '$/';
+
         return $pattern;
     }
 
@@ -99,13 +99,13 @@ class Area implements AreaInterface
      * Checks if identifier matches secure area
      * Returns true if matches
      *
-     * @param RequestInterface $Request
+     * @param RequestInterface $request
      *
      * @return bool
      */
-    public function match(RequestInterface $Request)
+    public function match(RequestInterface $request)
     {
-        if (preg_match($this->regexp, $Request->controller())) {
+        if (preg_match($this->regexp, $request->controller())) {
             return true;
         }
 
@@ -116,31 +116,31 @@ class Area implements AreaInterface
     /**
      * Returns true if use has access
      *
-     * @param UserInterface $User
+     * @param UserInterface $user
      * @param string        $ip
      *
      * @return bool
      */
-    public function authorize(UserInterface $User, $ip = null)
+    public function authorize(UserInterface $user, $ip = null)
     {
-        return $this->authRole($User) && $this->authIp($ip);
+        return $this->authRole($user) && $this->authIp($ip);
     }
 
     /**
      * Returns true if use has role to access area
      *
-     * @param UserInterface $User
+     * @param UserInterface $user
      *
      * @return bool
      */
-    protected function authRole(UserInterface $User)
+    protected function authRole(UserInterface $user)
     {
         if (empty($this->roles)) {
             return true;
         }
 
         foreach ($this->roles as $role) {
-            if ($User->hasRole($role)) {
+            if ($user->hasRole($role)) {
                 return true;
             }
         }
