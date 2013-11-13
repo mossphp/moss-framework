@@ -2,8 +2,6 @@
 namespace moss\security;
 
 use moss\http\session\SessionInterface;
-use moss\security\TokenStashInterface;
-use moss\security\TokenInterface;
 
 /**
  * Security token stash interface
@@ -20,23 +18,23 @@ class TokenStash implements TokenStashInterface
     /**
      * Constructor
      *
-     * @param SessionInterface $Session
+     * @param SessionInterface $session
      */
-    public function __construct(SessionInterface $Session)
+    public function __construct(SessionInterface $session)
     {
-        $this->stash = & $Session;
+        $this->stash = & $session;
     }
 
     /**
      * Stashes token
      *
-     * @param TokenInterface $Token
+     * @param TokenInterface $token
      *
      * @return $this
      */
-    public function put(TokenInterface $Token)
+    public function put(TokenInterface $token)
     {
-        $this->stash->set('token', $Token);
+        $this->stash->set('token', $token);
     }
 
     /**
@@ -57,8 +55,7 @@ class TokenStash implements TokenStashInterface
     public function destroy()
     {
         $this->stash->remove('token');
+
         return $this;
     }
-
-
 }

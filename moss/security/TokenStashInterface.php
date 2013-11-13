@@ -13,11 +13,11 @@ interface TokenStashInterface
     /**
      * Stashes token
      *
-     * @param TokenInterface $Token
+     * @param TokenInterface $token
      *
      * @return $this
      */
-    public function put(TokenInterface $Token);
+    public function put(TokenInterface $token);
 
     /**
      * Returns stashed token

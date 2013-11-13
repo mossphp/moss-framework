@@ -1,8 +1,6 @@
 <?php
 namespace moss\security;
 
-use moss\security\TokenInterface;
-
 /**
  * Security token
  *
@@ -45,9 +43,11 @@ class Token implements TokenInterface
      *
      * @return $this
      */
-    public function remove() {
+    public function remove()
+    {
         $this->auth = null;
         $this->user = null;
+
         return $this;
     }
 
