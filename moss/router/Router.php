@@ -1,9 +1,6 @@
 <?php
 namespace moss\router;
 
-use moss\router\RouterInterface;
-use moss\router\RouteInterface;
-use moss\router\RouterException;
 use moss\http\request\RequestInterface;
 
 /**
@@ -92,13 +89,13 @@ class Router implements RouterInterface
      * Registers route definition into routing table
      *
      * @param string         $name
-     * @param RouteInterface $RouteDefinition
+     * @param RouteInterface $routeDefinition
      *
      * @return $this
      */
-    public function register($name, RouteInterface $RouteDefinition)
+    public function register($name, RouteInterface $routeDefinition)
     {
-        $this->routes[$name] = $RouteDefinition;
+        $this->routes[$name] = $routeDefinition;
 
         return $this;
     }
@@ -117,62 +114,62 @@ class Router implements RouterInterface
      * Matches request to route
      * Throws RangeException if no matching route found
      *
-     * @param RequestInterface $Request
+     * @param RequestInterface $request
      *
      * @return string
      * @throws RouterException
      */
-    public function match(RequestInterface $Request)
+    public function match(RequestInterface $request)
     {
-        if ($this->routeNormal && $Request->getQuery('controller')) {
-            $Request->controller(str_replace('_', ':', $Request->getQuery('controller')));
+        if ($this->routeNormal && $request->getQuery('controller')) {
+            $request->controller(str_replace('_', ':', $request->getQuery('controller')));
 
-            $this->defaults['host'] = $Request->baseName();
-            $this->defaults['controller'] = $Request->controller();
-            $this->defaults['locale'] = $Request->locale();
-            $this->defaults['format'] = $Request->format();
+            $this->defaults['host'] = $request->baseName();
+            $this->defaults['controller'] = $request->controller();
+            $this->defaults['locale'] = $request->locale();
+            $this->defaults['format'] = $request->format();
 
-            return $Request->controller();
+            return $request->controller();
         }
 
-        foreach ($this->routes as $Route) {
-            if (!$Route->match($Request)) {
+        foreach ($this->routes as $route) {
+            if (!$route->match($request)) {
                 continue;
             }
 
-            foreach ($Route->arguments() as $key => $value) {
-                $Request->getQuery($key, $value);
+            foreach ($route->arguments() as $key => $value) {
+                $request->getQuery($key, $value);
             }
 
-            if ($Request->getQuery('locale')) {
-                $Request->locale($Request->getQuery('locale'));
+            if ($request->getQuery('locale')) {
+                $request->locale($request->getQuery('locale'));
             }
 
-            if ($Request->getQuery('format')) {
-                $Request->format($Request->getQuery('format'));
+            if ($request->getQuery('format')) {
+                $request->format($request->getQuery('format'));
             }
 
-            $Request->controller($Route->controller());
+            $request->controller($route->controller());
 
-            $this->defaults['host'] = $Request->baseName();
-            $this->defaults['controller'] = $Request->controller();
-            $this->defaults['locale'] = $Request->locale();
-            $this->defaults['format'] = $Request->format();
+            $this->defaults['host'] = $request->baseName();
+            $this->defaults['controller'] = $request->controller();
+            $this->defaults['locale'] = $request->locale();
+            $this->defaults['format'] = $request->format();
 
-            return $Request->controller();
+            return $request->controller();
         }
 
-        throw new RouterException('Route for "' . $Request->url() . '" not found!');
+        throw new RouterException('Route for "' . $request->url() . '" not found!');
     }
 
     /**
      * Makes link
      * If corresponding route exists - friendly link is generated, otherwise normal
      *
-     * @param null|string $controller        controller identifier, if null request controller is used
-     * @param array       $arguments         additional arguments
-     * @param bool        $forceNormal       if true forces normal link
-     * @param bool        $forceRelative     if true forces absolute link
+     * @param null|string $controller    controller identifier, if null request controller is used
+     * @param array       $arguments     additional arguments
+     * @param bool        $forceNormal   if true forces normal link
+     * @param bool        $forceRelative if true forces absolute link
      *
      * @return string
      * @throws RouterException
@@ -197,12 +194,12 @@ class Router implements RouterInterface
             return $this->routes[$controller]->make($this->defaults['host'], $arguments, $forceRelative);
         }
 
-        foreach ($this->routes as $Route) {
-            if (!$Route->check($controller, $arguments)) {
+        foreach ($this->routes as $route) {
+            if (!$route->check($controller, $arguments)) {
                 continue;
             }
 
-            return $Route->make($this->defaults['host'], $arguments, $forceRelative);
+            return $route->make($this->defaults['host'], $arguments, $forceRelative);
         }
 
         if ($this->fallbackNormal) {

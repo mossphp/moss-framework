@@ -67,11 +67,11 @@ interface RouteInterface
     /**
      * Returns controller if matches request, otherwise returns false
      *
-     * @param RequestInterface $Request
+     * @param RequestInterface $request
      *
      * @return bool
      */
-    public function match(RequestInterface $Request);
+    public function match(RequestInterface $request);
 
     /**
      * Check if arguments fit to

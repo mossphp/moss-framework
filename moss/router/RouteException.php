@@ -1,8 +1,6 @@
 <?php
 namespace moss\router;
 
-use moss\router\RouterException;
-
 /**
  * Route exception
  *

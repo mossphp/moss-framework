@@ -1,7 +1,6 @@
 <?php
 namespace moss\router;
 
-use moss\router\RouteInterface;
 use moss\http\request\RequestInterface;
 
 /**
@@ -80,7 +79,7 @@ class Route implements RouteInterface
 
         foreach ($matches as $match) {
             $def = $match[1] . ':' . substr($this->requirements[$match[1]], 0, -1);
-                $r['#' . $match[1] . '#'] = array_key_exists($match[1], $this->defaults) ? '{' .$def. '}' : '({' . $def . '})';
+            $r['#' . $match[1] . '#'] = array_key_exists($match[1], $this->defaults) ? '{' . $def . '}' : '({' . $def . '})';
         }
 
         return strtr($this->pattern, $r);
@@ -140,7 +139,7 @@ class Route implements RouteInterface
                 continue;
             }
 
-            if(!preg_match('/^' . $this->requirements[$key]. '$/', $arguments[$key])) {
+            if (!preg_match('/^' . $this->requirements[$key] . '$/', $arguments[$key])) {
                 throw new RouteException(sprintf('Invalid argument value "%s" for argument "%s"', $arguments[$key], $key));
             }
 
@@ -189,7 +188,8 @@ class Route implements RouteInterface
      */
     public function methods($methods = array())
     {
-        foreach ((array) $methods as &$method) {
+        $methods = (array) $methods;
+        foreach ($methods as &$method) {
             $this->methods[] = strtoupper($method);
         }
 
@@ -199,21 +199,21 @@ class Route implements RouteInterface
     /**
      * Returns true if matches request, otherwise returns false
      *
-     * @param RequestInterface $Request
+     * @param RequestInterface $request
      *
      * @return bool
      */
-    public function match(RequestInterface $Request)
+    public function match(RequestInterface $request)
     {
-        if (!empty($this->schema) && strpos($Request->schema(), $this->schema) === false) {
+        if (!empty($this->schema) && strpos($request->schema(), $this->schema) === false) {
             return false;
         }
 
-        if (!empty($this->methods) && !in_array($Request->method(), $this->methods)) {
+        if (!empty($this->methods) && !in_array($request->method(), $this->methods)) {
             return false;
         }
 
-        if (!empty($this->host) && !preg_match('/^(https?|ftp):\/\/' . str_replace('#basename#', '.*', preg_quote($this->host)) . '$/', $Request->host())) {
+        if (!empty($this->host) && !preg_match('/^(https?|ftp):\/\/' . str_replace('#basename#', '.*', preg_quote($this->host)) . '$/', $request->host())) {
             return false;
         }
 
@@ -230,7 +230,7 @@ class Route implements RouteInterface
         $regexp .= substr($regexp, -1) == '/' ? '?' : null;
         $regexp = '/^' . $regexp . '$/i';
 
-        if (!preg_match_all($regexp, $Request->url(), $matches, \PREG_SET_ORDER)) {
+        if (!preg_match_all($regexp, $request->url(), $matches, \PREG_SET_ORDER)) {
             return false;
         }
 
