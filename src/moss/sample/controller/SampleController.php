@@ -26,7 +26,7 @@ class SampleController
             sprintf(
                 'Hello, this is sample controller. <a href="%s">Go to documentation</a>',
                 $this->Container
-                    ->get('Router')
+                    ->get('router')
                     ->make('moss:autodoc:Autodoc:index')
             )
         );

@@ -37,7 +37,7 @@ class AutodocController
         $pck = $this->buildPackages($com);
 
         $autodocResponseContent = $this->Container
-            ->get('View')
+            ->get('view')
             ->template('moss:autodoc:autodoc')
             ->set('Documentation', $doc)
             ->set('Comments', $com)
