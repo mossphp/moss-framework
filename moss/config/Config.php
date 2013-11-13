@@ -1,10 +1,6 @@
 <?php
 namespace moss\config;
 
-use moss\config\ConfigInterface;
-use moss\config\ConfigException;
-
-
 /**
  * Configuration representation
  *
@@ -21,15 +17,13 @@ class Config implements ConfigInterface
                 'detail' => true
             ),
             'session' => array(
-                'host' => true,
-                'ip' => true,
-                'agent' => true,
-                'salt' => null
+                'name' => null
             ),
             'cookie' => array(
                 'domain' => null,
                 'path' => '/',
-                'http' => true
+                'http' => true,
+                'ttl' => 2592000 // one month
             )
         ),
         'namespaces' => array(),
