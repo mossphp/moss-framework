@@ -1,8 +1,6 @@
 <?php
 namespace moss\security;
 
-use moss\security\SecurityException;
-
 /**
  * Authentication exception
  *
