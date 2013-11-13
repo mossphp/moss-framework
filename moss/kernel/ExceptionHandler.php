@@ -50,6 +50,7 @@ class ExceptionHandler
     public function verbose($verbose = false)
     {
         $this->details = (bool) $verbose;
+
         return $this;
     }
 
@@ -63,6 +64,7 @@ class ExceptionHandler
     public function maxDepth($depth = 10)
     {
         $this->maxDepth = (int) $depth;
+
         return $this;
     }
 
@@ -76,6 +78,7 @@ class ExceptionHandler
     public function maxCount($count = 25)
     {
         $this->maxCount = (int) $count;
+
         return $this;
     }
 
@@ -89,6 +92,7 @@ class ExceptionHandler
     public function maxStr($len = 25)
     {
         $this->maxStr = (int) $len;
+
         return $this;
     }
 
@@ -113,24 +117,24 @@ class ExceptionHandler
      * Terse exception handler
      * Sends only simplified exception message in plain text
      *
-     * @param \Exception $e
+     * @param \Exception $exception
      */
-    public function handlerTerse($e)
+    public function handlerTerse($exception)
     {
         if (!headers_sent()) {
             header('HTTP/1.1 500 Internal Server Error', true, 500);
             header('Content-type: text/plain; charset=UTF-8');
         }
-        echo sprintf('Bad Moss: %s ( %s at line:%s )', $e->getMessage(), $e->getFile(), $e->getLine());
+        echo sprintf('Bad Moss: %s ( %s at line:%s )', $exception->getMessage(), $exception->getFile(), $exception->getLine());
     }
 
     /**
      * Verbose exception handler
      * Sends HTML message with file where error occurred and stack trace
      *
-     * @param \Exception $e
+     * @param \Exception $exception
      */
-    public function handlerVerbose($e)
+    public function handlerVerbose($exception)
     {
         if (!headers_sent()) {
             header('HTTP/1.1 500 Internal Server Error', true, 500);
@@ -168,12 +172,12 @@ class ExceptionHandler
             </div>
         </body>
         </html>',
-            get_class($e),
-            $e->getMessage(),
-            $e->getFile(),
-            $e->getLine(),
-            $this->lineNum(highlight_file($e->getFile(), true), $e->getLine()),
-            $this->lineNum($this->colorify($e->getTrace()))
+            get_class($exception),
+            $exception->getMessage(),
+            $exception->getFile(),
+            $exception->getLine(),
+            $this->lineNum(highlight_file($exception->getFile(), true), $exception->getLine()),
+            $this->lineNum($this->colorify($exception->getTrace()))
         );
     }
 
@@ -236,12 +240,13 @@ class ExceptionHandler
                     $allPNames = array_map(
                         function ($property) {
                             return $property->name;
-                        }, $r->getProperties()
+                        },
+                        $r->getProperties()
                     );
 
                     $propertyNames = array_merge($staticPNames, array_diff($allPNames, $staticPNames));
 
-                    foreach ($propertyNames AS $eachPropertyName) {
+                    foreach ($propertyNames as $eachPropertyName) {
                         $p = new \ReflectionProperty($className, $eachPropertyName);
 
                         $m = $p->getModifiers();
@@ -277,7 +282,7 @@ class ExceptionHandler
                     $str .= '*DEPTH LIMIT*)';
                 } else {
                     $c = 0;
-                    foreach ($param AS $eachKey => $eachValue) {
+                    foreach ($param as $eachKey => $eachValue) {
                         if ($this->maxCount && $c > $this->maxCount) {
                             $str .= $this->br . str_repeat($this->indent, $indent + 1) . '... (*COUNT LIMIT*)';
                             break;
