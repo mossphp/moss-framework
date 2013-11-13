@@ -1,8 +1,6 @@
 <?php
 namespace moss\view;
 
-use moss\view\ViewInterface;
-
 /**
  * Moss view
  * Uses Twig as template engine
@@ -17,16 +15,16 @@ class View implements ViewInterface
     protected $vars = array();
 
     /** @var \Twig_Environment */
-    protected $Twig;
+    protected $twig;
 
     /**
      * Creates View instance
      *
-     * @param \Twig_Environment $Twig
+     * @param \Twig_Environment $twig
      */
-    public function __construct(\Twig_Environment $Twig)
+    public function __construct(\Twig_Environment $twig)
     {
-        $this->Twig = & $Twig;
+        $this->twig = & $twig;
     }
 
     /**
@@ -92,21 +90,21 @@ class View implements ViewInterface
      */
     protected function setIntoArray(&$array, $keys, $value)
     {
-        $k = array_shift($keys);
+        $key = array_shift($keys);
 
         if (is_scalar($array)) {
             $array = (array) $array;
         }
 
-        if (!isset($array[$k])) {
-            $array[$k] = null;
+        if (!isset($array[$key])) {
+            $array[$key] = null;
         }
 
         if (empty($keys)) {
-            return $array[$k] = $value;
+            return $array[$key] = $value;
         }
 
-        return $this->setIntoArray($array[$k], $keys, $value);
+        return $this->setIntoArray($array[$key], $keys, $value);
     }
 
     /**
@@ -121,12 +119,12 @@ class View implements ViewInterface
     protected function getArrValue($array, $offset, $default = null)
     {
         $keys = explode('.', $offset);
-        while ($i = array_shift($keys)) {
-            if (!isset($array[$i])) {
+        while ($key = array_shift($keys)) {
+            if (!isset($array[$key])) {
                 return $default;
             }
 
-            $array = $array[$i];
+            $array = $array[$key];
         }
 
         return $array;
@@ -144,7 +142,7 @@ class View implements ViewInterface
             throw new \InvalidArgumentException('Undefined view or view file does not exists: ' . $this->template . '!');
         }
 
-        return $this->Twig->render($this->template, $this->vars);
+        return $this->twig->render($this->template, $this->vars);
     }
 
     /**
