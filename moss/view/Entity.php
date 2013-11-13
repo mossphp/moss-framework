@@ -11,6 +11,15 @@ namespace moss\view;
 abstract class Entity implements \ArrayAccess
 {
 
+    public function __construct($iArr = array())
+    {
+        foreach (get_object_vars($this) as $field => $value) {
+            if (array_key_exists($field, $iArr)) {
+                $this->$field = $iArr[$field];
+            }
+        }
+    }
+
     /**
      * Whether a offset exists
      *
@@ -44,24 +53,21 @@ abstract class Entity implements \ArrayAccess
      *
      * @param mixed $offset
      * @param mixed $value
-     *
-     * @throws \BadMethodCallException
      */
     public function offsetSet($offset, $value)
     {
-        throw new \BadMethodCallException(sprintf('Only read is permited for entity %s', get_class($this)));
+        $this->$offset = $value;
     }
 
     /**
      * Offset to unset
      *
      * @param mixed $offset
-     *
-     * @throws \BadMethodCallException
      */
     public function offsetUnset($offset)
     {
-        throw new \BadMethodCallException(sprintf('Only read is permited for entity %s', get_class($this)));
+        if (property_exists($this, $offset)) {
+            unset($this->$offset);
+        }
     }
-
 }
