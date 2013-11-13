@@ -15,8 +15,8 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
         $default = array(
             'framework' => array(
                 'error' => array('level' => -1, 'detail' => true),
-                'session' => array('host' => true, 'ip' => true, 'agent' => true, 'salt' => null),
-                'cookie' => array('domain' => null, 'path' => '/', 'http' => true)
+                'session' => array('name' => null),
+                'cookie' => array('domain' => null, 'path' => '/', 'http' => true, 'ttl' => 2592000)
             ),
             'namespaces' => array(),
             'container' => array(),
@@ -35,8 +35,8 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
                 array(
                     'framework' => array(
                         'error' => array('level' => E_ALL | E_NOTICE, 'detail' => true),
-                        'session' => array('host' => true, 'ip' => true, 'agent' => true, 'salt' => null),
-                        'cookie' => array('domain' => null, 'path' => '/', 'http' => true)
+                        'session' => array('name' => null),
+                        'cookie' => array('domain' => null, 'path' => '/', 'http' => true, 'ttl' => 2592000)
                     ),
                 )
             ),

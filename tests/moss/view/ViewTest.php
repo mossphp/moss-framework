@@ -10,12 +10,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
     {
         $View = new View($this->getTwigMock());
         $View->template('foo');
-
-        $result = array(
-            'foo',
-            array()
-        );
-        $this->assertEquals($result, $View->render());
+        $this->assertEquals('["foo",[]]', $View->render());
     }
 
     /**
@@ -28,44 +23,19 @@ class ViewTest extends \PHPUnit_Framework_TestCase
             ->template('foo')
             ->set($key, $value);
 
-        $this->assertEquals(array('foo', $result), $View->render());
+        $this->assertEquals($result, $View->render());
     }
 
     public function setProvider()
     {
         return array(
-            array(
-                array('a' => null),
-                'a'
-            ),
-            array(
-                array('b' => 'c'),
-                'b',
-                'c'
-            ),
-            array(
-                array('d', 'e'),
-                array('d', 'e')
-            ),
-            array(
-                array('f' => array('g', 'h')),
-                'f',
-                array('g', 'h')
-            ),
-            array(
-                array('i' => 'j', 'k' => 'l'),
-                array('i' => 'j', 'k' => 'l')
-            ),
-            array(
-                array('m' => array('n' => 'o')),
-                'm',
-                array('n' => 'o')
-            ),
-            array(
-                array('m' => array('n' => 'o')),
-                'm.n',
-                'o'
-            )
+            array('["foo",{"a":null}]', 'a'),
+            array('["foo",{"b":"c"}]', 'b', 'c'),
+            array('["foo",["d","e"]]', array('d', 'e')),
+            array('["foo",{"f":["g","h"]}]', 'f', array('g', 'h')),
+            array('["foo",{"i":"j","k":"l"}]', array('i' => 'j', 'k' => 'l')),
+            array('["foo",{"m":{"n":"o"}}]', 'm', array('n' => 'o')),
+            array('["foo",{"m":{"n":"o"}}]', 'm.n', 'o')
         );
     }
 
@@ -102,7 +72,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
             ->template('foo')
             ->render();
 
-        $this->assertEquals(array('foo', array()), $result);
+        $this->assertEquals('["foo",[]]', $result);
     }
 
     public function testToString()
@@ -112,7 +82,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
             ->template('foo')
             ->__toString();
 
-        $this->assertEquals('Array', $result);
+        $this->assertEquals('["foo",[]]', $result);
     }
 
     public function getTwigMock()
@@ -124,7 +94,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
             ->will(
                 $this->returnCallback(
                     function () {
-                        return func_get_args();
+                        return json_encode(func_get_args());
                     }
                 )
             );
