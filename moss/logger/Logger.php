@@ -32,10 +32,10 @@ class Logger extends AbstractLogger
     /**
      * Constructor
      *
-     * @param null|string $path               path to log file
-     * @param bool        $overwrite          if true - will overwrite log file
-     * @param bool        $writeEmpty         if true will write log whether there are messages or not
-     * @param array       $ignoredLevels      all logs with lower level will be ignored
+     * @param null|string $path          path to log file
+     * @param bool        $overwrite     if true - will overwrite log file
+     * @param bool        $writeEmpty    if true will write log whether there are messages or not
+     * @param array       $ignoredLevels all logs with lower level will be ignored
      */
     public function __construct($path = null, $overwrite = true, $writeEmpty = false, $ignoredLevels = array())
     {
@@ -59,6 +59,8 @@ class Logger extends AbstractLogger
     public function log($level, $message, array $context = array())
     {
         switch ($level) {
+            case in_array($level, $this->ignoredLevels):
+                return $this;
             case self::EMERGENCY:
             case self::ALERT:
             case self::CRITICAL:
@@ -68,8 +70,6 @@ class Logger extends AbstractLogger
             case self::INFO:
             case self::DEBUG:
                 break;
-            case in_array($level, $this->ignoredLevels):
-                return $this;
             default:
                 throw new \InvalidArgumentException(sprintf('Invalid level submitted "%s"', (string) $level));
         }
@@ -160,14 +160,14 @@ class Logger extends AbstractLogger
     {
         ob_start();
 
-        foreach ($this->log as $entry) {
+        foreach ($this->log as $i => $entry) {
             echo sprintf(
-                "%s - Time: %s\tMemory: %s\n%s\n%s\n\n",
+                "%u\t%s\t%s\t%s\t\"%s\"\n",
+                $i,
                 $entry['level'],
                 date('Y-m-d H:i:s', $entry['timestamp']) . ':' . str_pad(substr($entry['timestamp'], strpos($entry['timestamp'], '.') + 1), 4, 0, STR_PAD_RIGHT),
                 number_format($entry['memory'], 0, '.', ' '),
-                $entry['message'],
-                print_r($entry['context'], 1)
+                $this->interpolate($entry['message'], $entry['context'])
             );
         }
 
