@@ -6,7 +6,6 @@ use moss\router\RouterInterface;
 use moss\dispatcher\DispatcherInterface;
 use moss\http\request\RequestInterface;
 use moss\http\response\ResponseInterface;
-use moss\kernel\KernelException;
 use moss\router\RouterException;
 use moss\security\SecurityException;
 
@@ -20,119 +19,117 @@ class Kernel
 {
 
     /** @var RouterInterface */
-    protected $Router;
+    protected $router;
 
     /** @var ContainerInterface */
-    protected $Container;
+    protected $container;
 
     /** @var DispatcherInterface */
-    protected $Dispatcher;
+    protected $dispatcher;
 
     protected $pattern;
 
     /**
      * Constructor
      *
-     * @param RouterInterface     $Router
-     * @param ContainerInterface  $Container
-     * @param DispatcherInterface $Dispatcher
+     * @param RouterInterface     $router
+     * @param ContainerInterface  $container
+     * @param DispatcherInterface $dispatcher
      * @param string              $pattern
      */
-    public function __construct(RouterInterface $Router, ContainerInterface $Container, DispatcherInterface $Dispatcher, $pattern = '\{bundle}\controller\{controller}Controller::{action}Action')
+    public function __construct(RouterInterface $router, ContainerInterface $container, DispatcherInterface $dispatcher, $pattern = '\{bundle}\controller\{controller}Controller::{action}Action')
     {
-        $this->Router = & $Router;
-        $this->Container = & $Container;
-        $this->Dispatcher = & $Dispatcher;
+        $this->router = & $router;
+        $this->container = & $container;
+        $this->dispatcher = & $dispatcher;
         $this->pattern = $pattern;
     }
 
     /**
      * Handles request
      *
-     * @param RequestInterface $Request
+     * @param RequestInterface $request
      *
      * @return ResponseInterface
      * @throws \Exception|KernelException
      */
-    public function handle(RequestInterface $Request)
+    public function handle(RequestInterface $request)
     {
         try {
-            if ($Response = $this->fireEvent('kernel.request')) {
-                return $this->fireEvent('kernel.send', $Response);
+            if ($response = $this->fireEvent('kernel.request')) {
+                return $this->fireEvent('kernel.send', $response);
             }
 
-            $action = $this->Router->match($Request);
+            $action = $this->router->match($request);
 
-            if ($Response = $this->fireEvent('kernel.route')) {
-                return $this->fireEvent('kernel.send', $Response);
+            if ($response = $this->fireEvent('kernel.route')) {
+                return $this->fireEvent('kernel.send', $response);
             }
 
-            if ($Response = $this->fireEvent('kernel.controller')) {
-                return $this->fireEvent('kernel.send', $Response);
+            if ($response = $this->fireEvent('kernel.controller')) {
+                return $this->fireEvent('kernel.send', $response);
             }
 
-            $Response = $this->callController($action, $Request);
+            $response = $this->callController($action, $request);
 
-            if (!$Response || !$Response instanceof ResponseInterface) {
-                throw new KernelException(sprintf('There was no response returned from the "%s (%s)" or is not an instance of ResponseInterface', $action, $Request->url(true)));
+            if (!$response || !$response instanceof ResponseInterface) {
+                throw new KernelException(sprintf('There was no response returned from the "%s (%s)" or is not an instance of ResponseInterface', $action, $request->url(true)));
             }
 
-            $Response = $this->fireEvent('kernel.response', $Response);
+            $response = $this->fireEvent('kernel.response', $response);
 
-            return $this->fireEvent('kernel.send', $Response);
+            return $this->fireEvent('kernel.send', $response);
         } catch(SecurityException $e) {
-            $Response = $this->fireEvent('kernel.403', null, sprintf('%s (%s line:%s)', $e->getMessage(), $e->getFile(), $e->getLine()));
-        }
-        catch(RouterException $e) {
-            $Response = $this->fireEvent('kernel.404', null, sprintf('%s (%s line:%s)', $e->getMessage(), $e->getFile(), $e->getLine()));
-        }
-        catch(\Exception $e) {
-            $Response = $this->fireEvent('kernel.500', null, sprintf('%s (%s line:%s)', $e->getMessage(), $e->getFile(), $e->getLine()));
+            $response = $this->fireEvent('kernel.403', null, sprintf('%s (%s line:%s)', $e->getMessage(), $e->getFile(), $e->getLine()));
+        } catch(RouterException $e) {
+            $response = $this->fireEvent('kernel.404', null, sprintf('%s (%s line:%s)', $e->getMessage(), $e->getFile(), $e->getLine()));
+        } catch(\Exception $e) {
+            $response = $this->fireEvent('kernel.500', null, sprintf('%s (%s line:%s)', $e->getMessage(), $e->getFile(), $e->getLine()));
         }
 
-        if (!empty($e) && empty($Response)) {
+        if (!empty($e) && empty($response)) {
             throw $e;
         }
 
-        if (!$Response instanceof ResponseInterface) {
-            throw new KernelException(sprintf('Received response is not an instance of ResponseInterface', $Request->url(true)));
+        if (!$response instanceof ResponseInterface) {
+            throw new KernelException(sprintf('Received response is not an instance of ResponseInterface', $request->url(true)));
         }
 
-        return $this->fireEvent('kernel.send', $Response);
+        return $this->fireEvent('kernel.send', $response);
     }
 
     /**
      * Fires passed event and returns its response or null if no response passed and received
      *
      * @param string $event
-     * @param null   $Response
+     * @param null   $response
      * @param null   $message
      *
      * @return ResponseInterface|null
      */
-    protected function fireEvent($event, $Response = null, $message = null)
+    protected function fireEvent($event, $response = null, $message = null)
     {
-        $EventResponse = $this->Dispatcher->fire($event, $Response, $message);
-        if ($EventResponse instanceof ResponseInterface) {
-            return $EventResponse;
+        $eventResponse = $this->dispatcher->fire($event, $response, $message);
+        if ($eventResponse instanceof ResponseInterface) {
+            return $eventResponse;
         }
 
-        return $Response;
+        return $response;
     }
 
     /**
      * Calls controller from callable or class
      *
      * @param string|callable       $controller
-     * @param null|RequestInterface $Request
+     * @param null|RequestInterface $request
      *
      * @return mixed
      * @throws KernelException
      */
-    protected function callController($controller, RequestInterface $Request = null)
+    protected function callController($controller, RequestInterface $request = null)
     {
         if (is_callable($controller)) {
-            return $controller($this->Container, $this->Router, $Request);
+            return $controller($this->container, $this->router, $request);
         }
 
         list($controller, $action) = $this->resolve($controller);
@@ -145,23 +142,23 @@ class Kernel
             throw new KernelException(sprintf('Invalid or missing action name in controller identifier "%s"', $controller));
         }
 
-        $Controller = new $controller($this->Container, $this->Router, $Request);
+        $instance = new $controller($this->container, $this->router, $request);
 
-        if (method_exists($Controller, 'before') && is_callable(array($Controller, 'before')) && ($Response = $Controller->before())) {
-            return $Response;
+        if (method_exists($instance, 'before') && is_callable(array($instance, 'before')) && ($response = $instance->before())) {
+            return $response;
         }
 
-        if (!method_exists($Controller, $action) || !is_callable(array($Controller, $action))) {
+        if (!method_exists($instance, $action) || !is_callable(array($instance, $action))) {
             throw new KernelException(sprintf('Unable to call action "%s" on controller "%s"', $action, $controller));
         }
 
-        $Response = $Controller->$action();
+        $response = $instance->$action();
 
-        if (!method_exists($Controller, 'after') && is_callable(array($Controller, 'after'))) {
-            $Response = $Controller->after($Response);
+        if (!method_exists($instance, 'after') && is_callable(array($instance, 'after'))) {
+            $response = $instance->after($response);
         }
 
-        return $Response;
+        return $response;
     }
 
     /**
@@ -184,15 +181,20 @@ class Kernel
 
         preg_match_all('/^(?P<bundle>.*):(?P<controller>[^:]+):(?P<action>[0-9a-z_]+)$/i', $controller, $matches, PREG_SET_ORDER);
 
-        $r = array();
         foreach (array('bundle', 'controller', 'action') as $k) {
             if (empty($matches[0][$k])) {
                 throw new KernelException(sprintf('Invalid or missing "%s" node in controller identifier "%s"', $k, $controller));
             }
-
-            $r['{' . $k . '}'] = str_replace(array('.', ':'), '\\', $matches[0][$k]);
         }
 
-        return explode('::', strtr($this->pattern, $r));
+        $r = array(
+            '{bundle}' => str_replace(array('.', ':'), '\\', $matches[0]['bundle']),
+            '{controller}' => ucfirst($matches[0]['controller']),
+            '{action}' => $matches[0]['action']
+        );
+
+        list($controller, $action) = explode('::', strtr($this->pattern, $r));
+
+        return array($controller, $action);
     }
 }
