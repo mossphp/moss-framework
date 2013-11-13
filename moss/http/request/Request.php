@@ -1,7 +1,6 @@
 <?php
 namespace moss\http\request;
 
-use moss\http\request\RequestInterface;
 use moss\http\cookie\CookieInterface;
 use moss\http\session\SessionInterface;
 
@@ -38,27 +37,36 @@ class Request implements RequestInterface
     /**
      * Constructor
      *
-     * @param SessionInterface $Session
-     * @param CookieInterface  $Cookie
+     * @param SessionInterface $session
+     * @param CookieInterface  $cookie
      */
-    public function __construct(SessionInterface $Session = null, CookieInterface $Cookie = null)
+    public function __construct(SessionInterface $session = null, CookieInterface $cookie = null)
     {
         $this->removeSlashes();
 
-        if ($Session === null) {
-            $Session = & $_SESSION;
+        if ($session === null) {
+            $session = & $_SESSION;
         }
 
-        if ($Cookie === null) {
-            $Cookie = & $_COOKIE;
+        if ($cookie === null) {
+            $cookie = & $_COOKIE;
         }
 
-        $this->session = & $Session;
-        $this->cookie = & $Cookie;
+        $this->session = & $session;
+        $this->cookie = & $cookie;
         $this->server = & $_SERVER;
 
         $this->header = $this->resolveHeaders();
         $this->language = $this->resolveLanguages();
+
+        $this->dir = $this->server['PHP_SELF'];
+        if (!in_array($this->dir[strlen($this->dir) - 1], array('/', '\\'))) {
+            $this->dir = str_replace('\\', '/', dirname($this->dir));
+        }
+
+        if (isset($this->server['REQUEST_URI'])) {
+            $this->resolveUrl();
+        }
 
         $this->query = $this->resolveGET();
         $this->post = $this->resolvePOST();
@@ -74,36 +82,6 @@ class Request implements RequestInterface
 
         if (!empty($this->query['format'])) {
             $this->format($this->query['format']);
-        }
-
-        $this->dir = $this->server['PHP_SELF'];
-        if (!in_array($this->dir[strlen($this->dir) - 1], array('/', '\\'))) {
-            $this->dir = str_replace('\\', '/', dirname($this->dir));
-        }
-
-        if (isset($this->server['REQUEST_URI'])) {
-            $this->url = $this->dir == '/' ? $this->server['REQUEST_URI'] : preg_replace('/^' . preg_quote($this->dir, '/') . '/', null, $this->server['REQUEST_URI']);
-            $this->url = '/' . trim($this->url, '/');
-
-            if (!empty($this->server['REDIRECT_URL'])) {
-                $nodes = explode('/', trim($this->dir, '/'));
-                $redirect = explode('/', trim($this->server['REDIRECT_URL'], '/'));
-
-                $path = array();
-                foreach ($nodes as $node) {
-                    if (!in_array($node, $redirect)) {
-                        $path[] = $node;
-                    }
-                }
-
-                $invalidRedirect = implode('/', $path);
-                if (!empty($invalidRedirect)) {
-                    $this->dir = substr($this->dir, 0, strpos($this->dir, $invalidRedirect));
-                    $this->url = (string) substr($this->url, strlen($this->dir) - 1);
-                }
-            }
-
-            $this->baseName = strtolower(substr($this->schema(), 0, strpos($this->schema(), '/'))) . '://' . str_replace('//', '/', $this->host() . $this->dir . '/');
         }
 
         $queryStart = strpos($this->url, '?');
@@ -186,6 +164,43 @@ class Request implements RequestInterface
         }
 
         return array_change_key_case($headers, CASE_LOWER);
+    }
+
+    /**
+     * Resolves URL
+     */
+    protected function resolveUrl()
+    {
+        if ($this->dir == '/') {
+            $this->url = $this->server['REQUEST_URI'];
+        } else {
+            $this->url = preg_replace('/^' . preg_quote($this->dir, '/') . '/', null, $this->server['REQUEST_URI']);
+        }
+
+        $this->url = '/' . trim($this->url, '/');
+
+        if (!empty($this->server['REDIRECT_URL'])) {
+            $nodes = explode('/', trim($this->dir, '/'));
+            $redirect = explode('/', trim($this->server['REDIRECT_URL'], '/'));
+
+            $path = array();
+            foreach ($nodes as $node) {
+                if (!in_array($node, $redirect)) {
+                    $path[] = $node;
+                }
+            }
+
+            $invalidRedirect = implode('/', $path);
+            if (!empty($invalidRedirect)) {
+                $this->dir = substr($this->dir, 0, strpos($this->dir, $invalidRedirect));
+                $this->url = (string) substr($this->url, strlen($this->dir) - 1);
+            }
+        }
+
+        $schema = strtolower(substr($this->schema(), 0, strpos($this->schema(), '/')));
+        $host = str_replace('//', '/', $this->host() . $this->dir . '/');
+
+        $this->baseName = $schema . '://' . $host;
     }
 
     /**
@@ -510,16 +525,16 @@ class Request implements RequestInterface
      */
     protected function getFromArray(&$arr, $keys, $default = null)
     {
-        $k = array_shift($keys);
-        if (!isset($arr[$k])) {
+        $key = array_shift($keys);
+        if (!isset($arr[$key])) {
             return $default;
         }
 
         if (empty($keys)) {
-            return $arr[$k];
+            return $arr[$key];
         }
 
-        return $this->getFromArray($arr[$k], $keys, $default);
+        return $this->getFromArray($arr[$key], $keys, $default);
     }
 
     /**
