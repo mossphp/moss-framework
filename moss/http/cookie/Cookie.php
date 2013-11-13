@@ -1,8 +1,6 @@
 <?php
 namespace moss\http\cookie;
 
-use moss\http\cookie\CookieInterface;
-
 /**
  * Cookie object representation
  *
@@ -29,8 +27,9 @@ class Cookie implements CookieInterface
      * @param string $domain
      * @param string $path
      * @param bool   $httponly
+     * @param int    $ttl
      */
-    public function __construct($domain = null, $path = '/', $httponly = true)
+    public function __construct($domain = null, $path = '/', $httponly = true, $ttl = 5356800)
     {
         if ($domain === null) {
             $domain = empty($_SERVER['HTTP_HOST']) ? null : $_SERVER['HTTP_HOST'];
@@ -39,7 +38,7 @@ class Cookie implements CookieInterface
         $this->domain = $domain;
         $this->path = $path;
         $this->httponly = $httponly;
-        $this->expire = strtotime('+2 months');
+        $this->expire = microtime(true) + $ttl;
 
         $this->storage = & $_COOKIE;
     }
@@ -90,6 +89,7 @@ class Cookie implements CookieInterface
         }
 
         setcookie($key, "", time() - 3600, $this->path, $this->domain, $this->secure, $this->httponly);
+
         return $this;
     }
 
@@ -221,8 +221,7 @@ class Cookie implements CookieInterface
     {
         if (empty($key)) {
             $key = array_push($this->storage, $value);
-        }
-        else {
+        } else {
             $this->storage[$key] = $value;
         }
 
@@ -250,6 +249,7 @@ class Cookie implements CookieInterface
     public function count()
     {
         $count = count($this->storage) - count(array_intersect_key($this->storage, $this->protected));
+
         return $count < 0 ? 0 : $count;
     }
 
