@@ -17,10 +17,12 @@ class Session implements SessionInterface
      * Also validates existing session - if session is invalid, resets it
      *
      * @param string $name
+     * @param string $cacheLimiter
      */
-    public function __construct($name = null)
+    public function __construct($name = 'PHPSESSID', $cacheLimiter = '')
     {
         $this->name($name);
+        $this->cacheLimiter($cacheLimiter);
 
         if (!$this->identify()) {
             $this->startSession();
@@ -121,6 +123,22 @@ class Session implements SessionInterface
     }
 
     /**
+     * Returns session cache limiter
+     *
+     * @param string $cacheLimiter
+     *
+     * @return string
+     */
+    public function cacheLimiter($cacheLimiter = null)
+    {
+        if ($cacheLimiter !== null) {
+            session_cache_limiter($cacheLimiter);
+        }
+
+        return session_cache_limiter();
+    }
+
+    /**
      * Returns value for given key
      *
      * @param string $key
@@ -162,6 +180,7 @@ class Session implements SessionInterface
     public function remove($key)
     {
         if (isset($this->storage[$key])) {
+            $this->storage[$key] = null;
             unset($this->storage[$key]);
         }
 
@@ -367,11 +386,6 @@ class Session implements SessionInterface
     public function valid()
     {
         $key = key($this->storage);
-
-        while ($key !== null) {
-            $this->next();
-            $key = key($this->storage);
-        }
 
         if ($key === false || $key === null) {
             return false;
