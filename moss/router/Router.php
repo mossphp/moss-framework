@@ -138,7 +138,7 @@ class Router implements RouterInterface
             }
 
             foreach ($route->arguments() as $key => $value) {
-                $request->getQuery($key, $value);
+                $request->setQuery($key, $value);
             }
 
             if ($request->getQuery('locale')) {

@@ -64,6 +64,16 @@ interface RequestInterface
     public function getQuery($key = null, $default = null);
 
     /**
+     * Sets query value for given key
+     *
+     * @param string $key
+     * @param mixed $value
+     *
+     * @return RequestInterface
+     */
+    public function setQuery($key, $value = null);
+
+    /**
      * Returns post value for given key or default if key does not exists
      *
      * @param string $key
@@ -72,6 +82,16 @@ interface RequestInterface
      * @return null|string
      */
     public function getPost($key = null, $default = null);
+
+    /**
+     * Sets post value for given key
+     *
+     * @param string $key
+     * @param mixed $value
+     *
+     * @return RequestInterface
+     */
+    public function setPost($key, $value = null);
 
     /**
      * Returns file value for given key or null if key does not exists

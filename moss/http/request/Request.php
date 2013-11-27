@@ -12,6 +12,7 @@ use moss\http\session\SessionInterface;
  */
 class Request implements RequestInterface
 {
+    const SEPARATOR = '.';
 
     private $controller;
     private $locale;
@@ -298,7 +299,7 @@ class Request implements RequestInterface
                 $result['error_text'] = 'The uploaded file exceeds the upload_max_filesize directive in php.ini.';
                 break;
             case 2:
-                $result['error_text'] = 'The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form.';
+                $result['error_text'] = 'The uploaded file exceeds the MAX_FILE_SIZE directive specified in HTML form.';
                 break;
             case 3:
                 $result['error_text'] = 'The uploaded file was only partially uploaded.';
@@ -402,7 +403,7 @@ class Request implements RequestInterface
             return $this->session;
         }
 
-        return $this->getFromArray($this->session, explode('.', $key), $default);
+        return $this->getFromArray($this->session, explode(self::SEPARATOR, $key), $default);
     }
 
     /**
@@ -419,7 +420,7 @@ class Request implements RequestInterface
             return $this->cookie;
         }
 
-        return $this->getFromArray($this->cookie, explode('.', $key), $default);
+        return $this->getFromArray($this->cookie, explode(self::SEPARATOR, $key), $default);
     }
 
     /**
@@ -478,8 +479,24 @@ class Request implements RequestInterface
             return $this->query;
         }
 
-        return $this->getFromArray($this->query, explode('.', $key), $default);
+        return $this->getFromArray($this->query, explode(self::SEPARATOR, $key), $default);
     }
+
+    /**
+     * Sets query value for given key
+     *
+     * @param string $key
+     * @param mixed  $value
+     *
+     * @return $this
+     */
+    public function setQuery($key, $value = null)
+    {
+        $this->putIntoArray($this->query, explode(self::SEPARATOR, $key), $value);
+
+        return $this;
+    }
+
 
     /**
      * Returns post value for given key or null if key does not exists
@@ -495,8 +512,24 @@ class Request implements RequestInterface
             return $this->post;
         }
 
-        return $this->getFromArray($this->post, explode('.', $key), $default);
+        return $this->getFromArray($this->post, explode(self::SEPARATOR, $key), $default);
     }
+
+    /**
+     * Sets post value for given key
+     *
+     * @param string $key
+     * @param mixed  $value
+     *
+     * @return $this
+     */
+    public function setPost($key, $value = null)
+    {
+        $this->putIntoArray($this->post, explode(self::SEPARATOR, $key), $value);
+
+        return $this;
+    }
+
 
     /**
      * Returns file value for given key or null if key does not exists
@@ -511,7 +544,7 @@ class Request implements RequestInterface
             return $this->file;
         }
 
-        return $this->getFromArray($this->file, explode('.', $key));
+        return $this->getFromArray($this->file, explode(self::SEPARATOR, $key));
     }
 
     /**
@@ -535,6 +568,34 @@ class Request implements RequestInterface
         }
 
         return $this->getFromArray($arr[$key], $keys, $default);
+    }
+
+    /**
+     * Sets array elements value
+     *
+     * @param array  $array
+     * @param string $keys
+     * @param mixed  $value
+     *
+     * @return mixed
+     */
+    protected function putIntoArray(&$array, $keys, $value)
+    {
+        $k = array_shift($keys);
+
+        if (is_scalar($array)) {
+            $array = (array) $array;
+        }
+
+        if (!isset($array[$k])) {
+            $array[$k] = null;
+        }
+
+        if (empty($keys)) {
+            return $array[$k] = & $value;
+        }
+
+        return $this->putIntoArray($array[$k], $keys, $value);
     }
 
     /**
