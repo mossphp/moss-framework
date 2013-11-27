@@ -17,7 +17,8 @@ class Config implements ConfigInterface
                 'detail' => true
             ),
             'session' => array(
-                'name' => null
+                'name' => 'PHPSESSID',
+                'cacheLimiter' => ''
             ),
             'cookie' => array(
                 'domain' => null,
