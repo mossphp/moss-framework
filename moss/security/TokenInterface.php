@@ -9,6 +9,12 @@ namespace moss\security;
  */
 interface TokenInterface extends \Serializable
 {
+    /**
+     * Returns realm to which the token belongs
+     *
+     * @return string
+     */
+    public function realm();
 
     /**
      * Returns set authentication credentials

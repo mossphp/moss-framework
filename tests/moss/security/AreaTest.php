@@ -42,7 +42,7 @@ class AreaTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($Area->match($RequestPass));
     }
 
-    public function testAuthUserFail()
+    public function testAuthUserRoleFail()
     {
         $Area = new Area('Bundle:*:!login|logout', array('role'));
 
@@ -55,7 +55,14 @@ class AreaTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($Area->authorize($User));
     }
 
-    public function testAuthUserPass()
+    public function testAuthUserIPFail()
+    {
+        $Area = new Area('Bundle:*:!login|logout', array(), array('127.0.0.1'));
+        $User = $this->getMock('\moss\security\UserInterface');
+        $this->assertFalse($Area->authorize($User, '127.0.0.2'));
+    }
+
+    public function testAuthUserRole()
     {
         $Area = new Area('Bundle:*:!login|logout', array('role'));
 
@@ -68,30 +75,10 @@ class AreaTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($Area->authorize($User));
     }
 
-    public function testAuthIpFail()
+    public function testAuthUserIP()
     {
         $Area = new Area('Bundle:*:!login|logout', array(), array('127.0.0.1'));
-
         $User = $this->getMock('\moss\security\UserInterface');
-        $User
-            ->expects($this->any())
-            ->method('hasRole')
-            ->will($this->returnValue(true));
-
         $this->assertTrue($Area->authorize($User, '127.0.0.1'));
     }
-
-    public function testAutIpPass()
-    {
-        $Area = new Area('Bundle:*:!login|logout', array(), array('127.0.0.1'));
-
-        $User = $this->getMock('\moss\security\UserInterface');
-        $User
-            ->expects($this->any())
-            ->method('hasRole')
-            ->will($this->returnValue(true));
-
-        $this->assertFalse($Area->authorize($User, '198.162.1.1'));
-    }
-
 }

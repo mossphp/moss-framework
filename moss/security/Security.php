@@ -15,8 +15,6 @@ class Security implements SecurityInterface
     /** @var TokenStashInterface */
     protected $stash;
 
-    protected $loginUrl;
-
     /** @var UserInterface */
     protected $user;
 
@@ -26,16 +24,17 @@ class Security implements SecurityInterface
     /** @var array|AreaInterface[] */
     protected $areas = array();
 
+    /** @var array|FormUrlInterface[] */
+    protected $urls = array();
+
     /**
      * Constructor
      *
      * @param TokenStashInterface $stash
-     * @param string              $loginUrl
      */
-    public function __construct(TokenStashInterface $stash, $loginUrl = null)
+    public function __construct(TokenStashInterface $stash)
     {
         $this->stash = & $stash;
-        $this->loginUrl = $loginUrl;
     }
 
     /**
@@ -67,6 +66,22 @@ class Security implements SecurityInterface
     }
 
     /**
+     * Registers auth url in security
+
+     *
+*@param FormUrlInterface $url
+
+     *
+*@return $this
+     */
+    public function registerAuthUrl(FormUrlInterface $url)
+    {
+        $this->urls[] = & $url;
+
+        return $this;
+    }
+
+    /**
      * Creates token from credentials via user providers
      *
      * @param array $credentials
@@ -86,7 +101,8 @@ class Security implements SecurityInterface
             }
 
             if (!$token = $provider->tokenize($credentials)) {
-                $this->stash()->destroy();
+                $this->stash()
+                     ->destroy();
                 throw new AuthenticationException(sprintf('Credentials could not be tokenized in provider "%s", destroying token', get_class($provider)));
             }
 
@@ -96,7 +112,8 @@ class Security implements SecurityInterface
             return $this;
         }
 
-        $this->stash()->destroy();
+        $this->stash()
+             ->destroy();
         throw new AuthenticationException(sprintf('Missing provider supporting credentials "%s", destroying token', implode(', ', array_keys($credentials))));
     }
 
@@ -127,7 +144,8 @@ class Security implements SecurityInterface
             }
 
             if (!$provider->authenticate($token)) {
-                $this->stash()->destroy();
+                $this->stash()
+                     ->destroy();
                 throw new AuthenticationException(sprintf('Token could not be authenticated in provider "%s", destroying token', get_class($provider)));
             }
 
@@ -136,7 +154,8 @@ class Security implements SecurityInterface
             return $this;
         }
 
-        $this->stash()->destroy();
+        $this->stash()
+             ->destroy();
         throw new AuthenticationException(sprintf('Missing provider supporting token "%s", destroying token', get_class($token)));
     }
 
@@ -230,10 +249,18 @@ class Security implements SecurityInterface
     /**
      * Returns url (or null if not set) on which user should be redirected if has no access
      *
+     * @param RequestInterface $request
+     *
      * @return null|string
      */
-    public function loginUrl()
+    public function authUrl(RequestInterface $request)
     {
-        return $this->loginUrl;
+        foreach ($this->urls as $url) {
+            if ($url->match($request)) {
+                return $url->url();
+            }
+        }
+
+        return null;
     }
 }

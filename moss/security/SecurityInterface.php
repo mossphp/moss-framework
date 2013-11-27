@@ -91,7 +91,9 @@ interface SecurityInterface
     /**
      * Returns url (or null if not set) on which user should be redirected if has no access
      *
+     * @param RequestInterface $request
+     *
      * @return null|string
      */
-    public function loginUrl();
+    public function authUrl(RequestInterface $request);
 }

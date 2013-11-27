@@ -1,20 +1,16 @@
 <?php
 namespace moss\security;
 
-use moss\http\request\RequestInterface;
-
 /**
  * Security protected area
  *
  * @package Moss Security
  * @author  Michal Wachowski <wachowski.michal@gmail.com>
  */
-class Area implements AreaInterface
+class Area extends Pattern implements AreaInterface
 {
-
-    protected $pattern;
-    protected $regexp;
     protected $roles;
+    protected $access;
     protected $ips;
 
     /**
@@ -26,52 +22,12 @@ class Area implements AreaInterface
      */
     public function __construct($pattern, $roles = array(), $ips = array())
     {
-        $this->pattern = $pattern;
         $this->regexp = $this->buildRegExp($pattern);
         $this->roles = (array) $roles;
         $this->ips = (array) $ips;
+
+        parent::__construct($pattern);
     }
-
-    /**
-     * Builds regular expression
-     *
-     * @param string $pattern
-     *
-     * @return string
-     */
-    protected function buildRegExp($pattern)
-    {
-        preg_match_all('#([^:]+)#m', $pattern, $patternMatches);
-
-        foreach ($patternMatches[1] as &$match) {
-            if (strpos($match, '*') !== false) {
-                $match = str_replace('*', '[^:]+', $match);
-            }
-
-            if (strpos($match, '!') === 0) {
-                $match = '.*(?<!' . substr($match, 1) . ')';
-            }
-
-            unset($match);
-        }
-
-        $pattern = str_replace($patternMatches[0], $patternMatches[1], $pattern);
-        $pattern = str_replace('\\', '\\\\', $pattern);
-        $pattern = '/^' . $pattern . '$/';
-
-        return $pattern;
-    }
-
-    /**
-     * Returns area pattern
-     *
-     * @return string
-     */
-    public function pattern()
-    {
-        return $this->pattern;
-    }
-
 
     /**
      * Returns array containing roles with access
@@ -83,7 +39,6 @@ class Area implements AreaInterface
         return $this->roles;
     }
 
-
     /**
      * Returns array containing allowed IP addresses
      *
@@ -93,25 +48,6 @@ class Area implements AreaInterface
     {
         return $this->ips;
     }
-
-
-    /**
-     * Checks if identifier matches secure area
-     * Returns true if matches
-     *
-     * @param RequestInterface $request
-     *
-     * @return bool
-     */
-    public function match(RequestInterface $request)
-    {
-        if (preg_match($this->regexp, $request->controller())) {
-            return true;
-        }
-
-        return false;
-    }
-
 
     /**
      * Returns true if use has access
@@ -123,7 +59,7 @@ class Area implements AreaInterface
      */
     public function authorize(UserInterface $user, $ip = null)
     {
-        return $this->authRole($user) && $this->authIp($ip);
+        return $this->authRoles($user) && $this->authIps($ip);
     }
 
     /**
@@ -133,7 +69,7 @@ class Area implements AreaInterface
      *
      * @return bool
      */
-    protected function authRole(UserInterface $user)
+    protected function authRoles(UserInterface $user)
     {
         if (empty($this->roles)) {
             return true;
@@ -155,7 +91,7 @@ class Area implements AreaInterface
      *
      * @return bool
      */
-    public function authIp($userIp)
+    protected function authIps($userIp)
     {
         if (empty($this->ips)) {
             return true;

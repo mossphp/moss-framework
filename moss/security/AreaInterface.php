@@ -1,24 +1,14 @@
 <?php
 namespace moss\security;
 
-use moss\http\request\RequestInterface;
-
 /**
  * Secure area interface
  *
  * @package Moss Security
  * @author  Michal Wachowski <wachowski.michal@gmail.com>
  */
-interface AreaInterface
+interface AreaInterface extends PatternInterface
 {
-
-    /**
-     * Returns area pattern
-     *
-     * @return string
-     */
-    public function pattern();
-
     /**
      * Returns array containing roles with access
      *
@@ -32,15 +22,6 @@ interface AreaInterface
      * @return array
      */
     public function ips();
-
-    /**
-     * Returns true if area matches request
-     *
-     * @param RequestInterface $request
-     *
-     * @return bool
-     */
-    public function match(RequestInterface $request);
 
     /**
      * Returns true if use has access to area
