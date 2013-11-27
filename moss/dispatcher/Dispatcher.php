@@ -98,15 +98,15 @@ class Dispatcher implements DispatcherInterface
 
                 $subject = $this->call($eventName, $subject, $message);
             }
+
+            return $subject;
         } catch(\Exception $e) {
             if (!isset($this->events[$event . ':exception'])) {
                 throw $e;
             }
 
-            $subject = $this->call($event . ':exception', $e, $e->getMessage());
+            return $this->call($event . ':exception', $e, $e->getMessage());
         }
-
-        return $subject;
     }
 
     /**
