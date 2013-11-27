@@ -6,12 +6,14 @@ return array(
             'detail' => true
         ),
         'session' => array(
-            'name' => null,
+            'name' => 'PHPSESSID',
+            'cacheLimiter' => ''
         ),
         'cookie' => array(
             'domain' => null,
             'path' => '/',
             'http' => true,
+            'ttl' => 2592000 // one month
         ),
         'uploader' => array(
             'dir' => array(
