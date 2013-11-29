@@ -5,285 +5,293 @@ class RouteTest extends \PHPUnit_Framework_TestCase
 {
 
     /**
-     * @var Route
+     * @dataProvider patternProvider
      */
-    protected $Route;
-
-    public function testUniPattern()
+    public function testPattern($pattern, $expected)
     {
-        $Route = new Route('/{foo}/({bar})/', 'foo');
-        $this->assertEquals('/{foo:[a-z0-9-._]}/({bar:[a-z0-9-._]})/', $Route->pattern());
+        $route = new Route($pattern, 'some:controller');
+        $this->assertEquals($expected, $route->pattern());
     }
 
-    public function testSetPattern()
+    public function patternProvider()
     {
-        $Route = new Route('/{foo:\w}/({bar:\d})/', 'foo');
-        $this->assertEquals('/{foo:\w}/({bar:\d})/', $Route->pattern());
-    }
-
-    public function testController()
-    {
-        $Route = new Route('/{foo}/({bar})/', 'foo');
-        $this->assertEquals('foo', $Route->controller());
-    }
-
-    public function testRequirements()
-    {
-        $Route = new Route('/{foo:\d}/({bar})/', 'foo');
-        $this->assertEquals(array('foo' => '\d+', 'bar' => '[a-z0-9-._]*'), $Route->requirements());
-    }
-
-    public function testRequirementsSet()
-    {
-        $Route = new Route('/{foo}/({bar})/', 'foo');
-        $this->assertEquals(array('foo' => '\w+', 'bar' => '\d*'), $Route->requirements(array('foo' => '\w+', 'bar' => '\d*')));
-    }
-
-    public function testRequirementsMissing()
-    {
-        $Route = new Route('/{foo}/({bar})/', 'foo');
-        $this->assertEquals(array('foo' => '\d+', 'bar' => '[a-z0-9-._]*'), $Route->requirements(array('foo' => '\d+')));
-    }
-
-    public function testArguments()
-    {
-        $Route = new Route('/{foo}/({bar})/', 'foo', array('foo' => 'foo'));
-        $this->assertEquals(array('foo' => 'foo'), $Route->arguments());
-    }
-
-    public function testArgumentsSet()
-    {
-        $Route = new Route('/{foo}/({bar})/', 'foo');
-        $this->assertEquals(array('foo' => 'foo', 'bar' => 'bar'), $Route->arguments(array('foo' => 'foo','bar' => 'bar')));
-    }
-
-    /**
-     * @expectedException \moss\router\RouteException
-     * @expectedExceptionMessage Invalid argument value "123" for argument "foo"
-     */
-    public function testArgumentsInvalid()
-    {
-        $Route = new Route('/{foo:[a-z]}/({bar})/', 'foo');
-        $Route->arguments(array('foo' => '123'));
-    }
-
-    public function testArgumentsMissing()
-    {
-        $Route = new Route('/{foo}/({bar})/', 'foo');
-        $Route->arguments(array('yada' => 'yada'));
-    }
-
-    public function testMatch()
-    {
-        $Route = new Route('/{foo:\w}/({bar:\d})/', 'foo');
-        $this->assertTrue($Route->match($this->mockRequest('/foo/123/')));
-        $this->assertEquals(array('foo' => 'foo', 'bar' => 123), $Route->arguments());
-    }
-
-    public function testMatchWithoutOptional()
-    {
-        $Route = new Route('/{foo:\w}/({bar:\d})/', 'foo');
-        $this->assertTrue($Route->match($this->mockRequest('/foo/')));
-        $this->assertEquals(array('foo' => 'foo', 'bar' => null), $Route->arguments());
-    }
-
-    public function testMatchSchema()
-    {
-        $Route = new Route('/{foo:\w}/({bar:\d})/', 'foo');
-        $Route->schema('HTTP');
-        $this->assertTrue($Route->match($this->mockRequest('/foo/', 'HTTP')));
-        $this->assertFalse($Route->match($this->mockRequest('/foo/', 'FTP')));
-    }
-
-    public function testMatchMethod()
-    {
-        $Route = new Route('/{foo:\w}/({bar:\d})/', 'foo');
-        $Route->methods(array('get', 'POST'));
-        $this->assertTrue($Route->match($this->mockRequest('/foo/', null, 'GET')));
-        $this->assertFalse($Route->match($this->mockRequest('/foo/', null, 'PUT')));
-    }
-
-    public function testMatchHost()
-    {
-        $Route = new Route('/{foo:\w}/({bar:\d})/', 'foo');
-        $Route->host('foo.test.com');
-        $this->assertTrue($Route->match($this->mockRequest('/foo/', null, null, 'http://foo.test.com')));
-        $this->assertFalse($Route->match($this->mockRequest('/foo/', null, null, 'http://bar.test.com')));
-    }
-
-    public function testMatchHostWithBaseName()
-    {
-        $Route = new Route('/{foo:\w}/({bar:\d})/', 'foo');
-        $Route->host('foo.{basename}');
-        $this->assertTrue($Route->match($this->mockRequest('/foo/', null, null, 'http://foo.test.com')));
-        $this->assertFalse($Route->match($this->mockRequest('/foo/', null, null, 'http://bar.test.com')));
-    }
-
-    public function testMatchWrongUrl()
-    {
-        $Route = new Route('/{foo:\w}/({bar:\d})/', 'foo');
-        $this->assertFalse($Route->match($this->mockRequest('/')));
-        $this->assertFalse($Route->match($this->mockRequest('/lorem/ipsum.html')));
-    }
-
-    public function testMatchInvalid()
-    {
-        $Route = new Route('/{foo:\w}/({bar:\d})/', 'foo');
-        $this->assertFalse($Route->match($this->mockRequest('/123/abc/')));
-    }
-
-    public function testCheckRequiredArgs()
-    {
-        $Route = new Route('/{foo:\w}/({bar:\d})/', 'foo');
-        $this->assertTrue($Route->check('foo', array('foo' => 'foo')));
-    }
-
-    public function testCheck()
-    {
-        $Route = new Route('/{foo:\w}/({bar:\d})/', 'foo');
-        $this->assertTrue($Route->check('foo', array('foo' => 'foo', 'bar' => 'bar')));
-    }
-
-    public function testCheckAdditionalArgs()
-    {
-        $Route = new Route('/{foo:\w}/({bar:\d})/', 'foo');
-        $this->assertTrue($Route->check('foo', array('foo' => 'foo', 'bar' => 123)));
-    }
-
-    public function testCheckInvalidController()
-    {
-        $Route = new Route('/{foo:\w}/({bar:\d})/', 'foo');
-        $this->assertFalse($Route->check('bar', array()));
-    }
-
-    public function testCheckInsufficientArgs()
-    {
-        $Route = new Route('/{foo:\w}/({bar:\d})/', 'foo');
-        $this->assertFalse($Route->check('foo', array()));
-    }
-
-    public function testCheckInvalidArgs()
-    {
-        $Route = new Route('/{foo:\w}/({bar:\d})/', 'foo');
-        $this->assertFalse($Route->check('foo', array('foo' => '---')));
-    }
-
-    public function testMakeRelative()
-    {
-        $Route = new Route('/{foo:\w}/({bar:\d})/', 'foo');
-        $this->assertEquals(
-            './foo/123/', $Route->make(
-                'http://localhost/', array(
-                                          'foo' => 'foo',
-                                          'bar' => '123'
-                                     ), true
-            )
+        return array(
+            array('/foo/', '/foo/'),
+            array('/foo/{bar:\d}/', '/foo/{bar:\d}/'),
+            array('/foo/{bar:\w}/', '/foo/{bar:\w}/'),
+            array('/foo/{bar:[a-z]}/', '/foo/{bar:[a-z]}/'),
+            array('/foo/{bar:.}/', '/foo/{bar:.}/'),
+            array('/foo/({bar:\d}/)', '/foo/({bar:\d}/)'),
+            array('/foo/{bar:\d}/({yada:\w}/)', '/foo/{bar:\d}/({yada:\w}/)'),
         );
     }
 
-    public function testMakeEmptyBasename()
-    {
-        $Route = new Route('/{foo:\w}/({bar:\d})/', 'foo');
-        $this->assertEquals('./foo/123/', $Route->make(null, array('foo' => 'foo', 'bar' => '123'), true));
-    }
-
     /**
+     * @dataProvider             patternQuantificationProvider
      * @expectedException \moss\router\RouteException
-     * @expectedExceptionMessage Unable to create absolute url. Invalid or empty host name
+     * @expectedExceptionMessage Route must not end with quantification token
      */
-    public function testMakeEmptyBasenameWithDomain()
+    public function testPatternQuantificationToken($pattern)
     {
-        $Route = new Route('/{foo:\w}/({bar:\d})/', 'foo');
-        $Route->host('domain.{basename}');
-
-        $Route->make(null, array('foo' => 'foo', 'bar' => '123'), true);
+        new Route($pattern, 'some:controller');
     }
 
-    public function testMakeAbsolute()
+    public function patternQuantificationProvider()
     {
-        $Route = new Route('/{foo:\w}/({bar:\d})/', 'foo');
-        $this->assertEquals(
-            'http://localhost/foo/123/', $Route->make(
-                'http://localhost/', array(
-                                          'foo' => 'foo',
-                                          'bar' => '123'
-                                     ), false
-            )
+        return array(
+            array('/foo/{bar:.?}/'),
+            array('/foo/{bar:.*}/'),
+            array('/foo/{bar:.+}/'),
         );
     }
 
-    public function testMakeOnlyRequired()
+    /**
+     * @dataProvider requirementsProvider
+     */
+    public function testRequirementsFromRoute($pattern, $requirements, $expected)
     {
-        $Route = new Route('/{foo:\w}/({bar:\d})/', 'foo');
-        $this->assertEquals('http://localhost/foo/', $Route->make('http://localhost/', array('foo' => 'foo')));
+        $route = new Route($pattern, 'some:controller');
+        $this->assertEquals($requirements, $route->requirements());
+        $this->assertEquals($expected, $route->requirements($expected));
     }
 
-    public function testMakeWithQuery()
+    public function requirementsProvider()
     {
-        $Route = new Route('/{foo:\w}/({bar:\d})/', 'foo');
-        $this->assertEquals(
-            'http://localhost/foo/123/?yada=yada', $Route->make(
-                'http://localhost/', array(
-                                          'foo' => 'foo',
-                                          'bar' => '123',
-                                          'yada' => 'yada'
-                                     )
-            )
+        return array(
+            array('/foo/', array(), array()),
+            array('/foo/{bar:\d}/', array('bar' => '\d+'), array('bar' => '\w+')),
+            array('/foo/{bar:\d}/{yada:\w}/', array('bar' => '\d+', 'yada' => '\w+'), array('bar' => '\w+', 'yada' => '\d+')),
+            array('/foo/{bar:\d}/({yada:\w}/)', array('bar' => '\d+', 'yada' => '\w*(\/)?'), array('bar' => '\w+', 'yada' => '\d*(\/)?')),
+            array('/foo/{bar:\d}/({yada:\w}/)', array('bar' => '\d+', 'yada' => '\w*(\/)?'), array('bar' => '\w+', 'yada' => '\d+')),
+            array('/foo/{bar}/', array('bar' => '[a-z0-9-._]+'), array('bar' => '\w+')),
+            array('/foo/{bar}/{yada}/', array('bar' => '[a-z0-9-._]+', 'yada' => '[a-z0-9-._]+'), array('bar' => '\w+', 'yada' => '\d+')),
+            array('/foo/{bar}/({yada}/)', array('bar' => '[a-z0-9-._]+', 'yada' => '[a-z0-9-._]*(\/)?'), array('bar' => '\w+', 'yada' => '\d*(\/)?')),
+            array('/foo/{bar}/({yada}/)', array('bar' => '[a-z0-9-._]+', 'yada' => '[a-z0-9-._]*(\/)?'), array('bar' => '\w+', 'yada' => '\d+')),
         );
     }
 
-    public function testMakeSubdomain()
+    /**
+     * @dataProvider argumentsProvider
+     */
+    public function testArgumentsFromRoute($pattern, $arguments, $expected)
     {
-        $Route = new Route('/{foo:\w}/({bar:\d})/', 'foo');
-        $Route->host('foo.{basename}');
-        $this->assertEquals('http://foo.localhost/foo/', $Route->make('http://localhost/', array('foo' => 'foo')));
+        $route = new Route($pattern, 'some:controller', $arguments);
+        $this->assertEquals($expected, $route->arguments());
+    }
+
+    public function argumentsProvider()
+    {
+        return array(
+            array('/foo/', array(), array()),
+            array('/foo/{bar:\d}/', array(), array('bar' => null)),
+            array('/foo/{bar:\d}/', array('foo' => 1), array('foo' => 1, 'bar' => null)),
+            array('/foo/{bar:\d}/{yada:\w}/', array(), array('bar' => null, 'yada' => null)),
+            array('/foo/{bar:\d}/{yada:\w}/', array('foo' => 1), array('foo' => 1, 'bar' => null, 'yada' => null)),
+            array('/foo/{bar:\d}/({yada:\w}/)', array(), array('bar' => null)),
+            array('/foo/{bar:\d}/({yada:\w}/)', array('foo' => 1), array('foo' => 1, 'bar' => null)),
+        );
     }
 
     /**
-     * @expectedException \moss\router\RouteException
-     * @expectedExceptionMessage Missing value for argument "foo" in route "/{foo:\w}/({bar:\d})/"
+     * @dataProvider urlProvider
      */
-    public function testMakeInsufficientArg()
+    public function testMatchUrl($pattern, $url)
     {
-        $Route = new Route('/{foo:\w}/({bar:\d})/', 'foo');
-        $Route->make('http://localhost/', array());
+        $route = new Route($pattern, 'some:controller');
+        $this->assertTrue($route->match($this->mockRequest($url)));
     }
 
     /**
-     * @expectedException \moss\router\RouteException
-     * @expectedExceptionMessage Invalid argument value "bar" for argument "bar" in route "/{foo:\w}/({bar:\d})/"
+     * @dataProvider urlProvider
      */
-    public function testMakeInvalidArg()
+    public function testMatchUrlFails($pattern, $url)
     {
-        $Route = new Route('/{foo:\w}/({bar:\d})/', 'foo');
-        $Route->make('http://localhost/', array('foo' => 'foo', 'bar' => 'bar'));
+        $route = new Route('/', 'some:controller');
+        $this->assertFalse($route->match($this->mockRequest($url)));
     }
 
+    public function urlProvider()
+    {
+        return array(
+            array('/foo/', '/foo/'),
+            array('/foo/{bar:\d}/', '/foo/1/'),
+            array('/foo/{bar:\d}/', '/foo/123/'),
+
+            array('/foo/{bar:\w}/', '/foo/1/'),
+            array('/foo/{bar:\w}/', '/foo/abc/'),
+            array('/foo/{bar:\w}/', '/foo/123/'),
+            array('/foo/{bar:\w}/', '/foo/123abc/'),
+
+            array('/foo/{bar:[a-z]}/', '/foo/a/'),
+            array('/foo/{bar:[a-z]}/', '/foo/abc/'),
+
+            array('/foo/{bar:.}/', '/foo/1/'),
+            array('/foo/{bar:.}/', '/foo/123/'),
+            array('/foo/{bar:.}/', '/foo/a/'),
+            array('/foo/{bar:.}/', '/foo/abc/'),
+            array('/foo/{bar:.}/', '/foo/123abc/'),
+
+            array('/foo/{bar:\d}/{yada:\w}/', '/foo/123/abc/'),
+
+            array('/foo/{bar:\d}/({yada:\w}/)', '/foo/123/'),
+            array('/foo/{bar:\d}/({yada:\w}/)', '/foo/123/abc'),
+            array('/foo/{bar:\d}/({yada:\w}/)', '/foo/123/abc/'),
+        );
+    }
+
+    /**
+     * @dataProvider hostProvider
+     */
+    public function testMatchHost($host, $rHost)
+    {
+        $route = new Route('/foo/', 'some:controller');
+        $route->host($host);
+        $this->assertTrue($route->match($this->mockRequest('/foo/', null, null, $rHost)));
+    }
+
+    /**
+     * @dataProvider hostProvider
+     */
+    public function testMatchHostFails($host, $rHost)
+    {
+        $route = new Route('/foo/', 'some:controller');
+        $route->host('lorem.com');
+        $this->assertFalse($route->match($this->mockRequest('/foo/', null, null, $rHost)));
+    }
+
+    public function hostProvider()
+    {
+        return array(
+            array('localhost', 'localhost'),
+            array('127.0.0.1', '127.0.0.1'),
+            array('sub.domain.com', 'sub.domain.com'),
+            array('sub.{basename}', 'sub.domain.com')
+        );
+    }
+
+    /**
+     * @dataProvider schemaProvider
+     */
+    public function testMatchSchema($schema)
+    {
+        $route = new Route('/foo/', 'some:controller');
+        $route->schema($schema);
+        $this->assertTrue($route->match($this->mockRequest('/foo/', $schema)));
+    }
+
+    /**
+     * @dataProvider schemaProvider
+     */
+    public function testMatchSchemaFails($schema)
+    {
+        $route = new Route('/foo/', 'some:controller');
+        $route->schema('HTTP/1.2');
+        $this->assertFalse($route->match($this->mockRequest('/foo/', $schema)));
+    }
+
+    public function schemaProvider()
+    {
+        return array(
+            array('HTTP/1.0'),
+            array('HTTP/1.1')
+        );
+    }
+
+    /**
+     * @dataProvider methodProvider
+     */
+    public function testMatchMethod($methods)
+    {
+        $route = new Route('/foo/', 'some:controller');
+        $route->methods($methods);
+        $this->assertTrue($route->match($this->mockRequest('/foo/', null, reset($methods))));
+    }
+
+    /**
+     * @dataProvider methodProvider
+     */
+    public function testMatchMethodFails($methods)
+    {
+        $route = new Route('/foo/', 'some:controller');
+        $route->methods('OPTION');
+        $this->assertFalse($route->match($this->mockRequest('/foo/', null, reset($methods))));
+    }
+
+    public function methodProvider()
+    {
+        return array(
+            array(array('GET')),
+            array(array('POST')),
+            array(array('PUT')),
+            array(array('DELETE')),
+            array(array('GET', 'POST')),
+            array(array('PUT', 'DELETE')),
+            array(array('GET', 'POST', 'PUT', 'DELETE')),
+        );
+    }
+
+    /**
+     * @dataProvider checkProvider
+     */
+    public function testCheck($pattern, $arguments)
+    {
+        $route = new Route($pattern, 'some:controller', $arguments);
+        $this->assertTrue($route->check('some:controller', $arguments));
+    }
+
+    public function checkProvider()
+    {
+        return array(
+            array('/foo/', array()),
+            array('/foo/{bar:\d}/', array('bar' => 1)),
+            array('/foo/{bar:\d}/', array('bar' => 123)),
+
+            array('/foo/{bar:\w}/', array('bar' => 1)),
+            array('/foo/{bar:\w}/', array('bar' => '123')),
+            array('/foo/{bar:\w}/', array('bar' => 'a')),
+            array('/foo/{bar:\w}/', array('bar' => 'abc')),
+            array('/foo/{bar:\w}/', array('bar' => '123abc')),
+
+            array('/foo/{bar:[a-z]}/', array('bar' => 'a')),
+            array('/foo/{bar:[a-z]}/', array('bar' => 'abc')),
+
+            array('/foo/{bar:.}/', array('bar' => 1)),
+            array('/foo/{bar:.}/', array('bar' => '123')),
+            array('/foo/{bar:.}/', array('bar' => 'a')),
+            array('/foo/{bar:.}/', array('bar' => 'abc')),
+            array('/foo/{bar:.}/', array('bar' => '123abc')),
+
+            array('/foo/{bar:\d}/{yada:\w}/', array('bar' => '123', 'yada' => 'abc')),
+
+            array('/foo/{bar:\d}/({yada:\w}/)', array('bar' => 123)),
+            array('/foo/{bar:\d}/({yada:\w}/)', array('bar' => '123', 'yada' => 'abc'))
+        );
+    }
 
     protected function mockRequest($url, $schema = null, $method = null, $host = null)
     {
-        $Request = $this->getMock('moss\http\request\RequestInterface');
-        $Request
+        $request = $this->getMock('moss\http\request\RequestInterface');
+        $request
             ->expects($this->any())
             ->method('url')
             ->will($this->returnValue($url));
 
-        $Request
+        $request
             ->expects($this->any())
             ->method('schema')
             ->will($this->returnValue($schema));
 
-        $Request
+        $request
             ->expects($this->any())
             ->method('method')
             ->will($this->returnValue($method));
 
-        $Request
+        $request
             ->expects($this->any())
             ->method('host')
             ->will($this->returnValue($host));
 
-        return $Request;
+        return $request;
     }
 
 

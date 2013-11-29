@@ -11,12 +11,15 @@ use moss\http\request\RequestInterface;
  */
 class Route implements RouteInterface
 {
-
     protected $controller;
+
     protected $pattern;
+    protected $original;
+
     protected $requirements = array();
-    protected $defaults = array();
     protected $arguments = array();
+    protected $conditionals = array();
+
     protected $host;
     protected $schema;
     protected $methods;
@@ -31,8 +34,9 @@ class Route implements RouteInterface
     public function __construct($pattern, $controller, $arguments = array())
     {
         $this->pattern = $pattern;
-        $this->controller = $controller;
-        $this->pattern = preg_replace_callback('/(\(?\{([^}]+)\}\)?)/i', array($this, 'callback'), $this->pattern, \PREG_SET_ORDER);
+        $this->original = $pattern;
+        $this->controller = strtolower($controller);
+        $this->pattern = preg_replace_callback('/(\()?(\{([^}]+)\})(?(1)([^()]*)|())(\))?/i', array($this, 'callback'), $this->pattern, \PREG_SET_ORDER);
 
         if (!empty($arguments)) {
             $this->arguments($arguments);
@@ -46,25 +50,32 @@ class Route implements RouteInterface
      * @param string $default
      *
      * @return string
+     * @throws RouteException
      */
     private function callback($match, $default = '[a-z0-9-._]')
     {
-        if (strpos($match[2], ':') === false) {
-            $match[2] .= ':' . $default;
+        if (strpos($match[3], ':') === false) {
+            $match[3] .= ':' . $default;
         }
 
-        list($key, $regexp) = explode(':', $match[2]);
+        list($key, $regexp) = explode(':', $match[3]);
+
+        if (in_array(substr($regexp, -1), array('+', '*', '?'))) {
+            throw new RouteException('Route must not end with quantification token');
+        }
+
         if ($match[0][0] == '(') {
-            $this->requirements[$key] = $regexp . '*';
+            $this->requirements[$key] = $regexp . '*' . '(' . preg_quote($match[4], '/') . ')?';
+            $this->conditionals[$key] = $match[4];
 
             return '#' . $key . '#';
         }
 
         $this->requirements[$key] = $regexp . '+';
+        $this->conditionals[$key] = null;
         $this->arguments[$key] = null;
-        $this->defaults[$key] = null;
 
-        return '#' . $key . '#';
+        return '#' . $key . '#' . $match[4];
     }
 
     /**
@@ -74,15 +85,21 @@ class Route implements RouteInterface
      */
     public function pattern()
     {
-        preg_match_all('/#([^#]+)#/i', $this->pattern, $matches, \PREG_SET_ORDER);
-        $r = array();
+        $arguments = array();
+        foreach ($this->requirements as $key => $v) {
+            if ($this->conditionals[$key]) {
+                $v = substr($v, 0, -strlen(preg_quote($this->conditionals[$key])) + 4);
+            }
 
-        foreach ($matches as $match) {
-            $def = $match[1] . ':' . substr($this->requirements[$match[1]], 0, -1);
-            $r['#' . $match[1] . '#'] = array_key_exists($match[1], $this->defaults) ? '{' . $def . '}' : '({' . $def . '})';
+            $pattern = '{%s:%s}%s';
+            if (substr($v, -1) === '*') {
+                $pattern = '({%s:%s}%s)';
+            }
+
+            $arguments['#' . $key . '#'] = sprintf($pattern, $key, substr($v, 0, -1), $this->conditionals[$key]);
         }
 
-        return strtr($this->pattern, $r);
+        return strtr($this->pattern, $arguments);
     }
 
     /**
@@ -96,7 +113,7 @@ class Route implements RouteInterface
     }
 
     /**
-     * Sets value requirements for each argument in pattern
+     * Sets regex for each of required values
      *
      * @param array $requirements
      *
@@ -134,19 +151,18 @@ class Route implements RouteInterface
             return $this->arguments;
         }
 
-        foreach (array_keys($this->defaults) as $key) {
-            if (!array_key_exists($key, $arguments)) {
+        foreach ($arguments as $key => $value) {
+            if (!isset($this->requirements[$key])) {
+                $this->arguments[$key] = $value;
                 continue;
             }
 
-            if (!preg_match('/^' . $this->requirements[$key] . '$/', $arguments[$key])) {
-                throw new RouteException(sprintf('Invalid argument value "%s" for argument "%s"', $arguments[$key], $key));
+            if (!preg_match('/^' . $this->requirements[$key] . '$/', $value)) {
+                throw new RouteException(sprintf('Invalid argument value "%s" for argument "%s"', $value, $key));
             }
 
-            $this->defaults[$key] = $arguments[$key];
+            $this->arguments[$key] = $value;
         }
-
-        $this->arguments = $arguments;
 
         return $this->arguments;
     }
@@ -213,7 +229,7 @@ class Route implements RouteInterface
             return false;
         }
 
-        if (!empty($this->host) && !preg_match('/^(https?|ftp):\/\/' . str_replace('#basename#', '.*', preg_quote($this->host)) . '$/', $request->host())) {
+        if (!empty($this->host) && !preg_match('/^' . str_replace('#basename#', '.*', preg_quote($this->host)) . '$/', $request->host())) {
             return false;
         }
 
@@ -234,22 +250,11 @@ class Route implements RouteInterface
             return false;
         }
 
-        $arguments = array();
-        foreach ($matches[0] as $k => $v) {
-            if (is_numeric($k)) {
-                continue;
-            }
-
-            $arguments[$k] = $v;
-        }
-
-        $this->arguments($arguments);
-
         return true;
     }
 
     /**
-     * Check if arguments fit to
+     * Check if route should be used to make url
      *
      * @param string $controller
      * @param array  $arguments
@@ -258,13 +263,17 @@ class Route implements RouteInterface
      */
     public function check($controller, $arguments = array())
     {
-        if ($this->controller() !== $controller) {
+        if ($this->controller() !== strtolower($controller)) {
             return false;
         }
 
-        foreach (array_keys($this->defaults) as $k) {
+        foreach (array_keys($this->arguments) as $k) {
             if (!isset($arguments[$k])) {
                 return false;
+            }
+
+            if (!isset($this->requirements[$k])) {
+                continue;
             }
 
             if (!preg_match('/^' . $this->requirements[$k] . '$/i', $arguments[$k])) {
@@ -287,39 +296,34 @@ class Route implements RouteInterface
      */
     public function make($host = null, $arguments = array(), $forceRelative = false)
     {
-        foreach ($this->requirements as $k => $r) {
-            if (!isset($arguments[$k]) && !array_key_exists($k, $this->defaults)) {
+        foreach (array_keys($this->conditionals) as $key) {
+            if (isset($arguments[$key])) {
                 continue;
             }
 
-            if (!isset($arguments[$k])) {
-                throw new RouteException(sprintf('Missing value for argument "%s" in route "%s"', $k, $this->pattern()));
-            }
-
-            if (!preg_match('/^' . $r . '$/i', $arguments[$k])) {
-                throw new RouteException(sprintf('Invalid argument value "%s" for argument "%s" in route "%s"', $k, $arguments[$k], $this->pattern()));
-            }
+            $arguments[$key] = null;
         }
 
-        foreach ($this->requirements as $k => $v) {
-            if (isset($arguments[$k])) {
-                $arguments[$k] = $this->strip($arguments[$k]);
-                continue;
+        foreach ($this->requirements as $key => $regex) {
+            if (!array_key_exists($key, $arguments)) {
+                throw new RouteException(sprintf('Missing value for argument "%s" in route "%s"', $key, $this->pattern()));
             }
 
-            $arguments[$k] = isset($this->defaults[$k]) ? $this->defaults[$k] : null;
+            if (!preg_match('/^' . $regex . '$/i', $arguments[$key])) {
+                throw new RouteException(sprintf('Invalid argument value "%s" for argument "%s" in route "%s"', $key, $arguments[$key], $this->pattern()));
+            }
         }
 
         $url = array();
         $query = array();
 
-        foreach ($arguments as $k => $v) {
-            if (isset($this->requirements[$k])) {
-                $url['#' . $k . '#'] = $v;
+        foreach ($arguments as $key => $v) {
+            if (isset($this->requirements[$key])) {
+                $url['#' . $key . '#'] = $this->strip($v) . $this->conditionals[$key];
                 continue;
             }
 
-            $query[$k] = $v;
+            $query[$key] = $v;
         }
 
         $url = strtr($this->pattern, $url);
@@ -343,6 +347,7 @@ class Route implements RouteInterface
         if (strpos($host, '://') !== false) {
             list($schema, $host) = explode('://', rtrim($host, '/'));
         }
+
         if ($this->host && !preg_match('/^' . str_replace('#basename#', '.*', preg_quote($this->host)) . '$/', $host)) {
             $host = str_replace('#basename#', $host, $this->host);
         }
