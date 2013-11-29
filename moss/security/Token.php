@@ -12,32 +12,18 @@ class Token implements TokenInterface
 
     private $auth;
     private $user;
-    private $realm;
 
     /**
      * Constructor
      *
      * @param string     $auth
      * @param int|string $user
-     * @param string     $realm
      */
-    public function __construct($auth = null, $user = null, $realm = null)
+    public function __construct($auth = null, $user = null)
     {
         $this->auth = $auth;
         $this->user = $user;
-        $this->realm = $realm;
     }
-
-    /**
-     * Returns realm to which the token belongs
-     *
-     * @return string
-     */
-    public function realm()
-    {
-        return $this->realm;
-    }
-
 
     /**
      * Returns set authentication credentials
@@ -116,7 +102,7 @@ class Token implements TokenInterface
      */
     public function serialize()
     {
-        return json_encode(array($this->auth, $this->user, $this->realm));
+        return json_encode(array($this->auth, $this->user));
     }
 
     /**
@@ -128,6 +114,6 @@ class Token implements TokenInterface
      */
     public function unserialize($serialized)
     {
-        list($this->auth, $this->user, $this->realm) = json_decode($serialized, true);
+        list($this->auth, $this->user) = json_decode($serialized, true);
     }
 }
