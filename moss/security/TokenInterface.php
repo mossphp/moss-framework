@@ -9,7 +9,6 @@ namespace moss\security;
  */
 interface TokenInterface extends \Serializable
 {
-
     /**
      * Returns set authentication credentials
      *

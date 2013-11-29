@@ -11,13 +11,22 @@ use moss\http\request\RequestInterface;
  */
 interface AreaInterface
 {
-
     /**
-     * Returns area pattern
+     * Returns pattern
      *
      * @return string
      */
     public function pattern();
+
+    /**
+     * Checks if identifier matches auth url
+     * Returns true if matches
+     *
+     * @param RequestInterface $request
+     *
+     * @return bool
+     */
+    public function match(RequestInterface $request);
 
     /**
      * Returns array containing roles with access
@@ -32,15 +41,6 @@ interface AreaInterface
      * @return array
      */
     public function ips();
-
-    /**
-     * Returns true if area matches request
-     *
-     * @param RequestInterface $request
-     *
-     * @return bool
-     */
-    public function match(RequestInterface $request);
 
     /**
      * Returns true if use has access to area

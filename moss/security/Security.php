@@ -15,8 +15,6 @@ class Security implements SecurityInterface
     /** @var TokenStashInterface */
     protected $stash;
 
-    protected $loginUrl;
-
     /** @var UserInterface */
     protected $user;
 
@@ -25,6 +23,8 @@ class Security implements SecurityInterface
 
     /** @var array|AreaInterface[] */
     protected $areas = array();
+
+    protected $loginUrl;
 
     /**
      * Constructor
@@ -86,7 +86,8 @@ class Security implements SecurityInterface
             }
 
             if (!$token = $provider->tokenize($credentials)) {
-                $this->stash()->destroy();
+                $this->stash()
+                     ->destroy();
                 throw new AuthenticationException(sprintf('Credentials could not be tokenized in provider "%s", destroying token', get_class($provider)));
             }
 
@@ -96,7 +97,8 @@ class Security implements SecurityInterface
             return $this;
         }
 
-        $this->stash()->destroy();
+        $this->stash()
+             ->destroy();
         throw new AuthenticationException(sprintf('Missing provider supporting credentials "%s", destroying token', implode(', ', array_keys($credentials))));
     }
 
@@ -127,7 +129,9 @@ class Security implements SecurityInterface
             }
 
             if (!$provider->authenticate($token)) {
-                $this->stash()->destroy();
+                $this->stash()
+                     ->destroy();
+
                 throw new AuthenticationException(sprintf('Token could not be authenticated in provider "%s", destroying token', get_class($provider)));
             }
 
@@ -136,7 +140,9 @@ class Security implements SecurityInterface
             return $this;
         }
 
-        $this->stash()->destroy();
+        $this->stash()
+             ->destroy();
+
         throw new AuthenticationException(sprintf('Missing provider supporting token "%s", destroying token', get_class($token)));
     }
 
@@ -224,6 +230,8 @@ class Security implements SecurityInterface
     {
         $this->user = null;
         $this->stash->destroy();
+
+        return $this;
     }
 
 

@@ -8,62 +8,62 @@ class TokenTest extends \PHPUnit_Framework_TestCase
 
     public function testCredentials()
     {
-        $Token = new Token('foo', 'bar');
-        $this->assertEquals(array('auth' => 'foo', 'user' => 'bar'), $Token->credentials());
+        $token = new Token('foo', 'bar');
+        $this->assertEquals(array('auth' => 'foo', 'user' => 'bar'), $token->credentials());
     }
 
     public function testRemove()
     {
 
-        $Token = new Token('foo', 'bar');
-        $this->assertEquals(array('auth' => 'foo', 'user' => 'bar'), $Token->credentials());
+        $token = new Token('foo', 'bar');
+        $this->assertEquals(array('auth' => 'foo', 'user' => 'bar'), $token->credentials());
 
-        $Token->remove();
+        $token->remove();
 
-        $this->assertEquals(array('auth' => null, 'user' => null), $Token->credentials());
+        $this->assertEquals(array('auth' => null, 'user' => null), $token->credentials());
     }
 
     public function testIsAuthenticated()
     {
-        $Token = new Token();
-        $this->assertFalse($Token->isAuthenticated());
+        $token = new Token();
+        $this->assertFalse($token->isAuthenticated());
 
-        $Token->authenticate('foobar');
-        $this->assertTrue($Token->isAuthenticated());
+        $token->authenticate('foobar');
+        $this->assertTrue($token->isAuthenticated());
     }
 
     public function testAuthenticate()
     {
-        $Token = new Token();
-        $this->assertFalse($Token->isAuthenticated());
+        $token = new Token();
+        $this->assertFalse($token->isAuthenticated());
 
-        $Token->authenticate('foobar');
-        $this->assertEquals('foobar', $Token->authenticate());
+        $token->authenticate('foobar');
+        $this->assertEquals('foobar', $token->authenticate());
     }
 
     public function testUser()
     {
-        $Token = new Token();
-        $this->assertFalse($Token->isAuthenticated());
+        $token = new Token();
+        $this->assertFalse($token->isAuthenticated());
 
-        $Token->user('123');
-        $this->assertEquals('123', $Token->user());
+        $token->user('123');
+        $this->assertEquals('123', $token->user());
     }
 
     public function testSerialize()
     {
-        $Token = new Token();
-        $this->assertInternalType('string', serialize($Token));
+        $token = new Token();
+        $this->assertInternalType('string', serialize($token));
     }
 
     public function testUnserialize()
     {
-        $Token = new Token();
-        $Token->authenticate('foo');
-        $Token->user('bar');
-        $Token = unserialize(serialize($Token));
-        $this->assertEquals('foo', $Token->authenticate());
-        $this->assertEquals('bar', $Token->user());
+        $token = new Token();
+        $token->authenticate('foo');
+        $token->user('bar');
+        $token = unserialize(serialize($token));
+        $this->assertEquals('foo', $token->authenticate());
+        $this->assertEquals('bar', $token->user());
 
     }
 

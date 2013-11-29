@@ -7,15 +7,8 @@ namespace moss\security;
  * @package Moss Security
  * @author  Michal Wachowski <wachowski.michal@gmail.com>
  */
-class Crypt
+class Crypt implements CryptInterface
 {
-    const SDES = 'sdes';
-    const EDES = 'edes';
-    const MD5 = 'md5';
-    const BLOWFISH = 'blowfish';
-    const SHA256 = 'sha256';
-    const SHA512 = 'sha512';
-
     protected $algorithm;
     protected $iterations;
     protected $salt;

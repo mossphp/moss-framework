@@ -35,6 +35,8 @@ class TokenStash implements TokenStashInterface
     public function put(TokenInterface $token)
     {
         $this->stash->set('token', $token);
+
+        return $this;
     }
 
     /**

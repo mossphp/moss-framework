@@ -22,7 +22,7 @@ interface UserInterface
      *
      * @return array
      */
-    public function getRole();
+    public function getRoles();
 
     /**
      * Returns true if user has role
@@ -38,7 +38,7 @@ interface UserInterface
      *
      * @return array
      */
-    public function getAccess();
+    public function getRights();
 
     /**
      * Returns true if user has access
@@ -47,5 +47,5 @@ interface UserInterface
      *
      * @return bool
      */
-    public function hasAccess($access);
+    public function hasRight($access);
 }

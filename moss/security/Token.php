@@ -102,7 +102,7 @@ class Token implements TokenInterface
      */
     public function serialize()
     {
-        return serialize(array($this->auth, $this->user));
+        return json_encode(array($this->auth, $this->user));
     }
 
     /**
@@ -114,6 +114,6 @@ class Token implements TokenInterface
      */
     public function unserialize($serialized)
     {
-        list($this->auth, $this->user) = unserialize($serialized);
+        list($this->auth, $this->user) = json_decode($serialized, true);
     }
 }
