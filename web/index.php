@@ -1,6 +1,6 @@
 <?php
 error_reporting(-1);
-ini_set( 'display_errors', true);
+ini_set('display_errors', true);
 
 const __ROOT__ = __DIR__;
 
@@ -101,7 +101,6 @@ $container->register('router', $router);
 $container->register('dispatcher', $dispatcher);
 $container->register('session', $session);
 $container->register('cookie', $cookie);
-$container->register('uploader', $uploader);
 $container->register('request', $request);
 
 // Kernel
