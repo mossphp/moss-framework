@@ -1,14 +1,19 @@
 <?php
 namespace moss\security;
 
+use moss\http\request\RequestInterface;
+
 /**
  * Security protected area
  *
  * @package Moss Security
  * @author  Michal Wachowski <wachowski.michal@gmail.com>
  */
-class Area extends Pattern implements AreaInterface
+class Area implements AreaInterface
 {
+    protected $pattern;
+    protected $regex;
+
     protected $roles;
     protected $access;
     protected $ips;
@@ -22,11 +27,69 @@ class Area extends Pattern implements AreaInterface
      */
     public function __construct($pattern, $roles = array(), $ips = array())
     {
+        $this->pattern = $pattern;
+        $this->regex = $this->buildRegExp($pattern);
+
         $this->regexp = $this->buildRegExp($pattern);
         $this->roles = (array) $roles;
         $this->ips = (array) $ips;
+    }
 
-        parent::__construct($pattern);
+    /**
+     * Builds regular expression
+     *
+     * @param string $pattern
+     *
+     * @return string
+     */
+    protected function buildRegExp($pattern)
+    {
+        preg_match_all('#([^:]+)#m', $pattern, $patternMatches);
+
+        foreach ($patternMatches[1] as &$match) {
+            if (strpos($match, '*') !== false) {
+                $match = str_replace('*', '[^:]+', $match);
+            }
+
+            if (strpos($match, '!') === 0) {
+                $match = '.*(?<!' . substr($match, 1) . ')';
+            }
+
+            unset($match);
+        }
+
+        $pattern = str_replace($patternMatches[0], $patternMatches[1], $pattern);
+        $pattern = str_replace('\\', '\\\\', $pattern);
+        $pattern = '/^' . $pattern . '$/';
+
+        return $pattern;
+    }
+
+    /**
+     * Returns auth url pattern
+     *
+     * @return string
+     */
+    public function pattern()
+    {
+        return $this->pattern;
+    }
+
+    /**
+     * Checks if identifier matches auth url
+     * Returns true if matches
+     *
+     * @param RequestInterface $request
+     *
+     * @return bool
+     */
+    public function match(RequestInterface $request)
+    {
+        if (preg_match($this->regex, $request->controller())) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
