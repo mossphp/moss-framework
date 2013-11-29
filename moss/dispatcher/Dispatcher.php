@@ -125,24 +125,24 @@ class Dispatcher implements DispatcherInterface
     /**
      * Calls event listener
      *
-     * @param string $event
+     * @param string $eventName
      * @param mixed  $subject
      * @param mixed  $message
      *
      * @return mixed
      */
-    protected function call($event, $subject = null, $message = null)
+    protected function call($eventName, $subject = null, $message = null)
     {
-        if (!isset($this->events[$event])) {
+        if (!isset($this->events[$eventName])) {
             return $subject;
         }
 
-        foreach ($this->events[$event] as $listener) {
+        foreach ($this->events[$eventName] as $listener) {
             if ($this->stop) {
                 break;
             }
 
-            $subject = $listener($this->container, $subject, $message);
+            $subject = $listener($this->container, $subject, $message, $eventName);
         }
 
         return $subject;
