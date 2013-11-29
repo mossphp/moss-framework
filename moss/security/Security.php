@@ -24,17 +24,18 @@ class Security implements SecurityInterface
     /** @var array|AreaInterface[] */
     protected $areas = array();
 
-    /** @var array|FormUrlInterface[] */
-    protected $urls = array();
+    protected $loginUrl;
 
     /**
      * Constructor
      *
      * @param TokenStashInterface $stash
+     * @param string              $loginUrl
      */
-    public function __construct(TokenStashInterface $stash)
+    public function __construct(TokenStashInterface $stash, $loginUrl = null)
     {
         $this->stash = & $stash;
+        $this->loginUrl = $loginUrl;
     }
 
     /**
@@ -61,22 +62,6 @@ class Security implements SecurityInterface
     public function registerArea(AreaInterface $area)
     {
         $this->areas[] = & $area;
-
-        return $this;
-    }
-
-    /**
-     * Registers auth url in security
-
-     *
-*@param FormUrlInterface $url
-
-     *
-*@return $this
-     */
-    public function registerAuthUrl(FormUrlInterface $url)
-    {
-        $this->urls[] = & $url;
 
         return $this;
     }
@@ -146,6 +131,7 @@ class Security implements SecurityInterface
             if (!$provider->authenticate($token)) {
                 $this->stash()
                      ->destroy();
+
                 throw new AuthenticationException(sprintf('Token could not be authenticated in provider "%s", destroying token', get_class($provider)));
             }
 
@@ -156,6 +142,7 @@ class Security implements SecurityInterface
 
         $this->stash()
              ->destroy();
+
         throw new AuthenticationException(sprintf('Missing provider supporting token "%s", destroying token', get_class($token)));
     }
 
@@ -243,24 +230,18 @@ class Security implements SecurityInterface
     {
         $this->user = null;
         $this->stash->destroy();
+
+        return $this;
     }
 
 
     /**
      * Returns url (or null if not set) on which user should be redirected if has no access
      *
-     * @param RequestInterface $request
-     *
      * @return null|string
      */
-    public function authUrl(RequestInterface $request)
+    public function loginUrl()
     {
-        foreach ($this->urls as $url) {
-            if ($url->match($request)) {
-                return $url->url();
-            }
-        }
-
-        return null;
+        return $this->loginUrl;
     }
 }

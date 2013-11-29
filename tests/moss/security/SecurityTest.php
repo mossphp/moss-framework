@@ -6,9 +6,9 @@ class SecurityTest extends \PHPUnit_Framework_TestCase
 {
     public function testTokenize()
     {
-        $Security = new Security($this->getMock('\moss\security\TokenStashInterface'));
-        $Security->registerUserProvider($this->mockProvider(true, true));
-        $Security->tokenize(array('foo', 'bar'));
+        $security = new Security($this->getMock('\moss\security\TokenStashInterface'));
+        $security->registerUserProvider($this->mockProvider(true, true));
+        $security->tokenize(array('foo', 'bar'));
     }
 
     /**
@@ -17,9 +17,9 @@ class SecurityTest extends \PHPUnit_Framework_TestCase
      */
     public function testTokenizeWithEmptyCredentials()
     {
-        $Security = new Security($this->getMock('\moss\security\TokenStashInterface'));
-        $Security->registerUserProvider($this->mockProvider(true, false));
-        $Security->tokenize(array());
+        $security = new Security($this->getMock('\moss\security\TokenStashInterface'));
+        $security->registerUserProvider($this->mockProvider(true, false));
+        $security->tokenize(array());
     }
 
     /**
@@ -28,9 +28,9 @@ class SecurityTest extends \PHPUnit_Framework_TestCase
      */
     public function testTokenizeFailure()
     {
-        $Security = new Security($this->getMock('\moss\security\TokenStashInterface'));
-        $Security->registerUserProvider($this->mockProvider(true, false));
-        $Security->tokenize(array('foo', 'bar'));
+        $security = new Security($this->getMock('\moss\security\TokenStashInterface'));
+        $security->registerUserProvider($this->mockProvider(true, false));
+        $security->tokenize(array('foo', 'bar'));
     }
 
     /**
@@ -39,9 +39,9 @@ class SecurityTest extends \PHPUnit_Framework_TestCase
      */
     public function testTokenizeMissingProvider()
     {
-        $Security = new Security($this->getMock('\moss\security\TokenStashInterface'));
-        $Security->registerUserProvider($this->mockProvider(false, false));
-        $Security->tokenize(array('foo', 'bar'));
+        $security = new Security($this->getMock('\moss\security\TokenStashInterface'));
+        $security->registerUserProvider($this->mockProvider(false, false));
+        $security->tokenize(array('foo', 'bar'));
     }
 
     /**
@@ -50,10 +50,10 @@ class SecurityTest extends \PHPUnit_Framework_TestCase
      */
     public function testAuthWithoutToken()
     {
-        $Security = new Security($this->getMock('\moss\security\TokenStashInterface'));
-        $Security->registerArea($this->mockArea());
-        $Security->registerUserProvider($this->mockProvider(true, false));
-        $Security->authenticate($this->getMock('\moss\http\request\RequestInterface'));
+        $security = new Security($this->getMock('\moss\security\TokenStashInterface'));
+        $security->registerArea($this->mockArea());
+        $security->registerUserProvider($this->mockProvider(true, false));
+        $security->authenticate($this->getMock('\moss\http\request\RequestInterface'));
     }
 
     /**
@@ -62,10 +62,10 @@ class SecurityTest extends \PHPUnit_Framework_TestCase
      */
     public function testAuthFailure()
     {
-        $Security = new Security($this->mockStash());
-        $Security->registerArea($this->mockArea());
-        $Security->registerUserProvider($this->mockProvider(true, false));
-        $Security->authenticate($this->getMock('\moss\http\request\RequestInterface'));
+        $security = new Security($this->mockStash(true));
+        $security->registerArea($this->mockArea());
+        $security->registerUserProvider($this->mockProvider(true, false));
+        $security->authenticate($this->getMock('\moss\http\request\RequestInterface'));
     }
 
     /**
@@ -74,27 +74,27 @@ class SecurityTest extends \PHPUnit_Framework_TestCase
      */
     public function testAuthWithoutMatchingProvider()
     {
-        $Security = new Security($this->mockStash());
-        $Security->registerArea($this->mockArea());
-        $Security->registerUserProvider($this->mockProvider(false, false));
-        $Security->authenticate($this->getMock('\moss\http\request\RequestInterface'));
+        $security = new Security($this->mockStash(true));
+        $security->registerArea($this->mockArea());
+        $security->registerUserProvider($this->mockProvider(false, false));
+        $security->authenticate($this->getMock('\moss\http\request\RequestInterface'));
     }
 
     public function testAuthSuccess()
     {
-        $Security = new Security($this->mockStash());
-        $Security->registerUserProvider($this->mockProvider(false, false));
-        $Security->registerUserProvider($this->mockProvider());
-        $Security->registerArea($this->mockArea(false, false));
-        $Security->registerArea($this->mockArea(true, true));
-        $Security->authenticate($this->getMock('\moss\http\request\RequestInterface'));
-        $Security->authorize($this->getMock('\moss\http\request\RequestInterface'));
+        $security = new Security($this->mockStash(true));
+        $security->registerUserProvider($this->mockProvider(false, false));
+        $security->registerUserProvider($this->mockProvider());
+        $security->registerArea($this->mockArea(false, false));
+        $security->registerArea($this->mockArea(true, true));
+        $security->authenticate($this->getMock('\moss\http\request\RequestInterface'));
+        $security->authorize($this->getMock('\moss\http\request\RequestInterface'));
     }
 
     public function testAuthSuccessNoAreas()
     {
-        $Security = new Security($this->mockStash());
-        $this->assertInstanceOf('\moss\security\SecurityInterface', $Security->authorize($this->getMock('\moss\http\request\RequestInterface')));
+        $security = new Security($this->mockStash());
+        $this->assertInstanceOf('\moss\security\SecurityInterface', $security->authorize($this->getMock('\moss\http\request\RequestInterface')));
     }
 
     /**
@@ -103,105 +103,130 @@ class SecurityTest extends \PHPUnit_Framework_TestCase
      */
     public function testAuthorizeDenied()
     {
-        $Security = new Security($this->mockStash());
-        $Security->registerUserProvider($this->mockProvider(false, true));
-        $Security->registerUserProvider($this->mockProvider(true, true));
-        $Security->registerArea($this->mockArea(true, false));
-        $Security->authenticate($this->getMock('\moss\http\request\RequestInterface'));
-        $Security->authorize($this->getMock('\moss\http\request\RequestInterface'));
+        $security = new Security($this->mockStash(true));
+        $security->registerUserProvider($this->mockProvider(false, true));
+        $security->registerUserProvider($this->mockProvider(true, true));
+        $security->registerArea($this->mockArea(true, false));
+        $security->authenticate($this->getMock('\moss\http\request\RequestInterface'));
+        $security->authorize($this->getMock('\moss\http\request\RequestInterface'));
     }
 
     public function testStash()
     {
-        $Security = new Security($this->mockStash());
-        $this->assertInstanceOf('\moss\security\TokenStashInterface', $Security->stash());
+        $security = new Security($this->mockStash());
+        $this->assertInstanceOf('\moss\security\TokenStashInterface', $security->stash());
     }
 
     public function testToken()
     {
-        $Security = new Security($this->mockStash());
-        $this->assertInstanceOf('\moss\security\TokenInterface', $Security->token());
+        $security = new Security($this->mockStash(true));
+        $this->assertInstanceOf('\moss\security\TokenInterface', $security->token());
     }
 
     public function testUser()
     {
-        $Security = new Security($this->mockStash());
-        $Security->registerUserProvider($this->mockProvider(true, true));
-        $Security->registerArea($this->mockArea(true, true));
-        $Security->authenticate($this->getMock('\moss\http\request\RequestInterface'));
+        $security = new Security($this->mockStash(true));
+        $security->registerUserProvider($this->mockProvider(true, true));
+        $security->registerArea($this->mockArea(true, true));
+        $security->authenticate($this->getMock('\moss\http\request\RequestInterface'));
 
-        $this->assertInstanceOf('\moss\security\UserInterface', $Security->user());
+        $this->assertInstanceOf('\moss\security\UserInterface', $security->user());
     }
 
     public function testUserNoAuth()
     {
-        $Security = new Security($this->mockStash());
-        $this->assertNull($Security->user());
+        $security = new Security($this->mockStash(true));
+        $this->assertNull($security->user());
     }
 
-    protected function mockStash()
+    public function testDestroy()
     {
-        $Token = $this->getMock('\moss\security\TokenInterface');
+        $security = new Security($this->mockStash(true));
+        $security->registerUserProvider($this->mockProvider(true, true));
+        $security->registerArea($this->mockArea(true, true));
+        $security->authenticate($this->getMock('\moss\http\request\RequestInterface'));
 
-        $Stash = $this->getMock('\moss\security\TokenStashInterface');
-        $Stash
+        $this->assertInstanceOf('\moss\security\UserInterface', $security->user());
+
+        $security->destroy();
+
+        $this->assertNull($security->user());
+        $this->assertNull($security->token());
+    }
+
+    protected function mockStash($token = false)
+    {
+        $container = $token ? $this->getMock('\moss\security\TokenInterface') : null;
+
+        $stash = $this->getMock('\moss\security\TokenStashInterface');
+        $stash
+            ->expects($this->any())
+            ->method('put')
+            ->will($this->returnCallback(function ($token) use (&$container) { $container = $token; }));
+
+        $stash
             ->expects($this->any())
             ->method('get')
-            ->will($this->returnValue($Token));
+            ->will($this->returnCallback(function () use (&$container) { return $container; }));
 
-        return $Stash;
+        $stash
+            ->expects($this->any())
+            ->method('destroy')
+            ->will($this->returnCallback(function () use (&$container) { $container = null; }));
+
+        return $stash;
     }
 
     protected function mockProvider($support = true, $auth = true)
     {
-        $Provider = $this->getMock('\moss\security\UserProviderInterface');
+        $provider = $this->getMock('\moss\security\UserProviderInterface');
 
-        $Provider
+        $provider
             ->expects($this->any())
             ->method('supportsCredentials')
             ->will($this->returnValue($support));
 
-        $Provider
+        $provider
             ->expects($this->any())
             ->method('tokenize')
             ->will($this->returnValue($auth ? $this->getMock('\moss\security\TokenInterface') : false));
 
-        $Provider
+        $provider
             ->expects($this->any())
             ->method('supportsToken')
             ->will($this->returnValue($support));
 
-        $Provider
+        $provider
             ->expects($this->any())
             ->method('authenticate')
             ->will($this->returnValue($auth));
 
-        $Provider
+        $provider
             ->expects($this->any())
             ->method('get')
             ->will($this->returnValue($this->getMock('\moss\security\UserInterface')));
 
-        return $Provider;
+        return $provider;
     }
 
     protected function mockArea($match = true, $access = true)
     {
-        $Area = $this->getMock('\moss\security\AreaInterface');
-        $Area
+        $area = $this->getMock('\moss\security\AreaInterface');
+        $area
             ->expects($this->any())
             ->method('pattern')
             ->will($this->returnValue('sample_area'));
 
-        $Area
+        $area
             ->expects($this->any())
             ->method('match')
             ->will($this->returnValue($match));
 
-        $Area
+        $area
             ->expects($this->any())
             ->method('authorize')
             ->will($this->returnValue($access));
 
-        return $Area;
+        return $area;
     }
 }
