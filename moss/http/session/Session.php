@@ -9,7 +9,6 @@ namespace moss\http\session;
  */
 class Session implements SessionInterface
 {
-    private $storage;
     private $separator = '.';
 
     /**
@@ -27,8 +26,6 @@ class Session implements SessionInterface
         if (!$this->identify()) {
             $this->startSession();
         }
-
-        $this->storage = & $_SESSION;
     }
 
     /**
@@ -62,13 +59,9 @@ class Session implements SessionInterface
      */
     public function invalidate()
     {
-        unset($this->storage);
-
         $_SESSION = array();
         session_destroy();
         $this->startSession();
-
-        $this->storage = & $_SESSION;
     }
 
     /**
@@ -84,8 +77,6 @@ class Session implements SessionInterface
         $backup = $_SESSION;
         $this->startSession();
         $_SESSION = $backup;
-
-        $this->storage = & $_SESSION;
 
         return $this;
     }
@@ -152,7 +143,7 @@ class Session implements SessionInterface
             return $this->all();
         }
 
-        return $this->getFromArray($this->storage, explode($this->separator, $key), $default);
+        return $this->getFromArray($_SESSION, explode($this->separator, $key), $default);
     }
 
     /**
@@ -165,7 +156,7 @@ class Session implements SessionInterface
      */
     public function set($key, $value = null)
     {
-        $this->putIntoArray($this->storage, explode($this->separator, $key), $value);
+        $this->putIntoArray($_SESSION, explode($this->separator, $key), $value);
 
         return $this;
     }
@@ -179,9 +170,9 @@ class Session implements SessionInterface
      */
     public function remove($key)
     {
-        if (isset($this->storage[$key])) {
-            $this->storage[$key] = null;
-            unset($this->storage[$key]);
+        if (isset($_SESSION[$key])) {
+            $_SESSION[$key] = null;
+            unset($_SESSION[$key]);
         }
 
         return $this;
@@ -195,7 +186,7 @@ class Session implements SessionInterface
      */
     public function all()
     {
-        $storage = $this->storage;
+        $storage = $_SESSION;
 
         return $storage;
     }
@@ -207,8 +198,8 @@ class Session implements SessionInterface
      */
     public function reset()
     {
-        foreach (array_keys($this->storage) as $key) {
-            unset($this->storage[$key]);
+        foreach (array_keys($_SESSION) as $key) {
+            unset($_SESSION[$key]);
         }
 
         return $this;
@@ -276,7 +267,7 @@ class Session implements SessionInterface
      */
     public function offsetExists($key)
     {
-        return isset($this->storage[$key]);
+        return isset($_SESSION[$key]);
     }
 
     /**
@@ -288,11 +279,11 @@ class Session implements SessionInterface
      */
     public function &offsetGet($key)
     {
-        if (!isset($this->storage[$key])) {
-            $this->storage[$key] = null;
+        if (!isset($_SESSION[$key])) {
+            $_SESSION[$key] = null;
         }
 
-        return $this->storage[$key];
+        return $_SESSION[$key];
     }
 
     /**
@@ -306,12 +297,12 @@ class Session implements SessionInterface
     public function offsetSet($key, $value)
     {
         if ($key === null) {
-            array_push($this->storage, $value);
+            array_push($_SESSION, $value);
 
             return;
         }
 
-        $this->storage[$key] = $value;
+        $_SESSION[$key] = $value;
     }
 
     /**
@@ -323,7 +314,7 @@ class Session implements SessionInterface
      */
     public function offsetUnset($key)
     {
-        unset($this->storage[$key]);
+        unset($_SESSION[$key]);
     }
 
     /**
@@ -333,7 +324,7 @@ class Session implements SessionInterface
      */
     public function count()
     {
-        return count($this->storage) - 1;
+        return count($_SESSION);
     }
 
     /**
@@ -343,9 +334,9 @@ class Session implements SessionInterface
      */
     public function current()
     {
-        reset($this->storage);
+        reset($_SESSION);
 
-        return array_shift($this->storage);
+        return array_shift($_SESSION);
     }
 
     /**
@@ -355,7 +346,7 @@ class Session implements SessionInterface
      */
     public function key()
     {
-        return key($this->storage);
+        return key($_SESSION);
     }
 
     /**
@@ -365,7 +356,7 @@ class Session implements SessionInterface
      */
     public function next()
     {
-        reset($this->storage);
+        reset($_SESSION);
     }
 
     /**
@@ -375,7 +366,7 @@ class Session implements SessionInterface
      */
     public function rewind()
     {
-        reset($this->storage);
+        reset($_SESSION);
     }
 
     /**
@@ -385,12 +376,12 @@ class Session implements SessionInterface
      */
     public function valid()
     {
-        $key = key($this->storage);
+        $key = key($_SESSION);
 
         if ($key === false || $key === null) {
             return false;
         }
 
-        return isset($this->storage[$key]);
+        return isset($_SESSION[$key]);
     }
 }

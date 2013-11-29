@@ -38,25 +38,6 @@ class SessionTest extends \PHPUnit_Framework_TestCase
     /**
      * @runInSeparateProcess
      */
-    public function testIsValid()
-    {
-        $Session = new Session();
-        $this->assertTrue($Session->validate());
-    }
-
-    /**
-     * @runInSeparateProcess
-     */
-    public function testIsInvalid()
-    {
-        $Session = new Session();
-        $_SESSION['authkey'] = null;
-        $this->assertFalse($Session->validate());
-    }
-
-    /**
-     * @runInSeparateProcess
-     */
     public function testGetSet()
     {
         $Session = new Session();
@@ -207,6 +188,6 @@ class SessionTest extends \PHPUnit_Framework_TestCase
     {
         $Session = new Session();
         $Session->offsetSet('foo', 'bar');
-        $this->assertEquals(count($_SESSION), $Session->count() + 1);
+        $this->assertEquals(count($_SESSION), $Session->count());
     }
 }
