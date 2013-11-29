@@ -322,7 +322,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
                 'type' => 'text/plain',
                 'tmp_name' => 'whatever2',
                 'error' => 2,
-                'error_text' => 'The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form.',
+                'error_text' => 'The uploaded file exceeds the MAX_FILE_SIZE directive specified in HTML form.',
                 'size' => 0
             ),
             'bar3' => array(
