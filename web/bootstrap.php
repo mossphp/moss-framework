@@ -73,15 +73,15 @@ return array(
     'router' => array(
         'main' => array(
             'pattern' => '/',
-            'controller' => 'moss:sample:Sample:index',
+            'controller' => 'moss:sample:sample:index',
             'arguments' => array(),
             'host' => null,
             'schema' => null,
             'methods' => array()
         ),
         'autodoc' => array(
-            'pattern' => '/autodoc/',
-            'controller' => 'moss:autodoc:Autodoc:index',
+            'pattern' => '/source/',
+            'controller' => 'moss:sample:sample:source',
         )
     )
 );
