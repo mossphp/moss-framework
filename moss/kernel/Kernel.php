@@ -138,14 +138,12 @@ class Kernel
             throw new KernelException(sprintf('Unable to load controller class "%s"', $controller));
         }
 
-        if (empty($action)) {
-            throw new KernelException(sprintf('Invalid or missing action name in controller identifier "%s"', $controller));
-        }
-
         $instance = new $controller($this->container, $this->router, $request);
 
-        if (method_exists($instance, 'before') && is_callable(array($instance, 'before')) && ($response = $instance->before())) {
-            return $response;
+        if (method_exists($instance, 'before') && is_callable(array($instance, 'before'))) {
+            if ($res = $instance->before()) {
+                return $res;
+            }
         }
 
         if (!method_exists($instance, $action) || !is_callable(array($instance, $action))) {
@@ -154,8 +152,10 @@ class Kernel
 
         $response = $instance->$action();
 
-        if (!method_exists($instance, 'after') && is_callable(array($instance, 'after'))) {
-            $response = $instance->after($response);
+        if (method_exists($instance, 'after') && is_callable(array($instance, 'after'))) {
+            if ($res = $instance->after()) {
+                return $res;
+            }
         }
 
         return $response;
@@ -176,7 +176,7 @@ class Kernel
         }
 
         if (substr_count($controller, ':') < 2) {
-            throw new KernelException(sprintf('Invalid controller identifier "%s". Controller identifier should have at least two ":".', $controller));
+            throw new KernelException(sprintf('Invalid controller identifier "%s", must have at least two ":".', $controller));
         }
 
         preg_match_all('/^(?P<bundle>.*):(?P<controller>[^:]+):(?P<action>[0-9a-z_]+)$/i', $controller, $matches, PREG_SET_ORDER);
