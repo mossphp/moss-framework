@@ -14,7 +14,6 @@ class Route implements RouteInterface
     protected $controller;
 
     protected $pattern;
-    protected $original;
 
     protected $requirements = array();
     protected $arguments = array();
@@ -34,12 +33,16 @@ class Route implements RouteInterface
     public function __construct($pattern, $controller, $arguments = array())
     {
         $this->pattern = $pattern;
-        $this->original = $pattern;
         $this->controller = strtolower($controller);
         $this->pattern = preg_replace_callback('/(\()?(\{([^}]+)\})(?(1)([^()]*)|())(\))?/i', array($this, 'callback'), $this->pattern, \PREG_SET_ORDER);
 
-        if (!empty($arguments)) {
-            $this->arguments($arguments);
+        foreach ($arguments as $key => $value) {
+            if (!isset($this->requirements[$key])) {
+                $this->requirements[$key] = $value;
+                $this->conditionals[$key] = null;
+            }
+
+            $this->arguments[$key] = $value;
         }
     }
 
@@ -250,6 +253,18 @@ class Route implements RouteInterface
             return false;
         }
 
+        foreach ($matches[0] as $k => $v) {
+            if (is_numeric($k)) {
+                continue;
+            }
+
+            if ($this->conditionals[$k]) {
+                $v = rtrim($v, $this->conditionals[$k]);
+            }
+
+            $this->arguments[$k] = $v;
+        }
+
         return true;
     }
 
@@ -267,16 +282,10 @@ class Route implements RouteInterface
             return false;
         }
 
-        foreach (array_keys($this->arguments) as $k) {
-            if (!isset($arguments[$k])) {
-                return false;
-            }
+        foreach ($this->requirements as $key => $regex) {
+            $value = isset($arguments[$key]) ? $arguments[$key] : null;
 
-            if (!isset($this->requirements[$k])) {
-                continue;
-            }
-
-            if (!preg_match('/^' . $this->requirements[$k] . '$/i', $arguments[$k])) {
+            if (!preg_match('/^' . $regex . '$/i', $value)) {
                 return false;
             }
         }
@@ -320,6 +329,10 @@ class Route implements RouteInterface
         foreach ($arguments as $key => $v) {
             if (isset($this->requirements[$key])) {
                 $url['#' . $key . '#'] = $this->strip($v) . $this->conditionals[$key];
+                continue;
+            }
+
+            if (isset($this->arguments[$key])) {
                 continue;
             }
 
