@@ -2,6 +2,7 @@
 return array(
     'framework' => array(
         'error' => array(
+            'display' => true,
             'level' => E_ALL | E_NOTICE,
             'detail' => true
         ),
@@ -52,8 +53,8 @@ return array(
 
                     $View = new \moss\view\View($Twig);
                     $View
-                        ->set('Request', $Container->get('Request'))
-                        ->set('Config', $Container->get('Config'));
+                        ->set('request', $Container->get('Request'))
+                        ->set('config', $Container->get('Config'));
 
                     return $View;
                 }

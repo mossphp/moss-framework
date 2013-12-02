@@ -13,6 +13,7 @@ class Config implements ConfigInterface
     protected $config = array(
         'framework' => array(
             'error' => array(
+                'display' => true,
                 'level' => -1,
                 'detail' => true
             ),
