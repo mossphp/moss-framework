@@ -15,10 +15,12 @@ class ErrorHandler
     /**
      * Constructor
      *
-     * @param int $level
+     * @param boolean $display
+     * @param int     $level
      */
-    public function __construct($level = -1)
+    public function __construct($display = true, $level = -1)
     {
+        $this->display = (bool) $display;
         $this->level = (int) $level;
     }
 
@@ -27,6 +29,9 @@ class ErrorHandler
      */
     public function register()
     {
+        ini_set('display_errors', $this->display);
+
+        error_reporting($this->level);
         set_error_handler(array($this, 'handler'), $this->level);
     }
 
