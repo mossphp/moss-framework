@@ -25,8 +25,8 @@ When calling closure controller, `Kernel` passes tree arguments:
 
 ## Non-closure controller - class with actions
 
-In case of class controllers, arguments passed to closure controller are passe to class constructor.
-Therefore, action parameters can be used as needed, but must be optional.
+In case of class controllers, arguments passed to closure controller are passed to class constructor.
+Therefore, action parameters can be used as needed, but must be optional, otherwise `Kernel` will be unable to call action.
 
 	class SomeController
 	{

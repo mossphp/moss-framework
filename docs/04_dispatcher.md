@@ -6,44 +6,44 @@ If so - all listeners (either class or closure) are notified about event.
 
 ## Event listener
 
-Create event listener, that will call `method` with array of `arguments` on `component` when event occours (event is defined elswhere).
+Create event listener, that will call `method` with array of `arguments` on `component` when event occurred (event is defined elsewhere).
 Method and arguments are optional.
 
-	$Listener = new \moss\dispatcher\Listener('component', 'method', $arguments);
+	$listener = new \moss\dispatcher\Listener('component', 'method', $arguments);
 
-Arguments are defined just like in DI component's definitions, with two additional - predefined - components: `Subject` and `Message`.
-The `Subject` is an event object (usually object firing event), while `Message` is a text assiociated with event (eg. exception message).
+Arguments are defined just like in `container` component's definitions, with two additional - predefined - components: `subject` and `message`.
+The `subject` is an object, usually the one firing event (eg.exception), while `message` is a text associated with event (eg. exception message).
 
 To retrieve listening effect call `get` method on defined listener.
 Retrieval requires object implementing `\moss\container\ContainerInterface`, other attributes are optional.
 
-	$Result = $Listener->get($Container, $Subject, $Message);
+	$result = $listener->get($container, $subject, $message);
 
 ## Register listener to event
 
-Register defined `$Listener` to observe `foo` event:
+Register defined `$listener` to observe `foo` event:
 
-	$Dispatcher = new \moss\dispatcher\Dispatcher($Container);
-	$Dispatcher->register('foo', $Listener);
+	$dispatcher = new \moss\dispatcher\Dispatcher($container);
+	$dispatcher->register('foo', $listener);
 
 Or register closure as event listener:
 
-	$Dispatcher->register('foo', function($Container, $Subject = null, $Message = null) {
+	$dispatcher->register('foo', function($container, $subject = null, $message = null) {
 		return 'ClosureListenerResult';
-		});
+	});
 
 Or to multiple events:
 
-	$Dispatcher->register(array('foo', 'bar', 'yada'), $Listener);
+	$Dispatcher->register(array('foo', 'bar', 'yada'), $listener);
 
-Generally order in which listeners are registered to event is same oreder in which they are called.
+Generally order in which listeners are registered to event is same order in which they are called.
 To change this, when registering listener set third argument - `priority` - zero is first.
 
 ## Fire event
 
 To fire `foo` event, call:
 
-	$Dispatcher->fire('foo');
+	$dispatcher->fire('foo');
 
 All defined listeners, that observe `foo` event will be notified.
 
@@ -51,19 +51,19 @@ All defined listeners, that observe `foo` event will be notified.
 
 To stop other listeners from being notified, call `::stop()` method.
 
-	$Dispatcher->stop();
+	$dispatcher->stop();
 
 No other listeners will be notified about ongoing event.
 
 ## Aspects
 
-When `foo` event is fired, `Dispatcher` actually fires three events (called _aspects_) - `foo:before`, `foo` and `foo:after` - in that order.
+When `foo` event is fired, `dispatcher` actually fires three events (called _aspects_) - `foo:before`, `foo` and `foo:after` - in that order.
 If any of those events, throws unhandled exception `foo:exception` will be fired - and no further listeners will be notified.
 In case when `foo:exception` has no listeners, exception will be rethrown.
 
-In case of `:exception`, the `Subject` is thrown exception and `Message` is its message.
+In case of `:exception`, the `subject` is thrown exception and `message` is its message.
 
-Registering aspect listeners is identical as registering normal event, just remember aspect name `:before`, `:after` and `:exception`.
+Registering aspect listeners is identical as registering normal event, just remember aspect name postfix `:before`, `:after` and `:exception`.
 
 ## Framework events
 

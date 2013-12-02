@@ -1,67 +1,70 @@
 # Router
 
 Routers responsibility is to translate incoming URL requests into controller name (or controller itself) with query arguments.
- And the other way - from controller name (or route name), query arguments creates URL.
+ And the other way - from controller name (or route name), query arguments creates URI (there is difference between URL and URI).
 
 ## Declaring route
 
 Create route ( pointing to controller `controller:action` and two query arguments: required `foo` and optional `bar` that accept anything:
 
-	$Route = new \moss\router\Route('/{foo}/({bar})/', 'controller:action');
+	$route = new \moss\router\Route('/{foo}/({bar})/', 'controller:action');
 
 Or create route with closure as controller
 
-	$Route = new \moss\router\Route('/{foo:\w}/({bar:\d})/', function() {
+	$route = new \moss\router\Route('/{foo:\w}/({bar:\d}/)', function() {
 		return new \moss\response\Response('Hello world');
 	});
 
 Set argument requirements - accepted types - by default, values matching `[a-z0-9-._]` are accepted:
 
-    $Route->requirements(array('foo' => '\w+', 'bar' => '\d*'));
+	$route = new \moss\route\Route('/{foo}/({bar}/)', 'controller:action');
+    $route->requirements(array('foo' => '\w+', 'bar' => '\d*'));
 
 Same defined in constructor:
 
-	$Route = new \moss\router\Route('/{foo:\w}/({bar:\d})/', 'controller:action');
+	$route = new \moss\router\Route('/{foo:\w}/({bar:\d})/', 'controller:action');
 
-Set argument default values, needed only for required arguments:
+Set argument default values, needed only for required arguments (eg. route /some-title/ should point to entry with id = 1:
 
-    $Route->arguments(array('foo' => 'foo'));
+    $route->arguments(array('id' => 1));
 
 Limited to domain:
 
-    $Route->host('foo.bar.com');
+    $route->host('foo.bar.com');
 
-Limited to domain subdomain:
+Limited to sub domain:
 
-	$Route->host('foo.{basename}');
+	$route->host('foo.{basename}');
 
 Limited methods:
 
-    $Route->methods(array('POST'));
+    $route->methods(array('POST'));
 
 Limited schema:
 
-    $Route->schema('HTTP');
+    $route->schema('HTTP');
 
 ## Register route
 
 Create router and register routes:
 
-	$Router = new Router();
-	$Router->register('routeName', $Route);
+	$route = new \moss\router\Route('/{foo:\w}/({bar:\d})/', 'controller:action');
+
+	$router = new Router();
+	$router->register('routeName', $route);
 
 ## Match request to route
 
-Match request - if matching route found, controller from matching route is returned. Otherwise RouterException is thrown.
+Match request - if matching route is found, controller from matching route is returned. Otherwise RouterException is thrown.
 
-	$controller = $Router->match(new Request);
+	$controller = $router->match(new Request);
 
 ## Generate URL from route
 
 To generate url from controller name
 
-	$url = $Router->make('controller:action', array('foo' => 'foo')); // by controller, works only for non-closure routes
-	$url = $Router->make('routeName', array('foo' => 'foo')); // by route name
+	$url = $router->make('controller:action', array('foo' => 'foo')); // by controller, works only for non-closure routes
+	$url = $router->make('routeName', array('foo' => 'foo')); // by route name
 
 Both methods will return same url - if corresponding route exists.
 If matching route does not exist, `Router` will return normal URL.

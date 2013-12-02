@@ -3,45 +3,45 @@
 The `Request` object represents incoming request with all handy properties and stuff.
 Just create an instance, with optional `$_SESSION` and `$_COOKIE` wrappers:
 
-	$Request = new Request();
+	$request = new Request();
 
 ## Basic methods
 
  * `isAjax` - will return `true` if request was sent with `XMLHttpRequest` header (it means that it is AJAX request - prototype.js and jQuery do send that header)
  * `baseName` - returns basename - if available,
  * `clientIp` - tries to resolve clients ip or his proxy
- * `controller` - will return controller identifier if was passed in query or matching route found
+ * `controller` - will return controller identifier if was passed in query or matching route found (this can be string or closure)
  * `url` - returns requested url
  * `referrer` - from where did request came
  * `locale` - requested language
- * `format` - requested format - generally null - which means any format
+ * `format` - requested format - mainly null - which means any format
 
 ## Headers and server
 
 Request headers are available via the `::getHeader($header)` method, where `$header` is headers name in lowercase and `-` changed to `_`, eg: `$Request->getHeader('content_type')` will return `Content-Type` or `null` if header not set.
-Environment variables (`$_SERVER`) are accessible via `::getServer($server)` method. Theri names are same as in `$_SERVER` superglobal. The `::getServer()` method will return `null` if requested variable is not set.
+Environment variables (`$_SERVER`) are accessible via `::getServer($server)` method. Their names are same as in `$_SERVER` superglobal. The `::getServer()` method will return `null` if environment variable is not set.
 
 ## Console and other methods
 
 To access query (`GET`) arguments use `::getQuery($key, $value = null)` method, same for console (`CLI`) arguments.
 For `POST`, `PUT`, `DELETE` arguments call `::getPost($key, $value = null)` method.
 
-Both methos allow access to multidimensional arrays, just separate keys with `.` (dot) eg:
+Both methods allow access to multidimensional arrays, just separate keys with `.` (dot) eg:
 
-	$yada = $Request->getPost('foo.bar.yada'); // $_POST['foo']['bar']['yada'];
+	$yada = $request->getPost('foo.bar.yada'); // $_POST['foo']['bar']['yada'];
 
-If value unequals `null`, new value will be set.
+To set `GET` and `POST` values use respectively `setQuery` and `setPost`
 
 ## Files
 
-The `::getFile($key)` method grants acces to modified `$_FILES` superglobal.
+The `::getFile($key)` method grants access to modified `$_FILES` superglobal.
 Structure has been modified as follows:
 
 	// <input type="file" name="foo[bar][yada]"/>
 	$tmp_name = $_FILES['foo']['tmp_name']['bar']['yada'];
 	$tmp_name = $Request->getFile('foo.bar.yada.tmp_name'); // as $tmp_name = $_files['foo']['bar']['yada']['tmp_name'];
 
-In addition, each field receives additional property `error_text` whitch will contain error message (if error occoured)
+In addition, each field receives additional property `error_text` which will contain error message (if error occurred, empty otherwise)
 
 ## Cookies and session
 
@@ -59,4 +59,4 @@ Access to them is available trough `::getSession($key, $value = null)` and `::ge
 
 ## Twig bridge extension
 
-`Request` instance is available in `Twig` templates (if used via `View` component), as `Request` variable.
+`Request` instance is available in `Twig` templates (if used via `View` component), as `request` variable.

@@ -4,8 +4,8 @@
 
 ## Configuration array / bootstrap
 
-Entire configuration is read from plain php arrays, just call `::read($arr)` and pass array containing data to add, update existing configuration.
-Configuration array must be properly formatted, otherwise `ConfigException` will be thrown.
+Entire configuration is read from plain php arrays, just call `::read($arr)` and pass array containing data to add to or update existing configuration.
+Configuration array must have appropriate structure, otherwise `ConfigException` will be thrown.
 
 Configuration is split into sections:
 
@@ -27,7 +27,7 @@ To access specific variable in section:
 	$Config = new Config(array('section' => array('some' => array('var' => 'var'))));
 	$var = $Config->get('section.some.var');
 
-Or (in PHP >5.4)
+from PHP > 5.4 can also:
 
 	$Config = new Config(array('section' => array('some' => array('var' => 'var'))));
     $var = $Config->get('section')['some']['var'];
@@ -36,36 +36,38 @@ Or (in PHP >5.4)
 
 There are two properties determining error reporting:
 
-  * `framework.error.level` - reported error level, just like in `error_reporting()`;
+  * `framework.error.display` - if set to true will display errors - sets `ini_set('display_errors', true)`;
+  * `framework.error.level` - reported error level sets `error_reporting()` to corresponding level;
   * `framework.error.detail` - if set to false will output only error message, if true - exception handler with verbose display will be used
 
 Configuration of frameworks session and cookie wrappers is stored in `framework.session` and `framework.cookie` properties.
 
-  * `framework.session.agent` - if set to `true`, auth key will contain user agents information
-  * `framework.session.ip` - if `true`, auth key will contain users IP address (or his proxy)
-  * `framework.session.salt` - salt, a random string that will be added to above
+  * `framework.session.name` - session name, by default its `PHPSESSID`
+  * `framework.session.cacheLimiter` - The cache limiter defines which cache control HTTP headers are sent to the client, by default its `''` - and turns off cache headers entirely
 
   * `framework.cookie.domain` - domain that cookie is available to, if set to empty string uses current domain
   * `framework.cookie.path` -path in which the cookie will be available on, by default set to '/' - cookie is available within the entire domain
   * `framework.cookie.http` - when `true` the cookie will be made accessible only through the HTTP protocol
+  * `framework.cookie.ttl` - cookie Time To Live in seconds, by default its one month
 
 In configuration array, this section looks like this:
 
 	$arr = array(
 		'framework' => array(
 			'error' => array(
+				'display' => true,
 				'level' => E_ALL | E_NOTICE,
 				'detail' => true
 			),
 			'session' => array(
-				'agent' => true,
-				'ip' => true,
-				'salt' => 'RandomSaltString'
+				'name' => 'PHPSESSID',
+				'cacheLimiter' => ''
 			),
 			'cookie' => array(
 				'domain' => null,
 				'path' => '/',
 				'http' => true,
+				'ttl' => 2592000
 			)
 		)
 	);
@@ -73,7 +75,7 @@ In configuration array, this section looks like this:
 ## Namespaces
 
 The `namespace` section contains list of namespaces that will be registered in autoloaders.
-List is represented as associative array, where key is namespace name, ant value array of paths:
+List is represented as associative array, where key is namespace name, and value array of paths:
 
 	$arr = array(
 		'namespaces' => array(
@@ -86,7 +88,7 @@ List is represented as associative array, where key is namespace name, ant value
 
 ## Container
 
-Component defintions can be found in `container` section.
+Component definitions can be found in `container` section.
 Minimal definition, other array elements are optional
 
 	$arr = array(
@@ -102,12 +104,12 @@ Minimal definition, other array elements are optional
 		)
 	);
 
-Full definition can look like this:
+Mainly components will be defined as closures, but for full picture entire definition can look like this:
 
 	$arr = array(
 		'container' => array(
 			'ComponentName' => array(
-				'class' => 'NamespacedComponentClass',
+				'class' => '\Namespaced\Component\Class',
 				'arguments' => array(
 					'@OtherComponentName',
 					'argument1',
@@ -139,7 +141,7 @@ Full definition can look like this:
 	);
 
 Array under `arguments` key contains arguments passed to components constructor.
-The `methods` associattive array, represents all methods that will be called after components initialization in set order.
+The `methods` associative array, represents all methods that will be called after components initialization in set order.
 For detailed description of constructor and method arguments go to `Container` chapter.
 
 ## Dispatcher & event listeners
@@ -169,7 +171,7 @@ Each event can have many listeners:
 		)
 	);
 
-With AOP:
+As listener supports form of aspect oriented programming, each event is internally split into:
 
 	$arr = array(
 		'dispatcher' => array(
@@ -224,4 +226,4 @@ For detailed description of route definitions go to `Router` chapter.
 
 ## Twig bridge extension
 
-`Config` instance is available in `Twig` templates (if used via `View` component), as `Config` variable.
+`Config` instance is available in `Twig` templates (if used via `View` component), as `config` variable.
