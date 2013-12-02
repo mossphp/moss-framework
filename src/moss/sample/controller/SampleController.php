@@ -30,6 +30,8 @@ class SampleController
 
     /**
      * Sample method, displays link to controller source
+     *
+     * @return Response
      */
     public function indexAction()
     {
