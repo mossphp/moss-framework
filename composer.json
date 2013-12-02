@@ -1,6 +1,6 @@
 {
 	"name": "moss/moss",
-	"version": "0.7.2",
+	"version": "0.8.0",
 	"description": "The PHP micro-framework",
 	"keywords": ["microframework"],
 	"type": "framework",
@@ -16,7 +16,7 @@
 			"type": "package",
 			"package": {
 				"name": "moss/storage",
-				"version": "0.1",
+				"version": "0.0.1",
 				"dist": {
 					"url": "http://github.com/Potfur/moss-storage/archive/master.zip",
 					"type": "zip"
@@ -32,7 +32,7 @@
 			"type": "package",
 			"package": {
 				"name": "moss/form",
-				"version": "0.1",
+				"version": "0.0.1",
 				"dist": {
 					"url": "http://github.com/Potfur/moss-form/archive/master.zip",
 					"type": "zip"
@@ -48,7 +48,7 @@
 			"type": "package",
 			"package": {
 				"name": "moss/locale",
-				"version": "0.1",
+				"version": "0.0.1",
 				"dist": {
 					"url": "http://github.com/Potfur/moss-locale/archive/master.zip",
 					"type": "zip"
