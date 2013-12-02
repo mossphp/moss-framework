@@ -79,7 +79,7 @@ return array(
             'schema' => null,
             'methods' => array()
         ),
-        'autodoc' => array(
+        'source' => array(
             'pattern' => '/source/',
             'controller' => 'moss:sample:sample:source',
         )
