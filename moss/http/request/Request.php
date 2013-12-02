@@ -605,7 +605,15 @@ class Request implements RequestInterface
      */
     public function isAjax()
     {
-        return !empty($this->server['HTTP_X_REQUESTED_WITH']) && strtolower($this->server['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
+        if (empty($this->server['HTTP_X_REQUESTED_WITH'])) {
+            return false;
+        }
+
+        if (strtolower($this->server['HTTP_X_REQUESTED_WITH']) !== 'xmlhttprequest') {
+            return false;
+        }
+
+        return true;
     }
 
     /**
