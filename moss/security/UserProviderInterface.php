@@ -20,7 +20,7 @@ interface UserProviderInterface
     public function supportsCredentials(array $credentials);
 
     /**
-     * Creates token from credentials via user providers
+     * Creates token from credentials
      *
      * @param array $credentials
      *
@@ -38,28 +38,25 @@ interface UserProviderInterface
     public function supportsToken(TokenInterface $token);
 
     /**
-     * Authenticates token and sets user identifier in token
-     * Removes used credentials from token
+     * Authenticates token in provider
      *
      * @param TokenInterface $token
      *
      * @return bool
-     * @throws AuthenticationException
      */
     public function authenticate(TokenInterface $token);
 
     /**
-     * Returns user instance matching user token
+     * Returns user instance matching token
      *
      * @param TokenInterface $token
      *
      * @return UserInterface
-     * @throws AuthenticationException
      */
     public function get(TokenInterface $token);
 
     /**
-     * Updates user data in providers storage
+     * Updates user data
      *
      * @param TokenInterface $token
      *

@@ -16,8 +16,8 @@ class Token implements TokenInterface
     /**
      * Constructor
      *
-     * @param string     $auth
-     * @param int|string $user
+     * @param string $auth
+     * @param mixed  $user
      */
     public function __construct($auth = null, $user = null)
     {
@@ -102,7 +102,7 @@ class Token implements TokenInterface
      */
     public function serialize()
     {
-        return json_encode(array($this->auth, $this->user));
+        return serialize(array($this->auth, $this->user));
     }
 
     /**
@@ -114,6 +114,6 @@ class Token implements TokenInterface
      */
     public function unserialize($serialized)
     {
-        list($this->auth, $this->user) = json_decode($serialized, true);
+        list($this->auth, $this->user) = unserialize($serialized);
     }
 }

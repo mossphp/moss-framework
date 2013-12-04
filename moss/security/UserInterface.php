@@ -43,9 +43,9 @@ interface UserInterface
     /**
      * Returns true if user has access
      *
-     * @param string $access
+     * @param string $right
      *
      * @return bool
      */
-    public function hasRight($access);
+    public function hasRight($right);
 }

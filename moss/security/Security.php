@@ -88,6 +88,7 @@ class Security implements SecurityInterface
             if (!$token = $provider->tokenize($credentials)) {
                 $this->stash()
                      ->destroy();
+
                 throw new AuthenticationException(sprintf('Credentials could not be tokenized in provider "%s", destroying token', get_class($provider)));
             }
 
@@ -99,6 +100,7 @@ class Security implements SecurityInterface
 
         $this->stash()
              ->destroy();
+
         throw new AuthenticationException(sprintf('Missing provider supporting credentials "%s", destroying token', implode(', ', array_keys($credentials))));
     }
 
