@@ -1,0 +1,10 @@
+{% extends 'moss:sample:index' %}
+
+{% block body %}
+    <p>Controller source is protected with credentials (just type <var>login</var> / <var>password</var>)</p>
+    <form action="" method="post">
+        <input type="text" name="login" placeholder="login"/>
+        <input type="text" name="password" placeholder="password"/>
+        <button type="submit">Submit</button>
+    </form>
+{% endblock %}

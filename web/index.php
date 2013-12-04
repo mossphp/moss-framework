@@ -12,6 +12,7 @@ require __ROOT__ . '/../moss/loader/Loader.php';
 // bootstrap & config
 $config = new \moss\config\Config();
 $config->import((array) require __ROOT__ . '/bootstrap.php');
+$config->import((array) require __ROOT__ . '/../src/moss/sample/bootstrap.php');
 
 // error handling
 $errorHandler = new \moss\kernel\ErrorHandler($config->get('framework.error.level'));
