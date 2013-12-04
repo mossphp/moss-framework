@@ -31,7 +31,14 @@ class RouterTest extends \PHPUnit_Framework_TestCase
 
     protected function mockRequest($controller, $url, $host = null)
     {
+        $bag = $this->getMock('moss\http\bag\BagInterface');
+
         $request = $this->getMock('moss\http\request\RequestInterface');
+
+        $request
+            ->expects($this->any())
+            ->method('query')
+            ->will($this->returnValue($bag));
 
         $request
             ->expects($this->any())
@@ -119,12 +126,17 @@ class RouterTest extends \PHPUnit_Framework_TestCase
 
     public function testMatchQuery()
     {
+        $bag = $this->getMock('moss\http\bag\BagInterface');
+        $bag->expects($this->any())
+            ->method('get')
+            ->will($this->returnValue('router'));
+
         $request = $this->getMock('moss\http\request\RequestInterface');
 
         $request
             ->expects($this->any())
-            ->method('getQuery')
-            ->will($this->returnValue('router'));
+            ->method('query')
+            ->will($this->returnValue($bag));
 
         $request
             ->expects($this->any())
@@ -148,14 +160,14 @@ class RouterTest extends \PHPUnit_Framework_TestCase
 
         $controller = $this->router->match($request);
         $this->assertEquals('router', $controller);
-        $this->assertAttributeEquals(
-             array(
-                  'host' => 'http://test.com',
-                  'controller' => 'router',
-                  'locale' => 'fr',
-                  'format' => 'yml'
-             ), 'defaults', $this->router
+
+        $expected =array(
+            'host' => 'http://test.com',
+            'controller' => 'router',
+            'locale' => 'fr',
+            'format' => 'yml'
         );
+        $this->assertAttributeEquals($expected, 'defaults', $this->router);
     }
 
 

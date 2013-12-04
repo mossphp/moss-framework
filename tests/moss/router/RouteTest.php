@@ -148,9 +148,6 @@ class RouteTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    /**
-     * @dataProvider checkProvider
-     */
     public function testCheck()
     {
         $this->markTestIncomplete();
@@ -161,9 +158,6 @@ class RouteTest extends \PHPUnit_Framework_TestCase
         return array();
     }
 
-    /**
-     * @dataProvider checkProvider
-     */
     public function testMake()
     {
         $this->markTestIncomplete();

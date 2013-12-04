@@ -1,6 +1,9 @@
 <?php
 namespace moss\http\request;
 
+use moss\http\cookie\Cookie;
+use moss\http\session\Session;
+
 /**
  * @package Moss Test
  */
@@ -21,50 +24,13 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
         $Request = new Request();
         $this->assertInstanceOf('\moss\http\request\RequestInterface', $Request);
-        $this->assertEquals($_SERVER['CONTENT_LENGTH'], $Request->getServer('CONTENT_LENGTH'));
-        $this->assertEquals($_SERVER['CONTENT_MD5'], $Request->getServer('CONTENT_MD5'));
-        $this->assertEquals($_SERVER['CONTENT_TYPE'], $Request->getServer('CONTENT_TYPE'));
-        $this->assertEquals($_SERVER['CONTENT_LENGTH'], $Request->getHeader('content_length'));
-        $this->assertEquals($_SERVER['CONTENT_MD5'], $Request->getHeader('content_md5'));
-        $this->assertEquals($_SERVER['CONTENT_TYPE'], $Request->getHeader('content_type'));
+        $this->assertEquals($_SERVER['CONTENT_LENGTH'], $Request->server('CONTENT_LENGTH'));
+        $this->assertEquals($_SERVER['CONTENT_MD5'], $Request->server('CONTENT_MD5'));
+        $this->assertEquals($_SERVER['CONTENT_TYPE'], $Request->server('CONTENT_TYPE'));
+        $this->assertEquals($_SERVER['CONTENT_LENGTH'], $Request->header('content_length'));
+        $this->assertEquals($_SERVER['CONTENT_MD5'], $Request->header('content_md5'));
+        $this->assertEquals($_SERVER['CONTENT_TYPE'], $Request->header('content_type'));
     }
-
-    public function testConstructPHPAuth()
-    {
-        $_SERVER['PHP_AUTH_USER'] = 'user';
-        $_SERVER['PHP_AUTH_PW'] = 'pw';
-
-        $Request = new Request();
-        $this->assertInstanceOf('\moss\http\request\RequestInterface', $Request);
-        $this->assertEquals($_SERVER['PHP_AUTH_USER'], $Request->getServer('PHP_AUTH_USER'));
-        $this->assertEquals($_SERVER['PHP_AUTH_PW'], $Request->getServer('PHP_AUTH_PW'));
-        $this->assertEquals($_SERVER['PHP_AUTH_USER'], $Request->getHeader('php_auth_user'));
-        $this->assertEquals($_SERVER['PHP_AUTH_PW'], $Request->getHeader('php_auth_pw'));
-    }
-
-    public function testConstructHTTPAuth()
-    {
-        $_SERVER['HTTP_AUTHORIZATION'] = 'basic ' . base64_encode('user:pw');
-
-        $Request = new Request();
-        $this->assertInstanceOf('\moss\http\request\RequestInterface', $Request);
-        $this->assertEquals($_SERVER['HTTP_AUTHORIZATION'], $Request->getServer('HTTP_AUTHORIZATION'));
-        $this->assertEquals('Basic ' . base64_encode('user:pw'), $Request->getHeader('authorization'));
-        $this->assertEquals('user', $Request->getHeader('php_auth_user'));
-        $this->assertEquals('pw', $Request->getHeader('php_auth_pw'));
-    }
-
-    public function testConstructHTTPAuthRedirect()
-    {
-        $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] = 'basic ' . base64_encode('user:pw');
-
-        $Request = new Request();
-        $this->assertInstanceOf('\moss\http\request\RequestInterface', $Request);
-        $this->assertEquals($_SERVER['REDIRECT_HTTP_AUTHORIZATION'], $Request->getServer('REDIRECT_HTTP_AUTHORIZATION'));
-        $this->assertEquals('user', $Request->getHeader('php_auth_user'));
-        $this->assertEquals('pw', $Request->getHeader('php_auth_pw'));
-    }
-
 
     public function testConstructWithMagicQuotes()
     {
@@ -77,44 +43,44 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     {
         $_SESSION['foo'] = 'foo';
 
-        $Request = new Request();
-        $this->assertEquals('foo', $Request->getSession('foo'));
+        $Request = new Request(new Session());
+        $this->assertEquals('foo', $Request->session()->get('foo'));
     }
 
     public function testSessionDeep()
     {
         $_SESSION['foo'] = array('bar' => 'bar');
 
-        $Request = new Request();
-        $this->assertEquals('bar', $Request->getSession('foo.bar'));
+        $Request = new Request(new Session());
+        $this->assertEquals('bar', $Request->session()->get('foo.bar'));
     }
 
     public function testCookie()
     {
         $_COOKIE['foo'] = 'foo';
 
-        $Request = new Request();
-        $this->assertEquals('foo', $Request->getCookie('foo'));
+        $Request = new Request(null, new Cookie());
+        $this->assertEquals('foo', $Request->cookie()->get('foo'));
     }
 
     public function testCookieDeep()
     {
         $_COOKIE['foo'] = array('bar' => 'bar');
 
-        $Request = new Request();
-        $this->assertEquals('bar', $Request->getCookie('foo.bar'));
+        $Request = new Request(null, new Cookie());
+        $this->assertEquals('bar', $Request->cookie()->get('foo.bar'));
     }
 
     public function getServerBlank()
     {
         $Request = new Request();
-        $this->assertNull($Request->getServer('foobar'));
+        $this->assertNull($Request->server('foobar'));
     }
 
     public function testGetHeaderBlank()
     {
         $Request = new Request();
-        $this->assertNull($Request->getHeader('foobar'));
+        $this->assertNull($Request->header('foobar'));
     }
 
     public function testGetQuery()
@@ -129,22 +95,22 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
         $Request = new Request();
 
-        $this->assertEquals('bar', $Request->getQuery('foo'));
-        $this->assertEquals('foobar', $Request->getQuery('controller'));
-        $this->assertEquals('pl', $Request->getQuery('locale'));
-        $this->assertEquals('json', $Request->getQuery('format'));
+        $this->assertEquals('bar', $Request->query()->get('foo'));
+        $this->assertEquals('foobar', $Request->query()->get('controller'));
+        $this->assertEquals('pl', $Request->query()->get('locale'));
+        $this->assertEquals('json', $Request->query()->get('format'));
     }
 
     public function testSetQuery()
     {
         $Request = new Request();
 
-        $this->assertEquals('bar', $Request->getQuery('foo', 'bar'));
-        $this->assertEquals('foobar', $Request->getQuery('controller', 'foobar'));
-        $this->assertEquals('pl', $Request->getQuery('locale', 'pl'));
-        $this->assertEquals('json', $Request->getQuery('format', 'json'));
-        $this->assertEquals('yada', $Request->getQuery('foo.bar', 'yada'));
-        $this->assertEquals('deep', $Request->getQuery('f.o.o.b.a.r', 'deep'));
+        $this->assertEquals('bar', $Request->query()->get('foo', 'bar'));
+        $this->assertEquals('foobar', $Request->query()->get('controller', 'foobar'));
+        $this->assertEquals('pl', $Request->query()->get('locale', 'pl'));
+        $this->assertEquals('json', $Request->query()->get('format', 'json'));
+        $this->assertEquals('yada', $Request->query()->get('foo.bar', 'yada'));
+        $this->assertEquals('deep', $Request->query()->get('f.o.o.b.a.r', 'deep'));
     }
 
     public function testGetPost()
@@ -158,21 +124,21 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         );
 
         $Request = new Request();
-        $this->assertEquals('bar', $Request->getPost('foo'));
-        $this->assertEquals('foobar', $Request->getPost('controller'));
-        $this->assertEquals('pl', $Request->getPost('locale'));
-        $this->assertEquals('json', $Request->getPost('format'));
+        $this->assertEquals('bar', $Request->post()->get('foo'));
+        $this->assertEquals('foobar', $Request->post()->get('controller'));
+        $this->assertEquals('pl', $Request->post()->get('locale'));
+        $this->assertEquals('json', $Request->post()->get('format'));
     }
 
     public function testSetPost()
     {
         $Request = new Request();
-        $this->assertEquals('bar', $Request->getPost('foo', 'bar'));
-        $this->assertEquals('foobar', $Request->getPost('controller', 'foobar'));
-        $this->assertEquals('pl', $Request->getPost('locale', 'pl'));
-        $this->assertEquals('json', $Request->getPost('format', 'json'));
-        $this->assertEquals('yada', $Request->getPost('foo.bar.zope', 'yada'));
-        $this->assertEquals('deep', $Request->getPost('f.o.o.b.a.r', 'deep'));
+        $this->assertEquals('bar', $Request->post()->get('foo', 'bar'));
+        $this->assertEquals('foobar', $Request->post()->get('controller', 'foobar'));
+        $this->assertEquals('pl', $Request->post()->get('locale', 'pl'));
+        $this->assertEquals('json', $Request->post()->get('format', 'json'));
+        $this->assertEquals('yada', $Request->post()->get('foo.bar.zope', 'yada'));
+        $this->assertEquals('deep', $Request->post()->get('f.o.o.b.a.r', 'deep'));
     }
 
     public function testGetFile()
@@ -194,7 +160,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         );
 
         $Request = new Request();
-        $this->assertEquals($result, $Request->getFile('foo'));
+        $this->assertEquals($result, $Request->files()->get('foo'));
     }
 
     public function testGetFileDeep()
@@ -244,9 +210,10 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         );
 
         $Request = new Request();
-        $this->assertEquals($result, $Request->getFile('foo'));
+        $this->assertEquals($result, $Request->files()->get('foo'));
     }
 
+    // todo - refactor to data provider
     public function testGetFileError()
     {
         $_FILES = array(
@@ -376,14 +343,14 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         );
 
         $Request = new Request();
-        $this->assertEquals($result['bar1'], $Request->getFile('bar1'));
-        $this->assertEquals($result['bar2'], $Request->getFile('bar2'));
-        $this->assertEquals($result['bar3'], $Request->getFile('bar3'));
-        $this->assertEquals($result['bar4'], $Request->getFile('bar4'));
-        $this->assertEquals($result['bar5'], $Request->getFile('bar5'));
-        $this->assertEquals($result['bar6'], $Request->getFile('bar6'));
-        $this->assertEquals($result['bar7'], $Request->getFile('bar7'));
-        $this->assertEquals($result['bar8'], $Request->getFile('bar8'));
+        $this->assertEquals($result['bar1'], $Request->files()->get('bar1'));
+        $this->assertEquals($result['bar2'], $Request->files()->get('bar2'));
+        $this->assertEquals($result['bar3'], $Request->files()->get('bar3'));
+        $this->assertEquals($result['bar4'], $Request->files()->get('bar4'));
+        $this->assertEquals($result['bar5'], $Request->files()->get('bar5'));
+        $this->assertEquals($result['bar6'], $Request->files()->get('bar6'));
+        $this->assertEquals($result['bar7'], $Request->files()->get('bar7'));
+        $this->assertEquals($result['bar8'], $Request->files()->get('bar8'));
     }
 
     public function testIsXHRFalse()
