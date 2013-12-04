@@ -1,6 +1,8 @@
 <?php
 namespace moss\http\request;
 
+use moss\http\bag\Bag;
+use moss\http\bag\BagInterface;
 use moss\http\cookie\CookieInterface;
 use moss\http\session\SessionInterface;
 
@@ -12,8 +14,6 @@ use moss\http\session\SessionInterface;
  */
 class Request implements RequestInterface
 {
-    const SEPARATOR = '.';
-
     private $controller;
     private $locale;
     private $format;
@@ -25,15 +25,21 @@ class Request implements RequestInterface
     private $server;
     private $header;
     private $language;
-    private $query;
-    private $post;
-    private $file;
 
-    /** @var SessionInterface|\ArrayAccess|array */
-    private $session;
+    /** @var BagInterface */
+    public $query;
 
-    /** @var CookieInterface|\ArrayAccess|array */
-    private $cookie;
+    /** @var BagInterface */
+    public $post;
+
+    /** @var BagInterface */
+    public $files;
+
+    /** @var SessionInterface */
+    public $session;
+
+    /** @var CookieInterface */
+    public $cookie;
 
     /**
      * Constructor
@@ -46,11 +52,11 @@ class Request implements RequestInterface
         $this->removeSlashes();
 
         if ($session === null) {
-            $session = & $_SESSION;
+            $session = new Bag($_SESSION);
         }
 
         if ($cookie === null) {
-            $cookie = & $_COOKIE;
+            $cookie = new Bag($_COOKIE);
         }
 
         $this->session = & $session;
@@ -69,9 +75,9 @@ class Request implements RequestInterface
             $this->resolveUrl();
         }
 
-        $this->query = $this->resolveGET();
-        $this->post = $this->resolvePOST();
-        $this->file = $this->resolveFILES();
+        $this->query = new Bag($this->resolveGET());
+        $this->post = new Bag($this->resolvePOST());
+        $this->files = new Bag($this->resolveFILES()); // todo - refactor to FileBag handling uploads and so on
 
         if (!empty($this->query['controller'])) {
             $this->controller($this->query['controller']);
@@ -139,29 +145,6 @@ class Request implements RequestInterface
             } elseif (in_array($key, array('CONTENT_LENGTH', 'CONTENT_MD5', 'CONTENT_TYPE'))) {
                 $headers[$key] = $value;
             }
-        }
-
-        if (isset($parameters['PHP_AUTH_USER'])) {
-            $headers['PHP_AUTH_USER'] = $parameters['PHP_AUTH_USER'];
-            $headers['PHP_AUTH_PW'] = isset($parameters['PHP_AUTH_PW']) ? $parameters['PHP_AUTH_PW'] : '';
-        } else {
-            $authorizationHeader = null;
-            if (isset($parameters['HTTP_AUTHORIZATION'])) {
-                $authorizationHeader = $parameters['HTTP_AUTHORIZATION'];
-            } elseif (isset($parameters['REDIRECT_HTTP_AUTHORIZATION'])) {
-                $authorizationHeader = $parameters['REDIRECT_HTTP_AUTHORIZATION'];
-            }
-
-            if ($authorizationHeader !== null && stripos($authorizationHeader, 'basic') === 0) {
-                $exploded = explode(':', base64_decode(substr($authorizationHeader, 6)));
-                if (count($exploded) == 2) {
-                    list($headers['PHP_AUTH_USER'], $headers['PHP_AUTH_PW']) = $exploded;
-                }
-            }
-        }
-
-        if (isset($headers['PHP_AUTH_USER'])) {
-            $headers['AUTHORIZATION'] = 'Basic ' . base64_encode($headers['PHP_AUTH_USER'] . ':' . $headers['PHP_AUTH_PW']);
         }
 
         return array_change_key_case($headers, CASE_LOWER);
@@ -390,37 +373,23 @@ class Request implements RequestInterface
     }
 
     /**
-     * Returns session instance
-     *
-     * @param string $key
-     * @param mixed  $default
+     * Returns session value for given key or default if key does not exists
      *
      * @return SessionInterface
      */
-    public function getSession($key = null, $default = null)
+    public function session()
     {
-        if ($key === null) {
-            return $this->session;
-        }
-
-        return $this->getFromArray($this->session, explode(self::SEPARATOR, $key), $default);
+        return $this->session;
     }
 
     /**
-     * Returns cookie instance
-     *
-     * @param string $key
-     * @param mixed  $default
+     * Returns cookie value for given key or default if key does not exists
      *
      * @return CookieInterface
      */
-    public function getCookie($key = null, $default = null)
+    public function cookie()
     {
-        if ($key === null) {
-            return $this->cookie;
-        }
-
-        return $this->getFromArray($this->cookie, explode(self::SEPARATOR, $key), $default);
+        return $this->cookie;
     }
 
     /**
@@ -431,7 +400,7 @@ class Request implements RequestInterface
      *
      * @return null|string
      */
-    public function getServer($key = null, $default = null)
+    public function server($key = null, $default = null)
     {
         if ($key === null) {
             return $this->server;
@@ -452,7 +421,7 @@ class Request implements RequestInterface
      *
      * @return null|string
      */
-    public function getHeader($key = null, $default = null)
+    public function header($key = null, $default = null)
     {
         if ($key === null) {
             return $this->header;
@@ -466,136 +435,33 @@ class Request implements RequestInterface
     }
 
     /**
-     * Returns query value for given key or null if key does not exists
+     * Returns query values bag
      *
-     * @param string $key
-     * @param string $default
-     *
-     * @return null|string
+     * @return BagInterface
      */
-    public function getQuery($key = null, $default = null)
+    public function query()
     {
-        if ($key === null) {
-            return $this->query;
-        }
-
-        return $this->getFromArray($this->query, explode(self::SEPARATOR, $key), $default);
+        return $this->query;
     }
 
     /**
-     * Sets query value for given key
+     * Returns post values bag
      *
-     * @param string $key
-     * @param mixed  $value
-     *
-     * @return $this
+     * @return BagInterface
      */
-    public function setQuery($key, $value = null)
+    public function post()
     {
-        $this->putIntoArray($this->query, explode(self::SEPARATOR, $key), $value);
-
-        return $this;
-    }
-
-
-    /**
-     * Returns post value for given key or null if key does not exists
-     *
-     * @param string $key
-     * @param string $default
-     *
-     * @return null|string
-     */
-    public function getPost($key = null, $default = null)
-    {
-        if ($key === null) {
-            return $this->post;
-        }
-
-        return $this->getFromArray($this->post, explode(self::SEPARATOR, $key), $default);
+        return $this->post;
     }
 
     /**
-     * Sets post value for given key
+     * Returns files bag
      *
-     * @param string $key
-     * @param mixed  $value
-     *
-     * @return $this
+     * @return BagInterface
      */
-    public function setPost($key, $value = null)
+    public function files()
     {
-        $this->putIntoArray($this->post, explode(self::SEPARATOR, $key), $value);
-
-        return $this;
-    }
-
-
-    /**
-     * Returns file value for given key or null if key does not exists
-     *
-     * @param string $key
-     *
-     * @return null|string
-     */
-    public function getFile($key = null)
-    {
-        if ($key === null) {
-            return $this->file;
-        }
-
-        return $this->getFromArray($this->file, explode(self::SEPARATOR, $key));
-    }
-
-    /**
-     * Returns array element matching key
-     *
-     * @param array  $arr
-     * @param array  $keys
-     * @param string $default
-     *
-     * @return string
-     */
-    protected function getFromArray(&$arr, $keys, $default = null)
-    {
-        $key = array_shift($keys);
-        if (!isset($arr[$key])) {
-            return $default;
-        }
-
-        if (empty($keys)) {
-            return $arr[$key];
-        }
-
-        return $this->getFromArray($arr[$key], $keys, $default);
-    }
-
-    /**
-     * Sets array elements value
-     *
-     * @param array  $array
-     * @param string $keys
-     * @param mixed  $value
-     *
-     * @return mixed
-     */
-    protected function putIntoArray(&$array, $keys, $value)
-    {
-        $k = array_shift($keys);
-
-        if (is_scalar($array)) {
-            $array = (array) $array;
-        }
-
-        if (!isset($array[$k])) {
-            $array[$k] = null;
-        }
-
-        if (empty($keys)) {
-            return $array[$k] = & $value;
-        }
-
-        return $this->putIntoArray($array[$k], $keys, $value);
+        return $this->files;
     }
 
     /**

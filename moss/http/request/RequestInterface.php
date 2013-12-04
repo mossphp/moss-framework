@@ -1,6 +1,7 @@
 <?php
 namespace moss\http\request;
 
+use moss\http\bag\BagInterface;
 use moss\http\cookie\CookieInterface;
 use moss\http\session\SessionInterface;
 
@@ -16,22 +17,16 @@ interface RequestInterface
     /**
      * Returns session value for given key or default if key does not exists
      *
-     * @param string $key
-     * @param mixed  $default
-     *
      * @return SessionInterface
      */
-    public function getSession($key = null, $default = null);
+    public function session();
 
     /**
      * Returns cookie value for given key or default if key does not exists
      *
-     * @param string $key
-     * @param mixed  $default
-     *
      * @return CookieInterface
      */
-    public function getCookie($key = null, $default = null);
+    public function cookie();
 
     /**
      * Returns server param value for given key or default if key does not exists
@@ -41,7 +36,7 @@ interface RequestInterface
      *
      * @return null|string
      */
-    public function getServer($key = null, $default = null);
+    public function server($key = null, $default = null);
 
     /**
      * Returns header value for given key or default if key does not exists
@@ -51,56 +46,28 @@ interface RequestInterface
      *
      * @return null|string
      */
-    public function getHeader($key = null, $default = null);
+    public function header($key = null, $default = null);
 
     /**
-     * Returns query value for given key or default if key does not exists
+     * Returns query values bag
      *
-     * @param string $key
-     * @param mixed  $default
-     *
-     * @return null|string
+     * @return BagInterface
      */
-    public function getQuery($key = null, $default = null);
+    public function query();
 
     /**
-     * Sets query value for given key
+     * Returns post values bag
      *
-     * @param string $key
-     * @param mixed $value
-     *
-     * @return RequestInterface
+     * @return BagInterface
      */
-    public function setQuery($key, $value = null);
+    public function post();
 
     /**
-     * Returns post value for given key or default if key does not exists
+     * Returns files bag
      *
-     * @param string $key
-     * @param mixed  $default
-     *
-     * @return null|string
+     * @return BagInterface
      */
-    public function getPost($key = null, $default = null);
-
-    /**
-     * Sets post value for given key
-     *
-     * @param string $key
-     * @param mixed $value
-     *
-     * @return RequestInterface
-     */
-    public function setPost($key, $value = null);
-
-    /**
-     * Returns file value for given key or null if key does not exists
-     *
-     * @param string $key
-     *
-     * @return null|string
-     */
-    public function getFile($key = null);
+    public function files();
 
     /**
      * Returns true if request is made via XHR

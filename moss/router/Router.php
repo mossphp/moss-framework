@@ -121,8 +121,8 @@ class Router implements RouterInterface
      */
     public function match(RequestInterface $request)
     {
-        if ($this->routeNormal && $request->getQuery('controller')) {
-            $request->controller(str_replace('_', ':', $request->getQuery('controller')));
+        if ($this->routeNormal && $request->query()->get('controller')) {
+            $request->controller(str_replace('_', ':', $request->query()->get('controller')));
 
             $this->defaults['host'] = $request->baseName();
             $this->defaults['controller'] = $request->controller();
@@ -138,15 +138,15 @@ class Router implements RouterInterface
             }
 
             foreach ($route->arguments() as $key => $value) {
-                $request->setQuery($key, $value);
+                $request->query()->set($key, $value);
             }
 
-            if ($request->getQuery('locale')) {
-                $request->locale($request->getQuery('locale'));
+            if ($request->query()->has('locale')) {
+                $request->locale($request->query()->get('locale'));
             }
 
-            if ($request->getQuery('format')) {
-                $request->format($request->getQuery('format'));
+            if ($request->query()->has('format')) {
+                $request->format($request->query()->get('format'));
             }
 
             $request->controller($route->controller());
