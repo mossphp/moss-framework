@@ -15,13 +15,6 @@ return array(
             'path' => '/',
             'http' => true,
             'ttl' => 2592000 // one month
-        ),
-        'uploader' => array(
-            'dir' => array(
-                'path' => __ROOT__ . '/upload/',
-                'depth' => 2,
-                'length' => 2
-            )
         )
     ),
     'namespaces' => array(),
@@ -33,7 +26,7 @@ return array(
             'shared' => true,
         ),
         'view' => array(
-            'closure' => function (\moss\container\Container $Container) {
+            'closure' => function (\moss\container\Container $container) {
                     $options = array(
                         'debug' => true,
                         'auto_reload' => true,
@@ -41,11 +34,11 @@ return array(
                         'cache' => '../compile/'
                     );
 
-                    $Twig = new Twig_Environment(new Twig_Bridge_Loader_Bridge(), $options);
+                    $Twig = new Twig_Environment(new Twig_Bridge_Loader_File(), $options);
                     $Twig->setExtensions(
                          array(
                               new Twig_Bridge_Extension_Resource(),
-                              new Twig_Bridge_Extension_Url($Container->get('Router')),
+                              new Twig_Bridge_Extension_Url($container->get('router')),
                               new Twig_Bridge_Extension_Trans(),
                               new Twig_Extensions_Extension_Text(),
                          )
@@ -53,8 +46,8 @@ return array(
 
                     $View = new \moss\view\View($Twig);
                     $View
-                        ->set('request', $Container->get('Request'))
-                        ->set('config', $Container->get('Config'));
+                        ->set('request', $container->get('request'))
+                        ->set('config', $container->get('config'));
 
                     return $View;
                 }
@@ -71,17 +64,5 @@ return array(
         'kernel.500' => array()
     ),
     'router' => array(
-        'main' => array(
-            'pattern' => '/',
-            'controller' => 'moss:sample:sample:index',
-            'arguments' => array(),
-            'host' => null,
-            'schema' => null,
-            'methods' => array()
-        ),
-        'source' => array(
-            'pattern' => '/source/',
-            'controller' => 'moss:sample:sample:source',
-        )
     )
 );
