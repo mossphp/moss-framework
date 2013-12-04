@@ -22,14 +22,14 @@ Create new controller `./src/quick/start/controller/QuickController.php` contain
 
 	namespace quick\start\controller;
 
-	use moss\container\ContainerInterface;
+	use moss\container\Container;
     use moss\http\response\Response;
 
 	class QuickController
 	{
 		protected $container;
 
-		public function __construct($container)
+		public function __construct(Container $container)
 		{
 			$this->container = $container;
 		}
@@ -43,10 +43,10 @@ Create new controller `./src/quick/start/controller/QuickController.php` contain
 Now when you call `http://127.0.0.1/moss/web/?controller=quick_start_quick_index` assuming that framework is available under http://127.0.0.1/moss/web/,
 you should see method name `quick\start\controller\QuickController::indexAction`
 
-To register route to that action, in `./web/bootstrap.php` in section `router` add
+To register route to that action that allows to enter `http://127.0.0.1/moss/web/quick-start/`, in `./web/bootstrap.php` in section `router` add
 
 	'index' => array(
-	    'pattern' => '/index/',
+	    'pattern' => '/quick-start/',
 	    'controller' => 'quick:start:quick:index'
 	)
 
