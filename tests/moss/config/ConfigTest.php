@@ -14,7 +14,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
     {
         $default = array(
             'framework' => array(
-                'error' => array('level' => -1, 'detail' => true),
+                'error' => array('display' => true, 'level' => -1, 'detail' => true),
                 'session' => array('name' => 'PHPSESSID', 'cacheLimiter' => ''),
                 'cookie' => array('domain' => null, 'path' => '/', 'http' => true, 'ttl' => 2592000)
             ),
