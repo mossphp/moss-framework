@@ -1,13 +1,15 @@
 <?php
 namespace moss\http\session;
 
+use moss\http\bag\BagInterface;
+
 /**
  * Session objects interface
  *
  * @package Moss HTTP
  * @author  Michal Wachowski <wachowski.michal@gmail.com>
  */
-interface SessionInterface extends \Iterator, \ArrayAccess, \Countable
+interface SessionInterface extends BagInterface
 {
     /**
      * Regenerates the session ID
@@ -40,47 +42,4 @@ interface SessionInterface extends \Iterator, \ArrayAccess, \Countable
      * @return string
      */
     public function name($name = null);
-
-    /**
-     * Returns value for given key
-     *
-     * @param string $key
-     * @param string $default
-     *
-     * @return mixed
-     */
-    public function get($key, $default = null);
-
-    /**
-     * Sets value for given key
-     *
-     * @param string $key
-     * @param string $value
-     *
-     * @return $this
-     */
-    public function set($key, $value = null);
-
-    /**
-     * Removes value and key
-     *
-     * @param string $key
-     *
-     * @return $this
-     */
-    public function remove($key);
-
-    /**
-     * Retrieves all values as array
-     *
-     * @return array
-     */
-    public function all();
-
-    /**
-     * Removes all values
-     *
-     * @return $this
-     */
-    public function reset();
 }
