@@ -18,8 +18,8 @@ While `status code` defines what response means, eg: `200` means everything is O
 
 To add, change or remove header from response use `::header($header, $value)` method:
 
-	$Response->setHeader('Content-Type', 'text/plain'); // set header
-	$Response->setHeader('Content-Type', 'text/html'); // overwrite previous
+	$Response->header()->set('Content-Type', 'text/plain'); // set header
+	$Response->header()->set('Content-Type', 'text/html'); // overwrite previous
 
 To remove header
 
@@ -27,8 +27,8 @@ To remove header
 
 To retrieve header:
 
-	$header = $Response->getHeader('Content-Type');
-	$header = $Response->getHeader('Content-Type', 'default-value-when-header-does-not-exist');
+	$header = $Response->header()->get('Content-Type');
+	$header = $Response->header()->get('Content-Type', 'default-value-when-header-does-not-exist');
 
 ## Redirect
 
