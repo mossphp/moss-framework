@@ -32,6 +32,10 @@ class Bag implements BagInterface
      */
     public function get($offset = null, $default = null)
     {
+        if($offset === null) {
+            return $this->all();
+        }
+
         return $this->getFromArray($this->storage, explode(self::SEPARATOR, $offset), $default);
     }
 
@@ -267,9 +271,7 @@ class Bag implements BagInterface
      */
     public function current()
     {
-        reset($this->storage);
-
-        return array_shift($this->storage);
+        return current($this->storage);
     }
 
     /**
@@ -289,7 +291,7 @@ class Bag implements BagInterface
      */
     public function next()
     {
-        reset($this->storage);
+        next($this->storage);
     }
 
     /**
@@ -316,27 +318,5 @@ class Bag implements BagInterface
         }
 
         return isset($this->storage[$key]);
-    }
-
-    /**
-     * Bag string representation
-     *
-     * @return string
-     */
-    public function serialize()
-    {
-        return serialize($this->storage);
-    }
-
-    /**
-     * Constructs the object
-     *
-     * @param string $serialized
-     *
-     * @return void
-     */
-    public function unserialize($serialized)
-    {
-        $this->storage = unserialize($serialized);
     }
 }

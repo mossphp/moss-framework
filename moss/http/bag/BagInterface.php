@@ -7,7 +7,7 @@ namespace moss\http\bag;
  * @package  Moss HTTP
  * @author   Michal Wachowski <wachowski.michal@gmail.com>
  */
-interface BagInterface extends \ArrayAccess, \Iterator, \Countable, \Serializable
+interface BagInterface extends \ArrayAccess, \Iterator, \Countable
 {
     const SEPARATOR = '.';
 
