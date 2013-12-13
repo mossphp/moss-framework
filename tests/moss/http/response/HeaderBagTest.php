@@ -1,8 +1,8 @@
 <?php
-namespace moss\http\bag;
+namespace moss\http\response;
 
 
-class BagTest extends \PHPUnit_Framework_TestCase
+class HeaderBagTest extends \PHPUnit_Framework_TestCase
 {
 
     /**
@@ -10,7 +10,7 @@ class BagTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetSet($offset, $value)
     {
-        $bag = new Bag();
+        $bag = new HeaderBag();
         $bag->set($offset, $value);
         $this->assertEquals($value, $bag->get($offset));
     }
@@ -20,7 +20,7 @@ class BagTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetAll($offset, $value)
     {
-        $bag = new Bag();
+        $bag = new HeaderBag();
         $bag->set($offset, $value);
         $this->assertEquals(array($offset => $value), $bag->get());
     }
@@ -30,7 +30,7 @@ class BagTest extends \PHPUnit_Framework_TestCase
      */
     public function testHas($offset, $value)
     {
-        $bag = new Bag();
+        $bag = new HeaderBag();
         $bag->set($offset, $value);
         $this->assertTrue($bag->has($offset));
     }
@@ -40,7 +40,7 @@ class BagTest extends \PHPUnit_Framework_TestCase
      */
     public function testAll($offset, $value)
     {
-        $bag = new Bag();
+        $bag = new HeaderBag();
         $bag->set($offset, $value);
         $this->assertEquals(array($offset => $value), $bag->all());
     }
@@ -50,7 +50,7 @@ class BagTest extends \PHPUnit_Framework_TestCase
      */
     public function testAllReplace($offset, $value)
     {
-        $bag = new Bag();
+        $bag = new HeaderBag();
         $bag->all(array($offset => $value));
         $this->assertEquals(array($offset => $value), $bag->all());
     }
@@ -60,7 +60,7 @@ class BagTest extends \PHPUnit_Framework_TestCase
      */
     public function testRemove($offset, $value)
     {
-        $bag = new Bag();
+        $bag = new HeaderBag();
         $bag->set($offset, $value);
         $this->assertEquals(array($offset => $value), $bag->all());
         $bag->remove($offset);
@@ -72,7 +72,7 @@ class BagTest extends \PHPUnit_Framework_TestCase
      */
     public function testRemoveAll($offset, $value)
     {
-        $bag = new Bag();
+        $bag = new HeaderBag();
         $bag->set($offset, $value);
         $this->assertEquals(array($offset => $value), $bag->all());
         $bag->remove();
@@ -84,7 +84,7 @@ class BagTest extends \PHPUnit_Framework_TestCase
      */
     public function testReset($offset, $value)
     {
-        $bag = new Bag();
+        $bag = new HeaderBag();
         $bag->set($offset, $value);
         $this->assertEquals(array($offset => $value), $bag->all());
         $bag->reset($offset);
@@ -96,7 +96,7 @@ class BagTest extends \PHPUnit_Framework_TestCase
      */
     public function testOffsetUnset($offset, $value)
     {
-        $bag = new Bag();
+        $bag = new HeaderBag();
         $bag->offsetSet($offset, $value);
         $bag->offsetUnset($offset);
         $this->assertEquals(0, $bag->count());
@@ -107,7 +107,7 @@ class BagTest extends \PHPUnit_Framework_TestCase
      */
     public function testOffsetGetSet($offset, $value)
     {
-        $bag = new Bag();
+        $bag = new HeaderBag();
         $bag->offsetSet($offset, $value);
         $this->assertEquals($value, $bag[$offset]);
     }
@@ -117,7 +117,7 @@ class BagTest extends \PHPUnit_Framework_TestCase
      */
     public function testOffsetExists($offset, $value)
     {
-        $bag = new Bag();
+        $bag = new HeaderBag();
         $bag->offsetSet($offset, $value);
         $this->assertTrue(isset($bag[$offset]));
     }
@@ -127,7 +127,7 @@ class BagTest extends \PHPUnit_Framework_TestCase
      */
     public function testIterator($offset, $value)
     {
-        $bag = new Bag();
+        $bag = new HeaderBag();
         $bag->offsetSet($offset, $value);
 
         foreach ($bag as $key => $val) {
@@ -141,7 +141,7 @@ class BagTest extends \PHPUnit_Framework_TestCase
      */
     public function testCount($offset, $value)
     {
-        $bag = new Bag();
+        $bag = new HeaderBag();
         $bag->offsetSet(1, $offset);
         $bag->offsetSet(2, $value);
         $this->assertEquals(2, $bag->count());
@@ -150,10 +150,10 @@ class BagTest extends \PHPUnit_Framework_TestCase
     public function dataProvider()
     {
         return array(
-            array('foo', 1),
-            array('bar', 'lorem'),
-            array('yada', array('yada' => 'yada')),
-            array('dada', new \stdClass()),
+            array('Content-Type', 'text/plain'),
+            array('Content-Type', 'text/html; charset=UTF-8'),
+            array('Location', 'http://google.com'),
+            array('Refresh', '10; URL=http://google.com'),
         );
     }
 }
