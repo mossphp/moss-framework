@@ -20,10 +20,11 @@
 			<directory>./moss/config/</directory>
 			<directory>./moss/container/</directory>
 			<directory>./moss/dispatcher/</directory>
+			<directory>./moss/http/bag/</directory>
 			<directory>./moss/http/request/</directory>
 			<directory>./moss/http/response/</directory>
-			<!--<directory>./moss/http/cookie/</directory>-->
-			<!--<directory>./moss/http/session/</directory>-->
+			<directory>./moss/http/cookie/</directory>
+			<directory>./moss/http/session/</directory>
 			<directory>./moss/logger/</directory>
 			<directory>./moss/router/</directory>
 			<directory>./moss/security/</directory>
