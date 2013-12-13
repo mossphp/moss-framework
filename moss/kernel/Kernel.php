@@ -80,11 +80,11 @@ class Kernel
 
             return $this->fireEvent('kernel.send', $response);
         } catch(SecurityException $e) {
-            $response = $this->fireEvent('kernel.403', null, sprintf('%s (%s line:%s)', $e->getMessage(), $e->getFile(), $e->getLine()));
+            $response = $this->fireEvent('kernel.403', $e, sprintf('%s (%s line:%s)', $e->getMessage(), $e->getFile(), $e->getLine()));
         } catch(RouterException $e) {
-            $response = $this->fireEvent('kernel.404', null, sprintf('%s (%s line:%s)', $e->getMessage(), $e->getFile(), $e->getLine()));
+            $response = $this->fireEvent('kernel.404', $e, sprintf('%s (%s line:%s)', $e->getMessage(), $e->getFile(), $e->getLine()));
         } catch(\Exception $e) {
-            $response = $this->fireEvent('kernel.500', null, sprintf('%s (%s line:%s)', $e->getMessage(), $e->getFile(), $e->getLine()));
+            $response = $this->fireEvent('kernel.500', $e, sprintf('%s (%s line:%s)', $e->getMessage(), $e->getFile(), $e->getLine()));
         }
 
         if (!empty($e) && empty($response)) {
@@ -102,19 +102,19 @@ class Kernel
      * Fires passed event and returns its response or null if no response passed and received
      *
      * @param string $event
-     * @param null   $response
+     * @param null   $subject
      * @param null   $message
      *
      * @return ResponseInterface|null
      */
-    protected function fireEvent($event, $response = null, $message = null)
+    protected function fireEvent($event, $subject = null, $message = null)
     {
-        $eventResponse = $this->dispatcher->fire($event, $response, $message);
+        $eventResponse = $this->dispatcher->fire($event, $subject, $message);
         if ($eventResponse instanceof ResponseInterface) {
             return $eventResponse;
         }
 
-        return $response;
+        return $subject;
     }
 
     /**
