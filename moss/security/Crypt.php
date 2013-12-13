@@ -50,6 +50,10 @@ class Crypt implements CryptInterface
      */
     public function compare($password, $hashed)
     {
+        if (strlen($password) > 4096) {
+            return false;
+        }
+
         return $hashed === crypt($password, $hashed);
     }
 
