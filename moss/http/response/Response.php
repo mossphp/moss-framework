@@ -10,7 +10,8 @@ namespace moss\http\response;
 class Response implements ResponseInterface
 {
 
-    protected $headers = array();
+    public $header = array();
+
     protected $content = 'OK';
     protected $status = 200;
     protected $protocol = 'HTTP/1.1';
@@ -68,78 +69,24 @@ class Response implements ResponseInterface
      */
     public function __construct($content = 'OK', $status = 200, $contentType = 'text/html; charset=UTF-8')
     {
+        $this->header = new HeaderBag();
+
         $this->content($content);
         $this->status($status);
-        $this->setHeader('Content-Type', $contentType);
+
+        $this->header->set('Content-Type', $contentType);
+
         $this->makeNoCache();
     }
 
     /**
-     * Returns header value for given key
+     * Retrieves header bag
      *
-     * @param string $header
-     * @param string $default
-     *
-     * @return null|string
+     * @return HeaderBag
      */
-    public function getHeader($header, $default = null)
+    public function header()
     {
-        if (!isset($this->headers[$header])) {
-            return $default;
-        }
-
-        return $this->headers[$header];
-    }
-
-    /**
-     * Sets header value
-     *
-     * @param string $header
-     * @param string $value
-     *
-     * @return $this
-     */
-    public function setHeader($header, $value = null)
-    {
-        $this->headers[$header] = $value;
-
-        return $this;
-    }
-
-    /**
-     * Removes header
-     *
-     * @param string $header
-     *
-     * @return $this
-     */
-    public function removeHeader($header)
-    {
-        if (isset($this->headers[$header])) {
-            unset($this->headers[$header]);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Retrieves all headers as array
-     *
-     * @param array $headers
-     *
-     * @return array
-     */
-    public function headers($headers = array())
-    {
-        if (!empty($headers)) {
-            $this->headers = array();
-
-            foreach ($headers as $header => $value) {
-                $this->setHeader($header, $value);
-            }
-        }
-
-        return $this->headers;
+        return $this->header;
     }
 
     /**
@@ -154,7 +101,7 @@ class Response implements ResponseInterface
     {
         if ($content !== null) {
             if (!is_scalar($content) && !is_callable(array($content, '__toString'))) {
-                throw new ResponseException('Response content must be a scalar or object with __toString() method "' . gettype($content) . '" given.');
+                throw new ResponseException('Response content must be a scalar or object with __toString() method "' . (is_object($content) ? get_class($content) : gettype($content)) . '" given.');
             }
 
             $this->content = (string) $content;
@@ -207,8 +154,8 @@ class Response implements ResponseInterface
      */
     public function makeNoCache()
     {
-        $this->setHeader('Cache-Control', 'no-cache');
-        $this->setHeader('Pragma', 'no-cache');
+        $this->header->set('Cache-Control', 'no-cache');
+        $this->header->set('Pragma', 'no-cache');
 
         return $this;
     }
@@ -220,8 +167,8 @@ class Response implements ResponseInterface
      */
     public function makePublic()
     {
-        $this->setHeader('Cache-Control', 'public');
-        $this->setHeader('Pragma', 'public');
+        $this->header->set('Cache-Control', 'public');
+        $this->header->set('Pragma', 'public');
 
         return $this;
     }
@@ -233,8 +180,8 @@ class Response implements ResponseInterface
      */
     public function makePrivate()
     {
-        $this->setHeader('Cache-Control', 'private');
-        $this->setHeader('Pragma', 'private');
+        $this->header->set('Cache-Control', 'private');
+        $this->header->set('Pragma', 'private');
 
         return $this;
     }
@@ -252,7 +199,7 @@ class Response implements ResponseInterface
 
         header($this->protocol . ' ' . $this->status . ' ' . $this->statusTexts[$this->status], true, $this->status);
 
-        foreach ($this->headers() as $header => $value) {
+        foreach ($this->header() as $header => $value) {
             if (empty($value)) {
                 continue;
             }
@@ -295,7 +242,7 @@ class Response implements ResponseInterface
     public function __toString()
     {
         $headers = '';
-        foreach ($this->headers as $header => $value) {
+        foreach ($this->header as $header => $value) {
             if (empty($value)) {
                 continue;
             }

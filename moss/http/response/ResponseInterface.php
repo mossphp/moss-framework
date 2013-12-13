@@ -11,40 +11,11 @@ interface ResponseInterface
 {
 
     /**
-     * Returns header value for given key
+     * Retrieves header bag
      *
-     * @param string $header
-     * @param string $default
-     *
-     * @return null|string
+     * @return HeaderBag
      */
-    public function getHeader($header, $default = null);
-
-    /**
-     * Sets header value
-     *
-     * @param string $header
-     * @param string $value
-     *
-     * @return $this
-     */
-    public function setHeader($header, $value = null);
-
-    /**
-     * Removes header
-     *
-     * @param string $header
-     *
-     * @return $this
-     */
-    public function removeHeader($header);
-
-    /**
-     * Retrieves all headers as array
-     *
-     * @return array
-     */
-    public function headers();
+    public function header();
 
     /**
      * Sets response content

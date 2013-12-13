@@ -23,6 +23,8 @@ class ResponseRedirect extends Response
      */
     public function __construct($address, $delay = 0)
     {
+        $this->header = new HeaderBag();
+
         $this->address($address);
         $this->delay($delay);
 
@@ -43,7 +45,7 @@ class ResponseRedirect extends Response
 
         header($this->protocol . ' ' . $this->status . ' ' . $this->statusTexts[$this->status], true, $this->status);
 
-        foreach ($this->headers() as $header => $value) {
+        foreach ($this->header() as $header => $value) {
             if ($value === null) {
                 continue;
             }
@@ -113,15 +115,15 @@ class ResponseRedirect extends Response
      */
     protected function setRedirectHeaders()
     {
-        $this->setHeader('Location', null);
-        $this->setHeader('Refresh', null);
+        $this->header->remove('Location');
+        $this->header->remove('Refresh');
 
         if ($this->delay) {
-            $this->setHeader('Refresh', $this->delay . '; URL=' . $this->address);
+            $this->header->set('Refresh', $this->delay . '; URL=' . $this->address);
 
             return;
         }
 
-        $this->setHeader('Location', $this->address);
+        $this->header->set('Location', $this->address);
     }
 }
