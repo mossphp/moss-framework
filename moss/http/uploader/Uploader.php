@@ -40,7 +40,7 @@ class Uploader implements UploaderInterface
     public function __construct(RequestInterface $request, $dir, $autoCreate = true)
     {
         $this->request = & $request;
-        $this->names = $this->resolveNames($this->request->getFile());
+        $this->names = $this->resolveNames($this->request->files());
         $this->dir = $this->dir($dir, $autoCreate);
     }
 
@@ -265,7 +265,7 @@ class Uploader implements UploaderInterface
             $name = reset($this->names);
         }
 
-        $file = $this->request->getFile($name);
+        $file = $this->request->files($name);
         if (empty($file)) {
             return false;
         }
