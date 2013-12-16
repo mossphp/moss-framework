@@ -22,7 +22,7 @@ $exceptionHandler = new \moss\kernel\ExceptionHandler($config->get('framework.er
 $exceptionHandler->register();
 
 $loader = new \moss\loader\Loader();
-$loader->addNamespace('moss', array(__ROOT__ . '/../'));
+$loader->addNamespace('moss', array(__ROOT__ . '/../moss/'));
 $loader->addNamespace(null, array(__ROOT__ . '/../src/'));
 $loader->addNamespaces($config->get('namespaces'));
 
