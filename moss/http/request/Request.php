@@ -181,7 +181,7 @@ class Request implements RequestInterface
             }
         }
 
-        $schema = strtolower(substr($this->schema(), 0, strpos($this->schema(), '/')));
+        $schema = $this->schema();
         $host = str_replace('//', '/', $this->host() . $this->dir . '/');
 
         $this->baseName = $schema . '://' . $host;
@@ -314,11 +314,26 @@ class Request implements RequestInterface
     {
         $languages = array();
 
-        if (!isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
+        if (!$this->header('accept_language')) {
             return array();
         }
 
-        $codes = $this->splitHttpAcceptHeader($_SERVER['HTTP_ACCEPT_LANGUAGE']);
+        $codes = array();
+        foreach (array_filter(explode(',', $this->header('accept_language'))) as $value) {
+            if (preg_match('/;\s*(q=.*$)/', $value, $match)) {
+                $quality = (float) substr(trim($match[1]), 2) * 10;
+                $value = trim(substr($value, 0, -strlen($match[0])));
+            } else {
+                $quality = 1;
+            }
+
+            if (0 < $quality) {
+                $codes[$quality] = trim($value);
+            }
+        }
+
+        rsort($codes);
+
         foreach ($codes as $lang) {
             if (strstr($lang, '-')) {
                 $codes = explode('-', $lang);
@@ -337,39 +352,6 @@ class Request implements RequestInterface
         }
 
         return $languages;
-    }
-
-    /**
-     * Splits accept header data and sorts by quality
-     *
-     * @param string $header
-     *
-     * @return array
-     */
-    protected function splitHttpAcceptHeader($header)
-    {
-        if (!$header) {
-            return array();
-        }
-
-        $values = array();
-        foreach (array_filter(explode(',', $header)) as $value) {
-            if (preg_match('/;\s*(q=.*$)/', $value, $match)) {
-                $quality = (float) substr(trim($match[1]), 2) * 10;
-                $value = trim(substr($value, 0, -strlen($match[0])));
-            } else {
-                $quality = 1;
-            }
-
-            if (0 < $quality) {
-                $values[$quality] = trim($value);
-            }
-        }
-
-        rsort($values);
-        reset($values);
-
-        return $values;
     }
 
     /**
@@ -471,15 +453,21 @@ class Request implements RequestInterface
      */
     public function isAjax()
     {
-        if (empty($this->server['HTTP_X_REQUESTED_WITH'])) {
-            return false;
+        return strtolower($this->header('x_requested_with')) == 'xmlhttprequest';
+    }
+
+    /**
+     * Returns true if request is made via SSL
+     *
+     * @return bool
+     */
+    public function isSecure()
+    {
+        if ($proto = $this->header('x_forwarded_proto')) {
+            return in_array(strtolower(current(explode(',', $proto))), array('https', 'on', 'ssl', '1'));
         }
 
-        if (strtolower($this->server['HTTP_X_REQUESTED_WITH']) !== 'xmlhttprequest') {
-            return false;
-        }
-
-        return true;
+        return strtolower($this->server('HTTPS')) == 'on' || $this->server('HTTPS') == 1;
     }
 
     /**
@@ -489,11 +477,7 @@ class Request implements RequestInterface
      */
     public function method()
     {
-        if (empty($this->server['REQUEST_METHOD'])) {
-            return 'CLI';
-        }
-
-        return strtoupper($this->server['REQUEST_METHOD']);
+        return strtoupper($this->server('REQUEST_METHOD', 'CLI'));
     }
 
     /**
@@ -503,7 +487,7 @@ class Request implements RequestInterface
      */
     public function schema()
     {
-        return empty($this->server['SERVER_PROTOCOL']) ? null : $this->server['SERVER_PROTOCOL'];
+        return $this->isSecure() ? 'https' : 'http';
     }
 
     /**
@@ -513,7 +497,7 @@ class Request implements RequestInterface
      */
     public function host()
     {
-        return empty($this->server['HTTP_HOST']) ? null : $this->server['HTTP_HOST'];
+        return $this->header('host');
     }
 
     /**
@@ -549,19 +533,15 @@ class Request implements RequestInterface
      */
     public function clientIp()
     {
-        if (!empty($this->server['REMOTE_ADDR'])) {
-            return $this->server['REMOTE_ADDR'];
+        if ($this->server('REMOTE_ADDR')) {
+            return $this->server('REMOTE_ADDR');
         }
 
-        if (!empty($this->server['HTTP_X_FORWARDED_FOR'])) {
-            return $this->server['HTTP_X_FORWARDED_FOR'];
+        if ($this->server('HTTP_X_FORWARDED_FOR')) {
+            return $this->server('HTTP_X_FORWARDED_FOR');
         }
 
-        if (!empty($this->server['HTTP_CLIENT_IP'])) {
-            return $this->server['HTTP_CLIENT_IP'];
-        }
-
-        return null;
+        return $this->server('HTTP_CLIENT_IP');
     }
 
     /**

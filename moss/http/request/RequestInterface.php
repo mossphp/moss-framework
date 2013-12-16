@@ -70,6 +70,13 @@ interface RequestInterface
     public function files();
 
     /**
+     * Returns true if request is made via SSL
+     *
+     * @return bool
+     */
+    public function isSecure();
+
+    /**
      * Returns true if request is made via XHR
      *
      * @return bool

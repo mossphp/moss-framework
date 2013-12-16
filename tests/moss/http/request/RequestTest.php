@@ -77,13 +77,13 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $this->assertNull($Request->server('foobar'));
     }
 
-    public function testGetHeaderBlank()
+    public function testHeaderBlank()
     {
         $Request = new Request();
         $this->assertNull($Request->header('foobar'));
     }
 
-    public function testGetQuery()
+    public function testQuery()
     {
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $_GET = array(
@@ -113,7 +113,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('deep', $Request->query()->get('f.o.o.b.a.r', 'deep'));
     }
 
-    public function testGetPost()
+    public function testPost()
     {
         $_SERVER['REQUEST_METHOD'] = 'POST';
         $_POST = array(
@@ -141,7 +141,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('deep', $Request->post()->get('f.o.o.b.a.r', 'deep'));
     }
 
-    public function testGetFile()
+    public function testFile()
     {
         $_FILES['foo'] = array(
             'name' => 'bar.txt',
@@ -163,7 +163,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($result, $Request->files()->get('foo'));
     }
 
-    public function testGetFileDeep()
+    public function testFileDeep()
     {
         $_FILES = array(
             'foo' => array(
@@ -214,7 +214,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     }
 
     // todo - refactor to data provider
-    public function testGetFileError()
+    public function testFileError()
     {
         $_FILES = array(
             'bar1' => array(
@@ -353,69 +353,89 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($result['bar8'], $Request->files()->get('bar8'));
     }
 
-    public function testIsXHRFalse()
+    public function testIsSecureFalse()
+    {
+        $Request = new Request();
+        $this->assertFalse($Request->isSecure());
+    }
+
+    public function testIsSecureTrue()
+    {
+        $_SERVER['HTTPS'] = 'ON';
+        $Request = new Request();
+        $this->assertTrue($Request->isSecure());
+    }
+
+    public function testIsAjaxFalse()
     {
         $Request = new Request();
         $this->assertFalse($Request->isAjax());
     }
 
-    public function testIsXHRTrue()
+    public function testIsAjaxTrue()
     {
-        $_SERVER['HTTP_X_REQUESTED_WITH'] = 'xmlhttprequest';
+        $_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHTTPREQUEST';
         $Request = new Request();
         $this->assertTrue($Request->isAjax());
     }
 
-    public function testGetMethodCLI()
+    public function testMethodCLI()
     {
         $_SERVER['REQUEST_METHOD'] = null;
         $Request = new Request();
         $this->assertEquals('CLI', $Request->method());
     }
 
-    public function testGetMethodGET()
+    public function testMethodGET()
     {
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $Request = new Request();
         $this->assertEquals('GET', $Request->method());
     }
 
-    public function testGetMethodPOST()
+    public function testMethodPOST()
     {
         $_SERVER['REQUEST_METHOD'] = 'POST';
         $Request = new Request();
         $this->assertEquals('POST', $Request->method());
     }
 
-    public function testGetMethodPUT()
+    public function testMethodPUT()
     {
         $_SERVER['REQUEST_METHOD'] = 'PUT';
         $Request = new Request();
         $this->assertEquals('PUT', $Request->method());
     }
 
-    public function testGetMethodDELETE()
+    public function testMethodDELETE()
     {
         $_SERVER['REQUEST_METHOD'] = 'DELETE';
         $Request = new Request();
         $this->assertEquals('DELETE', $Request->method());
     }
 
-    public function testGetSchema()
+    public function testSchema()
     {
-        $_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.0';
+        $_SERVER['SERVER_PROTOCOL'] = 'http';
         $Request = new Request();
-        $this->assertEquals('HTTP/1.0', $Request->schema());
+        $this->assertEquals('http', $Request->schema());
     }
 
-    public function testGetDomain()
+    public function testSchemaSecure()
+    {
+        $_SERVER['HTTPS'] = 'on';
+        $Request = new Request();
+        $this->assertEquals('https', $Request->schema());
+    }
+
+    public function testDomain()
     {
         $_SERVER['HTTP_HOST'] = 'foo.test.com';
         $Request = new Request();
         $this->assertEquals('foo.test.com', $Request->host());
     }
 
-    public function testGetDir()
+    public function testDir()
     {
         $_SERVER['PHP_SELF'] = '/web/';
         $_SERVER['HTTP_HOST'] = 'test.com';
@@ -424,7 +444,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('/web/', $Request->dir());
     }
 
-    public function testGetBaseName()
+    public function testBaseName()
     {
         $_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.0';
         $_SERVER['REQUEST_URI'] = '/foo/index.html?foo=bar';
@@ -449,7 +469,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('http://yada.com/', $Request->baseName());
     }
 
-    public function testGetClientIpRemote()
+    public function testClientIpRemote()
     {
         $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
 
@@ -457,7 +477,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('127.0.0.1', $Request->clientIp());
     }
 
-    public function testGetClientIpForwarded()
+    public function testClientIpForwarded()
     {
         $_SERVER['HTTP_X_FORWARDED_FOR'] = '127.0.0.1';
 
@@ -465,7 +485,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('127.0.0.1', $Request->clientIp());
     }
 
-    public function testGetClientIpHTTPClientIp()
+    public function testClientIpHTTPClientIp()
     {
         $_SERVER['HTTP_CLIENT_IP'] = '127.0.0.1';
 
@@ -473,7 +493,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('127.0.0.1', $Request->clientIp());
     }
 
-    public function testGetController()
+    public function testController()
     {
         $Request = new Request();
         $this->assertEquals(null, $Request->controller());
@@ -486,7 +506,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('foobar', $Request->controller('foobar'));
     }
 
-    public function testGetURI()
+    public function testURI()
     {
         $_SERVER['REQUEST_URI'] = '/foo/index.html?foo=bar';
 
@@ -494,7 +514,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('/foo/index.html', $Request->url());
     }
 
-    public function testGetEmptyInvalidRedirect()
+    public function testEmptyInvalidRedirect()
     {
         $_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.0';
         $_SERVER['REQUEST_URI'] = '/web/foo/index.html?foo=bar';
@@ -507,7 +527,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('/web/foo/index.html', $Request->url());
     }
 
-    public function testGetInvalidRedirect()
+    public function testInvalidRedirect()
     {
         $_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.0';
         $_SERVER['REQUEST_URI'] = '/web/foo/index.html?foo=bar';
@@ -520,7 +540,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('/foo/index.html', $Request->url());
     }
 
-    public function testGetReferer()
+    public function testReferer()
     {
         $_SERVER['HTTP_REFERER'] = 'test.com';
 
@@ -528,7 +548,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('test.com', $Request->referrer());
     }
 
-    public function testGetLocaleFromHeader()
+    public function testLocaleFromHeader()
     {
         $_SERVER['HTTP_ACCEPT_LANGUAGE'] = 'pl,en-us;q=0.7,en;q=0.3';
 
@@ -536,7 +556,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('pl', $Request->locale());
     }
 
-    public function testGetLocaleFromQuery()
+    public function testLocaleFromQuery()
     {
         $_GET['locale'] = 'pl';
 
@@ -553,7 +573,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('en', $Request->locale());
     }
 
-    public function testGetFormat()
+    public function testFormat()
     {
         $_GET['format'] = 'json';
 
