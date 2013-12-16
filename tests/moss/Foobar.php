@@ -1,5 +1,5 @@
 <?php
-namespace tests\Moss;
+namespace tests\moss;
 
 class Foobar
 {
