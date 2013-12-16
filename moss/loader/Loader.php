@@ -12,7 +12,6 @@ class Loader
 {
 
     protected $namespaces = array();
-    protected $prefixes = array();
 
     /**
      * Registers an array of namespaces
@@ -57,7 +56,7 @@ class Loader
                 throw new \InvalidArgumentException(sprintf('Unable to resolve real path for "%s"', $path));
             }
 
-            $this->namespaces[(string) $namespace][] = realpath($path);
+            $this->namespaces[(string) $namespace][] = rtrim(realpath($path)) . DIRECTORY_SEPARATOR;
         }
 
         return $this;
@@ -104,20 +103,21 @@ class Loader
      *
      * @return bool|string
      */
-    protected function findFile($className)
+    public function findFile($className)
     {
         foreach ($this->namespaces as $namespace => $paths) {
             if (false !== $lastNsPos = strripos($className, '\\')) {
-                if ($namespace && $namespace . '\\' !== substr($className, 0, strlen($namespace . '\\'))) {
-                    continue;
-                }
-
-                $fileName = str_replace('\\', DIRECTORY_SEPARATOR, substr($className, 0, $lastNsPos)) . DIRECTORY_SEPARATOR . substr($className, $lastNsPos + 1) . '.php';
+                $psr0 = str_replace('\\', '/', substr($className, 0, $lastNsPos)) . '/' . substr($className, $lastNsPos + 1) . '.php';
+                $psr4 = ($namespace === '' ? $className : substr($className, strlen($namespace . '\\'))) . '.php';
 
                 foreach ($paths as $path) {
-                    $file = ($path !== null ? $path . DIRECTORY_SEPARATOR : '') . $fileName;
+                    $file = str_replace('\\', '/', $path . $psr0);
+                    if ($this->requireFile($file)) {
+                        return $file;
+                    }
 
-                    if (is_file($file)) {
+                    $file = str_replace('\\', '/', $path . $psr4);
+                    if ($this->requireFile($file)) {
                         return $file;
                     }
                 }
@@ -125,16 +125,29 @@ class Loader
                 continue;
             }
 
-            if ($namespace !== '' && 0 !== strpos($className, $namespace)) {
-                continue;
-            }
-
             foreach ($paths as $path) {
-                $file = $path . DIRECTORY_SEPARATOR . str_replace('_', DIRECTORY_SEPARATOR, $className) . '.php';
-                if (is_file($file)) {
+                $file = $path . str_replace('_', '/', $className) . '.php';
+
+                if ($this->requireFile($file)) {
                     return $file;
                 }
             }
+        }
+
+        return false;
+    }
+
+    /**
+     * Requires file and returns boolean result
+     *
+     * @param string $file
+     *
+     * @return bool
+     */
+    protected function requireFile($file)
+    {
+        if (is_file($file)) {
+            return $file;
         }
 
         return false;
