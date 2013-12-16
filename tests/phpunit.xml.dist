@@ -26,6 +26,7 @@
 			<directory>./moss/http/cookie/</directory>
 			<directory>./moss/http/session/</directory>
 			<directory>./moss/logger/</directory>
+			<directory>./moss/loader/</directory>
 			<directory>./moss/router/</directory>
 			<directory>./moss/security/</directory>
 			<directory>./moss/view/</directory>
