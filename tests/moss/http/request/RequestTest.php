@@ -511,7 +511,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $_SERVER['REQUEST_URI'] = '/foo/index.html?foo=bar';
 
         $Request = new Request();
-        $this->assertEquals('/foo/index.html', $Request->url());
+        $this->assertEquals('/foo/index.html', $Request->path());
     }
 
     public function testEmptyInvalidRedirect()
@@ -524,7 +524,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
         $Request = new Request();
         $this->assertEquals('/', $Request->dir());
-        $this->assertEquals('/web/foo/index.html', $Request->url());
+        $this->assertEquals('/web/foo/index.html', $Request->path());
     }
 
     public function testInvalidRedirect()
@@ -537,7 +537,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
         $Request = new Request();
         $this->assertEquals('/', $Request->dir());
-        $this->assertEquals('/foo/index.html', $Request->url());
+        $this->assertEquals('/foo/index.html', $Request->path());
     }
 
     public function testReferer()

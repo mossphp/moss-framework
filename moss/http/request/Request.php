@@ -561,15 +561,27 @@ class Request implements RequestInterface
     }
 
     /**
+     * Returns requested URI
+     *
+     * @param bool $query
+     *
+     * @return string
+     */
+    public function uri($query = false)
+    {
+        return $this->baseName() . $this->path($query);
+    }
+
+    /**
      * Returns requested URL
      *
      * @param bool $query
      *
      * @return string
      */
-    public function url($query = false)
+    public function path($query = false)
     {
-        return $this->url . ($query ? '?' . http_build_query($this->query, null, '&') : null);
+        return $this->url . ($query && !empty($this->query->has()) ? '?' . http_build_query($this->query->all(), null, '&') : null);
     }
 
     /**

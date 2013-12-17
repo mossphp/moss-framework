@@ -137,13 +137,22 @@ interface RequestInterface
     public function controller($controller = null);
 
     /**
-     * Returns requested URL
+     * Returns requested URI
      *
      * @param bool $query
      *
      * @return string
      */
-    public function url($query = false);
+    public function uri($query = false);
+
+    /**
+     * Returns requested path relative to script location
+     *
+     * @param bool $query
+     *
+     * @return string
+     */
+    public function path($query = false);
 
     /**
      * Returns address of page which referred user agent (if any)
