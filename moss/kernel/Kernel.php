@@ -72,8 +72,12 @@ class Kernel
 
             $response = $this->callController($action, $request);
 
-            if (!$response || !$response instanceof ResponseInterface) {
-                throw new KernelException(sprintf('There was no response returned from the "%s (%s)" or is not an instance of ResponseInterface', $action, $request->url(true)));
+            if (!$response) {
+                throw new KernelException(sprintf('There was no response returned from the controller "%s" handling "%s"', $action, $request->uri(true)));
+            }
+
+            if(!$response instanceof ResponseInterface) {
+                throw new KernelException(sprintf('Response returned from "%s" handling "%s" must be instance of ResponseInterface, got "%s"', $action, $request->uri(true), is_object($response) ? get_class($response) : gettype($response)));
             }
 
             $response = $this->fireEvent('kernel.response', $response);
@@ -87,12 +91,12 @@ class Kernel
             $response = $this->fireEvent('kernel.500', $e, sprintf('%s (%s line:%s)', $e->getMessage(), $e->getFile(), $e->getLine()));
         }
 
-        if (!empty($e) && empty($response)) {
+        if (!empty($e) && !$response instanceof ResponseInterface) {
             throw $e;
         }
 
         if (!$response instanceof ResponseInterface) {
-            throw new KernelException(sprintf('Received response is not an instance of ResponseInterface', $request->url(true)));
+            throw new KernelException(sprintf('Received response is not an instance of ResponseInterface', $request->uri(true)));
         }
 
         return $this->fireEvent('kernel.send', $response);

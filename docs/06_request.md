@@ -11,7 +11,8 @@ Just create an instance, with optional `$_SESSION` and `$_COOKIE` wrappers:
  * `baseName` - returns basename - if available,
  * `clientIp` - tries to resolve clients ip or his proxy
  * `controller` - will return controller identifier if was passed in query or matching route found (this can be string or closure)
- * `url` - returns requested url
+ * `uri` - returns requested uri
+ * `path` - returns requested path (relative to script location)
  * `referrer` - from where did request came
  * `locale` - requested language
  * `format` - requested format - mainly null - which means any format

@@ -79,7 +79,7 @@ class RouteTest extends \PHPUnit_Framework_TestCase
         $route->host($host[0]);
         $route->schema($schema[0]);
         $route->methods($methods[0]);
-        $this->assertTrue($route->match($this->mockRequest($pattern[1], $schema[1], $methods[1], $host[1])), 'Url mismatch');
+        $this->assertTrue($route->match($this->mockRequest($pattern[1], $schema[1], $methods[1], $host[1])), 'Path mismatch');
         $this->assertEquals('some:controller', $route->controller(), 'Controller not equal');
         $this->assertEquals($arg[1], $route->arguments(), 'Arguments not equal');
     }
@@ -168,13 +168,13 @@ class RouteTest extends \PHPUnit_Framework_TestCase
         return array();
     }
 
-    protected function mockRequest($url, $schema = null, $method = null, $host = null)
+    protected function mockRequest($path, $schema = null, $method = null, $host = null)
     {
         $request = $this->getMock('moss\http\request\RequestInterface');
         $request
             ->expects($this->any())
-            ->method('url')
-            ->will($this->returnValue($url));
+            ->method('path')
+            ->will($this->returnValue($path));
 
         $request
             ->expects($this->any())

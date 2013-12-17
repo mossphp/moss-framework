@@ -159,7 +159,7 @@ class Router implements RouterInterface
             return $request->controller();
         }
 
-        throw new RouterException('Route for "' . $request->url() . '" not found!');
+        throw new RouterException('Route for "' . $request->path() . '" not found!');
     }
 
     /**

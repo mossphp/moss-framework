@@ -249,7 +249,7 @@ class Route implements RouteInterface
         $regexp .= substr($regexp, -1) == '/' ? '?' : null;
         $regexp = '/^' . $regexp . '$/i';
 
-        if (!preg_match_all($regexp, $request->url(), $matches, \PREG_SET_ORDER)) {
+        if (!preg_match_all($regexp, $request->path(), $matches, \PREG_SET_ORDER)) {
             return false;
         }
 
