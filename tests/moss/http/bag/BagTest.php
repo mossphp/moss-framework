@@ -28,6 +28,16 @@ class BagTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider dataProvider
      */
+    public function testHasWithoutParam($offset, $value)
+    {
+        $bag = new Bag();
+        $bag->set($offset, $value);
+        $this->assertTrue($bag->has());
+    }
+
+    /**
+     * @dataProvider dataProvider
+     */
     public function testHas($offset, $value)
     {
         $bag = new Bag();
