@@ -38,7 +38,7 @@ interface BagInterface extends \ArrayAccess, \Iterator, \Countable
      *
      * @return bool
      */
-    public function has($offset);
+    public function has($offset = null);
 
     /**
      * Removes offset from bag

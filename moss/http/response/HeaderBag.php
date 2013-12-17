@@ -35,7 +35,7 @@ class HeaderBag implements BagInterface
      */
     public function get($offset = null, $default = null)
     {
-        if($offset === null) {
+        if ($offset === null) {
             return $this->all();
         }
 
@@ -64,8 +64,12 @@ class HeaderBag implements BagInterface
      *
      * @return bool
      */
-    public function has($offset)
+    public function has($offset = null)
     {
+        if ($offset === null) {
+            return !empty($this->storage);
+        }
+
         return isset($this->storage[$offset]);
     }
 

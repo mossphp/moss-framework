@@ -32,7 +32,7 @@ class Bag implements BagInterface
      */
     public function get($offset = null, $default = null)
     {
-        if($offset === null) {
+        if ($offset === null) {
             return $this->all();
         }
 
@@ -61,8 +61,12 @@ class Bag implements BagInterface
      *
      * @return bool
      */
-    public function has($offset)
+    public function has($offset = null)
     {
+        if ($offset === null) {
+            return $this->count() > 0;
+        }
+
         $offset = explode(self::SEPARATOR, $offset);
 
         if (count($offset) > 1) {
