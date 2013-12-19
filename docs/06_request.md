@@ -25,7 +25,7 @@ Environment variables (`$_SERVER`) are accessible via `::getServer($server)` met
 ## Console and other methods
 
 To access query (`GET`) arguments use `::query->get($key, $value = null)` method, same for console (`CLI`) arguments.
-For `POST`, `PUT`, `DELETE` arguments call `::post->get($key, $value = null)` method.
+For `POST`, `PUT`, `DELETE` arguments call `::post()->get($key, $value = null)` method.
 
 Both methods allow access to multidimensional arrays, just separate keys with `.` (dot) eg:
 
@@ -39,14 +39,18 @@ To set `GET` and `POST` values use respectively `setQuery` and `setPost`
 
 ## Files
 
-The `::files->get($key)` method grants access to modified `$_FILES` superglobal.
+The `::files->get($key)` method grants access to `FilesBag`, which represents a little bit modified `$_FILES` superglobal.
 Structure has been modified as follows:
 
 	// <input type="file" name="foo[bar][yada]"/>
 	$tmp_name = $_FILES['foo']['tmp_name']['bar']['yada'];
-	$tmp_name = $Request->files->get('foo.bar.yada.tmp_name'); // as $tmp_name = $_files['foo']['bar']['yada']['tmp_name'];
+	$tmp_name = $Request->files()->get('foo.bar.yada.tmp_name'); // as $tmp_name = $_files['foo']['bar']['yada']['tmp_name'];
 
-In addition, each field receives additional property `error_text` which will contain error message (if error occurred, empty otherwise)
+To upload file (to move uploaded file) from above field, just call:
+
+	$Request->files()->uploaded('foo.bar.yada')->move('./some/directory/', 'newFileName');
+
+The `::uploaded()` method returns instance of `UploadedFile` which simplifies file upload.
 
 ## Cookies and session
 
