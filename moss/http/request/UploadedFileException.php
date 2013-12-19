@@ -1,13 +1,13 @@
 <?php
-namespace moss\http\uploader;
+namespace moss\http\request;
 
 /**
- * Uploader exception
+ * Uploaded file exception
  *
  * @package Moss HTTP
  * @author  Michal Wachowski <wachowski.michal@gmail.com>
  */
-class UploaderException extends \Exception
+class UploadedFileException extends \Exception
 {
 
 }
