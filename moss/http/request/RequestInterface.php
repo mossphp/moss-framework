@@ -65,7 +65,7 @@ interface RequestInterface
     /**
      * Returns files bag
      *
-     * @return BagInterface
+     * @return FilesBag|BagInterface
      */
     public function files();
 

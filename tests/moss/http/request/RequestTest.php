@@ -12,8 +12,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
     public function testConstruct()
     {
-        $Request = new Request();
-        $this->assertInstanceOf('\moss\http\request\RequestInterface', $Request);
+        $request = new Request();
+        $this->assertInstanceOf('\moss\http\request\RequestInterface', $request);
     }
 
     public function testConstructContent()
@@ -22,14 +22,14 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $_SERVER['CONTENT_MD5'] = 'someMD5';
         $_SERVER['CONTENT_TYPE'] = 'text/plan';
 
-        $Request = new Request();
-        $this->assertInstanceOf('\moss\http\request\RequestInterface', $Request);
-        $this->assertEquals($_SERVER['CONTENT_LENGTH'], $Request->server('CONTENT_LENGTH'));
-        $this->assertEquals($_SERVER['CONTENT_MD5'], $Request->server('CONTENT_MD5'));
-        $this->assertEquals($_SERVER['CONTENT_TYPE'], $Request->server('CONTENT_TYPE'));
-        $this->assertEquals($_SERVER['CONTENT_LENGTH'], $Request->header('content_length'));
-        $this->assertEquals($_SERVER['CONTENT_MD5'], $Request->header('content_md5'));
-        $this->assertEquals($_SERVER['CONTENT_TYPE'], $Request->header('content_type'));
+        $request = new Request();
+        $this->assertInstanceOf('\moss\http\request\RequestInterface', $request);
+        $this->assertEquals($_SERVER['CONTENT_LENGTH'], $request->server('CONTENT_LENGTH'));
+        $this->assertEquals($_SERVER['CONTENT_MD5'], $request->server('CONTENT_MD5'));
+        $this->assertEquals($_SERVER['CONTENT_TYPE'], $request->server('CONTENT_TYPE'));
+        $this->assertEquals($_SERVER['CONTENT_LENGTH'], $request->header('content_length'));
+        $this->assertEquals($_SERVER['CONTENT_MD5'], $request->header('content_md5'));
+        $this->assertEquals($_SERVER['CONTENT_TYPE'], $request->header('content_type'));
     }
 
     public function testConstructWithMagicQuotes()
@@ -43,44 +43,57 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     {
         $_SESSION['foo'] = 'foo';
 
-        $Request = new Request(new Session());
-        $this->assertEquals('foo', $Request->session()->get('foo'));
+        $request = new Request(new Session());
+        $this->assertEquals(
+             'foo',
+             $request->session()
+                     ->get('foo')
+        );
     }
 
     public function testSessionDeep()
     {
         $_SESSION['foo'] = array('bar' => 'bar');
 
-        $Request = new Request(new Session());
-        $this->assertEquals('bar', $Request->session()->get('foo.bar'));
+        $request = new Request(new Session());
+        $this->assertEquals(
+             'bar', $request->session()
+                            ->get('foo.bar')
+        );
     }
 
     public function testCookie()
     {
         $_COOKIE['foo'] = 'foo';
 
-        $Request = new Request(null, new Cookie());
-        $this->assertEquals('foo', $Request->cookie()->get('foo'));
+        $request = new Request(null, new Cookie());
+        $this->assertEquals(
+             'foo', $request->cookie()
+                            ->get('foo')
+        );
     }
 
     public function testCookieDeep()
     {
         $_COOKIE['foo'] = array('bar' => 'bar');
 
-        $Request = new Request(null, new Cookie());
-        $this->assertEquals('bar', $Request->cookie()->get('foo.bar'));
+        $request = new Request(null, new Cookie());
+        $this->assertEquals(
+             'bar', $request->cookie()
+                            ->get('foo.bar')
+        );
     }
 
     public function getServerBlank()
     {
-        $Request = new Request();
-        $this->assertNull($Request->server('foobar'));
+        $request = new Request();
+        $this->assertNull($request->server('foobar'));
     }
 
     public function testHeaderBlank()
     {
-        $Request = new Request();
-        $this->assertNull($Request->header('foobar'));
+        $request = new Request();
+        $this->assertNull($request->header('foobar'));
     }
 
     public function testQuery()
@@ -93,24 +106,54 @@ class RequestTest extends \PHPUnit_Framework_TestCase
             'format' => 'json'
         );
 
-        $Request = new Request();
+        $request = new Request();
 
-        $this->assertEquals('bar', $Request->query()->get('foo'));
-        $this->assertEquals('foobar', $Request->query()->get('controller'));
-        $this->assertEquals('pl', $Request->query()->get('locale'));
-        $this->assertEquals('json', $Request->query()->get('format'));
+        $this->assertEquals(
+             'bar', $request->query()
+                            ->get('foo')
+        );
+        $this->assertEquals(
+             'foobar', $request->query()
+                               ->get('controller')
+        );
+        $this->assertEquals(
+             'pl', $request->query()
+                           ->get('locale')
+        );
+        $this->assertEquals(
+             'json', $request->query()
+                             ->get('format')
+        );
     }
 
     public function testSetQuery()
     {
-        $Request = new Request();
+        $request = new Request();
 
-        $this->assertEquals('bar', $Request->query()->get('foo', 'bar'));
-        $this->assertEquals('foobar', $Request->query()->get('controller', 'foobar'));
-        $this->assertEquals('pl', $Request->query()->get('locale', 'pl'));
-        $this->assertEquals('json', $Request->query()->get('format', 'json'));
-        $this->assertEquals('yada', $Request->query()->get('foo.bar', 'yada'));
-        $this->assertEquals('deep', $Request->query()->get('f.o.o.b.a.r', 'deep'));
+        $this->assertEquals(
+             'bar', $request->query()
+                            ->get('foo', 'bar')
+        );
+        $this->assertEquals(
+             'foobar', $request->query()
+                               ->get('controller', 'foobar')
+        );
+        $this->assertEquals(
+             'pl', $request->query()
+                           ->get('locale', 'pl')
+        );
+        $this->assertEquals(
+             'json', $request->query()
+                             ->get('format', 'json')
+        );
+        $this->assertEquals(
+             'yada', $request->query()
+                             ->get('foo.bar', 'yada')
+        );
+        $this->assertEquals(
+             'deep', $request->query()
+                             ->get('f.o.o.b.a.r', 'deep')
+        );
     }
 
     public function testPost()
@@ -123,22 +166,62 @@ class RequestTest extends \PHPUnit_Framework_TestCase
             'format' => 'json'
         );
 
-        $Request = new Request();
-        $this->assertEquals('bar', $Request->post()->get('foo'));
-        $this->assertEquals('foobar', $Request->post()->get('controller'));
-        $this->assertEquals('pl', $Request->post()->get('locale'));
-        $this->assertEquals('json', $Request->post()->get('format'));
+        $request = new Request();
+        $this->assertEquals(
+             'bar',
+             $request->post()
+                     ->get('foo')
+        );
+        $this->assertEquals(
+             'foobar',
+             $request->post()
+                     ->get('controller')
+        );
+        $this->assertEquals(
+             'pl',
+             $request->post()
+                     ->get('locale')
+        );
+        $this->assertEquals(
+             'json',
+             $request->post()
+                     ->get('format')
+        );
     }
 
     public function testSetPost()
     {
-        $Request = new Request();
-        $this->assertEquals('bar', $Request->post()->get('foo', 'bar'));
-        $this->assertEquals('foobar', $Request->post()->get('controller', 'foobar'));
-        $this->assertEquals('pl', $Request->post()->get('locale', 'pl'));
-        $this->assertEquals('json', $Request->post()->get('format', 'json'));
-        $this->assertEquals('yada', $Request->post()->get('foo.bar.zope', 'yada'));
-        $this->assertEquals('deep', $Request->post()->get('f.o.o.b.a.r', 'deep'));
+        $request = new Request();
+        $this->assertEquals(
+             'bar',
+             $request->post()
+                     ->get('foo', 'bar')
+        );
+        $this->assertEquals(
+             'foobar',
+             $request->post()
+                     ->get('controller', 'foobar')
+        );
+        $this->assertEquals(
+             'pl',
+             $request->post()
+                     ->get('locale', 'pl')
+        );
+        $this->assertEquals(
+             'json',
+             $request->post()
+                     ->get('format', 'json')
+        );
+        $this->assertEquals(
+             'yada',
+             $request->post()
+                     ->get('foo.bar.zope', 'yada')
+        );
+        $this->assertEquals(
+             'deep',
+             $request->post()
+                     ->get('f.o.o.b.a.r', 'deep')
+        );
     }
 
     public function testFile()
@@ -155,12 +238,15 @@ class RequestTest extends \PHPUnit_Framework_TestCase
             'type' => 'text/plain',
             'tmp_name' => 'whatever2',
             'error' => 0,
-            'error_text' => null,
             'size' => 123
         );
 
-        $Request = new Request();
-        $this->assertEquals($result, $Request->files()->get('foo'));
+        $request = new Request();
+        $this->assertEquals(
+             $result,
+             $request->files()
+                     ->get('foo')
+        );
     }
 
     public function testFileDeep()
@@ -196,7 +282,6 @@ class RequestTest extends \PHPUnit_Framework_TestCase
                 'type' => 'text/plain',
                 'tmp_name' => 'foo_tmp',
                 'error' => 0,
-                'error_text' => null,
                 'size' => 123
             ),
             'bar' => array(
@@ -204,235 +289,262 @@ class RequestTest extends \PHPUnit_Framework_TestCase
                 'type' => 'text/plain',
                 'tmp_name' => 'bar_tmp',
                 'error' => 0,
-                'error_text' => null,
                 'size' => 456
             )
         );
 
-        $Request = new Request();
-        $this->assertEquals($result, $Request->files()->get('foo'));
+        $request = new Request();
+        $this->assertEquals(
+             $result,
+             $request->files()
+                     ->get('foo')
+        );
     }
 
-    // todo - refactor to data provider
-    public function testFileError()
+    /**
+     * @dataProvider errorDataProvider
+     */
+    public function testFileError($key, $files, $result)
     {
-        $_FILES = array(
-            'bar1' => array(
-                'name' => 'bar.txt',
-                'type' => 'text/plain',
-                'tmp_name' => 'whatever2',
-                'error' => 1,
-                'size' => 0
+        $_FILES[$key] = $files;
+
+        $request = new Request();
+        $this->assertEquals(
+             $result,
+             $request->files()
+                     ->uploaded($key)
+                     ->getRaw()
+        );
+    }
+
+    public function errorDataProvider()
+    {
+        return array(
+            array(
+                'bar1',
+                array(
+                    'name' => 'bar.txt',
+                    'type' => 'text/plain',
+                    'tmp_name' => 'whatever2',
+                    'error' => 1,
+                    'size' => 0
+                ),
+                array(
+                    'name' => 'bar.txt',
+                    'type' => 'text/plain',
+                    'tmp_name' => 'whatever2',
+                    'error' => 1,
+                    'errorMessage' => 'The uploaded file exceeds the upload_max_filesize directive in php.ini.',
+                    'size' => 0
+                )
             ),
-            'bar2' => array(
-                'name' => 'bar.txt',
-                'type' => 'text/plain',
-                'tmp_name' => 'whatever2',
-                'error' => 2,
-                'size' => 0
+            array(
+                'bar2',
+                array(
+                    'name' => 'bar.txt',
+                    'type' => 'text/plain',
+                    'tmp_name' => 'whatever2',
+                    'error' => 2,
+                    'size' => 0
+                ),
+                array(
+                    'name' => 'bar.txt',
+                    'type' => 'text/plain',
+                    'tmp_name' => 'whatever2',
+                    'error' => 2,
+                    'errorMessage' => 'The uploaded file exceeds the MAX_FILE_SIZE directive specified in HTML form.',
+                    'size' => 0
+                )
             ),
-            'bar3' => array(
-                'name' => 'bar.txt',
-                'type' => 'text/plain',
-                'tmp_name' => 'whatever2',
-                'error' => 3,
-                'size' => 0
+
+            array(
+                'bar3',
+                array(
+                    'name' => 'bar.txt',
+                    'type' => 'text/plain',
+                    'tmp_name' => 'whatever2',
+                    'error' => 3,
+                    'size' => 0
+                ),
+                array(
+                    'name' => 'bar.txt',
+                    'type' => 'text/plain',
+                    'tmp_name' => 'whatever2',
+                    'error' => 3,
+                    'errorMessage' => 'The uploaded file was only partially uploaded.',
+                    'size' => 0
+                )
             ),
-            'bar4' => array(
-                'name' => 'bar.txt',
-                'type' => 'text/plain',
-                'tmp_name' => 'whatever2',
-                'error' => 4,
-                'size' => 0
+            array(
+                'bar4',
+                array(
+                    'name' => 'bar.txt',
+                    'type' => 'text/plain',
+                    'tmp_name' => 'whatever2',
+                    'error' => 4,
+                    'size' => 0
+                ),
+                array(
+                    'name' => 'bar.txt',
+                    'type' => 'text/plain',
+                    'tmp_name' => 'whatever2',
+                    'error' => 4,
+                    'errorMessage' => 'No file was uploaded.',
+                    'size' => 0
+                )
             ),
-            'bar5' => array(
+            array(
+                'bar5', array(
                 'name' => 'bar.txt',
                 'type' => 'text/plain',
                 'tmp_name' => 'whatever2',
                 'error' => 5,
                 'size' => 0
             ),
-            'bar6' => array(
+                array(
+                    'name' => 'bar.txt',
+                    'type' => 'text/plain',
+                    'tmp_name' => 'whatever2',
+                    'error' => 5,
+                    'errorMessage' => 'Unknown error occurred.',
+                    'size' => 0
+                )
+            ),
+            array(
+                'bar6', array(
                 'name' => 'bar.txt',
                 'type' => 'text/plain',
                 'tmp_name' => 'whatever2',
                 'error' => 6,
                 'size' => 0
             ),
-            'bar7' => array(
+                array(
+                    'name' => 'bar.txt',
+                    'type' => 'text/plain',
+                    'tmp_name' => 'whatever2',
+                    'error' => 6,
+                    'errorMessage' => 'Missing a temporary folder.',
+                    'size' => 0
+                )
+            ),
+            array(
+                'bar7', array(
                 'name' => 'bar.txt',
                 'type' => 'text/plain',
                 'tmp_name' => 'whatever2',
                 'error' => 7,
                 'size' => 0
             ),
-            'bar8' => array(
-                'name' => 'bar.txt',
-                'type' => 'text/plain',
-                'tmp_name' => 'whatever2',
-                'error' => 8,
-                'size' => 0
+                array(
+                    'name' => 'bar.txt',
+                    'type' => 'text/plain',
+                    'tmp_name' => 'whatever2',
+                    'error' => 7,
+                    'errorMessage' => 'Failed to write file to disk.',
+                    'size' => 0
+                )
+            ),
+            array(
+                'bar8',
+                array(
+                    'name' => 'bar.txt',
+                    'type' => 'text/plain',
+                    'tmp_name' => 'whatever2',
+                    'error' => 8,
+                    'size' => 0
+                ),
+                array(
+                    'name' => 'bar.txt',
+                    'type' => 'text/plain',
+                    'tmp_name' => 'whatever2',
+                    'error' => 8,
+                    'errorMessage' => 'A PHP extension stopped the file upload.',
+                    'size' => 0
+                )
             )
         );
-
-        $result = array(
-            'bar1' => array(
-                'name' => 'bar.txt',
-                'type' => 'text/plain',
-                'tmp_name' => 'whatever2',
-                'error' => 1,
-                'error_text' => 'The uploaded file exceeds the upload_max_filesize directive in php.ini.',
-                'size' => 0
-            ),
-            'bar2' => array(
-                'name' => 'bar.txt',
-                'type' => 'text/plain',
-                'tmp_name' => 'whatever2',
-                'error' => 2,
-                'error_text' => 'The uploaded file exceeds the MAX_FILE_SIZE directive specified in HTML form.',
-                'size' => 0
-            ),
-            'bar3' => array(
-                'name' => 'bar.txt',
-                'type' => 'text/plain',
-                'tmp_name' => 'whatever2',
-                'error' => 3,
-                'error_text' => 'The uploaded file was only partially uploaded.',
-                'size' => 0
-            ),
-            'bar4' => array(
-                'name' => 'bar.txt',
-                'type' => 'text/plain',
-                'tmp_name' => 'whatever2',
-                'error' => 4,
-                'error_text' => 'No file was uploaded.',
-                'size' => 0
-            ),
-            'bar5' => array(
-                'name' => 'bar.txt',
-                'type' => 'text/plain',
-                'tmp_name' => 'whatever2',
-                'error' => 5,
-                'error_text' => 'Unknown error occurred.',
-                'size' => 0
-            ),
-            'bar6' => array(
-                'name' => 'bar.txt',
-                'type' => 'text/plain',
-                'tmp_name' => 'whatever2',
-                'error' => 6,
-                'error_text' => 'Missing a temporary folder.',
-                'size' => 0
-            ),
-            'bar7' => array(
-                'name' => 'bar.txt',
-                'type' => 'text/plain',
-                'tmp_name' => 'whatever2',
-                'error' => 7,
-                'error_text' => 'Failed to write file to disk.',
-                'size' => 0
-            ),
-            'bar8' => array(
-                'name' => 'bar.txt',
-                'type' => 'text/plain',
-                'tmp_name' => 'whatever2',
-                'error' => 8,
-                'error_text' => 'A PHP extension stopped the file upload.',
-                'size' => 0
-            )
-        );
-
-        $Request = new Request();
-        $this->assertEquals($result['bar1'], $Request->files()->get('bar1'));
-        $this->assertEquals($result['bar2'], $Request->files()->get('bar2'));
-        $this->assertEquals($result['bar3'], $Request->files()->get('bar3'));
-        $this->assertEquals($result['bar4'], $Request->files()->get('bar4'));
-        $this->assertEquals($result['bar5'], $Request->files()->get('bar5'));
-        $this->assertEquals($result['bar6'], $Request->files()->get('bar6'));
-        $this->assertEquals($result['bar7'], $Request->files()->get('bar7'));
-        $this->assertEquals($result['bar8'], $Request->files()->get('bar8'));
     }
 
     public function testIsSecureFalse()
     {
-        $Request = new Request();
-        $this->assertFalse($Request->isSecure());
+        $request = new Request();
+        $this->assertFalse($request->isSecure());
     }
 
     public function testIsSecureTrue()
     {
         $_SERVER['HTTPS'] = 'ON';
-        $Request = new Request();
-        $this->assertTrue($Request->isSecure());
+        $request = new Request();
+        $this->assertTrue($request->isSecure());
     }
 
     public function testIsAjaxFalse()
     {
-        $Request = new Request();
-        $this->assertFalse($Request->isAjax());
+        $request = new Request();
+        $this->assertFalse($request->isAjax());
     }
 
     public function testIsAjaxTrue()
     {
         $_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHTTPREQUEST';
-        $Request = new Request();
-        $this->assertTrue($Request->isAjax());
+        $request = new Request();
+        $this->assertTrue($request->isAjax());
     }
 
     public function testMethodCLI()
     {
         $_SERVER['REQUEST_METHOD'] = null;
-        $Request = new Request();
-        $this->assertEquals('CLI', $Request->method());
+        $request = new Request();
+        $this->assertEquals('CLI', $request->method());
     }
 
     public function testMethodGET()
     {
         $_SERVER['REQUEST_METHOD'] = 'GET';
-        $Request = new Request();
-        $this->assertEquals('GET', $Request->method());
+        $request = new Request();
+        $this->assertEquals('GET', $request->method());
     }
 
     public function testMethodPOST()
     {
         $_SERVER['REQUEST_METHOD'] = 'POST';
-        $Request = new Request();
-        $this->assertEquals('POST', $Request->method());
+        $request = new Request();
+        $this->assertEquals('POST', $request->method());
     }
 
     public function testMethodPUT()
     {
         $_SERVER['REQUEST_METHOD'] = 'PUT';
-        $Request = new Request();
-        $this->assertEquals('PUT', $Request->method());
+        $request = new Request();
+        $this->assertEquals('PUT', $request->method());
     }
 
     public function testMethodDELETE()
     {
         $_SERVER['REQUEST_METHOD'] = 'DELETE';
-        $Request = new Request();
-        $this->assertEquals('DELETE', $Request->method());
+        $request = new Request();
+        $this->assertEquals('DELETE', $request->method());
     }
 
     public function testSchema()
     {
         $_SERVER['SERVER_PROTOCOL'] = 'http';
-        $Request = new Request();
-        $this->assertEquals('http', $Request->schema());
+        $request = new Request();
+        $this->assertEquals('http', $request->schema());
     }
 
     public function testSchemaSecure()
     {
         $_SERVER['HTTPS'] = 'on';
-        $Request = new Request();
-        $this->assertEquals('https', $Request->schema());
+        $request = new Request();
+        $this->assertEquals('https', $request->schema());
     }
 
     public function testDomain()
     {
         $_SERVER['HTTP_HOST'] = 'foo.test.com';
-        $Request = new Request();
-        $this->assertEquals('foo.test.com', $Request->host());
+        $request = new Request();
+        $this->assertEquals('foo.test.com', $request->host());
     }
 
     public function testDir()
@@ -440,8 +552,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $_SERVER['PHP_SELF'] = '/web/';
         $_SERVER['HTTP_HOST'] = 'test.com';
 
-        $Request = new Request();
-        $this->assertEquals('/web/', $Request->dir());
+        $request = new Request();
+        $this->assertEquals('/web/', $request->dir());
     }
 
     public function testBaseName()
@@ -451,8 +563,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $_SERVER['PHP_SELF'] = '/test';
         $_SERVER['HTTP_HOST'] = 'test.com';
 
-        $Request = new Request();
-        $this->assertEquals('http://test.com/', $Request->baseName());
+        $request = new Request();
+        $this->assertEquals('http://test.com/', $request->baseName());
     }
 
     public function testSetBaseName()
@@ -462,56 +574,56 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $_SERVER['PHP_SELF'] = '/test';
         $_SERVER['HTTP_HOST'] = 'test.com';
 
-        $Request = new Request();
-        $this->assertEquals('http://test.com/', $Request->baseName());
+        $request = new Request();
+        $this->assertEquals('http://test.com/', $request->baseName());
 
-        $Request->baseName('http://yada.com/');
-        $this->assertEquals('http://yada.com/', $Request->baseName());
+        $request->baseName('http://yada.com/');
+        $this->assertEquals('http://yada.com/', $request->baseName());
     }
 
     public function testClientIpRemote()
     {
         $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
 
-        $Request = new Request();
-        $this->assertEquals('127.0.0.1', $Request->clientIp());
+        $request = new Request();
+        $this->assertEquals('127.0.0.1', $request->clientIp());
     }
 
     public function testClientIpForwarded()
     {
         $_SERVER['HTTP_X_FORWARDED_FOR'] = '127.0.0.1';
 
-        $Request = new Request();
-        $this->assertEquals('127.0.0.1', $Request->clientIp());
+        $request = new Request();
+        $this->assertEquals('127.0.0.1', $request->clientIp());
     }
 
     public function testClientIpHTTPClientIp()
     {
         $_SERVER['HTTP_CLIENT_IP'] = '127.0.0.1';
 
-        $Request = new Request();
-        $this->assertEquals('127.0.0.1', $Request->clientIp());
+        $request = new Request();
+        $this->assertEquals('127.0.0.1', $request->clientIp());
     }
 
     public function testController()
     {
-        $Request = new Request();
-        $this->assertEquals(null, $Request->controller());
+        $request = new Request();
+        $this->assertEquals(null, $request->controller());
     }
 
     public function testSetController()
     {
-        $Request = new Request();
-        $this->assertEquals(null, $Request->controller());
-        $this->assertEquals('foobar', $Request->controller('foobar'));
+        $request = new Request();
+        $this->assertEquals(null, $request->controller());
+        $this->assertEquals('foobar', $request->controller('foobar'));
     }
 
     public function testURI()
     {
         $_SERVER['REQUEST_URI'] = '/foo/index.html?foo=bar';
 
-        $Request = new Request();
-        $this->assertEquals('/foo/index.html', $Request->path());
+        $request = new Request();
+        $this->assertEquals('/foo/index.html', $request->path());
     }
 
     public function testEmptyInvalidRedirect()
@@ -522,9 +634,9 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $_SERVER['HTTP_HOST'] = 'test.com';
         $_SERVER['REDIRECT_URL'] = null;
 
-        $Request = new Request();
-        $this->assertEquals('/', $Request->dir());
-        $this->assertEquals('/web/foo/index.html', $Request->path());
+        $request = new Request();
+        $this->assertEquals('/', $request->dir());
+        $this->assertEquals('/web/foo/index.html', $request->path());
     }
 
     public function testInvalidRedirect()
@@ -535,56 +647,56 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $_SERVER['HTTP_HOST'] = 'test.com';
         $_SERVER['REDIRECT_URL'] = '/';
 
-        $Request = new Request();
-        $this->assertEquals('/', $Request->dir());
-        $this->assertEquals('/foo/index.html', $Request->path());
+        $request = new Request();
+        $this->assertEquals('/', $request->dir());
+        $this->assertEquals('/foo/index.html', $request->path());
     }
 
     public function testReferer()
     {
         $_SERVER['HTTP_REFERER'] = 'test.com';
 
-        $Request = new Request();
-        $this->assertEquals('test.com', $Request->referrer());
+        $request = new Request();
+        $this->assertEquals('test.com', $request->referrer());
     }
 
     public function testLocaleFromHeader()
     {
         $_SERVER['HTTP_ACCEPT_LANGUAGE'] = 'pl,en-us;q=0.7,en;q=0.3';
 
-        $Request = new Request();
-        $this->assertEquals('pl', $Request->locale());
+        $request = new Request();
+        $this->assertEquals('pl', $request->locale());
     }
 
     public function testLocaleFromQuery()
     {
         $_GET['locale'] = 'pl';
 
-        $Request = new Request();
-        $this->assertEquals('pl', $Request->locale());
+        $request = new Request();
+        $this->assertEquals('pl', $request->locale());
     }
 
     public function testSetLocale()
     {
         $_SERVER['HTTP_ACCEPT_LANGUAGE'] = 'pl,en-us;q=0.7,en;q=0.3';
 
-        $Request = new Request();
-        $Request->locale('en');
-        $this->assertEquals('en', $Request->locale());
+        $request = new Request();
+        $request->locale('en');
+        $this->assertEquals('en', $request->locale());
     }
 
     public function testFormat()
     {
         $_GET['format'] = 'json';
 
-        $Request = new Request();
-        $this->assertEquals('json', $Request->format());
+        $request = new Request();
+        $this->assertEquals('json', $request->format());
     }
 
     public function testSetFormat()
     {
-        $Request = new Request();
-        $Request->format('json');
-        $this->assertEquals('json', $Request->format());
+        $request = new Request();
+        $request->format('json');
+        $this->assertEquals('json', $request->format());
     }
 }

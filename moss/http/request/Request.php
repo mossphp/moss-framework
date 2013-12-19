@@ -77,7 +77,7 @@ class Request implements RequestInterface
 
         $this->query = new Bag($this->resolveGET());
         $this->post = new Bag($this->resolvePOST());
-        $this->files = new Bag($this->resolveFILES()); // todo - refactor to FileBag handling uploads and so on
+        $this->files = new FilesBag($_FILES);
 
         if (!empty($this->query['controller'])) {
             $this->controller($this->query['controller']);
@@ -232,79 +232,6 @@ class Request implements RequestInterface
     }
 
     /**
-     * Resolves files data from $_FILES
-     *
-     * @return array
-     */
-    protected function resolveFiles()
-    {
-        $fields = array('name', 'type', 'tmp_name', 'error', 'size');
-
-        $files = array();
-        foreach ($_FILES as $field => $data) {
-            foreach ($fields as $property) {
-                $this->getFilesProperty($files[$field], $property, $data[$property]);
-            }
-        }
-
-        return $files;
-    }
-
-    /**
-     * Adds node to new files array
-     *
-     * @param array        $result
-     * @param string       $property
-     * @param array|string $node
-     */
-    protected function getFilesProperty(&$result, $property, $node)
-    {
-        if (is_array($node)) {
-            foreach ($node as $key => $value) {
-                $this->getFilesProperty($result[$key], $property, $value);
-            }
-
-            return;
-        }
-
-        if ($property !== 'error') {
-            $result[$property] = $node;
-
-            return;
-        }
-
-        $result[$property] = $node;
-        switch ($node) {
-            case 0:
-                $result['error_text'] = null;
-                break;
-            case 1:
-                $result['error_text'] = 'The uploaded file exceeds the upload_max_filesize directive in php.ini.';
-                break;
-            case 2:
-                $result['error_text'] = 'The uploaded file exceeds the MAX_FILE_SIZE directive specified in HTML form.';
-                break;
-            case 3:
-                $result['error_text'] = 'The uploaded file was only partially uploaded.';
-                break;
-            case 4:
-                $result['error_text'] = 'No file was uploaded.';
-                break;
-            case 6:
-                $result['error_text'] = 'Missing a temporary folder.';
-                break;
-            case 7:
-                $result['error_text'] = 'Failed to write file to disk.';
-                break;
-            case 8:
-                $result['error_text'] = 'A PHP extension stopped the file upload.';
-                break;
-            default:
-                $result['error_text'] = 'Unknown error occurred.';
-        }
-    }
-
-    /**
      * Retrieves language codes in quality order
      * Builds array containing two letter language codes sorted by quality codes
      *
@@ -439,7 +366,7 @@ class Request implements RequestInterface
     /**
      * Returns files bag
      *
-     * @return BagInterface
+     * @return FilesBag|BagInterface
      */
     public function files()
     {
