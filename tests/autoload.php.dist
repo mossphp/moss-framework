@@ -2,13 +2,13 @@
 session_start();
 
 require_once __DIR__ . '/../moss/loader/Loader.php';
-$Loader = new \moss\loader\Loader();
-$Loader->addNamespace(null, __DIR__ . '/../');
+$loader = new \moss\loader\Loader();
+$loader->addNamespace(null, __DIR__ . '/../');
 
 $composerAutoloadPath = __DIR__ . '/../vendor/composer/autoload_namespaces.php';
 if (is_file($composerAutoloadPath)) {
-    $Loader->addNamespaces((array) require $composerAutoloadPath);
+    $loader->addNamespaces((array) require $composerAutoloadPath);
 }
 unset($composerAutoloadPath);
 
-$Loader->register();
+$loader->register();
