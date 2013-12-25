@@ -66,6 +66,10 @@ class Request implements RequestInterface
         $this->header = $this->resolveHeaders();
         $this->language = $this->resolveLanguages();
 
+        if ($this->locale() === null) {
+            $this->locale(reset($this->language));
+        }
+
         $this->dir = $this->server['PHP_SELF'];
         if (!in_array($this->dir[strlen($this->dir) - 1], array('/', '\\'))) {
             $this->dir = str_replace('\\', '/', dirname($this->dir));
@@ -145,6 +149,29 @@ class Request implements RequestInterface
             } elseif (in_array($key, array('CONTENT_LENGTH', 'CONTENT_MD5', 'CONTENT_TYPE'))) {
                 $headers[$key] = $value;
             }
+        }
+
+        if (isset($parameters['PHP_AUTH_USER'])) {
+            $headers['PHP_AUTH_USER'] = $parameters['PHP_AUTH_USER'];
+            $headers['PHP_AUTH_PW'] = isset($parameters['PHP_AUTH_PW']) ? $parameters['PHP_AUTH_PW'] : '';
+        } else {
+            $authorizationHeader = null;
+            if (isset($parameters['HTTP_AUTHORIZATION'])) {
+                $authorizationHeader = $parameters['HTTP_AUTHORIZATION'];
+            } elseif (isset($parameters['REDIRECT_HTTP_AUTHORIZATION'])) {
+                $authorizationHeader = $parameters['REDIRECT_HTTP_AUTHORIZATION'];
+            }
+
+            if ($authorizationHeader !== null && stripos($authorizationHeader, 'basic') === 0) {
+                $exploded = explode(':', base64_decode(substr($authorizationHeader, 6)));
+                if (count($exploded) == 2) {
+                    list($headers['PHP_AUTH_USER'], $headers['PHP_AUTH_PW']) = $exploded;
+                }
+            }
+        }
+
+        if (isset($headers['PHP_AUTH_USER'])) {
+            $headers['AUTHORIZATION'] = 'basic ' . base64_encode($headers['PHP_AUTH_USER'] . ':' . $headers['PHP_AUTH_PW']);
         }
 
         return array_change_key_case($headers, CASE_LOWER);
@@ -272,10 +299,6 @@ class Request implements RequestInterface
             }
 
             $languages[] = $lang;
-        }
-
-        if ($this->locale() === null) {
-            $this->locale($languages[0]);
         }
 
         return $languages;
