@@ -11,38 +11,38 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
      */
     public function testRegisterInvalidElement()
     {
-        $Dispatcher = new Dispatcher();
-        $Dispatcher->register('foo', 'foo');
+        $dispatcher = new Dispatcher();
+        $dispatcher->register('foo', 'foo');
     }
 
     public function testRegisterSingleEvent()
     {
-        $Dispatcher = new Dispatcher();
-        $result = $Dispatcher->register(
+        $dispatcher = new Dispatcher();
+        $result = $dispatcher->register(
             'foo', function () {
             }
         );
 
         $this->assertInstanceOf('moss\dispatcher\Dispatcher', $result);
-        $this->assertAttributeCount(1, 'events', $Dispatcher);
+        $this->assertAttributeCount(1, 'events', $dispatcher);
     }
 
     public function testRegisterMultipleEvents()
     {
-        $Dispatcher = new Dispatcher();
-        $result = $Dispatcher->register(
+        $dispatcher = new Dispatcher();
+        $result = $dispatcher->register(
             array('foo', 'bar'), function () {
             }
         );
 
         $this->assertInstanceOf('moss\dispatcher\Dispatcher', $result);
-        $this->assertAttributeCount(2, 'events', $Dispatcher);
+        $this->assertAttributeCount(2, 'events', $dispatcher);
     }
 
     public function testRegisterPriority()
     {
-        $Dispatcher = new Dispatcher();
-        $result = $Dispatcher
+        $dispatcher = new Dispatcher();
+        $result = $dispatcher
             ->register(
                 'foo', function () {
                 }, 1
@@ -54,46 +54,46 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
 
 
         $this->assertInstanceOf('moss\dispatcher\Dispatcher', $result);
-        $this->assertAttributeCount(1, 'events', $Dispatcher);
+        $this->assertAttributeCount(1, 'events', $dispatcher);
     }
 
     public function testFireEmptyEvent()
     {
-        $Dispatcher = new Dispatcher();
-        $this->assertNull($Dispatcher->fire('foo'));
+        $dispatcher = new Dispatcher();
+        $this->assertNull($dispatcher->fire('foo'));
     }
 
     public function testFireClosureEvent()
     {
-        $Dispatcher = new Dispatcher();
-        $Dispatcher->register(
+        $dispatcher = new Dispatcher();
+        $dispatcher->register(
             'foo', function () {
                 return 'foo';
             }
         );
-        $this->assertEquals('foo', $Dispatcher->fire('foo'));
+        $this->assertEquals('foo', $dispatcher->fire('foo'));
     }
 
     public function testFireListenerEvent()
     {
-        $Listener = $this->getMock('\moss\dispatcher\ListenerInterface');
-        $Listener
+        $listener = $this->getMock('\moss\dispatcher\ListenerInterface');
+        $listener
             ->expects($this->any())
             ->method($this->anything())
             ->will($this->returnValue('foo'));
 
-        $Dispatcher = new Dispatcher($this->getMock('\moss\container\ContainerInterface'));
-        $Dispatcher->register('foo', $Listener);
-        $this->assertEquals('foo', $Dispatcher->fire('foo'));
+        $dispatcher = new Dispatcher($this->getMock('\moss\container\ContainerInterface'));
+        $dispatcher->register('foo', $listener);
+        $this->assertEquals('foo', $dispatcher->fire('foo'));
     }
 
     public function testStopEvent()
     {
-        $Dispatcher = new Dispatcher();
-        $Dispatcher
+        $dispatcher = new Dispatcher();
+        $dispatcher
             ->register(
-                'foo', function () use ($Dispatcher) {
-                    $Dispatcher->stop();
+                'foo', function () use ($dispatcher) {
+                    $dispatcher->stop();
 
                     return 'foo';
                 }
@@ -104,29 +104,29 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
                 }
             );
 
-        $this->assertEquals('foo', $Dispatcher->fire('foo'));
+        $this->assertEquals('foo', $dispatcher->fire('foo'));
     }
 
     public function testFireBefore()
     {
-        $Dispatcher = new Dispatcher();
-        $Dispatcher->register(
+        $dispatcher = new Dispatcher();
+        $dispatcher->register(
             'foo:before', function () {
                 return 'foo';
             }
         );
-        $this->assertEquals('foo', $Dispatcher->fire('foo'));
+        $this->assertEquals('foo', $dispatcher->fire('foo'));
     }
 
     public function testFireAfter()
     {
-        $Dispatcher = new Dispatcher();
-        $Dispatcher->register(
+        $dispatcher = new Dispatcher();
+        $dispatcher->register(
             'foo:after', function () {
                 return 'foo';
             }
         );
-        $this->assertEquals('foo', $Dispatcher->fire('foo'));
+        $this->assertEquals('foo', $dispatcher->fire('foo'));
     }
 
     /**
@@ -134,49 +134,49 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
      */
     public function testFireException()
     {
-        $Dispatcher = new Dispatcher();
-        $Dispatcher->register(
+        $dispatcher = new Dispatcher();
+        $dispatcher->register(
             'foo', function () {
                 throw new \Exception('forced');
             }
         );
-        $this->assertEquals('foo', $Dispatcher->fire('foo'));
+        $this->assertEquals('foo', $dispatcher->fire('foo'));
     }
 
     public function testFireHandleException()
     {
-        $Dispatcher = new Dispatcher();
-        $Dispatcher->register(
+        $dispatcher = new Dispatcher();
+        $dispatcher->register(
             'foo', function () {
                 throw new \Exception('forced');
             }
         );
-        $Dispatcher->register(
+        $dispatcher->register(
             'foo:exception', function () {
                 return 'foo';
             }
         );
-        $this->assertEquals('foo', $Dispatcher->fire('foo'));
+        $this->assertEquals('foo', $dispatcher->fire('foo'));
     }
 
     public function testFire()
     {
-        $Dispatcher = new Dispatcher();
-        $Dispatcher->register(
-            'foo:before', function ($Container, $Subject) {
-                return $Subject . ':before';
+        $dispatcher = new Dispatcher();
+        $dispatcher->register(
+            'foo:before', function ($container, $subject) {
+                return $subject . ':before';
             }
         );
-        $Dispatcher->register(
-            'foo', function ($Container, $Subject) {
-                return $Subject . ':event';
+        $dispatcher->register(
+            'foo', function ($container, $subject) {
+                return $subject . ':event';
             }
         );
-        $Dispatcher->register(
-            'foo:after', function ($Container, $Subject) {
-                return $Subject . ':after';
+        $dispatcher->register(
+            'foo:after', function ($container, $subject) {
+                return $subject . ':after';
             }
         );
-        $this->assertEquals('Subject:before:event:after', $Dispatcher->fire('foo', 'Subject'));
+        $this->assertEquals('Subject:before:event:after', $dispatcher->fire('foo', 'Subject'));
     }
 }

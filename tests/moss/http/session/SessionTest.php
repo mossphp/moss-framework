@@ -11,10 +11,10 @@ class SessionTest extends \PHPUnit_Framework_TestCase
      */
     public function testRegenerate()
     {
-        $Session = new Session();
-        $id = $Session->identify();
-        $Session->regenerate();
-        $this->assertNotEquals($id, $Session->identify());
+        $session = new Session();
+        $id = $session->identify();
+        $session->regenerate();
+        $this->assertNotEquals($id, $session->identify());
     }
 
     /**
@@ -22,8 +22,8 @@ class SessionTest extends \PHPUnit_Framework_TestCase
      */
     public function testIdentify()
     {
-        $Session = new Session();
-        $this->assertEquals('someSessionIdentifier', $Session->identify('someSessionIdentifier'));
+        $session = new Session();
+        $this->assertEquals('someSessionIdentifier', $session->identify('someSessionIdentifier'));
     }
 
     /**
@@ -31,8 +31,8 @@ class SessionTest extends \PHPUnit_Framework_TestCase
      */
     public function testName()
     {
-        $Session = new Session();
-        $this->assertEquals('someSessionName', $Session->name('someSessionName'));
+        $session = new Session();
+        $this->assertEquals('someSessionName', $session->name('someSessionName'));
     }
 
     /**
@@ -40,9 +40,9 @@ class SessionTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetSet()
     {
-        $Session = new Session();
-        $Session->set('foo', 'bar');
-        $this->assertEquals($_SESSION['foo'], $Session->get('foo'));
+        $session = new Session();
+        $session->set('foo', 'bar');
+        $this->assertEquals($_SESSION['foo'], $session->get('foo'));
     }
 
     /**
@@ -50,12 +50,12 @@ class SessionTest extends \PHPUnit_Framework_TestCase
      */
     public function testRemove()
     {
-        $Session = new Session();
-        $Session->set('foo', 'bar');
-        $this->assertEquals($_SESSION['foo'], $Session->get('foo'));
-        $Session->remove('foo');
+        $session = new Session();
+        $session->set('foo', 'bar');
+        $this->assertEquals($_SESSION['foo'], $session->get('foo'));
+        $session->remove('foo');
         $this->assertArrayNotHasKey('foo', $_SESSION);
-        $this->assertNull($Session->get('foo'));
+        $this->assertNull($session->get('foo'));
     }
 
     /**
@@ -63,10 +63,10 @@ class SessionTest extends \PHPUnit_Framework_TestCase
      */
     public function testAll()
     {
-        $Session = new Session();
-        $Session->set('foo', 'bar');
-        $Session->set('yada', 'yada');
-        $this->assertEquals(array('foo' => 'bar', 'yada' => 'yada'), $Session->all());
+        $session = new Session();
+        $session->set('foo', 'bar');
+        $session->set('yada', 'yada');
+        $this->assertEquals(array('foo' => 'bar', 'yada' => 'yada'), $session->all());
     }
 
     /**
@@ -74,12 +74,12 @@ class SessionTest extends \PHPUnit_Framework_TestCase
      */
     public function testReset()
     {
-        $Session = new Session();
-        $Session->set('foo', 'bar');
-        $Session->set('yada', 'yada');
-        $this->assertEquals(2, $Session->count());
-        $Session->reset();
-        $this->assertEquals(0, $Session->count());
+        $session = new Session();
+        $session->set('foo', 'bar');
+        $session->set('yada', 'yada');
+        $this->assertEquals(2, $session->count());
+        $session->reset();
+        $this->assertEquals(0, $session->count());
     }
 
     /**
@@ -87,10 +87,10 @@ class SessionTest extends \PHPUnit_Framework_TestCase
      */
     public function testOffsetUnset()
     {
-        $Session = new Session();
-        $Session->offsetSet('foo', 'bar');
-        $Session->offsetUnset('foo');
-        $this->assertEquals(0, $Session->count());
+        $session = new Session();
+        $session->offsetSet('foo', 'bar');
+        $session->offsetUnset('foo');
+        $this->assertEquals(0, $session->count());
     }
 
     /**
@@ -98,9 +98,9 @@ class SessionTest extends \PHPUnit_Framework_TestCase
      */
     public function testOffsetSet()
     {
-        $Session = new Session();
-        $Session->offsetSet('foo', 'bar');
-        $this->assertEquals('bar', $Session['foo']);
+        $session = new Session();
+        $session->offsetSet('foo', 'bar');
+        $this->assertEquals('bar', $session['foo']);
         $this->assertEquals('bar', $_SESSION['foo']);
     }
 
@@ -109,9 +109,9 @@ class SessionTest extends \PHPUnit_Framework_TestCase
      */
     public function testOffsetGet()
     {
-        $Session = new Session();
-        $Session->offsetSet('foo', 'bar');
-        $this->assertEquals('bar', $Session['foo']);
+        $session = new Session();
+        $session->offsetSet('foo', 'bar');
+        $this->assertEquals('bar', $session['foo']);
         $this->assertEquals('bar', $_SESSION['foo']);
     }
 
@@ -120,9 +120,9 @@ class SessionTest extends \PHPUnit_Framework_TestCase
      */
     public function testOffsetExists()
     {
-        $Session = new Session();
-        $Session->offsetSet('foo', 'bar');
-        $this->assertTrue(isset($Session['foo']));
+        $session = new Session();
+        $session->offsetSet('foo', 'bar');
+        $this->assertTrue(isset($session['foo']));
         $this->assertTrue(isset($_SESSION['foo']));
     }
 
@@ -131,9 +131,9 @@ class SessionTest extends \PHPUnit_Framework_TestCase
      */
     public function testCurrent()
     {
-        $Session = new Session();
-        $Session->offsetSet('foo', 'bar');
-        $this->assertEquals(current($_SESSION), $Session->current());
+        $session = new Session();
+        $session->offsetSet('foo', 'bar');
+        $this->assertEquals(current($_SESSION), $session->current());
     }
 
     /**
@@ -141,11 +141,11 @@ class SessionTest extends \PHPUnit_Framework_TestCase
      */
     public function testNext()
     {
-        $Session = new Session();
-        $Session->offsetSet('foo', 'bar');
+        $session = new Session();
+        $session->offsetSet('foo', 'bar');
         $prev = current($_SESSION);
-        $Session->next();
-        $this->assertEquals(current($_SESSION), $Session->current());
+        $session->next();
+        $this->assertEquals(current($_SESSION), $session->current());
         $this->assertNotEquals($prev, current($_SESSION));
     }
 
@@ -154,9 +154,9 @@ class SessionTest extends \PHPUnit_Framework_TestCase
      */
     public function testKey()
     {
-        $Session = new Session();
-        $Session->offsetSet('foo', 'bar');
-        $this->assertEquals(key($_SESSION), $Session->key());
+        $session = new Session();
+        $session->offsetSet('foo', 'bar');
+        $this->assertEquals(key($_SESSION), $session->key());
     }
 
     /**
@@ -164,10 +164,10 @@ class SessionTest extends \PHPUnit_Framework_TestCase
      */
     public function testValid()
     {
-        $Session = new Session();
-        $Session->offsetSet('foo', 'bar');
-        $Session->rewind();
-        $this->assertTrue($Session->valid());
+        $session = new Session();
+        $session->offsetSet('foo', 'bar');
+        $session->rewind();
+        $this->assertTrue($session->valid());
     }
 
     /**
@@ -175,10 +175,10 @@ class SessionTest extends \PHPUnit_Framework_TestCase
      */
     public function testRewind()
     {
-        $Session = new Session();
-        $Session->offsetSet('foo', 'bar');
-        $Session->rewind();
-        $this->assertEquals(reset($_SESSION), $Session->current());
+        $session = new Session();
+        $session->offsetSet('foo', 'bar');
+        $session->rewind();
+        $this->assertEquals(reset($_SESSION), $session->current());
     }
 
     /**
@@ -186,8 +186,8 @@ class SessionTest extends \PHPUnit_Framework_TestCase
      */
     public function testCount()
     {
-        $Session = new Session();
-        $Session->offsetSet('foo', 'bar');
-        $this->assertEquals(count($_SESSION), $Session->count());
+        $session = new Session();
+        $session->offsetSet('foo', 'bar');
+        $this->assertEquals(count($_SESSION), $session->count());
     }
 }

@@ -32,16 +32,16 @@ class LoggerTest extends \PHPUnit_Framework_TestCase
      */
     public function testLogsAtAllLevels($level, $message)
     {
-        $Logger = new Logger();
-        $Logger->{$level}($message, array('user' => 'Bob'));
-        $Logger->log($level, $message, array('user' => 'Bob'));
+        $logger = new Logger();
+        $logger->{$level}($message, array('user' => 'Bob'));
+        $logger->log($level, $message, array('user' => 'Bob'));
 
         $expected = array(
             $level . ' message of level ' . $level . ' with context: Bob',
             $level . ' message of level ' . $level . ' with context: Bob',
         );
 
-        $this->assertEquals($expected, $Logger->get(false));
+        $this->assertEquals($expected, $logger->get(false));
     }
 
     public function provideLevelsAndMessages()
@@ -64,17 +64,17 @@ class LoggerTest extends \PHPUnit_Framework_TestCase
      */
     public function testThrowsOnInvalidLevel()
     {
-        $Logger = new Logger();
-        $Logger->log('invalid level', 'Foo');
+        $logger = new Logger();
+        $logger->log('invalid level', 'Foo');
     }
 
     public function testContextReplacement()
     {
-        $Logger = new Logger();
-        $Logger->info('{Message {nothing} {user} {foo.bar} a}', array('user' => 'Bob', 'foo.bar' => 'Bar'));
+        $logger = new Logger();
+        $logger->info('{Message {nothing} {user} {foo.bar} a}', array('user' => 'Bob', 'foo.bar' => 'Bar'));
 
         $expected = array('info {Message {nothing} Bob Bar a}');
-        $this->assertEquals($expected, $Logger->get(false));
+        $this->assertEquals($expected, $logger->get(false));
     }
 
     public function testObjectCastToString()
@@ -85,8 +85,8 @@ class LoggerTest extends \PHPUnit_Framework_TestCase
             ->method('__toString')
             ->will($this->returnValue('DUMMY'));
 
-        $Logger = new Logger();
-        $Logger->warning($dummy);
+        $logger = new Logger();
+        $logger->warning($dummy);
     }
 
     public function testContextCanContainAnything()
@@ -102,27 +102,27 @@ class LoggerTest extends \PHPUnit_Framework_TestCase
             'resource' => fopen('php://memory', 'r'),
         );
 
-        $Logger = new Logger();
-        $Logger->warning('Crazy context data', $context);
+        $logger = new Logger();
+        $logger->warning('Crazy context data', $context);
     }
 
     public function testContextExceptionKeyCanBeExceptionOrOtherValues()
     {
-        $Logger = new Logger();
-        $Logger->warning('Random message', array('exception' => 'oops'));
-        $Logger->critical('Uncaught Exception!', array('exception' => new \LogicException('Fail')));
+        $logger = new Logger();
+        $logger->warning('Random message', array('exception' => 'oops'));
+        $logger->critical('Uncaught Exception!', array('exception' => new \LogicException('Fail')));
     }
 
     public function testElapsedTime()
     {
-        $Logger = new Logger();
-        $this->assertNotNull($Logger->getElapsedTime());
+        $logger = new Logger();
+        $this->assertNotNull($logger->getElapsedTime());
     }
 
     public function testToString()
     {
-        $Logger = new Logger();
-        $this->assertInternalType('string', (string) $Logger);
+        $logger = new Logger();
+        $this->assertInternalType('string', (string) $logger);
     }
 
     /**
@@ -131,25 +131,25 @@ class LoggerTest extends \PHPUnit_Framework_TestCase
      */
     public function testWriteWithoutName()
     {
-        $Logger = new Logger();
-        $Logger->write();
+        $logger = new Logger();
+        $logger->write();
     }
 
     public function testWriteEmpty()
     {
-        $Logger = new Logger($this->file, false, true);
-        $Logger->write();
+        $logger = new Logger($this->file, false, true);
+        $logger->write();
         $this->assertTrue(is_file($this->file));
     }
 
     public function testWriteWithEntries()
     {
-        $Logger = new Logger($this->file);
-        $Logger->write();
+        $logger = new Logger($this->file);
+        $logger->write();
         $this->assertFalse(is_file($this->file));
 
-        $Logger->info('Something to write');
-        $Logger->write();
+        $logger->info('Something to write');
+        $logger->write();
         $this->assertTrue(is_file($this->file));
     }
 }

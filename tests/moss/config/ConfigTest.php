@@ -23,9 +23,9 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
             'dispatcher' => array(),
             'router' => array(),
         );
-        $Config = new Config();
-        $Config->import($result);
-        $this->assertEquals(array_merge($default, $result), $Config->export());
+        $config = new Config();
+        $config->import($result);
+        $this->assertEquals(array_merge($default, $result), $config->export());
     }
 
     public function importProvider()
@@ -112,8 +112,8 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
             )
         );
 
-        $Config = new Config();
-        $Config->import($result);
+        $config = new Config();
+        $config->import($result);
     }
 
     /**
@@ -130,8 +130,8 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
             )
         );
 
-        $Config = new Config();
-        $Config->import($result);
+        $config = new Config();
+        $config->import($result);
     }
 
     /**
@@ -148,8 +148,8 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
             )
         );
 
-        $Config = new Config();
-        $Config->import($result);
+        $config = new Config();
+        $config->import($result);
     }
 
     public function testGet()
@@ -159,25 +159,25 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
             'detail' => true
         );
 
-        $Config = new Config(array('framework' => array('error' => $result)));
-        $this->assertEquals($result, $Config->get('framework.error'));
+        $config = new Config(array('framework' => array('error' => $result)));
+        $this->assertEquals($result, $config->get('framework.error'));
     }
 
     public function testGetDeep()
     {
-        $Config = new Config(array('framework' => array('error' => array('detail' => true))));
-        $this->assertTrue($Config->get('framework.error.detail'));
+        $config = new Config(array('framework' => array('error' => array('detail' => true))));
+        $this->assertTrue($config->get('framework.error.detail'));
     }
 
     public function testGetBlank()
     {
-        $Config = new Config();
-        $this->assertNull($Config->get('foo'));
+        $config = new Config();
+        $this->assertNull($config->get('foo'));
     }
 
     public function testGetDeepBlank()
     {
-        $Config = new Config();
-        $this->assertNull($Config->get('directories.foo'));
+        $config = new Config();
+        $this->assertNull($config->get('directories.foo'));
     }
 }

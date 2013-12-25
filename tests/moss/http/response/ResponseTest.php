@@ -8,14 +8,14 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 
     public function testScalarContent()
     {
-        $Response = new Response('Foo');
-        $this->assertEquals('Foo', $Response->content());
+        $response = new Response('Foo');
+        $this->assertEquals('Foo', $response->content());
     }
 
     public function testObjectContent()
     {
-        $Response = new Response(new \SplFileInfo(__FILE__));
-        $this->assertEquals(__FILE__, $Response->content());
+        $response = new Response(new \SplFileInfo(__FILE__));
+        $this->assertEquals(__FILE__, $response->content());
     }
 
     /**
@@ -29,8 +29,8 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 
     public function testValidStatus()
     {
-        $Response = new Response('Foo', 200);
-        $this->assertEquals(200, $Response->status());
+        $response = new Response('Foo', 200);
+        $this->assertEquals(200, $response->status());
     }
 
     /**
@@ -49,57 +49,86 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
             'Cache-Control' => 'no-cache',
             'Pragma' => 'no-cache'
         );
-        $Response = new Response('Foo', 200);
-        $this->assertEquals($headers, $Response->header($headers)->all());
+        $response = new Response('Foo', 200);
+        $this->assertEquals(
+             $headers, $response->header($headers)
+                                ->all()
+        );
     }
 
     public function testGetHeader()
     {
-        $Response = new Response('Foo', 200);
-        $this->assertEquals('foo', $Response->header()->get('foo', 'foo'));
+        $response = new Response('Foo', 200);
+        $this->assertEquals(
+             'foo', $response->header()
+                             ->get('foo', 'foo')
+        );
     }
 
     public function testRemoveHeader()
     {
-        $Response = new Response('Foo', 200);
-        $Response->makeNoCache();
-        $Response->header()->remove('Cache-Control');
-        $this->assertEquals(null, $Response->header()->get('Cache-Control'));
+        $response = new Response('Foo', 200);
+        $response->makeNoCache();
+        $response->header()
+                 ->remove('Cache-Control');
+        $this->assertEquals(
+             null, $response->header()
+                            ->get('Cache-Control')
+        );
     }
 
     public function testNoCache()
     {
-        $Response = new Response('Foo', 200);
-        $Response->makeNoCache();
-        $this->assertEquals('no-cache', $Response->header()->get('Cache-Control'));
-        $this->assertEquals('no-cache', $Response->header()->get('Pragma'));
+        $response = new Response('Foo', 200);
+        $response->makeNoCache();
+        $this->assertEquals(
+             'no-cache', $response->header()
+                                  ->get('Cache-Control')
+        );
+        $this->assertEquals(
+             'no-cache', $response->header()
+                                  ->get('Pragma')
+        );
     }
 
     public function testPublic()
     {
-        $Response = new Response('Foo', 200);
-        $Response->makePublic();
-        $this->assertEquals('public', $Response->header()->get('Cache-Control'));
-        $this->assertEquals('public', $Response->header()->get('Pragma'));
+        $response = new Response('Foo', 200);
+        $response->makePublic();
+        $this->assertEquals(
+             'public', $response->header()
+                                ->get('Cache-Control')
+        );
+        $this->assertEquals(
+             'public', $response->header()
+                                ->get('Pragma')
+        );
     }
 
     public function testPrivate()
     {
-        $Response = new Response('Foo', 200);
-        $Response->makePrivate();
-        $this->assertEquals('private', $Response->header()->get('Cache-Control'));
-        $this->assertEquals('private', $Response->header()->get('Pragma'));
+        $response = new Response('Foo', 200);
+        $response->makePrivate();
+        $this->assertEquals(
+             'private', $response->header()
+                                 ->get('Cache-Control')
+        );
+        $this->assertEquals(
+             'private', $response->header()
+                                 ->get('Pragma')
+        );
     }
 
     public function testProtocol()
     {
-        $Response = new Response('Foo', 200);
-        $this->assertEquals('HTTP/1.1', $Response->protocol());
-        $this->assertEquals('HTTP/1.0', $Response->protocol('HTTP/1.0'));
+        $response = new Response('Foo', 200);
+        $this->assertEquals('HTTP/1.1', $response->protocol());
+        $this->assertEquals('HTTP/1.0', $response->protocol('HTTP/1.0'));
     }
 
-    public function testToString() {
-        $Response = new Response('Foo', 200);
+    public function testToString()
+    {
+        $response = new Response('Foo', 200);
 
         $result = 'HTTP/1.1 200 OK
 Content-Type: text/html; charset=UTF-8
@@ -108,7 +137,7 @@ Pragma: no-cache
 
 Foo';
 
-        $this->assertEquals($result, (string) $Response);
+        $this->assertEquals($result, (string) $response);
     }
 
 }

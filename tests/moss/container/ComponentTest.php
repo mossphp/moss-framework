@@ -7,14 +7,14 @@ class ComponentTest extends \PHPUnit_Framework_TestCase
 
     public function testGetNoArgs()
     {
-        $Component = new Component('\tests\moss\Foobar', array());
-        $this->assertEquals(new \tests\moss\Foobar, $Component->get());
+        $component = new Component('\tests\moss\Foobar', array());
+        $this->assertEquals(new \tests\moss\Foobar, $component->get());
     }
 
     public function testSimpleArgs()
     {
-        $Component = new Component('\tests\moss\Foobar', array('foo', 'bar', array('y', 'a', 'd', 'a')));
-        $this->assertEquals(new \tests\moss\Foobar('foo', 'bar', array('y', 'a', 'd', 'a')), $Component->get());
+        $component = new Component('\tests\moss\Foobar', array('foo', 'bar', array('y', 'a', 'd', 'a')));
+        $this->assertEquals(new \tests\moss\Foobar('foo', 'bar', array('y', 'a', 'd', 'a')), $component->get());
     }
 
     /**
@@ -23,25 +23,25 @@ class ComponentTest extends \PHPUnit_Framework_TestCase
      */
     public function testComponentArgsWithoutContainer()
     {
-        $Component = new Component('\tests\moss\Foobar', array('@foo', '@bar', '@yada'));
-        $this->assertEquals(new \tests\moss\Foobar, $Component->get());
+        $component = new Component('\tests\moss\Foobar', array('@foo', '@bar', '@yada'));
+        $this->assertEquals(new \tests\moss\Foobar, $component->get());
     }
 
     public function testComponentArgsWithContainer()
     {
-        $Container = $this->getMock('\moss\container\ContainerInterface');
-        $Container
+        $container = $this->getMock('\moss\container\ContainerInterface');
+        $container
             ->expects($this->any())
             ->method($this->anything())
             ->will($this->returnValue('foo'));
 
-        $Component = new Component('\tests\moss\Foobar', array('@foo', '@bar', '@yada', '@Container'));
-        $this->assertEquals(new \tests\moss\Foobar('foo', 'foo', 'foo', $Container), $Component->get($Container));
+        $component = new Component('\tests\moss\Foobar', array('@foo', '@bar', '@yada', '@Container'));
+        $this->assertEquals(new \tests\moss\Foobar('foo', 'foo', 'foo', $container), $component->get($container));
     }
 
     public function testComponentMethods()
     {
-        $Component = new Component('\tests\moss\Foobar', array(), array('foo' => array('foo', 'bar', 'yada')));
-        $this->assertAttributeEquals(array('foo', 'bar', 'yada'), 'args', $Component->get());
+        $component = new Component('\tests\moss\Foobar', array(), array('foo' => array('foo', 'bar', 'yada')));
+        $this->assertAttributeEquals(array('foo', 'bar', 'yada'), 'args', $component->get());
     }
 }

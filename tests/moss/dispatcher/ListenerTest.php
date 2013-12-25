@@ -7,63 +7,63 @@ class ListenerTest extends \PHPUnit_Framework_TestCase
 
     public function testGetNoMethod()
     {
-        $Container = $this->getContainerMock();
+        $container = $this->getContainerMock();
 
-        $Listener = new Listener('\tests\moss\Foobar', null, array());
-        $this->assertEquals(new \tests\moss\Foobar(), $Listener->get($Container));
+        $listener = new Listener('\tests\moss\Foobar', null, array());
+        $this->assertEquals(new \tests\moss\Foobar(), $listener->get($container));
     }
 
     public function testGetNoArgs()
     {
-        $Container = $this->getContainerMock();
+        $container = $this->getContainerMock();
 
-        $Listener = new Listener('\tests\moss\Foobar', 'foo', array());
-        $this->assertEquals(new \tests\moss\Foobar(), $Listener->get($Container));
+        $listener = new Listener('\tests\moss\Foobar', 'foo', array());
+        $this->assertEquals(new \tests\moss\Foobar(), $listener->get($container));
     }
 
     public function testGetNormalArgs()
     {
-        $Container = $this->getContainerMock();
+        $container = $this->getContainerMock();
 
-        $Listener = new Listener('\tests\moss\Foobar', 'foo', array('foo', 'bar', array('y', 'a', 'd', 'a')));
+        $listener = new Listener('\tests\moss\Foobar', 'foo', array('foo', 'bar', array('y', 'a', 'd', 'a')));
         $this->assertEquals(
-            new \tests\moss\Foobar('foo', 'bar', array('y', 'a', 'd', 'a')), $Listener->get($Container)
+            new \tests\moss\Foobar('foo', 'bar', array('y', 'a', 'd', 'a')), $listener->get($container)
         );
     }
 
     public function testGetSpecial()
     {
-        $Container = $this->getContainerMock();
+        $container = $this->getContainerMock();
 
-        $Listener = new Listener('\tests\moss\Foobar', 'foo', array('@Subject', '@Message'));
-        $this->assertEquals(new \tests\moss\Foobar('Subject', 'Message'), $Listener->get($Container, 'Subject', 'Message'));
+        $listener = new Listener('\tests\moss\Foobar', 'foo', array('@Subject', '@Message'));
+        $this->assertEquals(new \tests\moss\Foobar('Subject', 'Message'), $listener->get($container, 'Subject', 'Message'));
     }
 
     protected function getContainerMock()
     {
-        $Container = $this->getMock('\moss\container\ContainerInterface');
-        $Container
+        $container = $this->getMock('\moss\container\ContainerInterface');
+        $container
             ->expects($this->any())
             ->method('get')
             ->will($this->returnValue(new \tests\moss\Foobar()));
 
-        return $Container;
+        return $container;
     }
 
     public function testGetContainerArgs()
     {
-        $Container = $this->getMock('\moss\container\ContainerInterface');
-        $Container
+        $container = $this->getMock('\moss\container\ContainerInterface');
+        $container
             ->expects($this->at(0))
             ->method('get')
             ->will($this->returnValue(new \tests\moss\Foobar()));
 
-        $Container
+        $container
             ->expects($this->at(1))
             ->method('get')
             ->will($this->returnValue(new \stdClass()));
 
-        $Listener = new Listener('\tests\moss\Foobar', 'foo', array('@Foobar', '@Container'));
-        $this->assertEquals(new \tests\moss\Foobar(new \stdClass(), $Container), $Listener->get($Container));
+        $listener = new Listener('\tests\moss\Foobar', 'foo', array('@Foobar', '@Container'));
+        $this->assertEquals(new \tests\moss\Foobar(new \stdClass(), $container), $listener->get($container));
     }
 }

@@ -8,9 +8,9 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 
     public function testTemplate()
     {
-        $View = new View($this->getTwigMock());
-        $View->template('foo');
-        $this->assertEquals('["foo",[]]', $View->render());
+        $view = new View($this->getTwigMock());
+        $view->template('foo');
+        $this->assertEquals('["foo",[]]', $view->render());
     }
 
     /**
@@ -18,12 +18,12 @@ class ViewTest extends \PHPUnit_Framework_TestCase
      */
     public function testSet($result, $key, $value = null)
     {
-        $View = new View($this->getTwigMock());
-        $View
+        $view = new View($this->getTwigMock());
+        $view
             ->template('foo')
             ->set($key, $value);
 
-        $this->assertEquals($result, $View->render());
+        $this->assertEquals($result, $view->render());
     }
 
     public function setProvider()
@@ -44,12 +44,12 @@ class ViewTest extends \PHPUnit_Framework_TestCase
      */
     public function testGet($result, $name, $key, $value = null)
     {
-        $View = new View($this->getTwigMock());
-        $View
+        $view = new View($this->getTwigMock());
+        $view
             ->template('foo')
             ->set($key, $value);
 
-        $this->assertEquals($result, $View->get($name));
+        $this->assertEquals($result, $view->get($name));
     }
 
     public function getProvider()
@@ -67,8 +67,8 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 
     public function testRender()
     {
-        $View = new View($this->getTwigMock());
-        $result = $View
+        $view = new View($this->getTwigMock());
+        $result = $view
             ->template('foo')
             ->render();
 
@@ -77,8 +77,8 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 
     public function testToString()
     {
-        $View = new View($this->getTwigMock());
-        $result = $View
+        $view = new View($this->getTwigMock());
+        $result = $view
             ->template('foo')
             ->__toString();
 
@@ -87,8 +87,8 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 
     public function getTwigMock()
     {
-        $Twig = $this->getMock('\Twig_Environment');
-        $Twig
+        $twig = $this->getMock('\Twig_Environment');
+        $twig
             ->expects($this->any())
             ->method('render')
             ->will(
@@ -99,6 +99,6 @@ class ViewTest extends \PHPUnit_Framework_TestCase
                 )
             );
 
-        return $Twig;
+        return $twig;
     }
 }

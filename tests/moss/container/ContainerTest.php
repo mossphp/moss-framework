@@ -7,9 +7,9 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
 
     public function testValue()
     {
-        $Container = new Container();
-        $Container->register('foo', 'bar');
-        $this->assertEquals('bar', $Container->get('foo'));
+        $container = new Container();
+        $container->register('foo', 'bar');
+        $this->assertEquals('bar', $container->get('foo'));
     }
 
     /**
@@ -18,43 +18,43 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
      */
     public function testInvalidValue()
     {
-        $Container = new Container();
-        $Container->register('foo', 'bar');
-        $Container->get('foo.bar');
+        $container = new Container();
+        $container->register('foo', 'bar');
+        $container->get('foo.bar');
     }
 
     public function testDeepValueFromArray()
     {
-        $Container = new Container();
-        $Container->register('foo', array('bar' => 'yada'));
-        $this->assertEquals(array('bar' => 'yada'), $Container->get('foo'));
-        $this->assertEquals('yada', $Container->get('foo.bar'));
+        $container = new Container();
+        $container->register('foo', array('bar' => 'yada'));
+        $this->assertEquals(array('bar' => 'yada'), $container->get('foo'));
+        $this->assertEquals('yada', $container->get('foo.bar'));
     }
 
     public function testClosure()
     {
-        $Container = new Container();
-        $Container->register(
+        $container = new Container();
+        $container->register(
             'foo', function () {
                 return new \stdClass();
             }, false
         );
 
-        $this->assertEquals(new \stdClass(), $Container->get('foo'));
+        $this->assertEquals(new \stdClass(), $container->get('foo'));
     }
 
     public function testSharedClosure()
     {
-        $Container = new Container();
-        $Container->register(
+        $container = new Container();
+        $container->register(
             'foo', function () {
                 return new \stdClass();
             }, true
         );
 
-        $obj = $Container->get('foo');
+        $obj = $container->get('foo');
         $obj->foo = 123;
-        $this->assertEquals($obj, $Container->get('foo'));
+        $this->assertEquals($obj, $container->get('foo'));
     }
 
     public function testDefinition()
@@ -65,10 +65,10 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
             ->method('__invoke')
             ->will($this->returnValue(new \stdClass()));
 
-        $Container = new Container();
-        $Container->register('foo', $component, false);
+        $container = new Container();
+        $container->register('foo', $component, false);
 
-        $this->assertEquals(new \stdClass(), $Container->get('foo'));
+        $this->assertEquals(new \stdClass(), $container->get('foo'));
     }
 
     public function testSharedDefinition()
@@ -79,51 +79,51 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
             ->method('__invoke')
             ->will($this->returnValue(new \stdClass()));
 
-        $Container = new Container();
-        $Container->register('foo', $component, true);
+        $container = new Container();
+        $container->register('foo', $component, true);
 
-        $obj = $Container->get('foo');
+        $obj = $container->get('foo');
         $obj->foo = 123;
-        $this->assertEquals($obj, $Container->get('foo'));
+        $this->assertEquals($obj, $container->get('foo'));
     }
 
     public function testInstance()
     {
-        $Container = new Container();
-        $Container->register('foo', new \stdClass(), false);
+        $container = new Container();
+        $container->register('foo', new \stdClass(), false);
 
-        $obj = $Container->get('foo');
+        $obj = $container->get('foo');
         $obj->foo = 123;
-        $this->assertEquals($obj, $Container->get('foo'));
+        $this->assertEquals($obj, $container->get('foo'));
     }
 
     public function testUnregister()
     {
-        $Container = new Container();
-        $Container->register('foo', 'bar', true);
-        $this->assertTrue($Container->exists('foo'));
-        $this->assertTrue($Container->isShared('foo'));
-        $Container->Unregister('foo');
-        $this->assertFalse($Container->exists('foo'));
+        $container = new Container();
+        $container->register('foo', 'bar', true);
+        $this->assertTrue($container->exists('foo'));
+        $this->assertTrue($container->isShared('foo'));
+        $container->Unregister('foo');
+        $this->assertFalse($container->exists('foo'));
     }
 
     public function testUnregisterShared()
     {
-        $Container = new Container();
-        $Container->register('foo', 'bar', true);
-        $this->assertTrue($Container->exists('foo'));
-        $this->assertTrue($Container->isShared('foo'));
-        $Container->Unregister('foo');
-        $this->assertFalse($Container->exists('foo'));
+        $container = new Container();
+        $container->register('foo', 'bar', true);
+        $this->assertTrue($container->exists('foo'));
+        $this->assertTrue($container->isShared('foo'));
+        $container->Unregister('foo');
+        $this->assertFalse($container->exists('foo'));
     }
 
     public function testUnregisterInstance()
     {
-        $Container = new Container();
-        $Container->register('foo', new \stdClass());
-        $this->assertTrue($Container->exists('foo'));
-        $this->assertTrue($Container->isShared('foo'));
-        $Container->Unregister('foo');
-        $this->assertFalse($Container->exists('foo'));
+        $container = new Container();
+        $container->register('foo', new \stdClass());
+        $this->assertTrue($container->exists('foo'));
+        $this->assertTrue($container->isShared('foo'));
+        $container->Unregister('foo');
+        $this->assertFalse($container->exists('foo'));
     }
 }

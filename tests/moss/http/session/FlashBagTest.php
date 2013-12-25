@@ -10,99 +10,99 @@ class FlashBagTest extends \PHPUnit_Framework_TestCase
 
     public function testCount()
     {
-        $Bag = new FlashBag($this->sessionMock());
-        $Bag->add('foo', 'bar');
-        $Bag->add('yada', 'yada');
-        $this->assertEquals(2, $Bag->count());
+        $bag = new FlashBag($this->sessionMock());
+        $bag->add('foo', 'bar');
+        $bag->add('yada', 'yada');
+        $this->assertEquals(2, $bag->count());
     }
 
     public function testReset()
     {
-        $Bag = new FlashBag($this->sessionMock());
-        $Bag->add('foo', 'bar');
-        $Bag->add('yada', 'yada');
-        $Bag->reset();
+        $bag = new FlashBag($this->sessionMock());
+        $bag->add('foo', 'bar');
+        $bag->add('yada', 'yada');
+        $bag->reset();
 
-        $this->assertEquals(0, $Bag->count());
+        $this->assertEquals(0, $bag->count());
     }
 
     public function testHasAny()
     {
-        $Bag = new FlashBag($this->sessionMock());
+        $bag = new FlashBag($this->sessionMock());
 
-        $this->assertFalse($Bag->has());
+        $this->assertFalse($bag->has());
 
-        $Bag->add('foo', 'bar');
-        $Bag->add('yada', 'yada');
+        $bag->add('foo', 'bar');
+        $bag->add('yada', 'yada');
 
-        $this->assertTrue($Bag->has());
+        $this->assertTrue($bag->has());
     }
 
     public function testHasType()
     {
-        $Bag = new FlashBag($this->sessionMock());
-        $Bag->add('foo', 'bar');
-        $Bag->add('yada', 'yada');
+        $bag = new FlashBag($this->sessionMock());
+        $bag->add('foo', 'bar');
+        $bag->add('yada', 'yada');
 
-        $this->assertTrue($Bag->has('bar'));
-        $this->assertFalse($Bag->has('boing'));
+        $this->assertTrue($bag->has('bar'));
+        $this->assertFalse($bag->has('boing'));
     }
 
     public function testGetAll()
     {
-        $Bag = new FlashBag($this->sessionMock());
-        $Bag->add('foo', 'bar');
-        $Bag->add('yada', 'yada');
+        $bag = new FlashBag($this->sessionMock());
+        $bag->add('foo', 'bar');
+        $bag->add('yada', 'yada');
 
         $result = array(
             array('message' => 'foo', 'type' => 'bar'),
             array('message' => 'yada', 'type' => 'yada'),
         );
 
-        $this->assertEquals($result, $Bag->get());
+        $this->assertEquals($result, $bag->get());
     }
 
     public function testGetType()
     {
-        $Bag = new FlashBag($this->sessionMock());
-        $Bag->add('foo', 'bar');
-        $Bag->add('yada', 'yada');
+        $bag = new FlashBag($this->sessionMock());
+        $bag->add('foo', 'bar');
+        $bag->add('yada', 'yada');
 
         $result = array(
             array('message' => 'foo', 'type' => 'bar'),
         );
 
-        $this->assertEquals($result, $Bag->get('bar'));
+        $this->assertEquals($result, $bag->get('bar'));
     }
 
     public function testRetrieve()
     {
-        $Bag = new FlashBag($this->sessionMock());
-        $Bag->add('foo', 'bar');
-        $Bag->add('yada', 'yada');
+        $bag = new FlashBag($this->sessionMock());
+        $bag->add('foo', 'bar');
+        $bag->add('yada', 'yada');
 
         $result = array(
             array('message' => 'foo', 'type' => 'bar'),
             array('message' => 'yada', 'type' => 'yada'),
         );
 
-        $this->assertEquals($result[0], $Bag->retrieve());
-        $this->assertEquals($result[1], $Bag->retrieve());
-        $this->assertEquals(0, $Bag->count());
+        $this->assertEquals($result[0], $bag->retrieve());
+        $this->assertEquals($result[1], $bag->retrieve());
+        $this->assertEquals(0, $bag->count());
     }
 
     protected function sessionMock()
     {
         $session = & $this->session;
 
-        $Mock = $this->getMock('\moss\http\session\SessionInterface');
-        $Mock
+        $mock = $this->getMock('\moss\http\session\SessionInterface');
+        $mock
             ->expects($this->any())
             ->method('offsetGet')
             ->will($this->returnCallback(array($this, 'sessionMockGet')));
 
-        $Mock = $this->getMock('\moss\http\session\SessionInterface');
-        $Mock
+        $mock = $this->getMock('\moss\http\session\SessionInterface');
+        $mock
             ->expects($this->any())
             ->method('offsetSet')
             ->will($this->returnCallback(array($this, 'sessionMockSet')));
