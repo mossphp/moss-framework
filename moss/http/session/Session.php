@@ -61,7 +61,7 @@ class Session extends Bag implements SessionInterface
      *
      * @return $this
      */
-    public function invalidate()
+    public function destroy()
     {
         unset($this->storage);
 

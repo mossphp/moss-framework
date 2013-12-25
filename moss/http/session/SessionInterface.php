@@ -23,7 +23,7 @@ interface SessionInterface extends BagInterface
      *
      * @return $this
      */
-    public function invalidate();
+    public function destroy();
 
     /**
      * Returns session identifier
