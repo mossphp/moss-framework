@@ -235,7 +235,7 @@ class Response implements ResponseInterface
     }
 
     /**
-     * Sends headers and returns response contents
+     * Returns headers and response contents as string
      *
      * @return string;
      */
