@@ -99,7 +99,9 @@ class Config implements ConfigInterface
                 continue;
             }
 
-            $node = array_merge($defaults, $node);
+            if(is_array($node)) {
+                $node = array_merge($defaults, $node);
+            }
             unset($node);
         }
 
@@ -123,7 +125,9 @@ class Config implements ConfigInterface
                     throw new ConfigException('Missing required "component" or "closure" property in event listener definition');
                 }
 
-                $node = array_merge($defaults, $node);
+                if(is_array($node)) {
+                    $node = array_merge($defaults, $node);
+                }
                 unset($node);
             }
             unset($evt);
@@ -152,8 +156,9 @@ class Config implements ConfigInterface
                 throw new ConfigException('Missing required "controller" property in route definition');
             }
 
-            $node = array_merge($defaults, $node);
-
+            if(is_array($node)) {
+                $node = array_merge($defaults, $node);
+            }
             unset($node);
         }
 
