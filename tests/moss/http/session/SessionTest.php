@@ -12,9 +12,11 @@ class SessionTest extends \PHPUnit_Framework_TestCase
     public function testRegenerate()
     {
         $session = new Session();
+        $session->set('foo', 'bar');
         $id = $session->identify();
         $session->regenerate();
         $this->assertNotEquals($id, $session->identify());
+        $this->assertEquals('bar', $session->get('foo'));
     }
 
     /**
