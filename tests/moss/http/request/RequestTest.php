@@ -96,6 +96,42 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $this->assertNull($request->header('foobar'));
     }
 
+    public function testConstructPHPAuth()
+    {
+        $_SERVER['PHP_AUTH_USER'] = 'user';
+        $_SERVER['PHP_AUTH_PW'] = 'pw';
+
+        $Request = new Request();
+        $this->assertInstanceOf('\moss\http\request\RequestInterface', $Request);
+        $this->assertEquals($_SERVER['PHP_AUTH_USER'], $Request->server('PHP_AUTH_USER'));
+        $this->assertEquals($_SERVER['PHP_AUTH_PW'], $Request->server('PHP_AUTH_PW'));
+        $this->assertEquals($_SERVER['PHP_AUTH_USER'], $Request->header('php_auth_user'));
+        $this->assertEquals($_SERVER['PHP_AUTH_PW'], $Request->header('php_auth_pw'));
+    }
+
+    public function testConstructHTTPAuth()
+    {
+        $_SERVER['HTTP_AUTHORIZATION'] = 'basic ' . base64_encode('user:pw');
+
+        $Request = new Request();
+        $this->assertInstanceOf('\moss\http\request\RequestInterface', $Request);
+        $this->assertEquals($_SERVER['HTTP_AUTHORIZATION'], $Request->server('HTTP_AUTHORIZATION'));
+        $this->assertEquals('basic ' . base64_encode('user:pw'), $Request->header('authorization'));
+        $this->assertEquals('user', $Request->header('php_auth_user'));
+        $this->assertEquals('pw', $Request->header('php_auth_pw'));
+    }
+
+    public function testConstructHTTPAuthRedirect()
+    {
+        $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] = 'basic ' . base64_encode('user:pw');
+
+        $Request = new Request();
+        $this->assertInstanceOf('\moss\http\request\RequestInterface', $Request);
+        $this->assertEquals($_SERVER['REDIRECT_HTTP_AUTHORIZATION'], $Request->server('REDIRECT_HTTP_AUTHORIZATION'));
+        $this->assertEquals('user', $Request->header('php_auth_user'));
+        $this->assertEquals('pw', $Request->header('php_auth_pw'));
+    }
+
     public function testQuery()
     {
         $_SERVER['REQUEST_METHOD'] = 'GET';
