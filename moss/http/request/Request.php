@@ -531,7 +531,7 @@ class Request implements RequestInterface
      */
     public function path($query = false)
     {
-        return $this->url . ($query && !empty($this->query->has()) ? '?' . http_build_query($this->query->all(), null, '&') : null);
+        return $this->url . ($query && $this->query->has() ? '?' . http_build_query($this->query->all(), null, '&') : null);
     }
 
     /**
