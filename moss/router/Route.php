@@ -33,7 +33,7 @@ class Route implements RouteInterface
     public function __construct($pattern, $controller, $arguments = array())
     {
         $this->pattern = $pattern;
-        $this->controller = strtolower($controller);
+        $this->controller = $controller;
         $this->pattern = preg_replace_callback('/(\()?(\{([^}]+)\})(?(1)([^()]*)|())(\))?/i', array($this, 'callback'), $this->pattern, \PREG_SET_ORDER);
 
         foreach ($arguments as $key => $value) {
@@ -278,7 +278,7 @@ class Route implements RouteInterface
      */
     public function check($controller, $arguments = array())
     {
-        if ($this->controller() !== strtolower($controller)) {
+        if ($this->controller() !== $controller) {
             return false;
         }
 
