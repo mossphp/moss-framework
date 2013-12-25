@@ -59,10 +59,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
     public function testGetHeader()
     {
         $response = new Response('Foo', 200);
-        $this->assertEquals(
-             'foo', $response->header()
-                             ->get('foo', 'foo')
-        );
+        $this->assertEquals('foo', $response->header->get('foo', 'foo'));
     }
 
     public function testRemoveHeader()
@@ -71,9 +68,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
         $response->makeNoCache();
         $response->header()
                  ->remove('Cache-Control');
-        $this->assertEquals(
-             null, $response->header()
-                            ->get('Cache-Control')
+        $this->assertEquals(null, $response->header->get('Cache-Control')
         );
     }
 
@@ -81,42 +76,24 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
     {
         $response = new Response('Foo', 200);
         $response->makeNoCache();
-        $this->assertEquals(
-             'no-cache', $response->header()
-                                  ->get('Cache-Control')
-        );
-        $this->assertEquals(
-             'no-cache', $response->header()
-                                  ->get('Pragma')
-        );
+        $this->assertEquals('no-cache', $response->header->get('Cache-Control'));
+        $this->assertEquals('no-cache', $response->header->get('Pragma'));
     }
 
     public function testPublic()
     {
         $response = new Response('Foo', 200);
         $response->makePublic();
-        $this->assertEquals(
-             'public', $response->header()
-                                ->get('Cache-Control')
-        );
-        $this->assertEquals(
-             'public', $response->header()
-                                ->get('Pragma')
-        );
+        $this->assertEquals('public', $response->header->get('Cache-Control'));
+        $this->assertEquals('public', $response->header->get('Pragma'));
     }
 
     public function testPrivate()
     {
         $response = new Response('Foo', 200);
         $response->makePrivate();
-        $this->assertEquals(
-             'private', $response->header()
-                                 ->get('Cache-Control')
-        );
-        $this->assertEquals(
-             'private', $response->header()
-                                 ->get('Pragma')
-        );
+        $this->assertEquals('private', $response->header->get('Cache-Control'));
+        $this->assertEquals('private', $response->header->get('Pragma'));
     }
 
     public function testProtocol()
@@ -130,14 +107,14 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
     {
         $response = new Response('Foo', 200);
 
-        $result = 'HTTP/1.1 200 OK
+        $expected = 'HTTP/1.1 200 OK
 Content-Type: text/html; charset=UTF-8
 Cache-Control: no-cache
 Pragma: no-cache
 
 Foo';
 
-        $this->assertEquals($result, (string) $response);
+        $this->assertEquals($expected, (string) $response);
     }
 
 }

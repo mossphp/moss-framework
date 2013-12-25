@@ -18,14 +18,15 @@ class ResponseRedirectTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(10, $response->delay());
     }
 
-   public function testToString() {
-       $response = new ResponseRedirect('http://127.0.0.1/', 10);
+    public function testToString()
+    {
+        $response = new ResponseRedirect('http://127.0.0.1/', 10);
 
-       $result = 'HTTP/1.1 302 Found
+        $expected = 'HTTP/1.1 302 Found
 Refresh: 10; URL=http://127.0.0.1/
 
 Redirecting...';
 
-       $this->assertEquals($result, (string) $response);
-   }
+        $this->assertEquals($expected, (string) $response);
+    }
 }
