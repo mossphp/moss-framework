@@ -13,7 +13,7 @@
 			<directory>./tests/moss/http/session/</directory>
 			<directory>./tests/moss/logger/</directory>
 			<directory>./tests/moss/loader/</directory>
-			<directory>./tests/oss/router/</directory>
+			<directory>./tests/moss/router/</directory>
 			<directory>./tests/moss/security/</directory>
 			<directory>./tests/moss/view/</directory>
 		</testsuite>
