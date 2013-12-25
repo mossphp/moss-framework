@@ -76,6 +76,7 @@ class Session extends Bag implements SessionInterface
      * Regenerates the session ID
      *
      * @return $this
+     * @throws \RuntimeException
      */
     public function regenerate()
     {
@@ -83,7 +84,11 @@ class Session extends Bag implements SessionInterface
         session_write_close();
 
         $backup = $_SESSION;
-        $this->startSession();
+
+        if (!session_start()) {
+            throw new \RuntimeException('Failed to start the session');
+        }
+
         $_SESSION = $backup;
 
         $this->storage = & $_SESSION;
