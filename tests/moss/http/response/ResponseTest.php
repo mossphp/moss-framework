@@ -103,18 +103,18 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('HTTP/1.0', $response->protocol('HTTP/1.0'));
     }
 
-    public function testToString()
-    {
-        $response = new Response('Foo', 200);
-
-        $expected = 'HTTP/1.1 200 OK
-Content-Type: text/html; charset=UTF-8
-Cache-Control: no-cache
-Pragma: no-cache
-
-Foo';
-
-        $this->assertEquals($expected, (string) $response);
-    }
+//    public function testToString()
+//    {
+//        $response = new Response('Foo', 200);
+//
+//        $expected = 'HTTP/1.1 200 OK
+//Content-Type: text/html; charset=UTF-8
+//Cache-Control: no-cache
+//Pragma: no-cache
+//
+//Foo';
+//
+//        $this->assertEquals($expected, (string) $response);
+//    }
 
 }
