@@ -126,6 +126,10 @@ class Response implements ResponseInterface
             }
 
             $this->status = (int) $status;
+
+            if ($this->content === null) {
+                $this->content = $this->statusTexts[$this->status];
+            }
         }
 
         return $this->status;
