@@ -243,7 +243,7 @@ class Request implements RequestInterface
             }
         }
 
-        return '/' . implode('/', $path);
+        return empty($path) ? null : '/' . implode('/', $path);
     }
 
     /**
