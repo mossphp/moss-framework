@@ -562,7 +562,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider dirProvider
      */
-    public function testDir($document, $script)
+    public function testDir($document, $script, $dir)
     {
         $_SERVER['DOCUMENT_ROOT'] = $document;
         $_SERVER['SCRIPT_FILENAME'] = $script;
@@ -571,13 +571,15 @@ class RequestTest extends \PHPUnit_Framework_TestCase
             $this->getMock('\moss\http\session\SessionInterface'),
             $this->getMock('\moss\http\cookie\CookieInterface')
         );
-        $this->assertEquals('/web/', $request->dir());
+        $this->assertEquals($dir, $request->dir());
     }
 
     public function dirProvider() {
         return array(
-            array('c:/xampp/htdocs/', 'c:/xampp/htdocs/moss/web/index.php'),
-            array('/home/riu/www/moss/web', '/home/riu/www/moss/web/index.php')
+            array('c:/xampp/htdocs/moss/web/', 'c:/xampp/htdocs/moss/web/index.php', '/'),
+            array('c:/xampp/htdocs/', 'c:/xampp/htdocs/moss/web/index.php', '/moss/web/'),
+            array('/home/foo/www/moss', '/home/foo/www/moss/web/index.php', '/web/'),
+            array('/home/foo/www/moss/web', '/home/foo/www/moss/web/index.php', '/'),
         );
     }
 
@@ -585,7 +587,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     {
         $_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.0';
         $_SERVER['REQUEST_URI'] = '/foo/index.html?foo=bar';
-        $_SERVER['PHP_SELF'] = '/test';
+        $_SERVER['DOCUMENT_ROOT'] = '/home/foo/www/moss/web/';
+        $_SERVER['SCRIPT_FILENAME'] = '/home/foo/www/moss/web/index.php';
         $_SERVER['HTTP_HOST'] = 'test.com';
 
         $request = new Request(
@@ -599,7 +602,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     {
         $_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.0';
         $_SERVER['REQUEST_URI'] = '/foo/index.html?foo=bar';
-        $_SERVER['PHP_SELF'] = '/test';
+        $_SERVER['DOCUMENT_ROOT'] = '/home/foo/www/moss/web/';
+        $_SERVER['SCRIPT_FILENAME'] = '/home/foo/www/moss/web/index.php';
         $_SERVER['HTTP_HOST'] = 'test.com';
 
         $request = new Request(
@@ -679,7 +683,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     {
         $_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.0';
         $_SERVER['REQUEST_URI'] = '/web/foo/index.html?foo=bar';
-        $_SERVER['PHP_SELF'] = '/web';
+        $_SERVER['DOCUMENT_ROOT'] = '/home/foo/www/moss/web/';
+        $_SERVER['SCRIPT_FILENAME'] = '/home/foo/www/moss/web/index.php';
         $_SERVER['HTTP_HOST'] = 'test.com';
         $_SERVER['REDIRECT_URL'] = null;
 
@@ -694,8 +699,9 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     public function testInvalidRedirect()
     {
         $_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.0';
-        $_SERVER['REQUEST_URI'] = '/web/foo/index.html?foo=bar';
-        $_SERVER['PHP_SELF'] = '/web/';
+        $_SERVER['REQUEST_URI'] = '/invalid/redirect/web/foo/index.html?foo=bar';
+        $_SERVER['DOCUMENT_ROOT'] = '/home/foo/www/moss/';
+        $_SERVER['SCRIPT_FILENAME'] = '/home/foo/www/moss/invalid/redirect/web/index.php';
         $_SERVER['HTTP_HOST'] = 'test.com';
         $_SERVER['REDIRECT_URL'] = '/';
 

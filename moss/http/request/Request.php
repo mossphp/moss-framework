@@ -70,13 +70,10 @@ class Request implements RequestInterface
             $this->locale(reset($this->language));
         }
 
-        $this->dir = substr($this->server['SCRIPT_FILENAME'], strlen($this->server['DOCUMENT_ROOT']));
-        $this->dir = str_replace('\\', '/', $this->dir);
-        $this->dir = '/' . trim(substr($this->dir, 0, strrpos($this->dir(), '/')), '/');
-
-        if (isset($this->server['REQUEST_URI'])) {
-            $this->resolveUrl();
-        }
+        $invalidRedirect = $this->resolveInvalidRedirect();
+        $this->dir = $this->resolveDir($invalidRedirect);
+        $this->url = $this->resolveUrl($invalidRedirect);
+        $this->baseName = $this->resolveBaseName();
 
         $this->query = new Bag($this->resolveGET());
         $this->post = new Bag($this->resolvePOST());
@@ -92,11 +89,6 @@ class Request implements RequestInterface
 
         if (!empty($this->query['format'])) {
             $this->format($this->query['format']);
-        }
-
-        $queryStart = strpos($this->url, '?');
-        if ($queryStart !== false) {
-            $this->url = substr($this->url, 0, $queryStart);
         }
     }
 
@@ -177,40 +169,94 @@ class Request implements RequestInterface
     }
 
     /**
-     * Resolves URL
+     * Resolves dir
+     *
+     * @param string $invalidRedirect
+     *
+     * @return string
      */
-    protected function resolveUrl()
+    protected function resolveDir($invalidRedirect = null)
     {
-        if ($this->dir == '/') {
-            $this->url = $this->server['REQUEST_URI'];
-        } else {
-            $this->url = preg_replace('/^' . preg_quote($this->dir, '/') . '/', null, $this->server['REQUEST_URI']);
+        $dir = substr($this->server['SCRIPT_FILENAME'], strlen($this->server['DOCUMENT_ROOT']));
+        $dir = str_replace('\\', '/', $dir);
+        $dir = '/' . trim(substr($dir, 0, strrpos($dir, '/')), '/') . '/';
+
+        if (!empty($invalidRedirect)) {
+            $dir = substr($dir, 0, strpos($dir, $invalidRedirect));
         }
 
-        $this->url = '/' . trim($this->url, '/');
+        if (empty($dir) || $dir == '//') {
+            return '/';
+        }
 
-        if (!empty($this->server['REDIRECT_URL'])) {
-            $nodes = explode('/', trim($this->dir, '/'));
-            $redirect = explode('/', trim($this->server['REDIRECT_URL'], '/'));
+        return $dir;
+    }
 
-            $path = array();
-            foreach ($nodes as $node) {
-                if (!in_array($node, $redirect)) {
-                    $path[] = $node;
-                }
-            }
+    /**
+     * Resolves URL
+     *
+     * @param string $invalidRedirect
+     *
+     * @return string
+     */
+    protected function resolveUrl($invalidRedirect = null)
+    {
+        if (!isset($this->server['REQUEST_URI'])) {
+            return null;
+        }
 
-            $invalidRedirect = implode('/', $path);
-            if (!empty($invalidRedirect)) {
-                $this->dir = substr($this->dir, 0, strpos($this->dir, $invalidRedirect));
-                $this->url = (string) substr($this->url, strlen($this->dir) - 1);
+        $url = preg_replace('/^' . preg_quote($this->dir, '/') . '/', null, $this->server['REQUEST_URI']);
+        $url = '/' . trim($url, '/');
+
+        if (!empty($invalidRedirect)) {
+            $url = substr($url, strlen($invalidRedirect));
+        }
+
+        if (false !== $queryStart = strpos($url, '?')) {
+            $url = substr($url, 0, $queryStart);
+        }
+
+        return $url;
+    }
+
+    /**
+     * Resolves invalid redirection path
+     *
+     * @return string
+     */
+    protected function resolveInvalidRedirect()
+    {
+        if (empty($this->server['REDIRECT_URL'])) {
+            return null;
+        }
+
+        $nodes = substr($this->server['SCRIPT_FILENAME'], strlen($this->server['DOCUMENT_ROOT']));
+        $nodes = str_replace('\\', '/', $nodes);
+        $nodes = substr($nodes, 0, strrpos($nodes, '/'));
+        $nodes = explode('/', trim($nodes, '/'));
+        $redirect = explode('/', trim($this->server['REDIRECT_URL'], '/'));
+
+        $path = array();
+        foreach ($nodes as $node) {
+            if (!in_array($node, $redirect)) {
+                $path[] = $node;
             }
         }
 
+        return '/' . implode('/', $path);
+    }
+
+    /**
+     * Resolves base name
+     *
+     * @return string
+     */
+    protected function resolveBaseName()
+    {
         $schema = $this->schema();
         $host = str_replace('//', '/', $this->host() . $this->dir . '/');
 
-        $this->baseName = $schema . '://' . $host;
+        return $schema . '://' . $host;
     }
 
     /**
