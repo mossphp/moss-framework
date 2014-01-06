@@ -70,10 +70,9 @@ class Request implements RequestInterface
             $this->locale(reset($this->language));
         }
 
-        $this->dir = $this->server['PHP_SELF'];
-        if (!in_array($this->dir[strlen($this->dir) - 1], array('/', '\\'))) {
-            $this->dir = str_replace('\\', '/', dirname($this->dir));
-        }
+        $this->dir = substr($this->server['SCRIPT_FILENAME'], strlen($this->server['DOCUMENT_ROOT']));
+        $this->dir = str_replace('\\', '/', $this->dir);
+        $this->dir = '/' . trim(substr($this->dir, 0, strrpos($this->dir(), '/')), '/');
 
         if (isset($this->server['REQUEST_URI'])) {
             $this->resolveUrl();

@@ -45,6 +45,9 @@ class RouteTest extends \PHPUnit_Framework_TestCase
             array('/foo/{bar}/{yada}/', array('bar' => '[a-z0-9-._]+', 'yada' => '[a-z0-9-._]+'), array('bar' => '\w+', 'yada' => '\d+')),
             array('/foo/{bar}/({yada}/)', array('bar' => '[a-z0-9-._]+', 'yada' => '[a-z0-9-._]*(\/)?'), array('bar' => '\w+', 'yada' => '\d*(\/)?')),
             array('/foo/{bar}/({yada}/)', array('bar' => '[a-z0-9-._]+', 'yada' => '[a-z0-9-._]*(\/)?'), array('bar' => '\w+', 'yada' => '\d+')),
+            array('/foo/{bar}/{yada}.html', array('bar' => '[a-z0-9-._]+', 'yada' => '[a-z0-9-._]+'), array('bar' => '\w+', 'yada' => '\d+')),
+            array('/foo/{bar}/({yada}.html)', array('bar' => '[a-z0-9-._]+', 'yada' => '[a-z0-9-._]*(\.html)?'), array('bar' => '\w+', 'yada' => '\d*(\.html)?')),
+            array('/foo/{bar}/({yada}.html)', array('bar' => '[a-z0-9-._]+', 'yada' => '[a-z0-9-._]*(\.html)?'), array('bar' => '\w+', 'yada' => '\d+')),
         );
     }
 
@@ -67,6 +70,10 @@ class RouteTest extends \PHPUnit_Framework_TestCase
             array('/foo/{bar:\d}/{yada:\w}/', array('foo' => 1), array('foo' => 1, 'bar' => null, 'yada' => null)),
             array('/foo/{bar:\d}/({yada:\w}/)', array(), array('bar' => null)),
             array('/foo/{bar:\d}/({yada:\w}/)', array('foo' => 1), array('foo' => 1, 'bar' => null)),
+            array('/foo/{bar:\d}/{yada:\w}.html', array(), array('bar' => null, 'yada' => null)),
+            array('/foo/{bar:\d}/{yada:\w}.html', array('foo' => 1), array('foo' => 1, 'bar' => null, 'yada' => null)),
+            array('/foo/{bar:\d}/({yada:\w}.html)', array(), array('bar' => null)),
+            array('/foo/{bar:\d}/({yada:\w.html)', array('foo' => 1), array('foo' => 1, 'bar' => null)),
         );
     }
 
@@ -145,27 +152,99 @@ class RouteTest extends \PHPUnit_Framework_TestCase
                 array('/foo/{bar:\d}/({yada:\w}/)', '/foo/123/abc/'),
                 array(array(), array('bar' => 123, 'yada' => 'abc')),
             ),
+            array(
+                array('/foo/{bar:\d}/{yada:\w}.html', '/foo/1/a.html'),
+                array(array(), array('bar' => 1, 'yada' => 'a')),
+            ),
+            array(
+                array('/foo/{bar:\d}/{yada:\w}.html', '/foo/1/a.html'),
+                array(array(), array('bar' => 1, 'yada' => 'a')),
+            ),
+            array(
+                array('/foo/{bar:\d}/{yada:\w}.html', '/foo/123/abc.html'),
+                array(array(), array('bar' => 123, 'yada' => 'abc')),
+            ),
+            array(
+                array('/foo/{bar:\d}/{yada:\w}.html', '/foo/123/abc.html'),
+                array(array(), array('bar' => 123, 'yada' => 'abc')),
+            ),
+            array(
+                array('/foo/{bar:\d}/({yada:\w}.html)', '/foo/1/'),
+                array(array(), array('bar' => 1, 'yada' => null)),
+            ),
+            array(
+                array('/foo/{bar:\d}/({yada:\w}.html)', '/foo/123/abc.html'),
+                array(array(), array('bar' => 123, 'yada' => 'abc')),
+            ),
+            array(
+                array('/foo/{bar:\d}/({yada:\w}.html)', '/foo/123/abc.html'),
+                array(array(), array('bar' => 123, 'yada' => 'abc')),
+            ),
         );
     }
 
-    public function testCheck()
+    /**
+     * @dataProvider checkProvider
+     */
+    public function testCheck($path, $pattern, $arguments)
     {
-        $this->markTestIncomplete();
+        $route = new Route($pattern, 'some:controller', $arguments);
+        $this->assertTrue($route->match($this->mockRequest($path)));
     }
 
     public function checkProvider()
     {
-        return array();
+        return array(
+            array('/foo', '/foo/', array()),
+            array('/foo/', '/foo/', array()),
+            array('/foo/123', '/foo/{bar:\d}/', array()),
+            array('/foo/123/', '/foo/{bar:\d}/', array()),
+            array('/foo/123/bar', '/foo/{bar:\d}/{yada:\w}/', array()),
+            array('/foo/123/bar/', '/foo/{bar:\d}/{yada:\w}/', array()),
+            array('/foo/123', '/foo/{bar:\d}/({yada:\w}/)', array()),
+            array('/foo/123/', '/foo/{bar:\d}/({yada:\w}/)', array()),
+            array('/foo/123/bar', '/foo/{bar:\d}/({yada:\w}/)', array()),
+            array('/foo/123/bar/', '/foo/{bar:\d}/({yada:\w}/)', array()),
+            array('/foo/123', '/foo/{bar:\d}/({yada:\w}.html)', array()),
+            array('/foo/123/', '/foo/{bar:\d}/({yada:\w}.html)', array()),
+            array('/foo/123/bar.html', '/foo/{bar:\d}/({yada:\w}.html)', array()),
+        );
     }
 
-    public function testMake()
+    /**
+     * @dataProvider makeProvider
+     */
+    public function testMakeWithHost($uri, $pattern, $arguments = array())
     {
-        $this->markTestIncomplete();
+        $route = new Route($pattern, 'some:controller', $arguments);
+        $this->assertEquals('http://host.com/'.ltrim($uri, '/'), $route->make('http://host.com/', $arguments));
+    }
+
+    /**
+     * @dataProvider makeProvider
+     */
+    public function testMakeWithoutHost($uri, $pattern, $arguments = array())
+    {
+        $route = new Route($pattern, 'some:controller', $arguments);
+        $this->assertEquals('./'.ltrim($uri, '/'), $route->make(null, $arguments));
     }
 
     public function makeProvider()
     {
-        return array();
+        return array(
+            array('/foo/', '/foo/'),
+            array('/foo/', '/foo/', array('foo' => 123)),
+            array('/foo/1/', '/foo/{bar:\d}/', array('bar' => 1)),
+            array('/foo/123/', '/foo/{bar:\d}/', array('bar' => 123)),
+            array('/foo/1/a/', '/foo/{bar:\d}/{yada:\w}/', array('bar' => 1, 'yada' => 'a')),
+            array('/foo/123/abc/', '/foo/{bar:\d}/{yada:\w}/', array('bar' => 123, 'yada' => 'abc')),
+            array('/foo/1/', '/foo/{bar:\d}/({yada:\w}/)', array('bar' => 1)),
+            array('/foo/123/abc/', '/foo/{bar:\d}/({yada:\w}/)', array('bar' => 123, 'yada' => 'abc')),
+            array('/foo/1/a.html', '/foo/{bar:\d}/{yada:\w}.html', array('bar' => 1, 'yada' => 'a')),
+            array('/foo/123/abc.html', '/foo/{bar:\d}/{yada:\w}.html', array('bar' => 123, 'yada' => 'abc')),
+            array('/foo/1/', '/foo/{bar:\d}/({yada:\w}.html)', array('bar' => 1)),
+            array('/foo/123/abc.html', '/foo/{bar:\d}/({yada:\w}.html)', array('bar' => 123, 'yada' => 'abc')),
+        );
     }
 
     protected function mockRequest($path, $schema = null, $method = null, $host = null)

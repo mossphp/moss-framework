@@ -124,6 +124,37 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('domain:router', $controller);
     }
 
+    /**
+     * @dataProvider matchProvider
+     */
+    public function testMatchWithEndingSlash($controller, $uri, $host = null)
+    {
+        $result = $this->router->match($this->mockRequest($controller, rtrim($uri, '/'), $host));
+        $this->assertEquals($controller, $result);
+    }
+
+    /**
+     * @dataProvider matchProvider
+     */
+    public function testMatchWithWithoutSlash($controller, $uri, $host = null)
+    {
+        $result = $this->router->match($this->mockRequest($controller, rtrim($uri, '/').'/', $host));
+        $this->assertEquals($controller, $result);
+    }
+
+    public function matchProvider()
+    {
+        return array(
+            array('router:foo:bar', '/router/foo/123/', null),
+            array('router:foo:bar', '/router/foo/', null),
+            array('router:foo', '/router/foo/', null),
+            array('router', '/router/', null),
+            array('domain:router', '/router/', 'http://domain.test.com'),
+            array('router:foo', '/router/foo/', null),
+            array('router:foo', '/router/foo', null),
+        );
+    }
+
     public function testMatchQuery()
     {
         $bag = $this->getMock('moss\http\bag\BagInterface');
@@ -161,7 +192,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         $controller = $this->router->match($request);
         $this->assertEquals('router', $controller);
 
-        $expected =array(
+        $expected = array(
             'host' => 'http://test.com',
             'controller' => 'router',
             'locale' => 'fr',
@@ -169,7 +200,6 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         );
         $this->assertAttributeEquals($expected, 'defaults', $this->router);
     }
-
 
     /**
      * @expectedException \moss\router\RouterException

@@ -559,16 +559,26 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('foo.test.com', $request->host());
     }
 
-    public function testDir()
+    /**
+     * @dataProvider dirProvider
+     */
+    public function testDir($document, $script)
     {
-        $_SERVER['PHP_SELF'] = '/web/';
-        $_SERVER['HTTP_HOST'] = 'test.com';
+        $_SERVER['DOCUMENT_ROOT'] = $document;
+        $_SERVER['SCRIPT_FILENAME'] = $script;
 
         $request = new Request(
             $this->getMock('\moss\http\session\SessionInterface'),
             $this->getMock('\moss\http\cookie\CookieInterface')
         );
         $this->assertEquals('/web/', $request->dir());
+    }
+
+    public function dirProvider() {
+        return array(
+            array('c:/xampp/htdocs/', 'c:/xampp/htdocs/moss/web/index.php'),
+            array('/home/riu/www/moss/web', '/home/riu/www/moss/web/index.php')
+        );
     }
 
     public function testBaseName()

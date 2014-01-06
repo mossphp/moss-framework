@@ -39,7 +39,10 @@ class Route implements RouteInterface
         foreach ($arguments as $key => $value) {
             if (!isset($this->requirements[$key])) {
                 $this->requirements[$key] = $value;
-                $this->conditionals[$key] = null;
+            }
+
+            if (!isset($this->conditionals[$key])) {
+                $this->conditionals[$key] = false;
             }
 
             $this->arguments[$key] = $value;
@@ -240,7 +243,7 @@ class Route implements RouteInterface
         foreach ($this->requirements as $v => $exp) {
             $k = '#' . $v . '#';
             $vars[$k] = '(?P<' . $v . '>' . $exp . ')';
-            if (substr($exp, -1) == '*') {
+            if ($this->conditionals[$v]) {
                 $vars[$k] = '?' . $vars[$k] . '?';
             }
         }
@@ -326,9 +329,16 @@ class Route implements RouteInterface
         $url = array();
         $query = array();
 
-        foreach ($arguments as $key => $v) {
+        foreach ($arguments as $key => $val) {
             if (isset($this->requirements[$key])) {
-                $url['#' . $key . '#'] = $this->strip($v) . $this->conditionals[$key];
+                $url['#' . $key . '#'] = null;
+
+                if ($this->conditionals[$key] && empty($val)) {
+                    $url['#' . $key . '#'] = null;
+                } else {
+                    $url['#' . $key . '#'] = $this->strip($val) . $this->conditionals[$key];
+                }
+
                 continue;
             }
 
@@ -336,7 +346,7 @@ class Route implements RouteInterface
                 continue;
             }
 
-            $query[$key] = $v;
+            $query[$key] = $val;
         }
 
         $url = strtr($this->pattern, $url);
