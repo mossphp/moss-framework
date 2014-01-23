@@ -22,9 +22,9 @@ Just create an instance, with optional `$_SESSION` and `$_COOKIE` wrappers:
 Request headers are available via the `::getHeader($header)` method, where `$header` is headers name in lowercase and `-` changed to `_`, eg: `$Request->getHeader('content_type')` will return `Content-Type` or `null` if header not set.
 Environment variables (`$_SERVER`) are accessible via `::getServer($server)` method. Their names are same as in `$_SERVER` superglobal. The `::getServer()` method will return `null` if environment variable is not set.
 
-## Console and other methods
+## GET, POST, PUT and DELETE
 
-To access query (`GET`) arguments use `::query->get($key, $value = null)` method, same for console (`CLI`) arguments.
+To access query (`GET`) arguments use `::query->get($key, $value = null)` method
 For `POST`, `PUT`, `DELETE` arguments call `::post()->get($key, $value = null)` method.
 
 Both methods allow access to multidimensional arrays, just separate keys with `.` (dot) eg:
@@ -36,6 +36,34 @@ Or via method:
 	$yada = $request->post()->get('foo.bar.yada'); // $_POST['foo']['bar']['yada'];
 
 To set `GET` and `POST` values use respectively `setQuery` and `setPost`
+
+## Console, aka CLI method
+
+Framework can be run from console, just type:
+
+	php ./web/index.php [arguments]
+
+First unnamed argument will be put in the `path` property and resolved by `Router` just like friendly link.
+Fallowing unnamed arguments and all named arguments will be available in the same way as `GET` arguments.
+Named arguments without value are treated as true flags.
+
+ * `foo` - unnamed argument
+ * `-foo` - named argument without value (true flag), to treat argument as named, there must be at least one `-`
+ * `--foo=bar` - named argument with string value
+ * `--foo=[1,2,3]` - named argument with array value
+ * `--foo={a:1,b:2,c:3}` - named argument with associative array value
+
+Eg:
+
+	php ./web/index.php /foo/bar --foo --bar=[1, 2, 3, 4] --yada={a:1, b:2, c:3, d:4}
+
+Will request `/foo/bar` route with arguments:
+
+	array(
+		'foo' => true,
+		'bar' => array(1, 2, 3, 4),
+		'yada' => array('a' => 1, 'b' => 2, 'c' => 3, 'd' => 4)
+	)
 
 ## Files
 

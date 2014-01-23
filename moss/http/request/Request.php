@@ -19,7 +19,7 @@ class Request implements RequestInterface
     private $format;
 
     private $dir;
-    private $url;
+    private $path;
     private $baseName;
 
     private $server;
@@ -72,7 +72,7 @@ class Request implements RequestInterface
 
         $invalidRedirect = $this->resolveInvalidRedirect();
         $this->dir = $this->resolveDir($invalidRedirect);
-        $this->url = $this->resolveUrl($invalidRedirect);
+        $this->path = $this->resolveUrl($invalidRedirect);
         $this->baseName = $this->resolveBaseName();
 
         $this->query = new Bag($this->resolveGET());
@@ -270,21 +270,56 @@ class Request implements RequestInterface
 
         if ($this->method() == 'CLI' && isset($GLOBALS['argc']) && isset($GLOBALS['argv']) && $GLOBALS['argc'] > 1) {
             for ($i = 1; $i < $GLOBALS['argc']; $i++) {
-                if (strpos($GLOBALS['argv'][$i], '=') === false) {
-                    $cli[$i - 1] = $GLOBALS['argv'][$i];
-                    continue;
+                if (preg_match_all('/^-+([^=]+)(=(.+))?$/i', $GLOBALS['argv'][$i], $arg, PREG_SET_ORDER)) {
+                    $cli[$arg[0][1]] = isset($arg[0][3]) ? $this->resolveCLIValue($arg[0][3]) : true;
+                } else {
+                    $cli[] = $this->resolveCLIValue($GLOBALS['argv'][$i]);
                 }
-
-                $arg = explode('=', $GLOBALS['argv'][$i]);
-                $cli[ltrim($arg[0], '-')] = isset($arg[1]) ? $arg[1] : null;
             }
 
-            if (empty($this->url) && isset($cli[0])) {
-                $this->url = array_shift($cli);
+            if (empty($this->path) && isset($cli[0])) {
+                $this->path = array_shift($cli);
             }
         }
 
         return array_merge($_GET, $cli);
+    }
+
+    /**
+     * Parses CLI value
+     *
+     * @param string $value
+     *
+     * @return string|array
+     */
+    protected function resolveCLIValue($value)
+    {
+        $value = $this->unquote($value);
+
+        if (substr($value, 0, 1) === '[' && substr($value, -1, 1) === ']') {
+            $arr = preg_split('/, */i', substr($value, 1, -1));
+            array_walk($arr, array($this, 'unquote'));
+            return $arr;
+        }
+
+        if (substr($value, 0, 1) === '{' && substr($value, -1, 1) === '}') {
+            $arr = preg_split('/, */i', substr($value, 1, -1));
+            array_walk($arr, array($this, 'unquote'));
+
+            $result = array();
+            foreach ($arr as $node) {
+                $node = preg_split('/: */i', $node, 2);
+                $result[$node[0]] = trim($node[1], '\'"');
+            }
+
+            return $result;
+        }
+
+        return $value;
+    }
+
+    protected function unquote(&$val) {
+        return $val = trim($val, '"\'');
     }
 
     /**
@@ -506,6 +541,18 @@ class Request implements RequestInterface
     }
 
     /**
+     * Returns requested URL
+     *
+     * @param bool $query
+     *
+     * @return string
+     */
+    public function path($query = false)
+    {
+        return $this->path . ($query && $this->query->has() ? '?' . http_build_query($this->query->all(), null, '&') : null);
+    }
+
+    /**
      * Returns requested base name (domain+directory)
      *
      * @param string $baseName
@@ -519,6 +566,18 @@ class Request implements RequestInterface
         }
 
         return $this->baseName;
+    }
+
+    /**
+     * Returns requested URI
+     *
+     * @param bool $query
+     *
+     * @return string
+     */
+    public function uri($query = false)
+    {
+        return $this->baseName() . $this->path($query);
     }
 
     /**
@@ -553,30 +612,6 @@ class Request implements RequestInterface
         }
 
         return $this->controller;
-    }
-
-    /**
-     * Returns requested URI
-     *
-     * @param bool $query
-     *
-     * @return string
-     */
-    public function uri($query = false)
-    {
-        return $this->baseName() . $this->path($query);
-    }
-
-    /**
-     * Returns requested URL
-     *
-     * @param bool $query
-     *
-     * @return string
-     */
-    public function path($query = false)
-    {
-        return $this->url . ($query && $this->query->has() ? '?' . http_build_query($this->query->all(), null, '&') : null);
     }
 
     /**

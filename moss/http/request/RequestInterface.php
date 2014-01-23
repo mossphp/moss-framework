@@ -112,13 +112,31 @@ interface RequestInterface
     public function dir();
 
     /**
-     * Returns requested base name (domain+directory)
+     * Returns requested path relative to script location
+     *
+     * @param bool $query
+     *
+     * @return string
+     */
+    public function path($query = false);
+
+    /**
+     * Returns requested base name (schema+host+dir)
      *
      * @param string $baseName
      *
      * @return string
      */
     public function baseName($baseName = null);
+
+    /**
+     * Returns requested URI
+     *
+     * @param bool $query
+     *
+     * @return string
+     */
+    public function uri($query = false);
 
     /**
      * Returns client IP address
@@ -135,24 +153,6 @@ interface RequestInterface
      * @return null|string
      */
     public function controller($controller = null);
-
-    /**
-     * Returns requested URI
-     *
-     * @param bool $query
-     *
-     * @return string
-     */
-    public function uri($query = false);
-
-    /**
-     * Returns requested path relative to script location
-     *
-     * @param bool $query
-     *
-     * @return string
-     */
-    public function path($query = false);
 
     /**
      * Returns address of page which referred user agent (if any)

@@ -10,6 +10,17 @@ use moss\http\session\Session;
 class RequestTest extends \PHPUnit_Framework_TestCase
 {
 
+    public function tearDown()
+    {
+        if (isset($GLOBALS['argc'])) {
+            unset($GLOBALS['argc']);
+        }
+
+        if (isset($GLOBALS['argv'])) {
+            unset($GLOBALS['argv']);
+        }
+    }
+
     public function testConstruct()
     {
         $request = new Request(
@@ -147,6 +158,77 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('foobar', $request->query->get('controller'));
         $this->assertEquals('pl', $request->query->get('locale'));
         $this->assertEquals('json', $request->query->get('format'));
+    }
+
+    /**
+     * @dataProvider cliQueryProvider
+     */
+    public function testCLIQuery($arg, $expected, $url = null)
+    {
+        $_SERVER['REQUEST_METHOD'] = 'CLI';
+        $GLOBALS['argc'] = count($arg);
+        $GLOBALS['argv'] = $arg;
+
+        $request = new Request(
+            $this->getMock('\moss\http\session\SessionInterface'),
+            $this->getMock('\moss\http\cookie\CookieInterface')
+        );
+
+        $this->assertEquals($expected, $request->query->all());
+        $this->assertEquals($url, $request->path());
+    }
+
+    public function cliQueryProvider()
+    {
+        return array(
+            array(
+                array('index.php', 'foo'),
+                array(),
+                'foo'
+            ),
+            array(
+                array('index.php', '-foo'),
+                array('foo' => true)
+            ),
+            array(
+                array('index.php', '--foo'),
+                array('foo' => true)
+            ),
+            array(
+                array('index.php', 'foo=bar'),
+                array(),
+                'foo=bar'
+            ),
+            array(
+                array('index.php', '-foo=bar'),
+                array('foo' => 'bar')
+            ),
+            array(
+                array('index.php', '--foo=bar'),
+                array('foo' => 'bar')
+            ),
+            array(
+                array('index.php', '--foo=[1, 2,  3,4]'),
+                array('foo' => array(1, 2, 3, 4))
+            ),
+            array(
+                array('index.php', '--foo=["o n e", two,  \'tree\',"four"]'),
+                array('foo' => array('o n e', 'two', 'tree', 'four'))
+            ),
+            array(
+                array('index.php', '--foo={a:1, b:2,  c:3, d:4}'),
+                array('foo' => array('a' => 1, 'b' => 2, 'c' => 3, 'd' => 4))
+            ),
+            array(
+                array('index.php', '--foo={a:"o n e", b:two,  c:\'tree\', d:"four"}'),
+                array('foo' => array('a' => 'o n e', 'b' => 'two', 'c' => 'tree', 'd' => 'four'))
+            ),
+            array(
+                array('index.php', '/foo/bar', '--foo', '--bar=[1, 2,  3,4]', '--yada={a:1, b:2,  c:3, d:4}'),
+                array('foo' => true, 'bar' => array(1, 2, 3, 4), 'yada' => array('a' => 1, 'b' => 2, 'c' => 3, 'd' => 4)),
+                '/foo/bar'
+            ),
+        );
     }
 
     public function testSetQuery()
@@ -574,7 +656,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($dir, $request->dir());
     }
 
-    public function dirProvider() {
+    public function dirProvider()
+    {
         return array(
             array('c:/xampp/htdocs/moss/web/', 'c:/xampp/htdocs/moss/web/index.php', '/'),
             array('c:/xampp/htdocs/', 'c:/xampp/htdocs/moss/web/index.php', '/moss/web/'),
