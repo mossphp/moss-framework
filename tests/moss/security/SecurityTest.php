@@ -13,7 +13,7 @@ class SecurityTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \moss\security\AuthenticationException
-     * @expectedExceptionMessage Unable to tokenize, empty credentials
+     * @expectedExceptionMessage Unable to create token, no or empty credentials
      */
     public function testTokenizeWithEmptyCredentials()
     {
@@ -24,7 +24,7 @@ class SecurityTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \moss\security\AuthenticationException
-     * @expectedExceptionMessage Credentials could not be tokenized in provider
+     * @expectedExceptionMessage Unable to create token, credentials could not be authenticated in provider
      */
     public function testTokenizeFailure()
     {
@@ -35,7 +35,7 @@ class SecurityTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \moss\security\AuthenticationException
-     * @expectedExceptionMessage Missing provider supporting credentials
+     * @expectedExceptionMessage Unable to create token, missing provider supporting credentials
      */
     public function testTokenizeMissingProvider()
     {

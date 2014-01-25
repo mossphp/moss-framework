@@ -77,7 +77,7 @@ class Security implements SecurityInterface
     public function tokenize(array $credentials)
     {
         if (empty($credentials)) {
-            throw new AuthenticationException('Unable to tokenize, empty credentials');
+            throw new AuthenticationException('Unable to create token, no or empty credentials');
         }
 
         foreach ($this->providers as $provider) {
@@ -89,7 +89,7 @@ class Security implements SecurityInterface
                 $this->stash()
                      ->destroy();
 
-                throw new AuthenticationException(sprintf('Credentials could not be tokenized in provider "%s", destroying token', get_class($provider)));
+                throw new AuthenticationException(sprintf('Unable to create token, credentials could not be authenticated in provider "%s"', get_class($provider)));
             }
 
             $this->stash()
@@ -101,7 +101,7 @@ class Security implements SecurityInterface
         $this->stash()
              ->destroy();
 
-        throw new AuthenticationException(sprintf('Missing provider supporting credentials "%s", destroying token', implode(', ', array_keys($credentials))));
+        throw new AuthenticationException(sprintf('Unable to create token, missing provider supporting credentials "%s"', implode(', ', array_keys($credentials))));
     }
 
 
