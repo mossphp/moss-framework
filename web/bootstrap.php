@@ -64,5 +64,8 @@ return array(
         'kernel.500' => array()
     ),
     'router' => array(
+    ),
+    'import' => array(
+        (array) require __ROOT__ . '/../src/moss/sample/bootstrap.php'
     )
 );
