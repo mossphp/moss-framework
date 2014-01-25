@@ -70,9 +70,8 @@ class Request implements RequestInterface
             $this->locale(reset($this->language));
         }
 
-        $invalidRedirect = $this->resolveInvalidRedirect();
-        $this->dir = $this->resolveDir($invalidRedirect);
-        $this->path = $this->resolveUrl($invalidRedirect);
+        $this->dir = $this->resolveDir();
+        $this->path = $this->resolvePath();
         $this->baseName = $this->resolveBaseName();
 
         $this->query = new Bag($this->resolveGET());
@@ -171,17 +170,15 @@ class Request implements RequestInterface
     /**
      * Resolves dir
      *
-     * @param string $invalidRedirect
-     *
      * @return string
      */
-    protected function resolveDir($invalidRedirect = null)
+    protected function resolveDir()
     {
         $dir = substr($this->server['SCRIPT_FILENAME'], strlen($this->server['DOCUMENT_ROOT']));
         $dir = str_replace('\\', '/', $dir);
         $dir = '/' . trim(substr($dir, 0, strrpos($dir, '/')), '/') . '/';
 
-        if (!empty($invalidRedirect)) {
+        if ($invalidRedirect = $this->resolveInvalidRedirect()) {
             $dir = substr($dir, 0, strpos($dir, $invalidRedirect));
         }
 
@@ -189,34 +186,7 @@ class Request implements RequestInterface
             return '/';
         }
 
-        return $dir;
-    }
-
-    /**
-     * Resolves URL
-     *
-     * @param string $invalidRedirect
-     *
-     * @return string
-     */
-    protected function resolveUrl($invalidRedirect = null)
-    {
-        if (!isset($this->server['REQUEST_URI'])) {
-            return null;
-        }
-
-        $url = preg_replace('/^' . preg_quote($this->dir, '/') . '/', null, $this->server['REQUEST_URI']);
-        $url = '/' . trim($url, '/');
-
-        if (!empty($invalidRedirect)) {
-            $url = substr($url, strlen($invalidRedirect));
-        }
-
-        if (false !== $queryStart = strpos($url, '?')) {
-            $url = substr($url, 0, $queryStart);
-        }
-
-        return $url;
+        return rtrim($dir, '/') . '/';
     }
 
     /**
@@ -227,7 +197,7 @@ class Request implements RequestInterface
     protected function resolveInvalidRedirect()
     {
         if (empty($this->server['REDIRECT_URL'])) {
-            return null;
+            return false;
         }
 
         $nodes = substr($this->server['SCRIPT_FILENAME'], strlen($this->server['DOCUMENT_ROOT']));
@@ -243,7 +213,30 @@ class Request implements RequestInterface
             }
         }
 
-        return empty($path) ? null : '/' . implode('/', $path);
+        return empty($path) ? false : '/' . implode('/', $path);
+    }
+
+    /**
+     * Resolves URL
+     *
+     * @return string
+     */
+    protected function resolvePath()
+    {
+        if (!isset($this->server['REQUEST_URI'])) {
+            return null;
+        }
+
+        $url = $this->server['REQUEST_URI'];
+
+        if (false !== $queryStart = strpos($url, '?')) {
+            $url = substr($url, 0, $queryStart);
+        }
+
+        $url = preg_replace('/^' . preg_quote($this->dir, '/') . '/', null, $url);
+        $url = '/' . trim($url, '/');
+
+        return $url;
     }
 
     /**
@@ -299,6 +292,7 @@ class Request implements RequestInterface
         if (substr($value, 0, 1) === '[' && substr($value, -1, 1) === ']') {
             $arr = preg_split('/, */i', substr($value, 1, -1));
             array_walk($arr, array($this, 'unquote'));
+
             return $arr;
         }
 
@@ -318,7 +312,8 @@ class Request implements RequestInterface
         return $value;
     }
 
-    protected function unquote(&$val) {
+    protected function unquote(&$val)
+    {
         return $val = trim($val, '"\'');
     }
 
