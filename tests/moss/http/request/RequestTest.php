@@ -659,19 +659,19 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     public function dirProvider()
     {
         return array(
-            array('c:/xampp/htdocs/moss/web/', 'c:/xampp/htdocs/moss/web/index.php', '/'),
-            array('c:/xampp/htdocs/', 'c:/xampp/htdocs/moss/web/index.php', '/moss/web/'),
-            array('/home/foo/www/moss', '/home/foo/www/moss/web/index.php', '/web/'),
-            array('/home/foo/www/moss/web', '/home/foo/www/moss/web/index.php', '/'),
+            array('c:/yada/htdocs/moss/web/', 'c:/yada/htdocs/moss/web/index.php', '/'),
+            array('c:/yada/htdocs/', 'c:/yada/htdocs/moss/web/index.php', '/moss/web/'),
+            array('/home/foo/www', '/home/foo/www/web/index.php', '/web/'),
+            array('/home/foo/www/web', '/home/foo/www/web/index.php', '/'),
         );
     }
 
     public function testBaseName()
     {
-        $_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.0';
+        $_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.1';
         $_SERVER['REQUEST_URI'] = '/foo/index.html?foo=bar';
-        $_SERVER['DOCUMENT_ROOT'] = '/home/foo/www/moss/web/';
-        $_SERVER['SCRIPT_FILENAME'] = '/home/foo/www/moss/web/index.php';
+        $_SERVER['DOCUMENT_ROOT'] = '/home/foo/www/web/';
+        $_SERVER['SCRIPT_FILENAME'] = '/home/foo/www/web/index.php';
         $_SERVER['HTTP_HOST'] = 'test.com';
 
         $request = new Request(
@@ -683,10 +683,10 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
     public function testSetBaseName()
     {
-        $_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.0';
+        $_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.1';
         $_SERVER['REQUEST_URI'] = '/foo/index.html?foo=bar';
-        $_SERVER['DOCUMENT_ROOT'] = '/home/foo/www/moss/web/';
-        $_SERVER['SCRIPT_FILENAME'] = '/home/foo/www/moss/web/index.php';
+        $_SERVER['DOCUMENT_ROOT'] = '/home/foo/www/web/';
+        $_SERVER['SCRIPT_FILENAME'] = '/home/foo/www/web/index.php';
         $_SERVER['HTTP_HOST'] = 'test.com';
 
         $request = new Request(
@@ -762,38 +762,35 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('/foo/index.html', $request->path());
     }
 
-    public function testEmptyInvalidRedirect()
+    /**
+     * @dataProvider redirectProvider
+     */
+    public function testInvalidRedirect($uri, $root, $redirect, $dir, $path)
     {
         $_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.0';
-        $_SERVER['REQUEST_URI'] = '/web/foo/index.html?foo=bar';
-        $_SERVER['DOCUMENT_ROOT'] = '/home/foo/www/moss/web/';
+        $_SERVER['REQUEST_URI'] = $uri;
+        $_SERVER['DOCUMENT_ROOT'] = $root;
         $_SERVER['SCRIPT_FILENAME'] = '/home/foo/www/moss/web/index.php';
         $_SERVER['HTTP_HOST'] = 'test.com';
-        $_SERVER['REDIRECT_URL'] = null;
+        $_SERVER['REDIRECT_URL'] = $redirect;
 
         $request = new Request(
             $this->getMock('\moss\http\session\SessionInterface'),
             $this->getMock('\moss\http\cookie\CookieInterface')
         );
-        $this->assertEquals('/', $request->dir());
-        $this->assertEquals('/web/foo/index.html', $request->path());
+        $this->assertEquals(array($dir, $path), array($request->dir(), $request->path()));
     }
 
-    public function testInvalidRedirect()
+    public function redirectProvider()
     {
-        $_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.0';
-        $_SERVER['REQUEST_URI'] = '/invalid/redirect/web/foo/index.html?foo=bar';
-        $_SERVER['DOCUMENT_ROOT'] = '/home/foo/www/moss/';
-        $_SERVER['SCRIPT_FILENAME'] = '/home/foo/www/moss/invalid/redirect/web/index.php';
-        $_SERVER['HTTP_HOST'] = 'test.com';
-        $_SERVER['REDIRECT_URL'] = '/';
+        return array(
+            array('/foo/index.html?foo=bar', '/home/foo/www/moss/web/', false, '/', '/foo/index.html'),
+            array('/foo/index.html?foo=bar', '/home/foo/www/moss/', false, '/web/', '/foo/index.html'),
+            array('/foo/index.html?foo=bar', '/home/foo/www/', false, '/moss/web/', '/foo/index.html'),
 
-        $request = new Request(
-            $this->getMock('\moss\http\session\SessionInterface'),
-            $this->getMock('\moss\http\cookie\CookieInterface')
+            array('/foo/index.html?foo=bar', '/home/foo/www/moss/', '/web/', '/web/', '/foo/index.html'),
+            array('/foo/index.html?foo=bar', '/home/foo/www/', '/moss/web/', '/moss/web/', '/foo/index.html'),
         );
-        $this->assertEquals('/', $request->dir());
-        $this->assertEquals('/foo/index.html', $request->path());
     }
 
     public function testReferer()
