@@ -2,27 +2,27 @@
 class Twig_Bridge_Extension_Url extends \Twig_Extension
 {
 
-    protected $Router;
+    protected $router;
 
-    public function __construct(\moss\router\Router $Router)
+    public function __construct(\moss\router\Router $router)
     {
-        $this->Router = & $Router;
+        $this->router = & $router;
     }
 
     public function getFunctions()
     {
         return array(
-            'Url' => new \Twig_Function_Method($this, 'Url'),
+            'url' => new \Twig_Function_Method($this, 'url'),
         );
     }
 
-    public function Url($identifier = null, $arguments = array())
+    public function url($identifier = null, $arguments = array())
     {
-        return $this->Router->make($identifier, $arguments);
+        return $this->router->make($identifier, $arguments);
     }
 
     public function getName()
     {
-        return 'Url';
+        return 'url';
     }
 }
