@@ -16,7 +16,7 @@ class ResponseRedirect extends Response
 
     /**
      * Constructor
-     * Sets redirection address, delay and response content
+     * Sets redirection address and delay
      *
      * @param string $address redirection address
      * @param int    $delay   redirection delay in seconds
