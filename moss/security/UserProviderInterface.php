@@ -54,13 +54,4 @@ interface UserProviderInterface
      * @return UserInterface
      */
     public function get(TokenInterface $token);
-
-    /**
-     * Updates user data
-     *
-     * @param TokenInterface $token
-     *
-     * @return $this
-     */
-    public function refresh(TokenInterface $token);
 }
