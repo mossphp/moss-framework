@@ -49,13 +49,13 @@ class Config implements ConfigInterface
     /**
      * Reads configuration properties from passed array
      *
-     * @param array $import
+     * @param array $arr
      *
      * @return $this
      */
-    public function import(array $import)
+    public function import(array $arr)
     {
-        foreach ($import as $key => $node) {
+        foreach ($arr as $key => $node) {
             switch ($key) {
                 case 'container':
                     $node = $this->applyContainerDefaults($node);
@@ -68,7 +68,15 @@ class Config implements ConfigInterface
                     break;
             }
 
+            if ($key == 'import') {
+                continue;
+            }
+
             $this->config[$key] = array_merge($this->config[$key], $node);
+        }
+
+        if (isset($arr['import']) && is_array($arr['import'])) {
+            array_walk($arr['import'], array($this, 'import'));
         }
 
         return $this;
@@ -99,7 +107,7 @@ class Config implements ConfigInterface
                 continue;
             }
 
-            if(is_array($node)) {
+            if (is_array($node)) {
                 $node = array_merge($defaults, $node);
             }
             unset($node);
@@ -125,7 +133,7 @@ class Config implements ConfigInterface
                     throw new ConfigException('Missing required "component" or "closure" property in event listener definition');
                 }
 
-                if(is_array($node)) {
+                if (is_array($node)) {
                     $node = array_merge($defaults, $node);
                 }
                 unset($node);
@@ -156,7 +164,7 @@ class Config implements ConfigInterface
                 throw new ConfigException('Missing required "controller" property in route definition');
             }
 
-            if(is_array($node)) {
+            if (is_array($node)) {
                 $node = array_merge($defaults, $node);
             }
             unset($node);
