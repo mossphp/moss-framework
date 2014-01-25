@@ -3,6 +3,12 @@ namespace moss\sample\entity;
 
 use moss\security\UserInterface;
 
+/**
+ * Class User
+ * User entity used in sample
+ *
+ * @package moss\sample
+ */
 class User implements UserInterface
 {
 
@@ -15,7 +21,7 @@ class User implements UserInterface
      *
      * @param int|string   $id
      * @param string|array $role
-     * @param string|array $access
+     * @param string|array $right
      */
     public function __construct($id, $role, $right)
     {

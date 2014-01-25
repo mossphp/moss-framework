@@ -1,6 +1,12 @@
 <?php
 return array(
     'container' => array(
+        'flash' => array(
+            'closure' => function (\moss\container\ContainerInterface $container) {
+                    return new \moss\http\session\FlashBag($container->get('session'));
+                },
+            'shared' => true,
+        ),
         'security' => array(
             'closure' => function (\moss\container\ContainerInterface $container) {
                     $stash = new \moss\security\TokenStash($container->get('session'));
@@ -8,12 +14,12 @@ return array(
                     // uri to login action
                     $url = $container
                         ->get('router')
-                        ->make('moss:sample:sample:login');
+                        ->make('moss:sample:Sample:login');
 
                     $security = new \moss\security\Security($stash, $url);
 
                     // protects all actions but index and login
-                    $security->registerArea(new \moss\security\Area('*:*:*:!index|login'));
+                    $security->registerArea(new \moss\security\Area('*:*:*:!index|login|auth'));
 
                     // registers fake provider
                     $security->registerUserProvider(new \moss\sample\provider\UserProvider());
@@ -38,12 +44,13 @@ return array(
         'kernel.route:exception' => array(
             array(
                 'closure' => function (\moss\container\ContainerInterface $container) {
-                        // if authorization or authentication failed this will redirect to login form
+                        // if authorization or authentication fails this will redirect to login form
                         $url = $container->get('security')
                                          ->loginUrl();
 
                         $response = new \moss\http\response\ResponseRedirect($url, 2);
-                        $response->content('Forbidden, you will be redirected... (event action)');
+                        $response->status(403);
+                        $response->content('Forbidden, you will be redirected... (this is an event action)');
 
                         return $response;
                     }
@@ -53,7 +60,7 @@ return array(
     'router' => array(
         'main' => array(
             'pattern' => '/',
-            'controller' => 'moss:sample:sample:index',
+            'controller' => 'moss:sample:Sample:index',
             'arguments' => array(),
             'host' => null,
             'schema' => null,
@@ -61,15 +68,21 @@ return array(
         ),
         'login' => array(
             'pattern' => '/login/',
-            'controller' => 'moss:sample:sample:login',
+            'controller' => 'moss:sample:Sample:login',
+            'methods' => 'GET'
+        ),
+        'auth' => array(
+            'pattern' => '/login/',
+            'controller' => 'moss:sample:Sample:auth',
+            'methods' => 'POST'
         ),
         'logout' => array(
             'pattern' => '/logout/',
-            'controller' => 'moss:sample:sample:logout',
+            'controller' => 'moss:sample:Sample:logout',
         ),
         'source' => array(
             'pattern' => '/source/',
-            'controller' => 'moss:sample:sample:source',
+            'controller' => 'moss:sample:Sample:source',
         )
     )
 );

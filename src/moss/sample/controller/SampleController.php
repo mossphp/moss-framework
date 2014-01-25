@@ -6,11 +6,12 @@ use moss\http\request\Request;
 use moss\http\response\Response;
 use moss\http\response\ResponseRedirect;
 use moss\router\Router;
+use moss\security\AuthenticationException;
 
 /**
  * Class SampleController
  *
- * @package moss\sample\controller
+ * @package moss\sample
  */
 class SampleController
 {
@@ -51,21 +52,45 @@ class SampleController
      */
     public function loginAction()
     {
-        if ($this->request->post->get('login') && $this->request->post->get('password')) {
-            $result = $this->container->get('security')
-                                      ->tokenize($this->request->post->all());
+        return new Response($this->form());
+    }
 
-            if ($result) {
-                return new ResponseRedirect($this->router->make('moss:sample:sample:source'));
+    /**
+     * Logging action
+     *
+     * @return Response
+     */
+    public function authAction()
+    {
+        try {
+            if (!$this->request->method('post')) {
+                throw new AuthenticationException('Unable to authenticate, invalid method');
             }
+
+            $this->container->get('security')
+                            ->tokenize($this->request->post->all());
+
+            return new ResponseRedirect($this->router->make('moss:sample:Sample:source'));
+        } catch(AuthenticationException $e) {
+            $this->container->get('flash')
+                            ->add($e->getMessage(), 'error');
+
+            return new Response($this->form(), 401);
         }
+    }
 
-        $content = $this->container->get('view')
-                                   ->template('moss:sample:login')
-                                   ->set('method', __METHOD__)
-                                   ->render();
-
-        return new Response($content);
+    /**
+     * Returns rendered login form
+     *
+     * @return string
+     */
+    protected function form()
+    {
+        return $this->container->get('view')
+                               ->template('moss:sample:login')
+                               ->set('method', __METHOD__)
+                               ->set('flash', $this->container->get('flash'))
+                               ->render();
     }
 
     /**
@@ -78,7 +103,7 @@ class SampleController
         $this->container->get('security')
                         ->destroy();
 
-        return new ResponseRedirect($this->router->make('moss:sample:sample:index'));
+        return new ResponseRedirect($this->router->make('moss:sample:Sample:index'));
     }
 
     /**

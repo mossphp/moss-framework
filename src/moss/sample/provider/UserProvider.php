@@ -8,6 +8,12 @@ use moss\security\TokenInterface;
 use moss\security\UserInterface;
 use moss\security\UserProviderInterface;
 
+/**
+ * Class UserProvider
+ * Fake user provider
+ *
+ * @package moss\sample\provider
+ */
 class UserProvider implements UserProviderInterface
 {
 
@@ -28,24 +34,25 @@ class UserProvider implements UserProviderInterface
     }
 
     /**
-     * Creates token from credentials via user providers
+     * Creates token from credentials, this is the first authentication
      *
      * @param array $credentials
      *
      * @return $this
+     * @throws AuthenticationException
      */
     public function tokenize(array $credentials)
     {
-        if (!isset($credentials['login']) || !isset($credentials['password'])) {
-            return false;
+        if (!$this->supportsCredentials($credentials)) {
+            throw new AuthenticationException('Unable to tokenize, missing required credentials');
         }
 
         if (!isset($this->users[$credentials['login']])) {
-            return false;
+            throw new AuthenticationException('Unable to tokenize, invalid login');
         }
 
         if ($this->users[$credentials['login']] !== $credentials['password']) {
-            return false;
+            throw new AuthenticationException('Unable to tokenize, invalid password');
         }
 
         return new Token($credentials['login'] . 'AuthKey', $credentials['login']);
@@ -95,17 +102,5 @@ class UserProvider implements UserProviderInterface
         }
 
         return new User($token->user(), array('role1', 'role2'), array('right1', 'right2', 'right3'));
-    }
-
-    /**
-     * Updates user data in providers storage
-     *
-     * @param TokenInterface $token
-     *
-     * @return $this
-     */
-    public function refresh(TokenInterface $token)
-    {
-        return;
     }
 } 
