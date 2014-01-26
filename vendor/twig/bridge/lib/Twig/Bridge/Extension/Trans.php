@@ -75,7 +75,7 @@ class Twig_Bridge_Extension_Trans extends Twig_Extension
         $env->setLoader($this->stringLoader);
 
         try {
-            $template = $env->loadTemplate($template);
+            $template = $env->loadTemplate($this->escape($template));
 
             $env->setCache($current['cache']);
             $env->setLoader($current['loader']);
@@ -87,5 +87,16 @@ class Twig_Bridge_Extension_Trans extends Twig_Extension
 
             throw $e;
         }
+    }
+
+    protected function escape($string)
+    {
+        return preg_replace_callback(
+            '/({% +trans +[\'"])(.*)([\'"] +%})/i',
+            function ($match) {
+                return $match[1] . preg_replace('/\\\\*[\'"]/im', '&quote;', $match[2]) . $match[3];
+            },
+            $string
+        );
     }
 }
