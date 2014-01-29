@@ -1,0 +1,16 @@
+# Add files to be ignored
+#
+# A blank line matches no files, so it can serve as a separator for readability.
+# A line starting with # serves as a comment.
+#
+# Prefix ! which negates the pattern; any matching file excluded by a previous pattern will become included again.
+# If a negated pattern matches, this will override lower precedence patterns sources.
+#
+# If the pattern ends with a slash, it would only find a match with a directory.
+# In other words, foo/ will match a directory foo and paths underneath it, but not match a regular file or a symlink.
+#
+# If the pattern does not contain a slash /, git treats it as a shell glob pattern and checks for a match against the
+# pathname relative to the location of the .gitignore file.
+# For example, "doc/*.html" matches "doc/git.html" but not "doc/ppc/ppc.html" or "tools/perf/doc/perf.html".
+#
+# A leading slash matches the beginning of the pathname. For example, "/*.txt" matches "foo.txt" but not "bar/foo.txt".
