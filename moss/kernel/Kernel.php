@@ -2,11 +2,11 @@
 namespace moss\kernel;
 
 use moss\container\ContainerInterface;
-use moss\router\RouterInterface;
+use moss\http\router\RouterInterface;
 use moss\dispatcher\DispatcherInterface;
 use moss\http\request\RequestInterface;
 use moss\http\response\ResponseInterface;
-use moss\router\RouterException;
+use moss\http\router\RouterException;
 use moss\security\SecurityException;
 
 /**

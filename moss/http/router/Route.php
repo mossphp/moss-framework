@@ -1,5 +1,5 @@
 <?php
-namespace moss\router;
+namespace moss\http\router;
 
 use moss\http\request\RequestInterface;
 
@@ -13,7 +13,9 @@ class Route implements RouteInterface
 {
     protected $controller;
 
+    protected $regex;
     protected $pattern;
+
 
     protected $requirements = array();
     protected $arguments = array();
@@ -32,9 +34,9 @@ class Route implements RouteInterface
      */
     public function __construct($pattern, $controller, $arguments = array())
     {
-        $this->pattern = $pattern;
         $this->controller = $controller;
-        $this->pattern = preg_replace_callback('/(\()?(\{([^}]+)\})(?(1)([^()]*)|())(\))?/i', array($this, 'callback'), $this->pattern, \PREG_SET_ORDER);
+        $this->pattern = $pattern;
+        $this->regex = preg_replace_callback('/(\()?(\{([^}]+)\})(?(1)([^()]*)|())(\))?/i', array($this, 'callback'), $pattern, \PREG_SET_ORDER);
 
         foreach ($arguments as $key => $value) {
             if (!isset($this->requirements[$key])) {
@@ -91,6 +93,10 @@ class Route implements RouteInterface
      */
     public function pattern()
     {
+        if (!empty($this->pattern)) {
+            return $this->pattern;
+        }
+
         $arguments = array();
         foreach ($this->requirements as $key => $v) {
             if ($this->conditionals[$key]) {
@@ -105,7 +111,7 @@ class Route implements RouteInterface
             $arguments['#' . $key . '#'] = sprintf($pattern, $key, substr($v, 0, -1), $this->conditionals[$key]);
         }
 
-        return strtr($this->pattern, $arguments);
+        return $this->pattern = strtr($this->regex, $arguments);
     }
 
     /**
@@ -248,7 +254,7 @@ class Route implements RouteInterface
             }
         }
 
-        $regexp = strtr(preg_quote($this->pattern, '/'), $vars);
+        $regexp = strtr(preg_quote($this->regex, '/'), $vars);
         $regexp .= substr($regexp, -1) == '/' ? '?' : null;
         $regexp = '/^' . $regexp . '$/i';
 
@@ -349,7 +355,7 @@ class Route implements RouteInterface
             $query[$key] = $val;
         }
 
-        $url = strtr($this->pattern, $url);
+        $url = strtr($this->regex, $url);
         $url = str_replace('//', '/', $url);
 
         if (!empty($query)) {

@@ -1,5 +1,5 @@
 <?php
-namespace moss\router;
+namespace moss\http\router;
 
 /**
  * Route exception

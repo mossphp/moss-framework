@@ -1,5 +1,5 @@
 <?php
-namespace moss\router;
+namespace moss\http\router;
 
 class RouterTest extends \PHPUnit_Framework_TestCase
 {
@@ -86,7 +86,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \moss\router\RouterException
+     * @expectedException \moss\http\router\RouterException
      * @expectedExceptionMessage Route for "/missing-route/" not found!
      */
     public function testMatchRouteNotExists()
@@ -202,7 +202,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \moss\router\RouterException
+     * @expectedException \moss\http\router\RouterException
      * @expectedExceptionMessage Unable to make 'self' url - default controller is not defined.
      */
     public function testMakeWithoutDefaultController()

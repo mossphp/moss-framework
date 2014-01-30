@@ -5,7 +5,7 @@ use moss\container\Container;
 use moss\http\request\Request;
 use moss\http\response\Response;
 use moss\http\response\ResponseRedirect;
-use moss\router\Router;
+use moss\http\router\Router;
 use moss\security\AuthenticationException;
 
 /**

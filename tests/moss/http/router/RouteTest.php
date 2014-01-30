@@ -1,12 +1,12 @@
 <?php
-namespace moss\router;
+namespace moss\http\router;
 
 class RouteTest extends \PHPUnit_Framework_TestCase
 {
 
     /**
      * @dataProvider             patternQuantificationProvider
-     * @expectedException \moss\router\RouteException
+     * @expectedException \moss\http\router\RouteException
      * @expectedExceptionMessage Route must not end with quantification token
      */
     public function testPatternQuantificationToken($pattern)

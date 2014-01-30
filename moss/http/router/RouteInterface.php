@@ -1,5 +1,5 @@
 <?php
-namespace moss\router;
+namespace moss\http\router;
 
 use moss\http\request\RequestInterface;
 
@@ -11,6 +11,12 @@ use moss\http\request\RequestInterface;
  */
 interface RouteInterface
 {
+    /**
+     * Rebuilds pattern from regular expression
+     *
+     * @return string
+     */
+    public function pattern();
 
     /**
      * Returns controller
