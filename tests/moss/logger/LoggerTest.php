@@ -44,6 +44,19 @@ class LoggerTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $logger->get(false));
     }
 
+    /**
+     * @dataProvider provideLevelsAndMessages
+     */
+    public function testIgnoredLogsAtAllLevels($level, $message)
+    {
+        $levels = array(LogLevel::EMERGENCY, LogLevel::ALERT, LogLevel::CRITICAL, LogLevel::ERROR, LogLevel::WARNING, LogLevel::NOTICE, LogLevel::INFO, LogLevel::DEBUG);
+        $logger = new Logger(null, true, false, $levels);
+        $logger->{$level}($message, array('user' => 'Bob'));
+        $logger->log($level, $message, array('user' => 'Bob'));
+
+        $this->assertEmpty($logger->get(false));
+    }
+
     public function provideLevelsAndMessages()
     {
         return array(
