@@ -10,7 +10,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider importProvider
      */
-    public function testImportExport($result)
+    public function testImportExport($result, $expected = null)
     {
         $default = array(
             'framework' => array(
@@ -23,9 +23,11 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
             'dispatcher' => array(),
             'router' => array(),
         );
+
         $config = new Config();
         $config->import($result);
-        $this->assertEquals(array_merge($default, $result), $config->export());
+
+        $this->assertEquals(array_merge($default, $expected ? $expected : $result), $config->export());
     }
 
     public function importProvider()
@@ -93,6 +95,34 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
                             'methods' => array('GET', 'POST')
                         )
                     )
+                )
+            ),
+            array(
+                array(
+                    'import' => array(
+                        array(
+                            'dispatcher' => array(
+                                'foo' => array(
+                                    'component' => array(
+                                        'component' => 'foo',
+                                        'method' => array(),
+                                        'arguments' => array(),
+                                    )
+                                )
+                            )
+                        )
+                    )
+                ),
+                array(
+                    'dispatcher' => array(
+                        'foo' => array(
+                            'component' => array(
+                                'component' => 'foo',
+                                'method' => array(),
+                                'arguments' => array(),
+                            )
+                        )
+                    ),
                 )
             )
         );
