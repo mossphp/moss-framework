@@ -32,6 +32,16 @@ class HeaderBagTest extends \PHPUnit_Framework_TestCase
     {
         $bag = new HeaderBag();
         $bag->set($offset, $value);
+        $this->assertTrue($bag->has());
+    }
+
+    /**
+     * @dataProvider dataProvider
+     */
+    public function testHasOffset($offset, $value)
+    {
+        $bag = new HeaderBag();
+        $bag->set($offset, $value);
         $this->assertTrue($bag->has($offset));
     }
 
@@ -110,6 +120,25 @@ class HeaderBagTest extends \PHPUnit_Framework_TestCase
         $bag = new HeaderBag();
         $bag->offsetSet($offset, $value);
         $this->assertEquals($value, $bag[$offset]);
+    }
+
+    /**
+     * @dataProvider dataProvider
+     */
+    public function testOffsetGetEmpty($offset)
+    {
+        $bag = new HeaderBag();
+        $this->assertNull(null, $bag[$offset]);
+    }
+
+    /**
+     * @dataProvider dataProvider
+     */
+    public function testOffsetSetWithoutKey($value)
+    {
+        $bag = new HeaderBag();
+        $bag[] = $value;
+        $this->assertEquals($value, $bag[0]);
     }
 
     /**
