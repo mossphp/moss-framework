@@ -1,7 +1,7 @@
 <?php
 namespace moss\security;
 
-use moss\http\request\RequestInterface;
+use \moss\http\request\RequestInterface;
 
 /**
  * Security protected area
@@ -11,6 +11,8 @@ use moss\http\request\RequestInterface;
  */
 class Area implements AreaInterface
 {
+    const ANY = '[^:]+';
+
     protected $pattern;
     protected $regex;
 
@@ -44,22 +46,21 @@ class Area implements AreaInterface
      */
     protected function buildRegExp($pattern)
     {
-        preg_match_all('#([^:]+)#m', $pattern, $patternMatches);
+        preg_match_all('#(' . self::ANY . ')#m', $pattern, $patternMatches);
 
         foreach ($patternMatches[1] as &$match) {
             if (strpos($match, '*') !== false) {
-                $match = str_replace('*', '[^:]+', $match);
+                $match = str_replace('*', self::ANY, $match);
             }
 
             if (strpos($match, '!') === 0) {
-                $match = '.*(?<!' . substr($match, 1) . ')';
+                $match = self::ANY . '(?<!' . substr($match, 1) . ')';
             }
 
             unset($match);
         }
 
         $pattern = str_replace($patternMatches[0], $patternMatches[1], $pattern);
-        $pattern = str_replace('\\', '\\\\', $pattern);
         $pattern = '/^' . $pattern . '$/';
 
         return $pattern;

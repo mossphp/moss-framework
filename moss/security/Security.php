@@ -2,6 +2,7 @@
 namespace moss\security;
 
 use moss\http\request\RequestInterface;
+use moss\security\AreaInterface;
 
 /**
  * Security facade
