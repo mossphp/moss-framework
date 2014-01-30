@@ -91,6 +91,64 @@ class FlashBagTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(0, $bag->count());
     }
 
+    public function testOffsetUnset()
+    {
+        $bag = new FlashBag($this->sessionMock());
+        $bag->add('foo', 'bar');
+        unset($bag[0]);
+        $this->assertFalse(false, $bag->retrieve());
+    }
+
+    public function testOffsetGetSet()
+    {
+        $msg = array('message' => 'foo', 'type' => 'bar');
+
+        $bag = new FlashBag($this->sessionMock());
+        $bag[0] = $msg;
+        $this->assertEquals($msg, $bag[0]);
+        $this->assertFalse(false, $bag->retrieve());
+    }
+
+    public function testOffsetGetEmpty()
+    {
+        $bag = new FlashBag($this->sessionMock());
+        $this->assertNull($bag[0]);
+    }
+
+    public function testOffsetSetWithoutKey()
+    {
+        $msg = array('message' => 'foo', 'type' => 'bar');
+
+        $bag = new FlashBag($this->sessionMock());
+        $bag[] = $msg;
+        $this->assertEquals($msg, $bag[0]);
+        $this->assertFalse(false, $bag->retrieve());
+    }
+
+    public function testOffsetExists()
+    {
+        $bag = new FlashBag($this->sessionMock());
+        $bag->add('foo', 'bar');
+        $this->assertTrue(isset($bag[0]));
+        $this->assertEquals(1, $bag->count());
+    }
+
+    public function testIterator()
+    {
+        $bag = new FlashBag($this->sessionMock());
+        $bag->add('foo0', 'bar0');
+        $bag->add('foo1', 'bar1');
+        $bag->add('foo2', 'bar2');
+        $bag->add('foo3', 'bar3');
+        $bag->add('foo4', 'bar4');
+
+        $i = 0;
+        foreach ($bag as $val) {
+            $this->assertEquals(array('message' => 'foo'.$i, 'type' => 'bar'.$i), $val);
+            $i++;
+        }
+    }
+
     protected function sessionMock()
     {
         $session = & $this->session;
@@ -110,15 +168,17 @@ class FlashBagTest extends \PHPUnit_Framework_TestCase
         return $session;
     }
 
-    protected function & sessionMockGet($offset = null) {
-        if($offset === null) {
+    protected function & sessionMockGet($offset = null)
+    {
+        if ($offset === null) {
             return $this->session;
         }
 
         return $this->session[$offset];
     }
 
-    protected function & sessionMockSet($offset, $value) {
+    protected function & sessionMockSet($offset, $value)
+    {
         return $this->session[$offset] = $value;
     }
 

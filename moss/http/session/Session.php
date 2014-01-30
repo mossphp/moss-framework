@@ -70,6 +70,8 @@ class Session extends Bag implements SessionInterface
         $this->startSession();
 
         $this->storage = & $_SESSION;
+
+        return $this;
     }
 
     /**

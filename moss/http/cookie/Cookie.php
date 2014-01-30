@@ -57,11 +57,11 @@ class Cookie extends Bag implements CookieInterface
             return $this;
         }
 
-        if (isset($_COOKIE[$offset])) {
-            unset($_COOKIE[$offset]);
+        if (isset($this->storage[$offset])) {
+            unset($this->storage[$offset]);
         }
 
-        setcookie($offset, "", time() - 3600, $this->path, $this->domain, $this->secure, $this->httponly);
+        $this->setcookie($offset, "", time() - 3600);
 
         return $this;
     }
@@ -73,9 +73,9 @@ class Cookie extends Bag implements CookieInterface
      */
     public function reset()
     {
-        foreach (array_keys($_COOKIE) as $key) {
-            $_COOKIE = array();
-            setcookie($key, "", time() - 3600, $this->path, $this->domain, $this->secure, $this->httponly);
+        foreach (array_keys($this->storage) as $key) {
+            $this->storage = array();
+            $this->setcookie($key, "", time() - 3600);
         }
 
         return $this;
@@ -97,7 +97,7 @@ class Cookie extends Bag implements CookieInterface
             $this->storage[$key] = $value;
         }
 
-        setcookie($key, $value, $this->expire, $this->path, $this->domain, $this->secure, $this->httponly);
+        $this->setcookie($key, $value, $this->expire);
     }
 
     /**
@@ -110,6 +110,18 @@ class Cookie extends Bag implements CookieInterface
     public function offsetUnset($key)
     {
         unset($this->storage[$key]);
-        setcookie($key, "", time() - 3600, $this->path, $this->domain, $this->secure, $this->httponly);
+        $this->setcookie($key, "", time() - 3600);
+    }
+
+    /**
+     * Executes setcookie
+     *
+     * @param string $name
+     * @param string $value
+     * @param int    $expire
+     */
+    protected function setcookie($name, $value, $expire = 0)
+    {
+        setcookie($name, $value, $expire, $this->path, $this->domain, $this->secure, $this->httponly);
     }
 }
