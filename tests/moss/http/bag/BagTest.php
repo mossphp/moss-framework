@@ -18,11 +18,11 @@ class BagTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider dataProvider
      */
-    public function testGetAll($offset, $value)
+    public function testGetAll($offset, $value, $expected)
     {
         $bag = new Bag();
         $bag->set($offset, $value);
-        $this->assertEquals(array($offset => $value), $bag->get());
+        $this->assertEquals($expected, $bag->get());
     }
 
     /**
@@ -48,43 +48,43 @@ class BagTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider dataProvider
      */
-    public function testAll($offset, $value)
+    public function testAll($offset, $value, $expected)
     {
         $bag = new Bag();
         $bag->set($offset, $value);
-        $this->assertEquals(array($offset => $value), $bag->all());
+        $this->assertEquals($expected, $bag->all());
     }
 
     /**
      * @dataProvider dataProvider
      */
-    public function testAllReplace($offset, $value)
+    public function testAllReplace($offset, $value, $expected)
     {
         $bag = new Bag();
         $bag->all(array($offset => $value));
-        $this->assertEquals(array($offset => $value), $bag->all());
+        $this->assertEquals($expected, $bag->all());
     }
 
     /**
      * @dataProvider dataProvider
      */
-    public function testRemove($offset, $value)
+    public function testRemove($offset, $value, $expected, $removed = array())
     {
         $bag = new Bag();
         $bag->set($offset, $value);
-        $this->assertEquals(array($offset => $value), $bag->all());
+        $this->assertEquals($expected, $bag->all());
         $bag->remove($offset);
-        $this->assertEquals(array(), $bag->all());
+        $this->assertEquals($removed, $bag->all());
     }
 
     /**
      * @dataProvider dataProvider
      */
-    public function testRemoveAll($offset, $value)
+    public function testRemoveAll($offset, $value, $expected)
     {
         $bag = new Bag();
         $bag->set($offset, $value);
-        $this->assertEquals(array($offset => $value), $bag->all());
+        $this->assertEquals($expected, $bag->all());
         $bag->remove();
         $this->assertEquals(array(), $bag->all());
     }
@@ -92,11 +92,11 @@ class BagTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider dataProvider
      */
-    public function testReset($offset, $value)
+    public function testReset($offset, $value, $expected)
     {
         $bag = new Bag();
         $bag->set($offset, $value);
-        $this->assertEquals(array($offset => $value), $bag->all());
+        $this->assertEquals($expected, $bag->all());
         $bag->reset($offset);
         $this->assertEquals(array(), $bag->all());
     }
@@ -120,6 +120,25 @@ class BagTest extends \PHPUnit_Framework_TestCase
         $bag = new Bag();
         $bag->offsetSet($offset, $value);
         $this->assertEquals($value, $bag[$offset]);
+    }
+
+    /**
+     * @dataProvider dataProvider
+     */
+    public function testOffsetGetEmpty($offset)
+    {
+        $bag = new Bag();
+        $this->assertNull(null, $bag[$offset]);
+    }
+
+    /**
+     * @dataProvider dataProvider
+     */
+    public function testOffsetSetWithoutKey($value)
+    {
+        $bag = new Bag();
+        $bag[] = $value;
+        $this->assertEquals($value, $bag[0]);
     }
 
     /**
@@ -160,10 +179,11 @@ class BagTest extends \PHPUnit_Framework_TestCase
     public function dataProvider()
     {
         return array(
-            array('foo', 1),
-            array('bar', 'lorem'),
-            array('yada', array('yada' => 'yada')),
-            array('dada', new \stdClass()),
+            array('foo', 1, array('foo' => 1)),
+            array('bar', 'lorem', array('bar' => 'lorem')),
+            array('yada', array('yada' => 'yada'), array('yada' => array('yada' => 'yada'))),
+            array('dada', new \stdClass(), array('dada' => new \stdClass())),
+            array('foo.bar', 'yada', array('foo' => array('bar' => 'yada')), array('foo' => array()))
         );
     }
 }
