@@ -154,6 +154,11 @@ class RequestTest extends \PHPUnit_Framework_TestCase
             $this->getMock('\moss\http\cookie\CookieInterface')
         );
 
+        $this->assertEquals($request->query->get('foo'), $request->query()->get('foo'));
+        $this->assertEquals($request->query->get('controller'), $request->query()->get('controller'));
+        $this->assertEquals($request->query->get('locale'), $request->query()->get('locale'));
+        $this->assertEquals($request->query->get('format'), $request->query()->get('format'));
+
         $this->assertEquals('bar', $request->query->get('foo'));
         $this->assertEquals('foobar', $request->query->get('controller'));
         $this->assertEquals('pl', $request->query->get('locale'));
@@ -260,6 +265,12 @@ class RequestTest extends \PHPUnit_Framework_TestCase
             $this->getMock('\moss\http\session\SessionInterface'),
             $this->getMock('\moss\http\cookie\CookieInterface')
         );
+
+        $this->assertEquals($request->post->get('foo'), $request->post()->get('foo'));
+        $this->assertEquals($request->post->get('controller'), $request->post()->get('controller'));
+        $this->assertEquals($request->post->get('locale'), $request->post()->get('locale'));
+        $this->assertEquals($request->post->get('format'), $request->post()->get('format'));
+
         $this->assertEquals('bar', $request->post->get('foo'));
         $this->assertEquals('foobar', $request->post->get('controller'));
         $this->assertEquals('pl', $request->post->get('locale'));
@@ -304,6 +315,9 @@ class RequestTest extends \PHPUnit_Framework_TestCase
             $this->getMock('\moss\http\session\SessionInterface'),
             $this->getMock('\moss\http\cookie\CookieInterface')
         );
+
+        $this->assertEquals($request->files->get('foo'), $request->files()->get('foo'));
+
         $this->assertEquals($result, $request->files->get('foo'));
     }
 
@@ -751,7 +765,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('foobar', $request->controller('foobar'));
     }
 
-    public function testURI()
+    public function testPath()
     {
         $_SERVER['REQUEST_URI'] = '/foo/index.html?foo=bar';
 
@@ -760,6 +774,22 @@ class RequestTest extends \PHPUnit_Framework_TestCase
             $this->getMock('\moss\http\cookie\CookieInterface')
         );
         $this->assertEquals('/foo/index.html', $request->path());
+    }
+
+    public function testUri()
+    {
+        $_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.1';
+        $_SERVER['REQUEST_URI'] = '/foo/index.html';
+        $_SERVER['DOCUMENT_ROOT'] = '/home/foo/www/web/';
+        $_SERVER['SCRIPT_FILENAME'] = '/home/foo/www/web/index.php';
+        $_SERVER['HTTP_HOST'] = 'test.com';
+        $_GET['foo'] = 'bar';
+
+        $request = new Request(
+            $this->getMock('\moss\http\session\SessionInterface'),
+            $this->getMock('\moss\http\cookie\CookieInterface')
+        );
+        $this->assertEquals('http://test.com/foo/index.html?foo=bar', $request->uri(true));
     }
 
     /**

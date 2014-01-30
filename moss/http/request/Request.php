@@ -52,11 +52,11 @@ class Request implements RequestInterface
         $this->removeSlashes();
 
         if ($session === null) {
-            $session = new Bag($_SESSION);
+            $session = new Bag();
         }
 
         if ($cookie === null) {
-            $cookie = new Bag($_COOKIE);
+            $cookie = new Bag();
         }
 
         $this->session = & $session;
@@ -572,7 +572,7 @@ class Request implements RequestInterface
      */
     public function uri($query = false)
     {
-        return $this->baseName() . $this->path($query);
+        return rtrim($this->baseName(), '/') . '/' . ltrim($this->path($query), '/');
     }
 
     /**
