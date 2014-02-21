@@ -1,5 +1,5 @@
 <?php
-namespace Moss\Http\session;
+namespace Moss\Http\Session;
 
 class MockSession extends Session
 {
