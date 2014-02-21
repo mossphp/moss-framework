@@ -22,7 +22,7 @@ return array(
                     $security->registerArea(new \Moss\Security\Area('*:*:*:!index|login|auth'));
 
                     // registers fake provider
-                    $security->registerUserProvider(new \Moss\sample\provider\UserProvider());
+                    $security->registerUserProvider(new \Moss\Sample\Provider\UserProvider());
 
                     return $security;
                 },
@@ -48,7 +48,7 @@ return array(
                         $url = $container->get('security')
                             ->loginUrl();
 
-                        $response = new \Moss\Http\response\ResponseRedirect($url, 2);
+                        $response = new \Moss\Http\Response\ResponseRedirect($url, 2);
                         $response->status(403);
                         $response->content('Forbidden, you will be redirected... (this is an event action)');
 

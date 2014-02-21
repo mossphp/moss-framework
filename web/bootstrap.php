@@ -21,7 +21,7 @@ return array(
     'container' => array(
         'logger' => array(
             'closure' => function () {
-                    return new \Moss\logger\Logger('../log/log.txt', false);
+                    return new \Moss\Logger\Logger('../log/log.txt', false);
                 },
             'shared' => true,
         ),
@@ -44,7 +44,7 @@ return array(
                          )
                     );
 
-                    $View = new \Moss\view\View($Twig);
+                    $View = new \Moss\View\View($Twig);
                     $View
                         ->set('request', $container->get('request'))
                         ->set('config', $container->get('config'));
