@@ -2,6 +2,7 @@
 const __ROOT__ = __DIR__;
 
 require __ROOT__ . '/../moss/config/ConfigInterface.php';
+require __ROOT__ . '/../moss/config/ConfigException.php';
 require __ROOT__ . '/../moss/config/Config.php';
 
 require __ROOT__ . '/../moss/kernel/ErrorHandler.php';
