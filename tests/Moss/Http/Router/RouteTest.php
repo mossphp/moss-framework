@@ -1,5 +1,5 @@
 <?php
-namespace Moss\Http\router;
+namespace Moss\Http\Router;
 
 class RouteTest extends \PHPUnit_Framework_TestCase
 {

@@ -1,5 +1,5 @@
 <?php
-namespace Moss\loader;
+namespace Moss\Loader;
 
 class MockLoader extends Loader
 {

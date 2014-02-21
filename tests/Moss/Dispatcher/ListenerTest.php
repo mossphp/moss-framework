@@ -1,5 +1,5 @@
 <?php
-namespace Moss\dispatcher;
+namespace Moss\Dispatcher;
 
 class Foobar
 {

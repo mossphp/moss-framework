@@ -1,5 +1,5 @@
 <?php
-namespace Moss\Http\request;
+namespace Moss\Http\Request;
 
 /**
  * @package Moss Test

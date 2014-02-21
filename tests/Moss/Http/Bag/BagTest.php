@@ -1,5 +1,5 @@
 <?php
-namespace Moss\Http\bag;
+namespace Moss\Http\Bag;
 
 
 class BagTest extends \PHPUnit_Framework_TestCase

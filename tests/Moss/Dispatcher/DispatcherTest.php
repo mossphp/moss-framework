@@ -1,5 +1,5 @@
 <?php
-namespace Moss\dispatcher;
+namespace Moss\Dispatcher;
 
 
 class DispatcherTest extends \PHPUnit_Framework_TestCase

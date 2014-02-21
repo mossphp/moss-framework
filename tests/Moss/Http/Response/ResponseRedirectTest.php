@@ -1,5 +1,5 @@
 <?php
-namespace Moss\Http\response;
+namespace Moss\Http\Response;
 
 
 class ResponseRedirectTest extends \PHPUnit_Framework_TestCase
