@@ -154,7 +154,7 @@ class View implements ViewInterface
     {
         try {
             return (string) $this->render();
-        } catch(\InvalidArgumentException $e) {
+        } catch (\InvalidArgumentException $e) {
             return sprintf('%s (%s line:%s)', $e->getMessage(), $e->getFile(), $e->getLine());
         }
     }

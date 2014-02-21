@@ -71,7 +71,7 @@ class SampleController
                             ->tokenize($this->request->post->all());
 
             return new ResponseRedirect($this->router->make('moss:sample:Sample:source'));
-        } catch(AuthenticationException $e) {
+        } catch (AuthenticationException $e) {
             $this->container->get('flash')
                             ->add($e->getMessage(), 'error');
 

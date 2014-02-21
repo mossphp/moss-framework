@@ -47,7 +47,7 @@ class Twig_Bridge_Extension_Resource extends Twig_Extension
 
         try {
             $this->buildLink($public, $bundle);
-        } catch(\BadFunctionCallException $e) {
+        } catch (\BadFunctionCallException $e) {
             $this->buildCopy($public, $bundle);
         }
 

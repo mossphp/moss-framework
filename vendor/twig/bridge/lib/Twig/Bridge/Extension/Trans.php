@@ -81,7 +81,7 @@ class Twig_Bridge_Extension_Trans extends Twig_Extension
             $env->setLoader($current['loader']);
 
             return $template;
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             $env->setCache($current['cache']);
             $env->setLoader($current['loader']);
 

@@ -83,11 +83,11 @@ class Kernel
             $response = $this->fireEvent('kernel.response', $response);
 
             return $this->fireEvent('kernel.send', $response);
-        } catch(SecurityException $e) {
+        } catch (SecurityException $e) {
             $response = $this->fireEvent('kernel.403', $e, sprintf('%s (%s line:%s)', $e->getMessage(), $e->getFile(), $e->getLine()));
-        } catch(RouterException $e) {
+        } catch (RouterException $e) {
             $response = $this->fireEvent('kernel.404', $e, sprintf('%s (%s line:%s)', $e->getMessage(), $e->getFile(), $e->getLine()));
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             $response = $this->fireEvent('kernel.500', $e, sprintf('%s (%s line:%s)', $e->getMessage(), $e->getFile(), $e->getLine()));
         }
 

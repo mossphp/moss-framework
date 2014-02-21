@@ -100,7 +100,7 @@ class Dispatcher implements DispatcherInterface
             }
 
             return $subject;
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             if (!isset($this->events[$event . ':exception'])) {
                 throw $e;
             }

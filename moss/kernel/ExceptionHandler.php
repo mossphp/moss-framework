@@ -266,7 +266,7 @@ class ExceptionHandler
         } elseif (is_array($param)) {
             try {
                 $hash = md5(serialize($param));
-            } catch(\Exception $e) {
+            } catch (\Exception $e) {
                 $hash = null;
             }
 
