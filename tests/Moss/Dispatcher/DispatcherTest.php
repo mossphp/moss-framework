@@ -6,7 +6,7 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
 {
 
     /**
-     * @expectedException \Moss\dispatcher\DispatcherException
+     * @expectedException \Moss\Dispatcher\DispatcherException
      * @expectedExceptionMessage Invalid event listener. Only callables or ListenerInterface instances can be registered, got "string"
      */
     public function testRegisterInvalidElement()
@@ -23,7 +23,7 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
             }
         );
 
-        $this->assertInstanceOf('Moss\dispatcher\Dispatcher', $result);
+        $this->assertInstanceOf('Moss\Dispatcher\Dispatcher', $result);
         $this->assertAttributeCount(1, 'events', $dispatcher);
     }
 
@@ -35,7 +35,7 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
             }
         );
 
-        $this->assertInstanceOf('Moss\dispatcher\Dispatcher', $result);
+        $this->assertInstanceOf('Moss\Dispatcher\Dispatcher', $result);
         $this->assertAttributeCount(2, 'events', $dispatcher);
     }
 
@@ -53,7 +53,7 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
             );
 
 
-        $this->assertInstanceOf('Moss\dispatcher\Dispatcher', $result);
+        $this->assertInstanceOf('Moss\Dispatcher\Dispatcher', $result);
         $this->assertAttributeCount(1, 'events', $dispatcher);
     }
 
@@ -76,7 +76,7 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
 
     public function testFireListenerEvent()
     {
-        $listener = $this->getMock('\Moss\dispatcher\ListenerInterface');
+        $listener = $this->getMock('\Moss\Dispatcher\ListenerInterface');
         $listener
             ->expects($this->any())
             ->method($this->anything())
