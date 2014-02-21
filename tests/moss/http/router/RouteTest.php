@@ -1,12 +1,12 @@
 <?php
-namespace moss\http\router;
+namespace Moss\Http\router;
 
 class RouteTest extends \PHPUnit_Framework_TestCase
 {
 
     /**
      * @dataProvider             patternQuantificationProvider
-     * @expectedException \moss\http\router\RouteException
+     * @expectedException \Moss\Http\router\RouteException
      * @expectedExceptionMessage Route must not end with quantification token
      */
     public function testPatternQuantificationToken($pattern)
@@ -217,7 +217,7 @@ class RouteTest extends \PHPUnit_Framework_TestCase
     public function testMakeWithHost($uri, $pattern, $arguments = array())
     {
         $route = new Route($pattern, 'some:controller', $arguments);
-        $this->assertEquals('http://host.com/'.ltrim($uri, '/'), $route->make('http://host.com/', $arguments));
+        $this->assertEquals('Http://host.com/'.ltrim($uri, '/'), $route->make('Http://host.com/', $arguments));
     }
 
     /**
@@ -249,7 +249,7 @@ class RouteTest extends \PHPUnit_Framework_TestCase
 
     protected function mockRequest($path, $schema = null, $method = null, $host = null)
     {
-        $request = $this->getMock('moss\http\request\RequestInterface');
+        $request = $this->getMock('Moss\Http\request\RequestInterface');
         $request
             ->expects($this->any())
             ->method('path')

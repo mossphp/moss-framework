@@ -1,9 +1,0 @@
-{% extends 'moss:sample:index' %}
-
-{% block body %}
-    <p>Below is controllers source, to logout click <a href="{{ url('moss:sample:sample:logout') }}">here</a></p>
-    <code>{{ controller|raw }}</code>
-    <p>As you can see, there is no actual authorisation. Login/password are tokenized in <var>security</var> component. The rest happens inside that component and in bootstrap</p>
-    <p>And this is bundles bootstrap file</p>
-    <code>{{ bootstrap|raw }}</code>
-{% endblock %}

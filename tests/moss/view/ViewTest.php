@@ -1,7 +1,7 @@
 <?php
-namespace tests\moss\view;
+namespace tests\Moss\view;
 
-use moss\view\View;
+use Moss\view\View;
 
 class ViewTest extends \PHPUnit_Framework_TestCase
 {

@@ -1,5 +1,5 @@
 <?php
-namespace moss\http\router;
+namespace Moss\Http\router;
 
 class RouterTest extends \PHPUnit_Framework_TestCase
 {
@@ -31,9 +31,9 @@ class RouterTest extends \PHPUnit_Framework_TestCase
 
     protected function mockRequest($controller, $path, $host = null)
     {
-        $bag = $this->getMock('moss\http\bag\BagInterface');
+        $bag = $this->getMock('Moss\Http\bag\BagInterface');
 
-        $request = $this->getMock('moss\http\request\RequestInterface');
+        $request = $this->getMock('Moss\Http\request\RequestInterface');
 
         $request
             ->expects($this->any())
@@ -48,7 +48,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         $request
             ->expects($this->any())
             ->method('baseName')
-            ->will($this->returnValue('http://test.com/'));
+            ->will($this->returnValue('Http://test.com/'));
 
         $request
             ->expects($this->any())
@@ -86,7 +86,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \moss\http\router\RouterException
+     * @expectedException \Moss\Http\router\RouterException
      * @expectedExceptionMessage Route for "/missing-route/" not found!
      */
     public function testMatchRouteNotExists()
@@ -120,7 +120,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
 
     public function testMatchWithDomain()
     {
-        $controller = $this->router->match($this->mockRequest('domain:router', '/router/', 'http://domain.test.com'));
+        $controller = $this->router->match($this->mockRequest('domain:router', '/router/', 'Http://domain.test.com'));
         $this->assertEquals('domain:router', $controller);
     }
 
@@ -149,7 +149,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
             array('router:foo:bar', '/router/foo/', null),
             array('router:foo', '/router/foo/', null),
             array('router', '/router/', null),
-            array('domain:router', '/router/', 'http://domain.test.com'),
+            array('domain:router', '/router/', 'Http://domain.test.com'),
             array('router:foo', '/router/foo/', null),
             array('router:foo', '/router/foo', null),
         );
@@ -157,12 +157,12 @@ class RouterTest extends \PHPUnit_Framework_TestCase
 
     public function testMatchQuery()
     {
-        $bag = $this->getMock('moss\http\bag\BagInterface');
+        $bag = $this->getMock('Moss\Http\bag\BagInterface');
         $bag->expects($this->any())
             ->method('get')
             ->will($this->returnValue('router'));
 
-        $request = $this->getMock('moss\http\request\RequestInterface');
+        $request = $this->getMock('Moss\Http\request\RequestInterface');
 
         $request
             ->expects($this->any())
@@ -177,7 +177,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         $request
             ->expects($this->any())
             ->method('baseName')
-            ->will($this->returnValue('http://test.com'));
+            ->will($this->returnValue('Http://test.com'));
 
         $request
             ->expects($this->any())
@@ -193,7 +193,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('router', $controller);
 
         $expected = array(
-            'host' => 'http://test.com',
+            'host' => 'Http://test.com',
             'controller' => 'router',
             'locale' => 'fr',
             'format' => 'yml'
@@ -202,7 +202,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \moss\http\router\RouterException
+     * @expectedException \Moss\Http\router\RouterException
      * @expectedExceptionMessage Unable to make 'self' url - default controller is not defined.
      */
     public function testMakeWithoutDefaultController()
@@ -213,31 +213,31 @@ class RouterTest extends \PHPUnit_Framework_TestCase
     public function testMakeWithDefaultController()
     {
         $this->router->match($this->mockRequest('router:foo:bar', '/router/foo/123/'));
-        $this->assertEquals('http://test.com/router/foo/123/', $this->router->make(null, array('foo' => 'foo', 'bar' => 123)));
+        $this->assertEquals('Http://test.com/router/foo/123/', $this->router->make(null, array('foo' => 'foo', 'bar' => 123)));
     }
 
     public function testMakeNormal()
     {
         $this->router->match($this->mockRequest('router:foo:bar', '/router/foo/123/'));
-        $this->assertEquals('http://test.com/?controller=router_foo_bar&foo=foo&bar=123', $this->router->make('router:foo:bar', array('foo' => 'foo', 'bar' => 123), true, false));
+        $this->assertEquals('Http://test.com/?controller=router_foo_bar&foo=foo&bar=123', $this->router->make('router:foo:bar', array('foo' => 'foo', 'bar' => 123), true, false));
     }
 
     public function testMakeUnknown()
     {
         $this->router->match($this->mockRequest('router:foo:bar', '/router/foo/123/'));
-        $this->assertEquals('http://test.com/?controller=router_foo_bar', $this->router->make('router:foo:bar'));
+        $this->assertEquals('Http://test.com/?controller=router_foo_bar', $this->router->make('router:foo:bar'));
     }
 
     public function testMakeByName()
     {
-        $this->router->match($this->mockRequest('router:foo:bar', '/router/foo/123/', 'http://test.com/'));
-        $this->assertEquals('http://domain.test.com/router/', $this->router->make('domain_router'));
+        $this->router->match($this->mockRequest('router:foo:bar', '/router/foo/123/', 'Http://test.com/'));
+        $this->assertEquals('Http://domain.test.com/router/', $this->router->make('domain_router'));
     }
 
     public function testMakeByController()
     {
-        $this->router->match($this->mockRequest('router:foo:bar', '/router/foo/123/', 'http://test.com/'));
-        $this->assertEquals('http://domain.test.com/router/', $this->router->make('domain:router'));
+        $this->router->match($this->mockRequest('router:foo:bar', '/router/foo/123/', 'Http://test.com/'));
+        $this->assertEquals('Http://domain.test.com/router/', $this->router->make('domain:router'));
     }
 
     public function testMakeRelative()
@@ -249,30 +249,30 @@ class RouterTest extends \PHPUnit_Framework_TestCase
     public function testMakeAbsolute()
     {
         $this->router->match($this->mockRequest('router:foo:bar', '/router/foo/123/'));
-        $this->assertEquals('http://test.com/router/foo/123/', $this->router->make('router:foo:bar', array('foo' => 'foo', 'bar' => 123), false, false));
+        $this->assertEquals('Http://test.com/router/foo/123/', $this->router->make('router:foo:bar', array('foo' => 'foo', 'bar' => 123), false, false));
     }
 
     public function testMakeAbsoluteWithQuery()
     {
         $this->router->match($this->mockRequest('router:foo:bar', '/router/foo/123/'));
-        $this->assertEquals('http://test.com/router/foo/123/?yada=yada', $this->router->make('router:foo:bar', array('foo' => 'foo', 'bar' => 123, 'yada' => 'yada')));
+        $this->assertEquals('Http://test.com/router/foo/123/?yada=yada', $this->router->make('router:foo:bar', array('foo' => 'foo', 'bar' => 123, 'yada' => 'yada')));
     }
 
     public function testMakeWithoutOptionalArguments()
     {
         $this->router->match($this->mockRequest('router:foo:bar', '/router/foo/123/'));
-        $this->assertEquals('http://test.com/router/foo/', $this->router->make('router:foo:bar', array('foo' => 'foo')));
+        $this->assertEquals('Http://test.com/router/foo/', $this->router->make('router:foo:bar', array('foo' => 'foo')));
     }
 
     public function testMakeWithOptionalArguments()
     {
         $this->router->match($this->mockRequest('router:foo:bar', '/router/foo/123/'));
-        $this->assertEquals('http://test.com/router/foo/123/', $this->router->make('router:foo:bar', array('foo' => 'foo', 'bar' => 123)));
+        $this->assertEquals('Http://test.com/router/foo/123/', $this->router->make('router:foo:bar', array('foo' => 'foo', 'bar' => 123)));
     }
 
     public function testMakeWithHost()
     {
-        $this->router->match($this->mockRequest('router:foo:bar', '/router/foo/123/', 'http://test.com/'));
-        $this->assertEquals('http://domain.test.com/router/', $this->router->make('domain:router'));
+        $this->router->match($this->mockRequest('router:foo:bar', '/router/foo/123/', 'Http://test.com/'));
+        $this->assertEquals('Http://domain.test.com/router/', $this->router->make('domain:router'));
     }
 }

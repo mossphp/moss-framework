@@ -1,5 +1,5 @@
 <?php
-namespace moss\security;
+namespace Moss\Security;
 
 
 class AreaTest extends \PHPUnit_Framework_TestCase
@@ -27,14 +27,14 @@ class AreaTest extends \PHPUnit_Framework_TestCase
     {
         $area = new Area('bundle:*:!login|logout');
 
-        $requestBlock = $this->getMock('\moss\http\request\RequestInterface');
+        $requestBlock = $this->getMock('\Moss\Http\request\RequestInterface');
         $requestBlock
             ->expects($this->any())
             ->method('controller')
             ->will($this->returnValue('bundle:something:index'));
         $this->assertTrue($area->match($requestBlock));
 
-        $requestPass = $this->getMock('\moss\http\request\RequestInterface');
+        $requestPass = $this->getMock('\Moss\Http\request\RequestInterface');
         $requestPass
             ->expects($this->any())
             ->method('controller')
@@ -46,7 +46,7 @@ class AreaTest extends \PHPUnit_Framework_TestCase
     {
         $area = new Area('bundle:*:!login|logout', array('role'));
 
-        $user = $this->getMock('\moss\security\UserInterface');
+        $user = $this->getMock('\Moss\Security\UserInterface');
         $user
             ->expects($this->any())
             ->method('hasRole')
@@ -58,7 +58,7 @@ class AreaTest extends \PHPUnit_Framework_TestCase
     public function testAuthUserIPFail()
     {
         $area = new Area('bundle:*:!login|logout', array(), array('127.0.0.1'));
-        $user = $this->getMock('\moss\security\UserInterface');
+        $user = $this->getMock('\Moss\Security\UserInterface');
         $this->assertFalse($area->authorize($user, '127.0.0.2'));
     }
 
@@ -66,7 +66,7 @@ class AreaTest extends \PHPUnit_Framework_TestCase
     {
         $area = new Area('bundle:*:!login|logout', array('role'));
 
-        $user = $this->getMock('\moss\security\UserInterface');
+        $user = $this->getMock('\Moss\Security\UserInterface');
         $user
             ->expects($this->any())
             ->method('hasRole')
@@ -78,7 +78,7 @@ class AreaTest extends \PHPUnit_Framework_TestCase
     public function testAuthUserIP()
     {
         $area = new Area('bundle:*:!login|logout', array(), array('127.0.0.1'));
-        $user = $this->getMock('\moss\security\UserInterface');
+        $user = $this->getMock('\Moss\Security\UserInterface');
         $this->assertTrue($area->authorize($user, '127.0.0.1'));
     }
 }

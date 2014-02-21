@@ -2,20 +2,20 @@
 
 <phpunit colors="true" bootstrap="./tests/autoload.php.dist">
 	<testsuites>
-		<testsuite name="moss core">
-			<directory>./tests/moss/config/</directory>
-			<directory>./tests/moss/container/</directory>
-			<directory>./tests/moss/dispatcher/</directory>
-			<directory>./tests/moss/http/bag/</directory>
-			<directory>./tests/moss/http/request/</directory>
-			<directory>./tests/moss/http/response/</directory>
-			<directory>./tests/moss/http/cookie/</directory>
-			<directory>./tests/moss/http/session/</directory>
-			<directory>./tests/moss/logger/</directory>
-			<directory>./tests/moss/loader/</directory>
-			<directory>./tests/moss/router/</directory>
-			<directory>./tests/moss/security/</directory>
-			<directory>./tests/moss/view/</directory>
+		<testsuite name="Moss core">
+			<directory>./tests/Moss/config/</directory>
+			<directory>./tests/Moss/container/</directory>
+			<directory>./tests/Moss/dispatcher/</directory>
+			<directory>./tests/Moss/http/bag/</directory>
+			<directory>./tests/Moss/http/request/</directory>
+			<directory>./tests/Moss/http/response/</directory>
+			<directory>./tests/Moss/http/cookie/</directory>
+			<directory>./tests/Moss/http/session/</directory>
+			<directory>./tests/Moss/logger/</directory>
+			<directory>./tests/Moss/loader/</directory>
+			<directory>./tests/Moss/router/</directory>
+			<directory>./tests/Moss/security/</directory>
+			<directory>./tests/Moss/view/</directory>
 		</testsuite>
 	</testsuites>
 </phpunit>

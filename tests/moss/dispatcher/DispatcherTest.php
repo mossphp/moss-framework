@@ -1,12 +1,12 @@
 <?php
-namespace moss\dispatcher;
+namespace Moss\dispatcher;
 
 
 class DispatcherTest extends \PHPUnit_Framework_TestCase
 {
 
     /**
-     * @expectedException \moss\dispatcher\DispatcherException
+     * @expectedException \Moss\dispatcher\DispatcherException
      * @expectedExceptionMessage Invalid event listener. Only callables or ListenerInterface instances can be registered, got "string"
      */
     public function testRegisterInvalidElement()
@@ -23,7 +23,7 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
             }
         );
 
-        $this->assertInstanceOf('moss\dispatcher\Dispatcher', $result);
+        $this->assertInstanceOf('Moss\dispatcher\Dispatcher', $result);
         $this->assertAttributeCount(1, 'events', $dispatcher);
     }
 
@@ -35,7 +35,7 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
             }
         );
 
-        $this->assertInstanceOf('moss\dispatcher\Dispatcher', $result);
+        $this->assertInstanceOf('Moss\dispatcher\Dispatcher', $result);
         $this->assertAttributeCount(2, 'events', $dispatcher);
     }
 
@@ -53,7 +53,7 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
             );
 
 
-        $this->assertInstanceOf('moss\dispatcher\Dispatcher', $result);
+        $this->assertInstanceOf('Moss\dispatcher\Dispatcher', $result);
         $this->assertAttributeCount(1, 'events', $dispatcher);
     }
 
@@ -76,13 +76,13 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
 
     public function testFireListenerEvent()
     {
-        $listener = $this->getMock('\moss\dispatcher\ListenerInterface');
+        $listener = $this->getMock('\Moss\dispatcher\ListenerInterface');
         $listener
             ->expects($this->any())
             ->method($this->anything())
             ->will($this->returnValue('foo'));
 
-        $dispatcher = new Dispatcher($this->getMock('\moss\container\ContainerInterface'));
+        $dispatcher = new Dispatcher($this->getMock('\Moss\Container\ContainerInterface'));
         $dispatcher->register('foo', $listener);
         $this->assertEquals('foo', $dispatcher->fire('foo'));
     }

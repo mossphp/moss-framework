@@ -1,5 +1,5 @@
 <?php
-namespace moss\http\response;
+namespace Moss\Http\response;
 
 
 class ResponseTest extends \PHPUnit_Framework_TestCase
@@ -19,7 +19,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \moss\http\response\ResponseException
+     * @expectedException \Moss\Http\response\ResponseException
      * @expectedExceptionMessage Response content must be a scalar or object with __toString() method "array" given.
      */
     public function testInvalidContent()
@@ -34,7 +34,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \moss\http\response\ResponseException
+     * @expectedException \Moss\Http\response\ResponseException
      * @expectedExceptionMessage Unsupported status code "999"
      */
     public function testInvalidStatus()

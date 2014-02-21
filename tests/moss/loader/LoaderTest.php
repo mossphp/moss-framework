@@ -1,5 +1,5 @@
 <?php
-namespace moss\loader;
+namespace Moss\loader;
 
 class MockLoader extends Loader
 {
@@ -54,9 +54,9 @@ class LoaderTest extends \PHPUnit_Framework_TestCase
 
         $this->loader->setFiles(
                      array(
-                          // moss psr 0
-                          '/../moss/http/response/HeaderBag.php',
-                          '/../src/moss/sample/controller/SampleController.php',
+                          // Moss psr 0
+                          '/../Moss/Http/Response/HeaderBag.php',
+                          '/../src/Moss/Sample/Controller/SampleController.php',
                           '/../vendor/psr/log/Psr/Log/LogLevel.php',
 
                           // riu
@@ -83,8 +83,8 @@ class LoaderTest extends \PHPUnit_Framework_TestCase
                      )
         );
 
-// moss psr-0
-        $this->loader->addNamespace('moss', '/../');
+// Moss psr-0
+        $this->loader->addNamespace('Moss', '/../');
         $this->loader->addNamespace(null, '/../src/');
         $this->loader->addNamespace('Psr/Log', '/../vendor/psr/log/');
 
@@ -119,8 +119,8 @@ class LoaderTest extends \PHPUnit_Framework_TestCase
     {
         return array(
             // psr-0
-            array('moss\http\response\HeaderBag', '/../moss/http/response/HeaderBag.php'),
-            array('moss\sample\controller\SampleController', '/../src/moss/sample/controller/SampleController.php'),
+            array('Moss\Http\Response\HeaderBag', '/../Moss/Http/Response/HeaderBag.php'),
+            array('Moss\Sample\Controller\SampleController', '/../src/Moss/Sample/Controller/SampleController.php'),
             array('Psr\Log\LogLevel', '/../vendor/psr/log/Psr/Log/LogLevel.php'),
 
             // riu

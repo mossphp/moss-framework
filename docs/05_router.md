@@ -7,22 +7,22 @@ Routers responsibility is to translate incoming URL requests into controller nam
 
 Create route ( pointing to controller `controller:action` and two query arguments: required `foo` and optional `bar` that accept anything:
 
-	$route = new \moss\http\router\Route('/{foo}/({bar})/', 'controller:action');
+	$route = new \Moss\http\router\Route('/{foo}/({bar})/', 'controller:action');
 
 Or create route with closure as controller
 
-	$route = new \moss\http\router\Route('/{foo:\w}/({bar:\d}/)', function() {
-		return new \moss\response\Response('Hello world');
+	$route = new \Moss\http\router\Route('/{foo:\w}/({bar:\d}/)', function() {
+		return new \Moss\response\Response('Hello world');
 	});
 
 Set argument requirements - accepted types - by default, values matching `[a-z0-9-._]` are accepted:
 
-	$route = new \moss\http\route\Route('/{foo}/({bar}/)', 'controller:action');
+	$route = new \Moss\http\route\Route('/{foo}/({bar}/)', 'controller:action');
     $route->requirements(array('foo' => '\w+', 'bar' => '\d*'));
 
 Same defined in constructor:
 
-	$route = new \moss\http\router\Route('/{foo:\w}/({bar:\d})/', 'controller:action');
+	$route = new \Moss\http\router\Route('/{foo:\w}/({bar:\d})/', 'controller:action');
 
 Set argument default values, needed only for required arguments (eg. route /some-title/ should point to entry with id = 1:
 
@@ -48,7 +48,7 @@ Limited schema:
 
 Create router and register routes:
 
-	$route = new \moss\http\router\Route('/{foo:\w}/({bar:\d})/', 'controller:action');
+	$route = new \Moss\http\router\Route('/{foo:\w}/({bar:\d})/', 'controller:action');
 
 	$router = new Router();
 	$router->register('routeName', $route);

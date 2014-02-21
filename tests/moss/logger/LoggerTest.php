@@ -1,5 +1,5 @@
 <?php
-namespace moss\logger;
+namespace Moss\logger;
 
 use Psr\Log\LogLevel;
 

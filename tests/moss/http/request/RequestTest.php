@@ -1,8 +1,5 @@
 <?php
-namespace moss\http\request;
-
-use moss\http\cookie\Cookie;
-use moss\http\session\Session;
+namespace Moss\Http\request;
 
 /**
  * @package Moss Test
@@ -24,10 +21,10 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     public function testConstruct()
     {
         $request = new Request(
-            $this->getMock('\moss\http\session\SessionInterface'),
-            $this->getMock('\moss\http\cookie\CookieInterface')
+            $this->getMock('\Moss\Http\Session\SessionInterface'),
+            $this->getMock('\Moss\Http\Cookie\CookieInterface')
         );
-        $this->assertInstanceOf('\moss\http\request\RequestInterface', $request);
+        $this->assertInstanceOf('\Moss\Http\Request\RequestInterface', $request);
     }
 
     public function testConstructContent()
@@ -37,10 +34,10 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $_SERVER['CONTENT_TYPE'] = 'text/plan';
 
         $request = new Request(
-            $this->getMock('\moss\http\session\SessionInterface'),
-            $this->getMock('\moss\http\cookie\CookieInterface')
+            $this->getMock('\Moss\Http\Session\SessionInterface'),
+            $this->getMock('\Moss\Http\Cookie\CookieInterface')
         );
-        $this->assertInstanceOf('\moss\http\request\RequestInterface', $request);
+        $this->assertInstanceOf('\Moss\Http\request\RequestInterface', $request);
         $this->assertEquals($_SERVER['CONTENT_LENGTH'], $request->server('CONTENT_LENGTH'));
         $this->assertEquals($_SERVER['CONTENT_MD5'], $request->server('CONTENT_MD5'));
         $this->assertEquals($_SERVER['CONTENT_TYPE'], $request->server('CONTENT_TYPE'));
@@ -59,28 +56,28 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     public function testSession()
     {
         $request = new Request(
-            $this->getMock('\moss\http\session\SessionInterface'),
-            $this->getMock('\moss\http\cookie\CookieInterface')
+            $this->getMock('\Moss\Http\Session\SessionInterface'),
+            $this->getMock('\Moss\Http\Cookie\CookieInterface')
         );
-        $this->assertInstanceOf('\moss\http\session\SessionInterface', $request->session());
-        $this->assertInstanceOf('\moss\http\session\SessionInterface', $request->session);
+        $this->assertInstanceOf('\Moss\Http\Session\SessionInterface', $request->session());
+        $this->assertInstanceOf('\Moss\Http\Session\SessionInterface', $request->session);
     }
 
     public function testCookie()
     {
         $request = new Request(
-            $this->getMock('\moss\http\session\SessionInterface'),
-            $this->getMock('\moss\http\cookie\CookieInterface')
+            $this->getMock('\Moss\Http\session\SessionInterface'),
+            $this->getMock('\Moss\Http\Cookie\CookieInterface')
         );
-        $this->assertInstanceOf('\moss\http\cookie\CookieInterface', $request->cookie());
-        $this->assertInstanceOf('\moss\http\cookie\CookieInterface', $request->cookie);
+        $this->assertInstanceOf('\Moss\Http\Cookie\CookieInterface', $request->cookie());
+        $this->assertInstanceOf('\Moss\Http\Cookie\CookieInterface', $request->cookie);
     }
 
     public function getServerBlank()
     {
         $request = new Request(
-            $this->getMock('\moss\http\session\SessionInterface'),
-            $this->getMock('\moss\http\cookie\CookieInterface')
+            $this->getMock('\Moss\Http\session\SessionInterface'),
+            $this->getMock('\Moss\Http\Cookie\CookieInterface')
         );
         $this->assertNull($request->server('foobar'));
     }
@@ -88,8 +85,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     public function testHeaderBlank()
     {
         $request = new Request(
-            $this->getMock('\moss\http\session\SessionInterface'),
-            $this->getMock('\moss\http\cookie\CookieInterface')
+            $this->getMock('\Moss\Http\session\SessionInterface'),
+            $this->getMock('\Moss\Http\Cookie\CookieInterface')
         );
         $this->assertNull($request->header('foobar'));
     }
@@ -100,10 +97,10 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $_SERVER['PHP_AUTH_PW'] = 'pw';
 
         $request = new Request(
-            $this->getMock('\moss\http\session\SessionInterface'),
-            $this->getMock('\moss\http\cookie\CookieInterface')
+            $this->getMock('\Moss\Http\session\SessionInterface'),
+            $this->getMock('\Moss\Http\Cookie\CookieInterface')
         );
-        $this->assertInstanceOf('\moss\http\request\RequestInterface', $request);
+        $this->assertInstanceOf('\Moss\Http\request\RequestInterface', $request);
         $this->assertEquals($_SERVER['PHP_AUTH_USER'], $request->server('PHP_AUTH_USER'));
         $this->assertEquals($_SERVER['PHP_AUTH_PW'], $request->server('PHP_AUTH_PW'));
         $this->assertEquals($_SERVER['PHP_AUTH_USER'], $request->header('php_auth_user'));
@@ -115,10 +112,10 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $_SERVER['HTTP_AUTHORIZATION'] = 'basic ' . base64_encode('user:pw');
 
         $request = new Request(
-            $this->getMock('\moss\http\session\SessionInterface'),
-            $this->getMock('\moss\http\cookie\CookieInterface')
+            $this->getMock('\Moss\Http\session\SessionInterface'),
+            $this->getMock('\Moss\Http\Cookie\CookieInterface')
         );
-        $this->assertInstanceOf('\moss\http\request\RequestInterface', $request);
+        $this->assertInstanceOf('\Moss\Http\request\RequestInterface', $request);
         $this->assertEquals($_SERVER['HTTP_AUTHORIZATION'], $request->server('HTTP_AUTHORIZATION'));
         $this->assertEquals('basic ' . base64_encode('user:pw'), $request->header('authorization'));
         $this->assertEquals('user', $request->header('php_auth_user'));
@@ -130,10 +127,10 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] = 'basic ' . base64_encode('user:pw');
 
         $request = new Request(
-            $this->getMock('\moss\http\session\SessionInterface'),
-            $this->getMock('\moss\http\cookie\CookieInterface')
+            $this->getMock('\Moss\Http\session\SessionInterface'),
+            $this->getMock('\Moss\Http\Cookie\CookieInterface')
         );
-        $this->assertInstanceOf('\moss\http\request\RequestInterface', $request);
+        $this->assertInstanceOf('\Moss\Http\request\RequestInterface', $request);
         $this->assertEquals($_SERVER['REDIRECT_HTTP_AUTHORIZATION'], $request->server('REDIRECT_HTTP_AUTHORIZATION'));
         $this->assertEquals('user', $request->header('php_auth_user'));
         $this->assertEquals('pw', $request->header('php_auth_pw'));
@@ -150,8 +147,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         );
 
         $request = new Request(
-            $this->getMock('\moss\http\session\SessionInterface'),
-            $this->getMock('\moss\http\cookie\CookieInterface')
+            $this->getMock('\Moss\Http\session\SessionInterface'),
+            $this->getMock('\Moss\Http\Cookie\CookieInterface')
         );
 
         $this->assertEquals($request->query->get('foo'), $request->query()->get('foo'));
@@ -175,8 +172,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $GLOBALS['argv'] = $arg;
 
         $request = new Request(
-            $this->getMock('\moss\http\session\SessionInterface'),
-            $this->getMock('\moss\http\cookie\CookieInterface')
+            $this->getMock('\Moss\Http\session\SessionInterface'),
+            $this->getMock('\Moss\Http\Cookie\CookieInterface')
         );
 
         $this->assertEquals($expected, $request->query->all());
@@ -239,8 +236,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     public function testSetQuery()
     {
         $request = new Request(
-            $this->getMock('\moss\http\session\SessionInterface'),
-            $this->getMock('\moss\http\cookie\CookieInterface')
+            $this->getMock('\Moss\Http\session\SessionInterface'),
+            $this->getMock('\Moss\Http\Cookie\CookieInterface')
         );
 
         $this->assertEquals('bar', $request->query->get('foo', 'bar'));
@@ -262,8 +259,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         );
 
         $request = new Request(
-            $this->getMock('\moss\http\session\SessionInterface'),
-            $this->getMock('\moss\http\cookie\CookieInterface')
+            $this->getMock('\Moss\Http\session\SessionInterface'),
+            $this->getMock('\Moss\Http\Cookie\CookieInterface')
         );
 
         $this->assertEquals($request->post->get('foo'), $request->post()->get('foo'));
@@ -280,8 +277,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     public function testSetPost()
     {
         $request = new Request(
-            $this->getMock('\moss\http\session\SessionInterface'),
-            $this->getMock('\moss\http\cookie\CookieInterface')
+            $this->getMock('\Moss\Http\session\SessionInterface'),
+            $this->getMock('\Moss\Http\Cookie\CookieInterface')
         );
         $this->assertEquals('bar', $request->post->get('foo', 'bar'));
         $this->assertEquals('foobar', $request->post->get('controller', 'foobar'));
@@ -312,8 +309,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         );
 
         $request = new Request(
-            $this->getMock('\moss\http\session\SessionInterface'),
-            $this->getMock('\moss\http\cookie\CookieInterface')
+            $this->getMock('\Moss\Http\session\SessionInterface'),
+            $this->getMock('\Moss\Http\Cookie\CookieInterface')
         );
 
         $this->assertEquals($request->files->get('foo'), $request->files()->get('foo'));
@@ -366,8 +363,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         );
 
         $request = new Request(
-            $this->getMock('\moss\http\session\SessionInterface'),
-            $this->getMock('\moss\http\cookie\CookieInterface')
+            $this->getMock('\Moss\Http\session\SessionInterface'),
+            $this->getMock('\Moss\Http\Cookie\CookieInterface')
         );
         $this->assertEquals($result, $request->files->get('foo'));
     }
@@ -380,8 +377,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $_FILES[$key] = $files;
 
         $request = new Request(
-            $this->getMock('\moss\http\session\SessionInterface'),
-            $this->getMock('\moss\http\cookie\CookieInterface')
+            $this->getMock('\Moss\Http\session\SessionInterface'),
+            $this->getMock('\Moss\Http\Cookie\CookieInterface')
         );
         $this->assertEquals(
              $result, $request->files->uploaded($key)
@@ -540,8 +537,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     public function testIsSecureFalse()
     {
         $request = new Request(
-            $this->getMock('\moss\http\session\SessionInterface'),
-            $this->getMock('\moss\http\cookie\CookieInterface')
+            $this->getMock('\Moss\Http\session\SessionInterface'),
+            $this->getMock('\Moss\Http\Cookie\CookieInterface')
         );
         $this->assertFalse($request->isSecure());
     }
@@ -550,8 +547,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     {
         $_SERVER['HTTPS'] = 'ON';
         $request = new Request(
-            $this->getMock('\moss\http\session\SessionInterface'),
-            $this->getMock('\moss\http\cookie\CookieInterface')
+            $this->getMock('\Moss\Http\session\SessionInterface'),
+            $this->getMock('\Moss\Http\Cookie\CookieInterface')
         );
         $this->assertTrue($request->isSecure());
     }
@@ -559,8 +556,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     public function testIsAjaxFalse()
     {
         $request = new Request(
-            $this->getMock('\moss\http\session\SessionInterface'),
-            $this->getMock('\moss\http\cookie\CookieInterface')
+            $this->getMock('\Moss\Http\session\SessionInterface'),
+            $this->getMock('\Moss\Http\Cookie\CookieInterface')
         );
         $this->assertFalse($request->isAjax());
     }
@@ -569,8 +566,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     {
         $_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHTTPREQUEST';
         $request = new Request(
-            $this->getMock('\moss\http\session\SessionInterface'),
-            $this->getMock('\moss\http\cookie\CookieInterface')
+            $this->getMock('\Moss\Http\session\SessionInterface'),
+            $this->getMock('\Moss\Http\Cookie\CookieInterface')
         );
         $this->assertTrue($request->isAjax());
     }
@@ -579,8 +576,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     {
         $_SERVER['REQUEST_METHOD'] = null;
         $request = new Request(
-            $this->getMock('\moss\http\session\SessionInterface'),
-            $this->getMock('\moss\http\cookie\CookieInterface')
+            $this->getMock('\Moss\Http\session\SessionInterface'),
+            $this->getMock('\Moss\Http\Cookie\CookieInterface')
         );
         $this->assertEquals('CLI', $request->method());
     }
@@ -589,8 +586,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     {
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $request = new Request(
-            $this->getMock('\moss\http\session\SessionInterface'),
-            $this->getMock('\moss\http\cookie\CookieInterface')
+            $this->getMock('\Moss\Http\session\SessionInterface'),
+            $this->getMock('\Moss\Http\Cookie\CookieInterface')
         );
         $this->assertEquals('GET', $request->method());
     }
@@ -599,8 +596,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     {
         $_SERVER['REQUEST_METHOD'] = 'POST';
         $request = new Request(
-            $this->getMock('\moss\http\session\SessionInterface'),
-            $this->getMock('\moss\http\cookie\CookieInterface')
+            $this->getMock('\Moss\Http\session\SessionInterface'),
+            $this->getMock('\Moss\Http\Cookie\CookieInterface')
         );
         $this->assertEquals('POST', $request->method());
     }
@@ -609,8 +606,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     {
         $_SERVER['REQUEST_METHOD'] = 'PUT';
         $request = new Request(
-            $this->getMock('\moss\http\session\SessionInterface'),
-            $this->getMock('\moss\http\cookie\CookieInterface')
+            $this->getMock('\Moss\Http\session\SessionInterface'),
+            $this->getMock('\Moss\Http\Cookie\CookieInterface')
         );
         $this->assertEquals('PUT', $request->method());
     }
@@ -619,18 +616,18 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     {
         $_SERVER['REQUEST_METHOD'] = 'DELETE';
         $request = new Request(
-            $this->getMock('\moss\http\session\SessionInterface'),
-            $this->getMock('\moss\http\cookie\CookieInterface')
+            $this->getMock('\Moss\Http\session\SessionInterface'),
+            $this->getMock('\Moss\Http\Cookie\CookieInterface')
         );
         $this->assertEquals('DELETE', $request->method());
     }
 
     public function testSchema()
     {
-        $_SERVER['SERVER_PROTOCOL'] = 'http';
+        $_SERVER['SERVER_PROTOCOL'] = 'Http';
         $request = new Request(
-            $this->getMock('\moss\http\session\SessionInterface'),
-            $this->getMock('\moss\http\cookie\CookieInterface')
+            $this->getMock('\Moss\Http\session\SessionInterface'),
+            $this->getMock('\Moss\Http\Cookie\CookieInterface')
         );
         $this->assertEquals('http', $request->schema());
     }
@@ -639,8 +636,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     {
         $_SERVER['HTTPS'] = 'on';
         $request = new Request(
-            $this->getMock('\moss\http\session\SessionInterface'),
-            $this->getMock('\moss\http\cookie\CookieInterface')
+            $this->getMock('\Moss\Http\session\SessionInterface'),
+            $this->getMock('\Moss\Http\Cookie\CookieInterface')
         );
         $this->assertEquals('https', $request->schema());
     }
@@ -649,8 +646,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     {
         $_SERVER['HTTP_HOST'] = 'foo.test.com';
         $request = new Request(
-            $this->getMock('\moss\http\session\SessionInterface'),
-            $this->getMock('\moss\http\cookie\CookieInterface')
+            $this->getMock('\Moss\Http\session\SessionInterface'),
+            $this->getMock('\Moss\Http\Cookie\CookieInterface')
         );
         $this->assertEquals('foo.test.com', $request->host());
     }
@@ -664,8 +661,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $_SERVER['SCRIPT_FILENAME'] = $script;
 
         $request = new Request(
-            $this->getMock('\moss\http\session\SessionInterface'),
-            $this->getMock('\moss\http\cookie\CookieInterface')
+            $this->getMock('\Moss\Http\session\SessionInterface'),
+            $this->getMock('\Moss\Http\Cookie\CookieInterface')
         );
         $this->assertEquals($dir, $request->dir());
     }
@@ -673,8 +670,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     public function dirProvider()
     {
         return array(
-            array('c:/yada/htdocs/moss/web/', 'c:/yada/htdocs/moss/web/index.php', '/'),
-            array('c:/yada/htdocs/', 'c:/yada/htdocs/moss/web/index.php', '/moss/web/'),
+            array('c:/yada/htdocs/Moss/web/', 'c:/yada/htdocs/Moss/web/index.php', '/'),
+            array('c:/yada/htdocs/', 'c:/yada/htdocs/Moss/web/index.php', '/Moss/web/'),
             array('/home/foo/www', '/home/foo/www/web/index.php', '/web/'),
             array('/home/foo/www/web', '/home/foo/www/web/index.php', '/'),
         );
@@ -689,8 +686,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $_SERVER['HTTP_HOST'] = 'test.com';
 
         $request = new Request(
-            $this->getMock('\moss\http\session\SessionInterface'),
-            $this->getMock('\moss\http\cookie\CookieInterface')
+            $this->getMock('\Moss\Http\session\SessionInterface'),
+            $this->getMock('\Moss\Http\Cookie\CookieInterface')
         );
         $this->assertEquals('http://test.com/', $request->baseName());
     }
@@ -704,8 +701,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $_SERVER['HTTP_HOST'] = 'test.com';
 
         $request = new Request(
-            $this->getMock('\moss\http\session\SessionInterface'),
-            $this->getMock('\moss\http\cookie\CookieInterface')
+            $this->getMock('\Moss\Http\session\SessionInterface'),
+            $this->getMock('\Moss\Http\Cookie\CookieInterface')
         );
         $this->assertEquals('http://test.com/', $request->baseName());
 
@@ -718,8 +715,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
 
         $request = new Request(
-            $this->getMock('\moss\http\session\SessionInterface'),
-            $this->getMock('\moss\http\cookie\CookieInterface')
+            $this->getMock('\Moss\Http\session\SessionInterface'),
+            $this->getMock('\Moss\Http\Cookie\CookieInterface')
         );
         $this->assertEquals('127.0.0.1', $request->clientIp());
     }
@@ -729,8 +726,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $_SERVER['HTTP_X_FORWARDED_FOR'] = '127.0.0.1';
 
         $request = new Request(
-            $this->getMock('\moss\http\session\SessionInterface'),
-            $this->getMock('\moss\http\cookie\CookieInterface')
+            $this->getMock('\Moss\Http\session\SessionInterface'),
+            $this->getMock('\Moss\Http\Cookie\CookieInterface')
         );
         $this->assertEquals('127.0.0.1', $request->clientIp());
     }
@@ -740,8 +737,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $_SERVER['HTTP_CLIENT_IP'] = '127.0.0.1';
 
         $request = new Request(
-            $this->getMock('\moss\http\session\SessionInterface'),
-            $this->getMock('\moss\http\cookie\CookieInterface')
+            $this->getMock('\Moss\Http\session\SessionInterface'),
+            $this->getMock('\Moss\Http\Cookie\CookieInterface')
         );
         $this->assertEquals('127.0.0.1', $request->clientIp());
     }
@@ -749,8 +746,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     public function testController()
     {
         $request = new Request(
-            $this->getMock('\moss\http\session\SessionInterface'),
-            $this->getMock('\moss\http\cookie\CookieInterface')
+            $this->getMock('\Moss\Http\session\SessionInterface'),
+            $this->getMock('\Moss\Http\Cookie\CookieInterface')
         );
         $this->assertEquals(null, $request->controller());
     }
@@ -758,8 +755,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     public function testSetController()
     {
         $request = new Request(
-            $this->getMock('\moss\http\session\SessionInterface'),
-            $this->getMock('\moss\http\cookie\CookieInterface')
+            $this->getMock('\Moss\Http\session\SessionInterface'),
+            $this->getMock('\Moss\Http\Cookie\CookieInterface')
         );
         $this->assertEquals(null, $request->controller());
         $this->assertEquals('foobar', $request->controller('foobar'));
@@ -770,8 +767,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $_SERVER['REQUEST_URI'] = '/foo/index.html?foo=bar';
 
         $request = new Request(
-            $this->getMock('\moss\http\session\SessionInterface'),
-            $this->getMock('\moss\http\cookie\CookieInterface')
+            $this->getMock('\Moss\Http\session\SessionInterface'),
+            $this->getMock('\Moss\Http\Cookie\CookieInterface')
         );
         $this->assertEquals('/foo/index.html', $request->path());
     }
@@ -786,8 +783,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $_GET['foo'] = 'bar';
 
         $request = new Request(
-            $this->getMock('\moss\http\session\SessionInterface'),
-            $this->getMock('\moss\http\cookie\CookieInterface')
+            $this->getMock('\Moss\Http\session\SessionInterface'),
+            $this->getMock('\Moss\Http\Cookie\CookieInterface')
         );
         $this->assertEquals('http://test.com/foo/index.html?foo=bar', $request->uri(true));
     }
@@ -800,13 +797,13 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.0';
         $_SERVER['REQUEST_URI'] = $uri;
         $_SERVER['DOCUMENT_ROOT'] = $root;
-        $_SERVER['SCRIPT_FILENAME'] = '/home/foo/www/moss/web/index.php';
+        $_SERVER['SCRIPT_FILENAME'] = '/home/foo/www/Moss/web/index.php';
         $_SERVER['HTTP_HOST'] = 'test.com';
         $_SERVER['REDIRECT_URL'] = $redirect;
 
         $request = new Request(
-            $this->getMock('\moss\http\session\SessionInterface'),
-            $this->getMock('\moss\http\cookie\CookieInterface')
+            $this->getMock('\Moss\Http\session\SessionInterface'),
+            $this->getMock('\Moss\Http\Cookie\CookieInterface')
         );
         $this->assertEquals(array($dir, $path), array($request->dir(), $request->path()));
     }
@@ -814,12 +811,12 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     public function redirectProvider()
     {
         return array(
-            array('/foo/index.html?foo=bar', '/home/foo/www/moss/web/', false, '/', '/foo/index.html'),
-            array('/foo/index.html?foo=bar', '/home/foo/www/moss/', false, '/web/', '/foo/index.html'),
-            array('/foo/index.html?foo=bar', '/home/foo/www/', false, '/moss/web/', '/foo/index.html'),
+            array('/foo/index.html?foo=bar', '/home/foo/www/Moss/web/', false, '/', '/foo/index.html'),
+            array('/foo/index.html?foo=bar', '/home/foo/www/Moss/', false, '/web/', '/foo/index.html'),
+            array('/foo/index.html?foo=bar', '/home/foo/www/', false, '/Moss/web/', '/foo/index.html'),
 
-            array('/foo/index.html?foo=bar', '/home/foo/www/moss/', '/web/', '/web/', '/foo/index.html'),
-            array('/foo/index.html?foo=bar', '/home/foo/www/', '/moss/web/', '/moss/web/', '/foo/index.html'),
+            array('/foo/index.html?foo=bar', '/home/foo/www/Moss/', '/web/', '/web/', '/foo/index.html'),
+            array('/foo/index.html?foo=bar', '/home/foo/www/', '/Moss/web/', '/Moss/web/', '/foo/index.html'),
         );
     }
 
@@ -828,8 +825,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $_SERVER['HTTP_REFERER'] = 'test.com';
 
         $request = new Request(
-            $this->getMock('\moss\http\session\SessionInterface'),
-            $this->getMock('\moss\http\cookie\CookieInterface')
+            $this->getMock('\Moss\Http\session\SessionInterface'),
+            $this->getMock('\Moss\Http\Cookie\CookieInterface')
         );
         $this->assertEquals('test.com', $request->referrer());
     }
@@ -839,8 +836,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $_SERVER['HTTP_ACCEPT_LANGUAGE'] = 'pl,en-us;q=0.7,en;q=0.3';
 
         $request = new Request(
-            $this->getMock('\moss\http\session\SessionInterface'),
-            $this->getMock('\moss\http\cookie\CookieInterface')
+            $this->getMock('\Moss\Http\session\SessionInterface'),
+            $this->getMock('\Moss\Http\Cookie\CookieInterface')
         );
         $this->assertEquals('pl', $request->locale());
     }
@@ -850,8 +847,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $_GET['locale'] = 'pl';
 
         $request = new Request(
-            $this->getMock('\moss\http\session\SessionInterface'),
-            $this->getMock('\moss\http\cookie\CookieInterface')
+            $this->getMock('\Moss\Http\session\SessionInterface'),
+            $this->getMock('\Moss\Http\Cookie\CookieInterface')
         );
         $this->assertEquals('pl', $request->locale());
     }
@@ -861,8 +858,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $_SERVER['HTTP_ACCEPT_LANGUAGE'] = 'pl,en-us;q=0.7,en;q=0.3';
 
         $request = new Request(
-            $this->getMock('\moss\http\session\SessionInterface'),
-            $this->getMock('\moss\http\cookie\CookieInterface')
+            $this->getMock('\Moss\Http\session\SessionInterface'),
+            $this->getMock('\Moss\Http\Cookie\CookieInterface')
         );
         $request->locale('en');
         $this->assertEquals('en', $request->locale());
@@ -873,8 +870,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $_GET['format'] = 'json';
 
         $request = new Request(
-            $this->getMock('\moss\http\session\SessionInterface'),
-            $this->getMock('\moss\http\cookie\CookieInterface')
+            $this->getMock('\Moss\Http\session\SessionInterface'),
+            $this->getMock('\Moss\Http\Cookie\CookieInterface')
         );
         $this->assertEquals('json', $request->format());
     }
@@ -882,8 +879,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     public function testSetFormat()
     {
         $request = new Request(
-            $this->getMock('\moss\http\session\SessionInterface'),
-            $this->getMock('\moss\http\cookie\CookieInterface')
+            $this->getMock('\Moss\Http\session\SessionInterface'),
+            $this->getMock('\Moss\Http\Cookie\CookieInterface')
         );
         $request->format('json');
         $this->assertEquals('json', $request->format());

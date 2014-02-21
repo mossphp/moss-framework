@@ -1,9 +1,9 @@
 <?php
-namespace moss\http\cookie;
+namespace Moss\Http\Cookie;
 
 class MockCookie extends Cookie
 {
-    public function __construct($domain = null, $path = '/', $httponly = true, $ttl = 5356800)
+    public function __construct($domain = null, $path = '/', $Httponly = true, $ttl = 5356800)
     {
         if ($domain === null) {
             $domain = empty($_SERVER['HTTP_HOST']) ? null : $_SERVER['HTTP_HOST'];
@@ -11,7 +11,7 @@ class MockCookie extends Cookie
 
         $this->domain = $domain;
         $this->path = $path;
-        $this->httponly = $httponly;
+        $this->Httponly = $Httponly;
         $this->expire = microtime(true) + $ttl;
 
         $this->storage = array();

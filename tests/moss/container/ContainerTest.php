@@ -1,5 +1,5 @@
 <?php
-namespace moss\container;
+namespace Moss\Container;
 
 class ContainerTest extends \PHPUnit_Framework_TestCase
 {
@@ -13,7 +13,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \moss\container\ContainerException
+     * @expectedException \Moss\Container\ContainerException
      * @expectedExceptionMessage Invalid or unknown component/parameter identifier "foo.bar"
      */
     public function testInvalidValue()
@@ -59,7 +59,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
 
     public function testDefinition()
     {
-        $component = $this->getMock('\moss\container\ComponentInterface');
+        $component = $this->getMock('\Moss\Container\ComponentInterface');
         $component
             ->expects($this->any())
             ->method('__invoke')
@@ -73,7 +73,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
 
     public function testSharedDefinition()
     {
-        $component = $this->getMock('\moss\container\ComponentInterface');
+        $component = $this->getMock('\Moss\Container\ComponentInterface');
         $component
             ->expects($this->any())
             ->method('__invoke')

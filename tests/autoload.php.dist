@@ -1,8 +1,8 @@
 <?php
 error_reporting(-1);
 
-require_once __DIR__ . '/../moss/loader/Loader.php';
-$loader = new \moss\loader\Loader();
+require_once __DIR__ . '/../Moss/loader/Loader.php';
+$loader = new \Moss\loader\Loader();
 $loader->addNamespace(null, __DIR__ . '/../');
 
 $composerAutoloadPath = __DIR__ . '/../vendor/composer/autoload_namespaces.php';

@@ -1,33 +1,33 @@
 <?php
 const __ROOT__ = __DIR__;
 
-require __ROOT__ . '/../moss/config/ConfigInterface.php';
-require __ROOT__ . '/../moss/config/ConfigException.php';
-require __ROOT__ . '/../moss/config/Config.php';
+require __ROOT__ . '/../Moss/Config/ConfigInterface.php';
+require __ROOT__ . '/../Moss/Config/ConfigException.php';
+require __ROOT__ . '/../Moss/Config/Config.php';
 
-require __ROOT__ . '/../moss/kernel/ErrorHandler.php';
-require __ROOT__ . '/../moss/kernel/ExceptionHandler.php';
+require __ROOT__ . '/../Moss/Kernel/ErrorHandler.php';
+require __ROOT__ . '/../Moss/Kernel/ExceptionHandler.php';
 
-require __ROOT__ . '/../moss/loader/Loader.php';
+require __ROOT__ . '/../Moss/Loader/Loader.php';
 
-use moss\config\Config;
-use moss\kernel\ErrorHandler;
-use moss\kernel\ExceptionHandler;
-use moss\loader\Loader;
+use Moss\Config\Config;
+use Moss\Kernel\ErrorHandler;
+use Moss\Kernel\ExceptionHandler;
+use Moss\Loader\Loader;
 
-use moss\container\Container;
-use moss\container\Component;
+use Moss\Container\Container;
+use Moss\Container\Component;
 
-use moss\dispatcher\Dispatcher;
-use moss\dispatcher\Listener;
+use Moss\Dispatcher\Dispatcher;
+use Moss\Dispatcher\Listener;
 
-use moss\http\router\Router;
-use moss\http\router\Route;
-use moss\http\request\Request;
-use moss\http\session\Session;
-use moss\http\cookie\Cookie;
+use Moss\Http\Router\Router;
+use Moss\Http\Router\Route;
+use Moss\Http\Request\Request;
+use Moss\Http\Session\Session;
+use Moss\Http\Cookie\Cookie;
 
-use moss\kernel\Kernel;
+use Moss\Kernel\Kernel;
 
 // bootstrap & config
 $config = new Config((array) require __ROOT__ . '/bootstrap.php');
@@ -41,7 +41,7 @@ $exceptionHandler->register();
 
 // autoloader
 $loader = new Loader();
-$loader->addNamespace('moss', array(__ROOT__ . '/../moss/'));
+$loader->addNamespace('Moss', array(__ROOT__ . '/../Moss/'));
 $loader->addNamespace(null, array(__ROOT__ . '/../src/'));
 $loader->addNamespaces($config->get('namespaces'));
 

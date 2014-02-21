@@ -1,5 +1,5 @@
 <?php
-namespace moss\security;
+namespace Moss\Security;
 
 
 class TokenStashTest extends \PHPUnit_Framework_TestCase
@@ -8,7 +8,7 @@ class TokenStashTest extends \PHPUnit_Framework_TestCase
 
     public function testTokenRetrieval()
     {
-        $token = $this->getMock('\moss\security\TokenInterface');
+        $token = $this->getMock('\Moss\Security\TokenInterface');
 
         $stash = new TokenStash($this->mockSession());
 
@@ -18,7 +18,7 @@ class TokenStashTest extends \PHPUnit_Framework_TestCase
 
     public function testTokenDestroy()
     {
-        $token = $this->getMock('\moss\security\TokenInterface');
+        $token = $this->getMock('\Moss\Security\TokenInterface');
 
         $stash = new TokenStash($this->mockSession());
 
@@ -32,7 +32,7 @@ class TokenStashTest extends \PHPUnit_Framework_TestCase
     protected function mockSession()
     {
         $arr = array();
-        $mock = $this->getMock('\moss\http\session\SessionInterface');
+        $mock = $this->getMock('\Moss\Http\session\SessionInterface');
         $mock
             ->expects($this->any())
             ->method('set')

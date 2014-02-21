@@ -4,7 +4,7 @@ class Twig_Bridge_Extension_Url extends \Twig_Extension
 
     protected $router;
 
-    public function __construct(\moss\http\router\Router $router)
+    public function __construct(\Moss\http\router\Router $router)
     {
         $this->router = & $router;
     }

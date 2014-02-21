@@ -97,7 +97,7 @@ Minimal definition, other array elements are optional
 				'class' => 'NamespacedComponentClass'
 			),
 			'OtherComponentName' => array( // as closure
-	            'closure' => function(\moss\container\Container $Container) {
+	            'closure' => function(\Moss\Container\Container $Container) {
 	                return new \stdClass();
 	            }
 	        )
@@ -163,7 +163,7 @@ Each event can have many listeners:
 					) // optional
 				)
 				array( // as closure
-                    'closure' => function(\moss\container\Container $Container) {
+                    'closure' => function(\Moss\Container\Container $Container) {
                         return new \stdClass();
                     }
                 )
@@ -193,12 +193,12 @@ The simples route definition looks like this:
 		'router' => array(
 			'routeName' => array( // for controller class
 			    'pattern' => '/{foo:\w}/({bar:\d})/',
-			    'controller' => 'moss:sample:Sample:index',
+			    'controller' => 'Moss:sample:Sample:index',
 			),
 			'otherRoute' => array( // for closure
 				'pattern' => 'yadayda',
 				'controller' => function() {
-					return new \moss\http\response\Response('Closure');
+					return new \Moss\http\response\Response('Closure');
 				}
 			)
 		)
@@ -210,7 +210,7 @@ Full route definition with sample values
 		'router' => array(
 			'routeName' => array(
 			    'pattern' => '/{foo:\w}/({bar:\d})/',
-			    'controller' => 'moss:sample:Sample:index',
+			    'controller' => 'Moss:sample:Sample:index',
 			    'arguments' => array(
 					'locale' => 'en',
 					'format' => 'json'

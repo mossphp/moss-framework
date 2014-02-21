@@ -11,7 +11,7 @@ In short - DI Container replaces singletons and global variables.
 Just create a function that returns object instance.
 If component depends on other components, just add `$container` as first argument and call them:
 
-	$component = function(\moss\container\ContainerInterface $container) {
+	$component = function(\Moss\Container\ContainerInterface $container) {
 		return $container->get('request')->isAjax();
 	}
 
@@ -19,7 +19,7 @@ If component depends on other components, just add `$container` as first argumen
 
 Create component definition for class `Foo` with constructor arguments `arguments`.
 
-	$component = new \moss\container\Component('Foo', $arguments);
+	$component = new \Moss\Container\Component('Foo', $arguments);
 
 If after instantiation definition should call methods, add third parameter to constructor containing array of methods with their arguments eg.:
 
@@ -27,17 +27,17 @@ If after instantiation definition should call methods, add third parameter to co
 		'method1' => array('array', 'of', 'arguments')
 		'method2' => array('array', 'of', 'arguments')
 	);
-	$component = new \moss\container\Component('Foo', $arguments, $calls);
+	$component = new \Moss\Container\Component('Foo', $arguments, $calls);
 
 **Order of elements in argument arrays must correspond to constructor/method arguments.**
 
 To reference other component as argument use prefix `@`, eg.:
 
-	$component = new \moss\container\Component('Foo', array('@Bar'));
+	$component = new \Moss\Container\Component('Foo', array('@Bar'));
 
 Component retrieval is performed by calling `get()` method:
 
-	$component = new \moss\container\Component('Foo');
+	$component = new \Moss\Container\Component('Foo');
 	$Foo = $component->get($container);
 
 **Component class is provided in case when default bootstrap file is replaced by any textual configuration, eg `YAML`**
@@ -48,7 +48,7 @@ Container can register four component types.
 
 _Component definition_ which is described above under `componentName`:
 
-	$container = new \moss\container\Container();
+	$container = new \Moss\Container\Container();
 	$container->register('componentName', $component);
 
 _closure_ under `closureName`:

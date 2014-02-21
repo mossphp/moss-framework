@@ -1,5 +1,5 @@
 <?php
-namespace moss\http\session;
+namespace Moss\Http\session;
 
 /**
  * @package Moss Test
@@ -153,13 +153,13 @@ class FlashBagTest extends \PHPUnit_Framework_TestCase
     {
         $session = & $this->session;
 
-        $mock = $this->getMock('\moss\http\session\SessionInterface');
+        $mock = $this->getMock('\Moss\Http\session\SessionInterface');
         $mock
             ->expects($this->any())
             ->method('offsetGet')
             ->will($this->returnCallback(array($this, 'sessionMockGet')));
 
-        $mock = $this->getMock('\moss\http\session\SessionInterface');
+        $mock = $this->getMock('\Moss\Http\session\SessionInterface');
         $mock
             ->expects($this->any())
             ->method('offsetSet')

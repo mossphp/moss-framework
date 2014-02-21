@@ -21,12 +21,12 @@ return array(
     'container' => array(
         'logger' => array(
             'closure' => function () {
-                    return new \moss\logger\Logger('../log/log.txt', false);
+                    return new \Moss\logger\Logger('../log/log.txt', false);
                 },
             'shared' => true,
         ),
         'view' => array(
-            'closure' => function (\moss\container\Container $container) {
+            'closure' => function (\Moss\Container\Container $container) {
                     $options = array(
                         'debug' => true,
                         'auto_reload' => true,
@@ -44,7 +44,7 @@ return array(
                          )
                     );
 
-                    $View = new \moss\view\View($Twig);
+                    $View = new \Moss\view\View($Twig);
                     $View
                         ->set('request', $container->get('request'))
                         ->set('config', $container->get('config'));
@@ -66,6 +66,6 @@ return array(
     'router' => array(
     ),
     'import' => array(
-        (array) require __ROOT__ . '/../src/moss/sample/bootstrap.php'
+        (array) require __ROOT__ . '/../src/Moss/Sample/bootstrap.php'
     )
 );

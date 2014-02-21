@@ -1,5 +1,5 @@
 <?php
-namespace moss\security;
+namespace Moss\Security;
 
 
 class TokenTest extends \PHPUnit_Framework_TestCase
