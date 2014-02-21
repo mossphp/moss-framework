@@ -9,7 +9,7 @@ If so - all listeners (either class or closure) are notified about event.
 Create event listener, that will call `method` with array of `arguments` on `component` when event occurred (event is defined elsewhere).
 Method and arguments are optional.
 
-	$listener = new \Moss\dispatcher\Listener('component', 'method', $arguments);
+	$listener = new \Moss\Dispatcher\Listener('component', 'method', $arguments);
 
 Arguments are defined just like in `container` component's definitions, with two additional - predefined - components: `subject` and `message`.
 The `subject` is an object, usually the one firing event (eg.exception), while `message` is a text associated with event (eg. exception message).
@@ -23,7 +23,7 @@ Retrieval requires object implementing `\Moss\Container\ContainerInterface`, oth
 
 Register defined `$listener` to observe `foo` event:
 
-	$dispatcher = new \Moss\dispatcher\Dispatcher($container);
+	$dispatcher = new \Moss\Dispatcher\Dispatcher($container);
 	$dispatcher->register('foo', $listener);
 
 Or register closure as event listener:

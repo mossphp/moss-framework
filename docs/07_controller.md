@@ -9,7 +9,7 @@ If controller is represented by closure situation is simple:
 
 	function()
 	{
-		return new \Moss\http\response\Response('Hello world');
+		return new \Moss\Http\Response\Response('Hello world');
 	}
 
 When calling closure controller, `Kernel` passes tree arguments:

@@ -18,12 +18,12 @@ Download from [github](https://github.com/Potfur/Moss)
 Install [composer](https://getcomposer.org/) and run `composer install` or `composer update` to install all required dependencies.
 Since `Moss framework` does not have any ORM yet, no further configuration is needed
 
-Create new controller `./src/quick/start/controller/QuickController.php` containing:
+Create new controller `./src/Quick/Start/Controller/QuickController.php` containing:
 
-	namespace quick\start\Controller;
+	namespace Quick\Start\Controller;
 
 	use Moss\Container\Container;
-    use Moss\http\response\Response;
+    use Moss\Http\Response\Response;
 
 	class QuickController
 	{
@@ -40,14 +40,14 @@ Create new controller `./src/quick/start/controller/QuickController.php` contain
 		}
 	}
 
-Now when you call `http://127.0.0.1/Moss/web/?controller=quick_start_quick_index` assuming that framework is available under http://127.0.0.1/Moss/web/,
-you should see method name `quick\start\Controller\QuickController::indexAction`
+Now when you call `http://127.0.0.1/moss/web/?controller=quick_start_quick_index` assuming that framework is available under http://127.0.0.1/Moss/web/,
+you should see method name `Quick\Start\Controller\QuickController::indexAction`
 
-To register route to that action that allows to enter `http://127.0.0.1/Moss/web/quick-start/`, in `./web/bootstrap.php` in section `router` add
+To register route to that action that allows to enter `http://127.0.0.1/moss/web/quick-start/`, in `./web/bootstrap.php` in section `router` add
 
 	'index' => array(
 	    'pattern' => '/quick-start/',
-	    'controller' => 'quick:start:quick:index'
+	    'controller' => 'Quick:Start:Quick:index'
 	)
 
 And that's it, the rest depends on your needs and skills.
