@@ -113,7 +113,7 @@ class SampleController
      */
     public function sourceAction()
     {
-        $path = __ROOT__ . '/../src/Moss/Sample';
+        $path = $this->container->get('path.app') . '/Moss/Sample';
         $content = $this->container->get('view')
             ->template('Moss:Sample:source')
             ->set('method', __METHOD__)

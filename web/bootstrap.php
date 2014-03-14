@@ -19,7 +19,7 @@ return array(
     ),
     'namespaces' => array(),
     'container' => array(
-        'paths' => array(
+        'path' => array(
             'app' => __DIR__ . '/../src/',
             'base' => __DIR__ . '/../',
             'cache' => __DIR__ . '/../cache/',
@@ -40,7 +40,7 @@ return array(
 
                     return $view;
                 }
-        ),
+        )
     ),
     'dispatcher' => array(
         'kernel.request' => array(),
@@ -54,6 +54,6 @@ return array(
     ),
     'router' => array(),
     'import' => array(
-        (array) require __ROOT__ . '/../src/Moss/Sample/bootstrap.php'
+        (array) require __DIR__ . '/../src/Moss/Sample/bootstrap.php'
     )
 );
