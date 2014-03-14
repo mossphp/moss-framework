@@ -1,12 +1,20 @@
 <?php
 namespace Moss\View;
 
+class MockView extends View
+{
+    public function render()
+    {
+        return json_encode(array($this->template, $this->vars));
+    }
+}
+
 class ViewTest extends \PHPUnit_Framework_TestCase
 {
 
     public function testTemplate()
     {
-        $view = new View($this->getTwigMock());
+        $view = new MockView();
         $view->template('foo');
         $this->assertEquals('["foo",[]]', $view->render());
     }
@@ -16,7 +24,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
      */
     public function testSet($result, $key, $value = null)
     {
-        $view = new View($this->getTwigMock());
+        $view = new MockView();
         $view
             ->template('foo')
             ->set($key, $value);
@@ -42,7 +50,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
      */
     public function testGet($result, $name, $key, $value = null)
     {
-        $view = new View($this->getTwigMock());
+        $view = new MockView();
         $view
             ->template('foo')
             ->set($key, $value);
@@ -65,7 +73,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 
     public function testRender()
     {
-        $view = new View($this->getTwigMock());
+        $view = new MockView();
         $result = $view
             ->template('foo')
             ->render();
@@ -75,28 +83,11 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 
     public function testToString()
     {
-        $view = new View($this->getTwigMock());
+        $view = new MockView();
         $result = $view
             ->template('foo')
             ->__toString();
 
         $this->assertEquals('["foo",[]]', $result);
-    }
-
-    public function getTwigMock()
-    {
-        $twig = $this->getMock('\Twig_Environment');
-        $twig
-            ->expects($this->any())
-            ->method('render')
-            ->will(
-                $this->returnCallback(
-                    function () {
-                        return json_encode(func_get_args());
-                    }
-                )
-            );
-
-        return $twig;
     }
 }
