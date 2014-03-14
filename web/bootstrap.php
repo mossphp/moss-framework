@@ -19,37 +19,26 @@ return array(
     ),
     'namespaces' => array(),
     'container' => array(
-        'logger' => array(
-            'closure' => function () {
-                    return new \Moss\Logger\Logger('../log/log.txt', false);
-                },
-            'shared' => true,
+        'paths' => array(
+            'app' => __DIR__ . '/../src/',
+            'base' => __DIR__ . '/../',
+            'cache' => __DIR__ . '/../cache/',
+            'compile' => __DIR__ . '/../compile/',
+            'public' => __DIR__ . '/../web/',
         ),
         'view' => array(
             'closure' => function (\Moss\Container\Container $container) {
-                    $options = array(
-                        'debug' => true,
-                        'auto_reload' => true,
-                        'strict_variables' => false,
-                        'cache' => '../compile/'
-                    );
-
-                    $Twig = new Twig_Environment(new Twig_Bridge_Loader_File(), $options);
-                    $Twig->setExtensions(
-                         array(
-                              new Twig_Bridge_Extension_Resource(),
-                              new Twig_Bridge_Extension_Url($container->get('router')),
-                              new Twig_Bridge_Extension_Trans(),
-                              new Twig_Extensions_Extension_Text(),
-                         )
-                    );
-
-                    $View = new \Moss\View\View($Twig);
-                    $View
+                    $view = new \Moss\View\View();
+                    $view
                         ->set('request', $container->get('request'))
                         ->set('config', $container->get('config'));
 
-                    return $View;
+                    $router = $container->get('router');
+                    $view['url'] = function ($identifier = null, $arguments = array()) use ($router) {
+                        return $router->make($identifier, $arguments);
+                    };
+
+                    return $view;
                 }
         ),
     ),
@@ -63,8 +52,7 @@ return array(
         'kernel.404' => array(),
         'kernel.500' => array()
     ),
-    'router' => array(
-    ),
+    'router' => array(),
     'import' => array(
         (array) require __ROOT__ . '/../src/Moss/Sample/bootstrap.php'
     )
