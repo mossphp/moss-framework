@@ -1,6 +1,6 @@
 {
 	"name": "Moss/Moss",
-	"version": "0.8.1.0",
+	"version": "0.8.2",
 	"description": "The PHP micro-framework",
 	"keywords": ["microframework"],
 	"type": "framework",
@@ -16,55 +16,21 @@
 	"repositories": [
 		{
 			"type": "vcs",
-			"url": "https://github.com/Potfur/Moss-storage"
+			"url": "https://github.com/potfur/moss-storage"
 		},
 		{
-			"type": "package",
-			"package": {
-				"name": "Moss/form",
-				"version": "0.0.1",
-				"dist": {
-					"url": "http://github.com/Potfur/Moss-form/archive/master.zip",
-					"type": "zip"
-				},
-				"autoload": {
-					"psr-0": {
-						"Moss\\form\\": ""
-					}
-				}
-			}
-		},
-		{
-			"type": "package",
-			"package": {
-				"name": "Moss/locale",
-				"version": "0.0.1",
-				"dist": {
-					"url": "http://github.com/Potfur/Moss-locale/archive/master.zip",
-					"type": "zip"
-				},
-				"autoload": {
-					"psr-0": {
-						"Moss\\locale\\": ""
-					}
-				}
-			}
+			"type": "vcs",
+			"url": "https://github.com/potfur/moss-twig-bridge"
 		}
 	],
 	"require": {
-		"php": ">=5.3.4",
-		"psr/log": "dev-master",
-		"twig/twig": "1.*",
-		"twig/extensions": "1.0.x-dev"
+		"php": ">=5.3.4"
+	},
+	"require-dev": {
+		"phpunit/phpunit": "3.7.*"
 	},
 	"suggest": {
-		"Moss/storage": "Simple ORM (data mapper), accelerates logic development",
-		"Moss/form": "Easy form builder, can be used in Twig",
-		"Moss/locale": "Translation module, based on Symfony 2 Translator"
-	},
-	"autoload": {
-		"psr-0": {
-			"Twig_Bridge_": "./vendor/twig/bridge/lib/"
-		}
+		"moss/storage": "Simple ORM (data mapper), accelerates logic development",
+		"moss/bridge": "Adds Twig as templating engine with additional functionalities"
 	}
 }
