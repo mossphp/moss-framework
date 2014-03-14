@@ -1,14 +1,12 @@
 <?php
-const __ROOT__ = __DIR__;
+require __DIR__ . '/../Moss/Config/ConfigInterface.php';
+require __DIR__ . '/../Moss/Config/ConfigException.php';
+require __DIR__ . '/../Moss/Config/Config.php';
 
-require __ROOT__ . '/../Moss/Config/ConfigInterface.php';
-require __ROOT__ . '/../Moss/Config/ConfigException.php';
-require __ROOT__ . '/../Moss/Config/Config.php';
+require __DIR__ . '/../Moss/Kernel/ErrorHandler.php';
+require __DIR__ . '/../Moss/Kernel/ExceptionHandler.php';
 
-require __ROOT__ . '/../Moss/Kernel/ErrorHandler.php';
-require __ROOT__ . '/../Moss/Kernel/ExceptionHandler.php';
-
-require __ROOT__ . '/../Moss/Loader/Loader.php';
+require __DIR__ . '/../Moss/Loader/Loader.php';
 
 use Moss\Config\Config;
 use Moss\Kernel\ErrorHandler;
@@ -30,7 +28,7 @@ use Moss\Http\Cookie\Cookie;
 use Moss\Kernel\Kernel;
 
 // bootstrap & config
-$config = new Config((array) require __ROOT__ . '/bootstrap.php');
+$config = new Config((array) require __DIR__ . '/bootstrap.php');
 
 // error handling
 $errorHandler = new ErrorHandler($config->get('framework.error.level'));
@@ -41,11 +39,11 @@ $exceptionHandler->register();
 
 // autoloader
 $loader = new Loader();
-$loader->addNamespace('Moss', array(__ROOT__ . '/../Moss/'));
-$loader->addNamespace(null, array(__ROOT__ . '/../src/'));
+$loader->addNamespace('Moss', array(__DIR__ . '/../Moss/'));
+$loader->addNamespace(null, array(__DIR__ . '/../src/'));
 $loader->addNamespaces($config->get('namespaces'));
 
-$composerAutoloadPath = __ROOT__ . '/../vendor/composer/autoload_namespaces.php';
+$composerAutoloadPath = __DIR__ . '/../vendor/composer/autoload_namespaces.php';
 if (is_file($composerAutoloadPath)) {
     $loader->addNamespaces((array) require $composerAutoloadPath);
 }
