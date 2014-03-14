@@ -10,21 +10,21 @@ namespace Moss\View;
  */
 class View implements ViewInterface
 {
-
     protected $template;
-    protected $vars = array();
+    protected $vars;
 
-    /** @var \Twig_Environment */
-    protected $twig;
+    protected $pattern;
 
     /**
      * Creates View instance
      *
-     * @param \Twig_Environment $twig
+     * @param array  $vars
+     * @param string $pattern
      */
-    public function __construct(\Twig_Environment $twig)
+    public function __construct(array $vars = array(), $pattern = '../src/{bundle}/{directory}/view/{file}.php')
     {
-        $this->twig = & $twig;
+        $this->vars = $vars;
+        $this->pattern = $pattern;
     }
 
     /**
@@ -32,7 +32,7 @@ class View implements ViewInterface
      *
      * @param string $template path to template (supports namespaces)
      *
-     * @return View
+     * @return ViewInterface
      */
     public function template($template)
     {
@@ -138,11 +138,34 @@ class View implements ViewInterface
      */
     public function render()
     {
-        if (!$this->template) {
-            throw new \InvalidArgumentException('Undefined view or view file does not exists: ' . $this->template . '!');
+        ob_start();
+        extract($this->vars);
+        require $this->traslate($this->template);
+
+        return ob_get_clean();
+    }
+
+    protected function traslate($name)
+    {
+        preg_match_all('/^(?P<bundle>[^:]+):(?P<directory>[^:]*:)?(?P<file>.+)$/', $name, $matches, \PREG_SET_ORDER);
+
+        $r = array();
+        foreach (array('bundle', 'directory', 'file') as $k) {
+            if (empty($matches[0][$k])) {
+                throw new ViewException(sprintf('Invalid or missing "%s" node in view filename "%s"', $k, $name));
+            }
+
+            $r['{' . $k . '}'] = str_replace(':', '\\', $matches[0][$k]);
         }
 
-        return $this->twig->render($this->template, $this->vars);
+        $file = strtr($this->pattern, $r);
+        $file = str_replace(array('\\', '_', '//'), '/', $file);
+
+        if (!is_file($file)) {
+            throw new ViewException(sprintf('Unable to load template file %s (%s)', $name, $file));
+        }
+
+        return $file;
     }
 
     /**
@@ -152,11 +175,7 @@ class View implements ViewInterface
      */
     public function __toString()
     {
-        try {
-            return (string) $this->render();
-        } catch (\InvalidArgumentException $e) {
-            return sprintf('%s (%s line:%s)', $e->getMessage(), $e->getFile(), $e->getLine());
-        }
+        return $this->render();
     }
 
     /**
