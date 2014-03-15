@@ -55,5 +55,7 @@ return array(
     'router' => array(),
     'import' => array(
         (array) require __DIR__ . '/../src/Moss/Sample/bootstrap.php'
-    )
+    ),
+    'import_dev' => array(
+    ),
 );
