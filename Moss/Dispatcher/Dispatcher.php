@@ -44,7 +44,7 @@ class Dispatcher implements DispatcherInterface
      * Adds listener to single event or array of events
      *
      * @param string|array $event
-     * @param callable     $listener
+     * @param mixed        $listener
      * @param null|int     $priority
      *
      * @return $this
