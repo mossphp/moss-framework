@@ -1,4 +1,14 @@
 <?php
+
+/*
+ * This file is part of the Moss micro-framework
+ *
+ * (c) Michal Wachowski <wachowski.michal@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace Moss\Security;
 
 /**
@@ -9,13 +19,6 @@ namespace Moss\Security;
  */
 interface CryptInterface
 {
-    const SDES = 'sdes';
-    const EDES = 'edes';
-    const MD5 = 'md5';
-    const BLOWFISH = 'blowfish';
-    const SHA256 = 'sha256';
-    const SHA512 = 'sha512';
-
     /**
      * Crypts passed string with set algorithm
      *

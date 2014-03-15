@@ -1,4 +1,14 @@
 <?php
+
+/*
+ * This file is part of the Moss micro-framework
+ *
+ * (c) Michal Wachowski <wachowski.michal@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace Moss\Config;
 
 /**
@@ -9,7 +19,7 @@ namespace Moss\Config;
  */
 class Config implements ConfigInterface
 {
-
+    protected $mode;
     protected $config = array(
         'framework' => array(
             'error' => array(
@@ -37,13 +47,31 @@ class Config implements ConfigInterface
     /**
      * Creates Config instance
      *
-     * @param array $arr
+     * @param array  $arr
+     * @param string $mode
      *
      * @throws ConfigException
      */
-    public function __construct($arr = array())
+    public function __construct($arr = array(), $mode = null)
     {
+        $this->mode($mode);
         $this->import($arr);
+    }
+
+    /**
+     * Sets config mode
+     *
+     * @param null $mode
+     *
+     * @return string
+     */
+    public function mode($mode = null)
+    {
+        if ($mode !== null) {
+            $this->mode = (string) $mode;
+        }
+
+        return $this->mode;
     }
 
     /**
@@ -55,6 +83,7 @@ class Config implements ConfigInterface
      */
     public function import(array $arr)
     {
+        $importKeys = array();
         foreach ($arr as $key => $node) {
             switch ($key) {
                 case 'container':
@@ -68,15 +97,20 @@ class Config implements ConfigInterface
                     break;
             }
 
-            if ($key == 'import') {
+            if (strpos($key, 'import') === 0) {
+                $mode = substr($key, 7);
+                if ($mode == '' || $mode == $this->mode) {
+                    $importKeys[] = $key;
+                }
+
                 continue;
             }
 
             $this->config[$key] = array_merge($this->config[$key], $node);
         }
 
-        if (isset($arr['import']) && is_array($arr['import'])) {
-            array_walk($arr['import'], array($this, 'import'));
+        foreach ($importKeys as $key) {
+            array_walk($arr[$key], array($this, 'import'));
         }
 
         return $this;

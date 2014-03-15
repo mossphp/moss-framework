@@ -10,7 +10,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider importProvider
      */
-    public function testImportExport($result, $expected = null)
+    public function testImportExport($import, $expected = array())
     {
         $default = array(
             'framework' => array(
@@ -25,9 +25,9 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
         );
 
         $config = new Config();
-        $config->import($result);
+        $config->import($import);
 
-        $this->assertEquals(array_merge($default, $expected ? $expected : $result), $config->export());
+        $this->assertEquals(array_replace_recursive($default, $expected ? $expected : $import), $config->export());
     }
 
     public function importProvider()
@@ -36,7 +36,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
             array(
                 array(
                     'framework' => array(
-                        'error' => array('level' => E_ALL | E_NOTICE, 'detail' => true),
+                        'error' => array('display' => true, 'level' => E_ALL | E_NOTICE, 'detail' => true),
                         'session' => array('name' => 'PHPSESSID', 'cacheLimiter' => ''),
                         'cookie' => array('domain' => null, 'path' => '/', 'http' => true, 'ttl' => 2592000)
                     ),
@@ -122,6 +122,98 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
                                 'arguments' => array(),
                             )
                         )
+                    ),
+                )
+            )
+        );
+    }
+
+    /**
+     * @dataProvider modeProvider
+     */
+    public function testMode($mode)
+    {
+        $config = new Config();
+        $this->assertEquals($mode, $config->mode($mode));
+    }
+
+    public function modeProvider()
+    {
+        return array(
+            array(null),
+            array('dev'),
+            array('prod')
+        );
+    }
+
+    /**
+     * @dataProvider importModeProvider
+     */
+    public function testImportExportWithMode($import, $expected)
+    {
+        $default = array(
+            'framework' => array(
+                'error' => array('display' => true, 'level' => -1, 'detail' => true),
+                'session' => array('name' => 'PHPSESSID', 'cacheLimiter' => ''),
+                'cookie' => array('domain' => null, 'path' => '/', 'http' => true, 'ttl' => 2592000)
+            ),
+            'namespaces' => array(),
+            'container' => array(),
+            'dispatcher' => array(),
+            'router' => array(),
+        );
+
+        $config = new Config();
+        $config->mode('dev');
+        $config->import($import);
+
+        $this->assertEquals(array_replace_recursive($default, $expected), $config->export());
+    }
+
+    public function importModeProvider()
+    {
+        return array(
+            array(
+                array(
+                    'import' => array(
+                        array(
+                            'container' => array(
+                                'foo' => 'bar',
+                            ),
+                        )
+                    )
+                ),
+                array(
+                    'container' => array(
+                        'foo' => 'bar',
+                    ),
+                )
+            ),
+            array(
+                array(
+                    'import_prod' => array(
+                        array(
+                            'container' => array(
+                                'foo' => 'bar',
+                            ),
+                        )
+                    )
+                ),
+                array()
+            ),
+            array(
+                array(
+                    'import_dev' => array(
+                        array(
+                            'container' => array(
+                                'foo' => 'bar',
+                            ),
+                        )
+                    )
+                ),
+                array(
+                    'container' => array(
+                        'foo' => 'bar',
                     ),
                 )
             )
