@@ -41,8 +41,9 @@ class Route implements RouteInterface
      * @param string          $pattern
      * @param string|\Closure $controller
      * @param array           $arguments
+     * @param array           $methods
      */
-    public function __construct($pattern, $controller, $arguments = array())
+    public function __construct($pattern, $controller, $arguments = array(), $methods = array())
     {
         $this->controller = $controller;
         $this->pattern = $pattern;
@@ -59,6 +60,8 @@ class Route implements RouteInterface
 
             $this->arguments[$key] = $value;
         }
+
+        $this->methods($methods);
     }
 
     /**
