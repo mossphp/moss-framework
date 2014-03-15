@@ -54,12 +54,25 @@ $loader->register();
 $container = new Container();
 foreach ((array) $config->get('container') as $name => $component) {
     if (isset($component['class'])) {
-        $container->register($name, new Component($component['class'], $component['arguments'], $component['methods']), $component['shared']);
+        $container->register(
+            $name,
+            new Component(
+                $component['class'],
+                $component['arguments'],
+                $component['methods']
+            ),
+            isset($component['shared'])
+        );
         continue;
     }
 
     if (isset($component['closure'])) {
-        $container->register($name, $component['closure'], isset($component['shared']));
+        $container->register(
+            $name,
+            $component['closure'],
+            isset($component['shared']
+            )
+        );
         continue;
     }
 
@@ -72,11 +85,21 @@ $dispatcher = new Dispatcher($container);
 foreach ((array) $config->get('dispatcher') as $event => $listeners) {
     foreach ($listeners as $listener) {
         if (isset($listener['closure'])) {
-            $dispatcher->register($event, $listener['closure']);
+            $dispatcher->register(
+                $event,
+                $listener['closure']
+            );
             continue;
         }
 
-        $dispatcher->register($event, new Listener($listener['component'], $listener['method'], $listener['arguments']));
+        $dispatcher->register(
+            $event,
+            new Listener(
+                $listener['component'],
+                $listener['method'],
+                $listener['arguments']
+            )
+        );
     }
 }
 unset($event, $listeners, $listener);
@@ -105,8 +128,8 @@ foreach ((array) $config->get('router') as $name => $definition) {
 unset($name, $definition, $value);
 
 // request
-$session = new Session($config->get('framework.session.agent'), $config->get('framework.session.ip'), $config->get('framework.session.host'), $config->get('framework.session.salt'));
-$cookie = new Cookie($config->get('framework.cookie.domain'), $config->get('framework.cookie.path'), $config->get('framework.cookie.http'));
+$session = new Session($config->get('framework.session.name'), $config->get('framework.session.cacheLimiter'));
+$cookie = new Cookie($config->get('framework.cookie.domain'), $config->get('framework.cookie.path'));
 $request = new Request($session, $cookie);
 
 // registering components
