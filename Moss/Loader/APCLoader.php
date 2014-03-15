@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Moss\loader;
+namespace Moss\Loader;
 
 /**
  * Moss APC auto load handlers
