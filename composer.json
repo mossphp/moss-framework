@@ -1,5 +1,5 @@
 {
-	"name": "Moss/Moss",
+	"name": "moss/moss",
 	"version": "0.8.4",
 	"description": "The PHP micro-framework",
 	"keywords": ["microframework"],
@@ -37,5 +37,8 @@
 		"moss/storage": "Simple ORM (data mapper), accelerates logic development",
 		"moss/locale": "Translation/localisation class based on one from Sf2",
 		"moss/bridge": "Adds Twig as templating engine with additional functionalities"
+	},
+	"autoload": {
+		"psr-0": { "": "src/", "Moss": "" }
 	}
 }
