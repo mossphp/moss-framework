@@ -72,3 +72,20 @@ To register route to that action that allows to enter `http://127.0.0.1/moss/web
 ```
 
 And that's it, the rest depends on your needs and skills.
+
+## Contribute
+
+If you want to submit fix or some other enhancements, feel free to do so.
+Whenever you find a bug it would be nice if you submit it.
+And if you submit fix - this would be truly amazing!
+
+### How to Contribute
+
+ * Fork;
+ * Create a new branch for each feature/improvement/issue;
+ * Send a pull request from branch
+
+### Style Guide
+
+All pull requests must adhere to the PSR-2 standard.
+All pull requests must be accompanied by passing PHPUnit tests.
