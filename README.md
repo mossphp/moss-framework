@@ -23,12 +23,13 @@ But still, `Moss framework` wants to be _fashionable_ and follows trends: `closu
 
  * fully grown `Router` (not powerful but working :) ),
  * `Request` and `Response` objects (got http auth, and easy header management),
+ * easy file upload trough `Request::file` methods
  * flash messages
  * dependency injection container
  * event dispatcher with `AOP`
  * closure and class controllers (that can be organized into bundles with fluent directory structure),
  * simple view that can be easily extended to use `Twig` (as package in composer)
- * and clean code
+ * and clean code and very loose coupling
  * and more to come
 
 ## Quickstart
