@@ -41,7 +41,6 @@ $exceptionHandler->register();
 $loader = new Loader();
 $loader->addNamespace('Moss', array(__DIR__ . '/../Moss/'));
 $loader->addNamespace(null, array(__DIR__ . '/../src/'));
-$loader->addNamespaces($config->get('namespaces'));
 
 $composerAutoloadPath = __DIR__ . '/../vendor/composer/autoload_namespaces.php';
 if (is_file($composerAutoloadPath)) {
@@ -53,26 +52,8 @@ $loader->register();
 // container
 $container = new Container();
 foreach ((array) $config->get('container') as $name => $component) {
-    if (isset($component['class'])) {
-        $container->register(
-            $name,
-            new Component(
-                $component['class'],
-                $component['arguments'],
-                $component['methods']
-            ),
-            isset($component['shared'])
-        );
-        continue;
-    }
-
-    if (isset($component['closure'])) {
-        $container->register(
-            $name,
-            $component['closure'],
-            isset($component['shared']
-            )
-        );
+    if (array_key_exists('component', $component) && is_callable($component['component'])) {
+        $container->register($name, $component['component'], $component['shared']);
         continue;
     }
 
@@ -84,22 +65,7 @@ unset($name, $component);
 $dispatcher = new Dispatcher($container);
 foreach ((array) $config->get('dispatcher') as $event => $listeners) {
     foreach ($listeners as $listener) {
-        if (isset($listener['closure'])) {
-            $dispatcher->register(
-                $event,
-                $listener['closure']
-            );
-            continue;
-        }
-
-        $dispatcher->register(
-            $event,
-            new Listener(
-                $listener['component'],
-                $listener['method'],
-                $listener['arguments']
-            )
-        );
+        $dispatcher->register($event, $listener);
     }
 }
 unset($event, $listeners, $listener);
@@ -107,20 +73,18 @@ unset($event, $listeners, $listener);
 // router
 $router = new Router();
 foreach ((array) $config->get('router') as $name => $definition) {
-    $route = new Route($definition['pattern'], $definition['controller'], $definition['arguments']);
+    $route = new Route(
+        $definition['pattern'],
+        $definition['controller'],
+        $definition['arguments'],
+        $definition['methods']
+    );
 
-    foreach ($definition as $key => $value) {
-        switch ($key) {
-            case 'methods':
-                $route->methods($value);
-                break;
-            case 'host':
-                $route->host($value);
-                break;
-            case 'schema':
-                $route->schema($value);
-                break;
-        }
+    if (array_key_exists('host', $definition)) {
+        $route->host($value);
+    }
+    if (array_key_exists('schema', $definition)) {
+        $route->schema($value);
     }
 
     $router->register($name, $route);

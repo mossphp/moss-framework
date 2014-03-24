@@ -17,7 +17,6 @@ return array(
             'ttl' => 2592000 // one month
         )
     ),
-    'namespaces' => array(),
     'container' => array(
         'path' => array(
             'app' => __DIR__ . '/../src/',
@@ -27,7 +26,7 @@ return array(
             'public' => __DIR__ . '/../web/',
         ),
         'view' => array(
-            'closure' => function (\Moss\Container\Container $container) {
+            'component' => function (\Moss\Container\Container $container) {
                     $view = new \Moss\View\View();
                     $view
                         ->set('request', $container->get('request'))
@@ -56,6 +55,5 @@ return array(
     'import' => array(
         (array) require __DIR__ . '/../src/Moss/Sample/bootstrap.php'
     ),
-    'import_dev' => array(
-    ),
+    'import_dev' => array(),
 );

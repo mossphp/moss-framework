@@ -2,13 +2,13 @@
 return array(
     'container' => array(
         'flash' => array(
-            'closure' => function (\Moss\Container\ContainerInterface $container) {
+            'component' => function (\Moss\Container\ContainerInterface $container) {
                     return new \Moss\Http\Session\FlashBag($container->get('session'));
                 },
             'shared' => true,
         ),
         'security' => array(
-            'closure' => function (\Moss\Container\ContainerInterface $container) {
+            'component' => function (\Moss\Container\ContainerInterface $container) {
                     $stash = new \Moss\Security\TokenStash($container->get('session'));
 
                     // uri to login action
@@ -31,40 +31,34 @@ return array(
     ),
     'dispatcher' => array(
         'kernel.route' => array(
-            array(
-                'closure' => function (\Moss\Container\ContainerInterface $container) {
-                        // tries to authenticate and authorize user
-                        $request = $container->get('request');
-                        $container->get('security')
-                            ->authenticate($request)
-                            ->authorize($request);
-                    }
-            )
+            function (\Moss\Container\ContainerInterface $container) {
+                // tries to authenticate and authorize user
+                $request = $container->get('request');
+                $container->get('security')
+                    ->authenticate($request)
+                    ->authorize($request);
+            }
+
         ),
         'kernel.route:exception' => array(
-            array(
-                'closure' => function (\Moss\Container\ContainerInterface $container) {
-                        // if authorization or authentication fails this will redirect to login form
-                        $url = $container->get('security')
-                            ->loginUrl();
+            function (\Moss\Container\ContainerInterface $container) {
+                // if authorization or authentication fails this will redirect to login form
+                $url = $container->get('security')
+                    ->loginUrl();
 
-                        $response = new \Moss\Http\Response\ResponseRedirect($url, 2);
-                        $response->status(403);
-                        $response->content('Forbidden, you will be redirected... (this is an event action)');
+                $response = new \Moss\Http\Response\ResponseRedirect($url, 2);
+                $response->status(403);
+                $response->content('Forbidden, you will be redirected... (this is an event action)');
 
-                        return $response;
-                    }
-            )
+                return $response;
+            }
+
         ),
     ),
     'router' => array(
         'main' => array(
             'pattern' => '/',
             'controller' => 'Moss:Sample:Sample:index',
-            'arguments' => array(),
-            'host' => null,
-            'schema' => null,
-            'methods' => array()
         ),
         'login' => array(
             'pattern' => '/login/',

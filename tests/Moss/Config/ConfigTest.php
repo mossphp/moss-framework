@@ -18,7 +18,6 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
                 'session' => array('name' => 'PHPSESSID', 'cacheLimiter' => ''),
                 'cookie' => array('domain' => null, 'path' => '/', 'http' => true, 'ttl' => 2592000)
             ),
-            'namespaces' => array(),
             'container' => array(),
             'dispatcher' => array(),
             'router' => array(),
@@ -44,17 +43,10 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
             ),
             array(
                 array(
-                    'namespaces' => array(),
-                )
-            ),
-            array(
-                array(
                     'container' => array(
                         'foo' => 'bar',
-                        'component' => array(
-                            'class' => '\stdClass',
-                            'arguments' => array(),
-                            'methods' => array(),
+                        'name' => array(
+                            'component' => function () { },
                             'shared' => false
                         )
                     ),
@@ -64,11 +56,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
                 array(
                     'dispatcher' => array(
                         'foo' => array(
-                            'component' => array(
-                                'component' => 'foo',
-                                'method' => array(),
-                                'arguments' => array(),
-                            )
+                            function () { },
                         )
                     ),
                 )
@@ -79,20 +67,8 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
                         'routeName' => array(
                             'pattern' => '/{foo}/({bar})/',
                             'controller' => 'Moss:sample:Sample:index',
-                            'requirements' => array(
-                                'foo' => '\w+',
-                                'bar' => '\w*'
-                            ),
-                            'defaults' => array(
-                                'foo' => 'foo'
-                            ),
-                            'arguments' => array(
-                                'locale' => 'pl',
-                                'format' => 'json'
-                            ),
-                            'host' => null,
-                            'schema' => null,
-                            'methods' => array('GET', 'POST')
+                            'arguments' => array(),
+                            'methods' => array(),
                         )
                     )
                 )
@@ -103,11 +79,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
                         array(
                             'dispatcher' => array(
                                 'foo' => array(
-                                    'component' => array(
-                                        'component' => 'foo',
-                                        'method' => array(),
-                                        'arguments' => array(),
-                                    )
+                                    function () { }
                                 )
                             )
                         )
@@ -116,11 +88,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
                 array(
                     'dispatcher' => array(
                         'foo' => array(
-                            'component' => array(
-                                'component' => 'foo',
-                                'method' => array(),
-                                'arguments' => array(),
-                            )
+                            function () { }
                         )
                     ),
                 )
@@ -157,7 +125,6 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
                 'session' => array('name' => 'PHPSESSID', 'cacheLimiter' => ''),
                 'cookie' => array('domain' => null, 'path' => '/', 'http' => true, 'ttl' => 2592000)
             ),
-            'namespaces' => array(),
             'container' => array(),
             'dispatcher' => array(),
             'router' => array(),
@@ -222,7 +189,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \Moss\Config\ConfigException
-     * @expectedExceptionMessage Missing required "component" or "closure" property in event listener definition
+     * @expectedExceptionMessage Event listener must be callable
      */
     public function testInvalidDispatcherImport()
     {
