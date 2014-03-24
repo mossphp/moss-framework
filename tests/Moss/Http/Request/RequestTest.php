@@ -151,10 +151,22 @@ class RequestTest extends \PHPUnit_Framework_TestCase
             $this->getMock('\Moss\Http\Cookie\CookieInterface')
         );
 
-        $this->assertEquals($request->query->get('foo'), $request->query()->get('foo'));
-        $this->assertEquals($request->query->get('controller'), $request->query()->get('controller'));
-        $this->assertEquals($request->query->get('locale'), $request->query()->get('locale'));
-        $this->assertEquals($request->query->get('format'), $request->query()->get('format'));
+        $this->assertEquals(
+            $request->query->get('foo'), $request->query()
+                                           ->get('foo')
+        );
+        $this->assertEquals(
+            $request->query->get('controller'), $request->query()
+                                                  ->get('controller')
+        );
+        $this->assertEquals(
+            $request->query->get('locale'), $request->query()
+                                              ->get('locale')
+        );
+        $this->assertEquals(
+            $request->query->get('format'), $request->query()
+                                              ->get('format')
+        );
 
         $this->assertEquals('bar', $request->query->get('foo'));
         $this->assertEquals('foobar', $request->query->get('controller'));
@@ -209,27 +221,6 @@ class RequestTest extends \PHPUnit_Framework_TestCase
                 array('index.php', '--foo=bar'),
                 array('foo' => 'bar')
             ),
-            array(
-                array('index.php', '--foo=[1, 2,  3,4]'),
-                array('foo' => array(1, 2, 3, 4))
-            ),
-            array(
-                array('index.php', '--foo=["o n e", two,  \'tree\',"four"]'),
-                array('foo' => array('o n e', 'two', 'tree', 'four'))
-            ),
-            array(
-                array('index.php', '--foo={a:1, b:2,  c:3, d:4}'),
-                array('foo' => array('a' => 1, 'b' => 2, 'c' => 3, 'd' => 4))
-            ),
-            array(
-                array('index.php', '--foo={a:"o n e", b:two,  c:\'tree\', d:"four"}'),
-                array('foo' => array('a' => 'o n e', 'b' => 'two', 'c' => 'tree', 'd' => 'four'))
-            ),
-            array(
-                array('index.php', '/foo/bar', '--foo', '--bar=[1, 2,  3,4]', '--yada={a:1, b:2,  c:3, d:4}'),
-                array('foo' => true, 'bar' => array(1, 2, 3, 4), 'yada' => array('a' => 1, 'b' => 2, 'c' => 3, 'd' => 4)),
-                '/foo/bar'
-            ),
         );
     }
 
@@ -263,10 +254,22 @@ class RequestTest extends \PHPUnit_Framework_TestCase
             $this->getMock('\Moss\Http\Cookie\CookieInterface')
         );
 
-        $this->assertEquals($request->post->get('foo'), $request->post()->get('foo'));
-        $this->assertEquals($request->post->get('controller'), $request->post()->get('controller'));
-        $this->assertEquals($request->post->get('locale'), $request->post()->get('locale'));
-        $this->assertEquals($request->post->get('format'), $request->post()->get('format'));
+        $this->assertEquals(
+            $request->post->get('foo'), $request->post()
+                                          ->get('foo')
+        );
+        $this->assertEquals(
+            $request->post->get('controller'), $request->post()
+                                                 ->get('controller')
+        );
+        $this->assertEquals(
+            $request->post->get('locale'), $request->post()
+                                             ->get('locale')
+        );
+        $this->assertEquals(
+            $request->post->get('format'), $request->post()
+                                             ->get('format')
+        );
 
         $this->assertEquals('bar', $request->post->get('foo'));
         $this->assertEquals('foobar', $request->post->get('controller'));
@@ -286,8 +289,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('json', $request->post->get('format', 'json'));
         $this->assertEquals('yada', $request->post->get('foo.bar.zope', 'yada'));
         $this->assertEquals(
-             'deep', $request->post()
-                             ->get('f.o.o.b.a.r', 'deep')
+            'deep', $request->post()
+                      ->get('f.o.o.b.a.r', 'deep')
         );
     }
 
@@ -313,7 +316,10 @@ class RequestTest extends \PHPUnit_Framework_TestCase
             $this->getMock('\Moss\Http\Cookie\CookieInterface')
         );
 
-        $this->assertEquals($request->files->get('foo'), $request->files()->get('foo'));
+        $this->assertEquals(
+            $request->files->get('foo'), $request->files()
+                                           ->get('foo')
+        );
 
         $this->assertEquals($result, $request->files->get('foo'));
     }
@@ -372,17 +378,19 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider errorDataProvider
      */
-    public function testFileError($key, $files, $result)
+    public function testFileError($key, $data)
     {
-        $_FILES[$key] = $files;
+        $_FILES[$key] = $data;
 
         $request = new Request(
             $this->getMock('\Moss\Http\session\SessionInterface'),
             $this->getMock('\Moss\Http\Cookie\CookieInterface')
         );
+
         $this->assertEquals(
-             $result, $request->files->uploaded($key)
-                                     ->getRaw()
+            $data,
+            $request->files->uploaded($key)
+                ->getRaw()
         );
     }
 
@@ -397,14 +405,6 @@ class RequestTest extends \PHPUnit_Framework_TestCase
                     'tmp_name' => 'whatever2',
                     'error' => 1,
                     'size' => 0
-                ),
-                array(
-                    'name' => 'bar.txt',
-                    'type' => 'text/plain',
-                    'tmp_name' => 'whatever2',
-                    'error' => 1,
-                    'errorMessage' => 'The uploaded file exceeds the upload_max_filesize directive in php.ini.',
-                    'size' => 0
                 )
             ),
             array(
@@ -415,17 +415,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
                     'tmp_name' => 'whatever2',
                     'error' => 2,
                     'size' => 0
-                ),
-                array(
-                    'name' => 'bar.txt',
-                    'type' => 'text/plain',
-                    'tmp_name' => 'whatever2',
-                    'error' => 2,
-                    'errorMessage' => 'The uploaded file exceeds the MAX_FILE_SIZE directive specified in HTML form.',
-                    'size' => 0
                 )
             ),
-
             array(
                 'bar3',
                 array(
@@ -433,14 +424,6 @@ class RequestTest extends \PHPUnit_Framework_TestCase
                     'type' => 'text/plain',
                     'tmp_name' => 'whatever2',
                     'error' => 3,
-                    'size' => 0
-                ),
-                array(
-                    'name' => 'bar.txt',
-                    'type' => 'text/plain',
-                    'tmp_name' => 'whatever2',
-                    'error' => 3,
-                    'errorMessage' => 'The uploaded file was only partially uploaded.',
                     'size' => 0
                 )
             ),
@@ -452,64 +435,35 @@ class RequestTest extends \PHPUnit_Framework_TestCase
                     'tmp_name' => 'whatever2',
                     'error' => 4,
                     'size' => 0
-                ),
-                array(
-                    'name' => 'bar.txt',
-                    'type' => 'text/plain',
-                    'tmp_name' => 'whatever2',
-                    'error' => 4,
-                    'errorMessage' => 'No file was uploaded.',
-                    'size' => 0
                 )
             ),
             array(
-                'bar5', array(
-                'name' => 'bar.txt',
-                'type' => 'text/plain',
-                'tmp_name' => 'whatever2',
-                'error' => 5,
-                'size' => 0
-            ),
+                'bar5',
                 array(
                     'name' => 'bar.txt',
                     'type' => 'text/plain',
                     'tmp_name' => 'whatever2',
                     'error' => 5,
-                    'errorMessage' => 'Unknown error occurred.',
                     'size' => 0
                 )
             ),
             array(
-                'bar6', array(
-                'name' => 'bar.txt',
-                'type' => 'text/plain',
-                'tmp_name' => 'whatever2',
-                'error' => 6,
-                'size' => 0
-            ),
+                'bar6',
                 array(
                     'name' => 'bar.txt',
                     'type' => 'text/plain',
                     'tmp_name' => 'whatever2',
                     'error' => 6,
-                    'errorMessage' => 'Missing a temporary folder.',
                     'size' => 0
                 )
             ),
             array(
-                'bar7', array(
-                'name' => 'bar.txt',
-                'type' => 'text/plain',
-                'tmp_name' => 'whatever2',
-                'error' => 7,
-                'size' => 0
-            ),
+                'bar7',
                 array(
                     'name' => 'bar.txt',
                     'type' => 'text/plain',
                     'tmp_name' => 'whatever2',
                     'error' => 7,
-                    'errorMessage' => 'Failed to write file to disk.',
                     'size' => 0
                 )
             ),
@@ -520,14 +474,6 @@ class RequestTest extends \PHPUnit_Framework_TestCase
                     'type' => 'text/plain',
                     'tmp_name' => 'whatever2',
                     'error' => 8,
-                    'size' => 0
-                ),
-                array(
-                    'name' => 'bar.txt',
-                    'type' => 'text/plain',
-                    'tmp_name' => 'whatever2',
-                    'error' => 8,
-                    'errorMessage' => 'A PHP extension stopped the file upload.',
                     'size' => 0
                 )
             )
