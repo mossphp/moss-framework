@@ -99,7 +99,17 @@ class UploadedFile extends \SplFileInfo
      */
     public function getRaw()
     {
-        return array_merge($this->raw, array('errorMessage' => $this->getErrorMessage()));
+        return $this->raw;
+    }
+
+    /**
+     * Returns true error occurred
+     *
+     * @return int
+     */
+    public function hasError()
+    {
+        return $this->raw['error'] > 0;
     }
 
     /**
