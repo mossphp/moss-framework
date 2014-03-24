@@ -97,7 +97,7 @@ class BagTest extends \PHPUnit_Framework_TestCase
         $bag = new Bag();
         $bag->set($offset, $value);
         $this->assertEquals($expected, $bag->all());
-        $bag->reset($offset);
+        $bag->reset();
         $this->assertEquals(array(), $bag->all());
     }
 
