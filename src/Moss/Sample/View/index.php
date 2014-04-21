@@ -13,7 +13,7 @@
     <small>&lt;-- this is namespaced controller class and its currently executed action</small>
 </h1>
 
-<p>Moss sample controller and <a href="<?= $url('Moss:Sample:Sample:source') ?>">it looks like this</a></p>
+<p>Moss sample controller and <a href="<?= $url('source') ?>">it looks like this</a></p>
 
 <p>Sample bundle uses <em>plain PHP</em> templates by default, but also includes
     <a href="http://twig.sensiolabs.org/">Twig</a> templates for <var>moss/bridge</var></p>

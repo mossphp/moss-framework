@@ -17,7 +17,7 @@
     <p class="<?= $message['type'] ?>"><?= $message['message'] ?></p>
 <?php endwhile ?>
 
-<form action="<?= $url('Moss:Sample:Sample:login') ?>" method="post">
+<form action="<?= $url('login') ?>" method="post">
     <input type="text" name="login" placeholder="login"/>
     <input type="text" name="password" placeholder="password"/>
     <button type="submit">Submit</button>

@@ -14,7 +14,7 @@ return array(
                     // uri to login action
                     $url = $container
                         ->get('router')
-                        ->make('Moss:Sample:Sample:login');
+                        ->make('login');
 
                     $security = new \Moss\Security\Security($stash, $url);
 
