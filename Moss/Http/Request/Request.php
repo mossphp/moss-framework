@@ -99,7 +99,7 @@ class Request implements RequestInterface
         $this->baseName = $this->resolveBaseName();
 
         $this->query = new Bag($this->resolveGET($get));
-        $this->post = new Bag($this->resolvePOST($post));
+        $this->post = new Bag($this->resolveBody($post));
         $this->files = new FilesBag($files);
 
         if (!empty($this->query['controller'])) {
@@ -317,7 +317,7 @@ class Request implements RequestInterface
      *
      * @return array
      */
-    protected function resolvePOST(array $post = array(), array $methods = array('OPTIONS', 'HEAD', 'PUT', 'DELETE', 'TRACE'))
+    protected function resolveBody(array $post = array(), array $methods = array('OPTIONS', 'HEAD', 'PUT', 'DELETE', 'TRACE'))
     {
         $rest = array();
 
@@ -404,15 +404,7 @@ class Request implements RequestInterface
      */
     public function server($key = null, $default = null)
     {
-        if ($key === null) {
-            return $this->server;
-        }
-
-        if (!isset($this->server[$key])) {
-            return $default;
-        }
-
-        return $this->server[$key];
+        return $this->getFromArray($this->server, $key, $default);
     }
 
     /**
@@ -425,15 +417,20 @@ class Request implements RequestInterface
      */
     public function header($key = null, $default = null)
     {
+        return $this->getFromArray($this->header, $key, $default);
+    }
+
+    private function getFromArray($array, $key = null, $default = null)
+    {
         if ($key === null) {
-            return $this->header;
+            return $array;
         }
 
-        if (!isset($this->header[$key])) {
+        if (!isset($array[$key])) {
             return $default;
         }
 
-        return $this->header[$key];
+        return $array[$key];
     }
 
     /**
