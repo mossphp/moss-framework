@@ -11,7 +11,7 @@
 <body>
 <h1><?= $method ?> <small>&lt;-- this is namespaced controller class and its currently executed action</small></h1>
 
-<p>Below is controllers source, to logout click <a href="<?= $url('Moss:Sample:Sample:logout') ?>">here</a></p>
+<p>Below is controllers source, to logout click <a href="<?= $url('logout') ?>">here</a></p>
 <code><?= $controller ?></code>
 <p>As you can see, there is no actual authorisation. Login/password are tokenized in <var>security</var> component. The rest happens inside that component and in bootstrap</p>
 <p>And this is bundles bootstrap file</p>

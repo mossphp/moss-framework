@@ -55,17 +55,22 @@ class UploadedFile extends \SplFileInfo
      *
      * @param string $path
      * @param string $file
+     * @param bool $overwrite
      *
      * @return \SplFileObject
      * @throws UploadedFileException
      */
-    public function move($path, $file = null)
+    public function move($path, $file = null, $overwrite = false)
     {
         if (!$this->isValid()) {
             throw new UploadedFileException($this->getErrorMessage());
         }
 
         $target = $this->getTarget($path, $file);
+
+        if(!$overwrite && is_file($target)) {
+            throw new UploadedFileException(sprintf('Could not move the file "%s" to "%s" ( Target file already exists )', $this->getPathname(), $target));
+        }
 
         if (!move_uploaded_file($this->getPathname(), $target)) {
             $error = error_get_last();
@@ -94,7 +99,17 @@ class UploadedFile extends \SplFileInfo
      */
     public function getRaw()
     {
-        return array_merge($this->raw, array('errorMessage' => $this->getErrorMessage()));
+        return $this->raw;
+    }
+
+    /**
+     * Returns true error occurred
+     *
+     * @return int
+     */
+    public function hasError()
+    {
+        return $this->raw['error'] > 0;
     }
 
     /**

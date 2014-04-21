@@ -201,14 +201,12 @@ class Kernel
             }
         }
 
-        $r = array(
+        $replace = array(
             '{bundle}' => str_replace(array('.', ':'), '\\', $matches[0]['bundle']),
             '{controller}' => ucfirst($matches[0]['controller']),
             '{action}' => $matches[0]['action']
         );
 
-        list($controller, $action) = explode('::', strtr($this->pattern, $r));
-
-        return array($controller, $action);
+        return explode('::', strtr($this->pattern, $replace));
     }
 }

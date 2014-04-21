@@ -38,7 +38,6 @@ class Config implements ConfigInterface
                 'ttl' => 2592000 // one month
             )
         ),
-        'namespaces' => array(),
         'container' => array(),
         'dispatcher' => array(),
         'router' => array()
@@ -117,16 +116,6 @@ class Config implements ConfigInterface
     }
 
     /**
-     * Returns current stored configuration as array
-     *
-     * @return array
-     */
-    public function export()
-    {
-        return $this->config;
-    }
-
-    /**
      * Applies default values or missing properties for containers component definition
      *
      * @param array $array
@@ -134,16 +123,14 @@ class Config implements ConfigInterface
      *
      * @return array
      */
-    private function applyContainerDefaults(array $array, $defaults = array('arguments' => array(), 'methods' => array(), 'shared' => false))
+    private function applyContainerDefaults(array $array, $defaults = array('shared' => false))
     {
         foreach ($array as &$node) {
-            if (!isset($node['class']) && !isset($node['closure'])) {
+            if (!is_array($node) || !array_key_exists('component', $node) || !is_callable($node['component'])) {
                 continue;
             }
 
-            if (is_array($node)) {
-                $node = array_merge($defaults, $node);
-            }
+            $node = array_merge($defaults, $node);
             unset($node);
         }
 
@@ -154,25 +141,18 @@ class Config implements ConfigInterface
      * Applies default values or missing properties for event listener definition
      *
      * @param array $array
-     * @param array $defaults
      *
      * @return array
      * @throws ConfigException
      */
-    private function applyDispatcherDefaults(array $array, $defaults = array('method' => null, 'arguments' => array()))
+    private function applyDispatcherDefaults(array $array)
     {
-        foreach ($array as &$evt) {
-            foreach ($evt as &$node) {
-                if (!isset($node['component']) && !isset($node['closure'])) {
-                    throw new ConfigException('Missing required "component" or "closure" property in event listener definition');
+        foreach ($array as $evt) {
+            foreach ($evt as $node) {
+                if (!is_callable($node)) {
+                    throw new ConfigException('Event listener must be callable, got ' . gettype($node));
                 }
-
-                if (is_array($node)) {
-                    $node = array_merge($defaults, $node);
-                }
-                unset($node);
             }
-            unset($evt);
         }
 
         return $array;
@@ -187,7 +167,7 @@ class Config implements ConfigInterface
      * @return array
      * @throws ConfigException
      */
-    private function applyRouterDefaults(array $array, $defaults = array('arguments' => array()))
+    private function applyRouterDefaults(array $array, $defaults = array('arguments' => array(), 'methods' => array()))
     {
         foreach ($array as &$node) {
             if (!isset($node['pattern'])) {
@@ -198,13 +178,21 @@ class Config implements ConfigInterface
                 throw new ConfigException('Missing required "controller" property in route definition');
             }
 
-            if (is_array($node)) {
-                $node = array_merge($defaults, $node);
-            }
+            $node = array_merge($defaults, $node);
             unset($node);
         }
 
         return $array;
+    }
+
+    /**
+     * Returns current stored configuration as array
+     *
+     * @return array
+     */
+    public function export()
+    {
+        return $this->config;
     }
 
     /**

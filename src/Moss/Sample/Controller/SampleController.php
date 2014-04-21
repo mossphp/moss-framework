@@ -70,7 +70,7 @@ class SampleController
             $this->container->get('security')
                 ->tokenize($this->request->post->all());
 
-            return new ResponseRedirect($this->router->make('Moss:Sample:Sample:source'));
+            return new ResponseRedirect($this->router->make('source'));
         } catch (AuthenticationException $e) {
             $this->container->get('flash')
                 ->add($e->getMessage(), 'error');
@@ -103,7 +103,7 @@ class SampleController
         $this->container->get('security')
             ->destroy();
 
-        return new ResponseRedirect($this->router->make('Moss:Sample:Sample:index'));
+        return new ResponseRedirect($this->router->make('main'));
     }
 
     /**

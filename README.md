@@ -23,12 +23,13 @@ But still, `Moss framework` wants to be _fashionable_ and follows trends: `closu
 
  * fully grown `Router` (not powerful but working :) ),
  * `Request` and `Response` objects (got http auth, and easy header management),
+ * easy file upload trough `Request::file` methods
  * flash messages
  * dependency injection container
  * event dispatcher with `AOP`
  * closure and class controllers (that can be organized into bundles with fluent directory structure),
  * simple view that can be easily extended to use `Twig` (as package in composer)
- * and clean code
+ * and clean code and very loose coupling
  * and more to come
 
 ## Quickstart
@@ -72,3 +73,20 @@ To register route to that action that allows to enter `http://127.0.0.1/moss/web
 ```
 
 And that's it, the rest depends on your needs and skills.
+
+## Contribute
+
+If you want to submit fix or some other enhancements, feel free to do so.
+Whenever you find a bug it would be nice if you submit it.
+And if you submit fix - this would be truly amazing!
+
+### How to Contribute
+
+ * Fork;
+ * Create a new branch for each feature/improvement/issue;
+ * Send a pull request from branch
+
+### Style Guide
+
+All pull requests must adhere to the PSR-2 standard.
+All pull requests must be accompanied by passing PHPUnit tests.

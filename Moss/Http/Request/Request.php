@@ -71,7 +71,21 @@ class Request implements RequestInterface
 
         $this->session = & $session;
         $this->cookie = & $cookie;
-        $this->server = & $_SERVER;
+
+        $this->initialize($_GET, $_POST, $_FILES, $_SERVER);
+    }
+
+    /**
+     * Initializes request properties
+     *
+     * @param array $get
+     * @param array $post
+     * @param array $files
+     * @param array $server
+     */
+    public function initialize(array $get = array(), array $post = array(), array $files = array(), array $server = array())
+    {
+        $this->server = $server;
 
         $this->header = $this->resolveHeaders();
         $this->language = $this->resolveLanguages();
@@ -84,9 +98,9 @@ class Request implements RequestInterface
         $this->path = $this->resolvePath();
         $this->baseName = $this->resolveBaseName();
 
-        $this->query = new Bag($this->resolveGET());
-        $this->post = new Bag($this->resolvePOST());
-        $this->files = new FilesBag($_FILES);
+        $this->query = new Bag($this->resolveGET($get));
+        $this->post = new Bag($this->resolveBody($post));
+        $this->files = new FilesBag($files);
 
         if (!empty($this->query['controller'])) {
             $this->controller($this->query['controller']);
@@ -263,20 +277,22 @@ class Request implements RequestInterface
     }
 
     /**
-     * Resolves query data from $_GET or CLI
+     * Resolves query data from passed array and CLI
+     *
+     * @param array $get
      *
      * @return array
      */
-    protected function resolveGET()
+    protected function resolveGET(array $get = array())
     {
         $cli = array();
 
         if ($this->method() == 'CLI' && isset($GLOBALS['argc']) && isset($GLOBALS['argv']) && $GLOBALS['argc'] > 1) {
             for ($i = 1; $i < $GLOBALS['argc']; $i++) {
                 if (preg_match_all('/^-+([^=]+)(=(.+))?$/i', $GLOBALS['argv'][$i], $arg, PREG_SET_ORDER)) {
-                    $cli[$arg[0][1]] = isset($arg[0][3]) ? $this->resolveCLIValue($arg[0][3]) : true;
+                    $cli[$arg[0][1]] = isset($arg[0][3]) ? $this->unquote($arg[0][3]) : true;
                 } else {
-                    $cli[] = $this->resolveCLIValue($GLOBALS['argv'][$i]);
+                    $cli[] = $this->unquote($GLOBALS['argv'][$i]);
                 }
             }
 
@@ -285,41 +301,7 @@ class Request implements RequestInterface
             }
         }
 
-        return array_merge($_GET, $cli);
-    }
-
-    /**
-     * Parses CLI value
-     *
-     * @param string $value
-     *
-     * @return string|array
-     */
-    protected function resolveCLIValue($value)
-    {
-        $value = $this->unquote($value);
-
-        if (substr($value, 0, 1) === '[' && substr($value, -1, 1) === ']') {
-            $arr = preg_split('/, */i', substr($value, 1, -1));
-            array_walk($arr, array($this, 'unquote'));
-
-            return $arr;
-        }
-
-        if (substr($value, 0, 1) === '{' && substr($value, -1, 1) === '}') {
-            $arr = preg_split('/, */i', substr($value, 1, -1));
-            array_walk($arr, array($this, 'unquote'));
-
-            $result = array();
-            foreach ($arr as $node) {
-                $node = preg_split('/: */i', $node, 2);
-                $result[$node[0]] = trim($node[1], '\'"');
-            }
-
-            return $result;
-        }
-
-        return $value;
+        return array_merge($get, $cli);
     }
 
     protected function unquote(&$val)
@@ -328,19 +310,22 @@ class Request implements RequestInterface
     }
 
     /**
-     * Resolves post data from $_POST or php://input if PUT/DELETE
+     * Resolves post data from passed array or php://input if PUT/DELETE
+     *
+     * @param array $post
+     * @param array $methods
      *
      * @return array
      */
-    protected function resolvePOST()
+    protected function resolveBody(array $post = array(), array $methods = array('OPTIONS', 'HEAD', 'PUT', 'DELETE', 'TRACE'))
     {
         $rest = array();
 
-        if ($this->method() == 'PUT' || $this->method() == 'DELETE') {
+        if (in_array($this->method(), $methods)) {
             parse_str(file_get_contents('php://input'), $rest);
         }
 
-        return array_merge($_POST, $rest);
+        return array_merge($post, $rest);
     }
 
     /**
@@ -419,15 +404,7 @@ class Request implements RequestInterface
      */
     public function server($key = null, $default = null)
     {
-        if ($key === null) {
-            return $this->server;
-        }
-
-        if (!isset($this->server[$key])) {
-            return $default;
-        }
-
-        return $this->server[$key];
+        return $this->getFromArray($this->server, $key, $default);
     }
 
     /**
@@ -440,15 +417,20 @@ class Request implements RequestInterface
      */
     public function header($key = null, $default = null)
     {
+        return $this->getFromArray($this->header, $key, $default);
+    }
+
+    private function getFromArray($array, $key = null, $default = null)
+    {
         if ($key === null) {
-            return $this->header;
+            return $array;
         }
 
-        if (!isset($this->header[$key])) {
+        if (!isset($array[$key])) {
             return $default;
         }
 
-        return $this->header[$key];
+        return $array[$key];
     }
 
     /**
@@ -592,15 +574,19 @@ class Request implements RequestInterface
      */
     public function clientIp()
     {
-        if ($this->server('REMOTE_ADDR')) {
-            return $this->server('REMOTE_ADDR');
+        $keys = array(
+            'REMOTE_ADDR',
+            'HTTP_CLIENT_IP',
+            'HTTP_X_FORWARDED_FOR',
+        );
+
+        foreach ($keys as $offset) {
+            if ($this->server($offset)) {
+                return $this->server($offset);
+            }
         }
 
-        if ($this->server('HTTP_X_FORWARDED_FOR')) {
-            return $this->server('HTTP_X_FORWARDED_FOR');
-        }
-
-        return $this->server('HTTP_CLIENT_IP');
+        return $this->server('REMOTE_ADDR');
     }
 
     /**
