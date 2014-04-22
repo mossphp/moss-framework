@@ -277,11 +277,7 @@ class Route implements RouteInterface
                 continue;
             }
 
-            if ($this->conditionals[$k]) {
-                $v = rtrim($v, $this->conditionals[$k]);
-            }
-
-            $this->arguments[$k] = $v;
+            $this->arguments[$k] = $this->conditionals[$k] ? rtrim($v, $this->conditionals[$k]) : $v;
         }
 
         return true;
