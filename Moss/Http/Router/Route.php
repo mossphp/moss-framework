@@ -55,7 +55,7 @@ class Route implements RouteInterface
             }
 
             if (!isset($this->conditionals[$key])) {
-                $this->conditionals[$key] = false;
+                $this->conditionals[$key] = null;
             }
 
             $this->arguments[$key] = $value;
@@ -243,15 +243,7 @@ class Route implements RouteInterface
      */
     public function match(RequestInterface $request)
     {
-        if (!empty($this->schema) && strpos($request->schema(), $this->schema) === false) {
-            return false;
-        }
-
-        if (!empty($this->methods) && !in_array($request->method(), $this->methods)) {
-            return false;
-        }
-
-        if (!empty($this->host) && !preg_match('/^' . str_replace('#basename#', '.*', preg_quote($this->host)) . '$/', $request->host())) {
+        if (!$this->matchSchema($request) || !$this->matchMethods($request) || !$this->matchHost($request)) {
             return false;
         }
 
@@ -281,6 +273,46 @@ class Route implements RouteInterface
         }
 
         return true;
+    }
+
+    private function matchSchema(RequestInterface $request)
+    {
+        if (empty($this->schema)) {
+            return true;
+        }
+
+        if (strpos($request->schema(), $this->schema) !== false) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private function matchMethods(RequestInterface $request)
+    {
+        if (empty($this->methods)) {
+            return true;
+        }
+        if (in_array($request->method(), $this->methods)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private function matchHost(RequestInterface $request)
+    {
+        if (empty($this->host)) {
+            return true;
+        }
+
+        $regex = str_replace('#basename#', '.*', preg_quote($this->host));
+
+        if (preg_match('/^' . $regex . '$/', $request->host())) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
