@@ -239,7 +239,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('deep', $request->query->get('f.o.o.b.a.r', 'deep'));
     }
 
-    public function testPost()
+    public function testBody()
     {
         $_SERVER['REQUEST_METHOD'] = 'POST';
         $_POST = array(
@@ -255,41 +255,41 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         );
 
         $this->assertEquals(
-            $request->post->get('foo'), $request->post()
+            $request->body->get('foo'), $request->body()
                                           ->get('foo')
         );
         $this->assertEquals(
-            $request->post->get('controller'), $request->post()
+            $request->body->get('controller'), $request->body()
                                                  ->get('controller')
         );
         $this->assertEquals(
-            $request->post->get('locale'), $request->post()
+            $request->body->get('locale'), $request->body()
                                              ->get('locale')
         );
         $this->assertEquals(
-            $request->post->get('format'), $request->post()
+            $request->body->get('format'), $request->body()
                                              ->get('format')
         );
 
-        $this->assertEquals('bar', $request->post->get('foo'));
-        $this->assertEquals('foobar', $request->post->get('controller'));
-        $this->assertEquals('pl', $request->post->get('locale'));
-        $this->assertEquals('json', $request->post->get('format'));
+        $this->assertEquals('bar', $request->body->get('foo'));
+        $this->assertEquals('foobar', $request->body->get('controller'));
+        $this->assertEquals('pl', $request->body->get('locale'));
+        $this->assertEquals('json', $request->body->get('format'));
     }
 
-    public function testSetPost()
+    public function testSetBody()
     {
         $request = new Request(
             $this->getMock('\Moss\Http\session\SessionInterface'),
             $this->getMock('\Moss\Http\Cookie\CookieInterface')
         );
-        $this->assertEquals('bar', $request->post->get('foo', 'bar'));
-        $this->assertEquals('foobar', $request->post->get('controller', 'foobar'));
-        $this->assertEquals('pl', $request->post->get('locale', 'pl'));
-        $this->assertEquals('json', $request->post->get('format', 'json'));
-        $this->assertEquals('yada', $request->post->get('foo.bar.zope', 'yada'));
+        $this->assertEquals('bar', $request->body->get('foo', 'bar'));
+        $this->assertEquals('foobar', $request->body->get('controller', 'foobar'));
+        $this->assertEquals('pl', $request->body->get('locale', 'pl'));
+        $this->assertEquals('json', $request->body->get('format', 'json'));
+        $this->assertEquals('yada', $request->body->get('foo.bar.zope', 'yada'));
         $this->assertEquals(
-            'deep', $request->post()
+            'deep', $request->body()
                       ->get('f.o.o.b.a.r', 'deep')
         );
     }
@@ -538,7 +538,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('GET', $request->method());
     }
 
-    public function testMethodPOST()
+    public function testMethodBODY()
     {
         $_SERVER['REQUEST_METHOD'] = 'POST';
         $request = new Request(

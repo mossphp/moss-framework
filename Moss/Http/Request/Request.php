@@ -40,7 +40,7 @@ class Request implements RequestInterface
     public $query;
 
     /** @var BagInterface */
-    public $post;
+    public $body;
 
     /** @var BagInterface */
     public $files;
@@ -99,7 +99,7 @@ class Request implements RequestInterface
         $this->baseName = $this->resolveBaseName();
 
         $this->query = new Bag($this->resolveGET($get));
-        $this->post = new Bag($this->resolveBody($post));
+        $this->body = new Bag($this->resolveBody($post));
         $this->files = new FilesBag($files);
 
         if (!empty($this->query['controller'])) {
@@ -313,15 +313,14 @@ class Request implements RequestInterface
      * Resolves post data from passed array or php://input if PUT/DELETE
      *
      * @param array $post
-     * @param array $methods
      *
      * @return array
      */
-    protected function resolveBody(array $post = array(), array $methods = array('OPTIONS', 'HEAD', 'PUT', 'DELETE', 'TRACE'))
+    protected function resolveBody(array $post = array())
     {
         $rest = array();
 
-        if (in_array($this->method(), $methods)) {
+        if (in_array($this->method(), array('OPTIONS', 'HEAD', 'PUT', 'DELETE', 'TRACE'))) {
             parse_str(file_get_contents('php://input'), $rest);
         }
 
@@ -444,13 +443,13 @@ class Request implements RequestInterface
     }
 
     /**
-     * Returns post values bag
+     * Returns body values bag
      *
      * @return BagInterface
      */
-    public function post()
+    public function body()
     {
-        return $this->post;
+        return $this->body;
     }
 
     /**

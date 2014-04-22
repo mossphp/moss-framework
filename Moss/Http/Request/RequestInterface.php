@@ -70,7 +70,7 @@ interface RequestInterface
      *
      * @return BagInterface
      */
-    public function post();
+    public function body();
 
     /**
      * Returns files bag
