@@ -285,20 +285,21 @@ class Request implements RequestInterface
      */
     protected function resolveGET(array $get = array())
     {
+        if ($this->method() != 'CLI' || !isset($GLOBALS['argc']) || !isset($GLOBALS['argv']) || $GLOBALS['argc'] <= 1) {
+            return $get;
+        }
+
         $cli = array();
-
-        if ($this->method() == 'CLI' && isset($GLOBALS['argc']) && isset($GLOBALS['argv']) && $GLOBALS['argc'] > 1) {
-            for ($i = 1; $i < $GLOBALS['argc']; $i++) {
-                if (preg_match_all('/^-+([^=]+)(=(.+))?$/i', $GLOBALS['argv'][$i], $arg, PREG_SET_ORDER)) {
-                    $cli[$arg[0][1]] = isset($arg[0][3]) ? $this->unquote($arg[0][3]) : true;
-                } else {
-                    $cli[] = $this->unquote($GLOBALS['argv'][$i]);
-                }
+        for ($i = 1; $i < $GLOBALS['argc']; $i++) {
+            if (preg_match_all('/^-+([^=]+)(=(.+))?$/i', $GLOBALS['argv'][$i], $arg, PREG_SET_ORDER)) {
+                $cli[$arg[0][1]] = isset($arg[0][3]) ? $this->unquote($arg[0][3]) : true;
+            } else {
+                $cli[] = $this->unquote($GLOBALS['argv'][$i]);
             }
+        }
 
-            if (empty($this->path) && isset($cli[0])) {
-                $this->path = array_shift($cli);
-            }
+        if (empty($this->path) && isset($cli[0])) {
+            $this->path = array_shift($cli);
         }
 
         return array_merge($get, $cli);
@@ -335,12 +336,36 @@ class Request implements RequestInterface
      */
     protected function resolveLanguages()
     {
-        $languages = array();
-
         if (!$this->header('accept_language')) {
             return array();
         }
 
+        $codes = $this->extractHeaders();
+
+        $languages = array();
+        foreach ($codes as $lang) {
+            if (strstr($lang, '-')) {
+                $codes = explode('-', $lang);
+                $lang = strtolower($codes[0]);
+            }
+
+            if (in_array($lang, $languages)) {
+                continue;
+            }
+
+            $languages[] = $lang;
+        }
+
+        return $languages;
+    }
+
+    /**
+     * Extracts language codes from header
+     *
+     * @return array
+     */
+    protected function extractHeaders()
+    {
         $codes = array();
         foreach (array_filter(explode(',', $this->header('accept_language'))) as $value) {
             if (preg_match('/;\s*(q=.*$)/', $value, $match)) {
@@ -357,20 +382,7 @@ class Request implements RequestInterface
 
         rsort($codes);
 
-        foreach ($codes as $lang) {
-            if (strstr($lang, '-')) {
-                $codes = explode('-', $lang);
-                $lang = strtolower($codes[0]);
-            }
-
-            if (in_array($lang, $languages)) {
-                continue;
-            }
-
-            $languages[] = $lang;
-        }
-
-        return $languages;
+        return $codes;
     }
 
     /**
