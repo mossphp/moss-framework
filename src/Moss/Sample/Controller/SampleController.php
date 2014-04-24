@@ -68,7 +68,7 @@ class SampleController
             }
 
             $this->container->get('security')
-                ->tokenize($this->request->post->all());
+                ->tokenize($this->request->body->all());
 
             return new ResponseRedirect($this->router->make('source'));
         } catch (AuthenticationException $e) {
