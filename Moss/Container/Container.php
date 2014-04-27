@@ -20,10 +20,14 @@ namespace Moss\Container;
 class Container implements ContainerInterface
 {
 
-    /** @var array|callable[] */
+    /**
+     * @var array|callable[]
+     */
     private $components = array();
 
-    /** @var array|object */
+    /**
+     * @var array|object
+     */
     private $instances = array();
 
     /**

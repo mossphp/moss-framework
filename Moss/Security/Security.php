@@ -22,16 +22,24 @@ use Moss\Http\Request\RequestInterface;
 class Security implements SecurityInterface
 {
 
-    /** @var TokenStashInterface */
+    /**
+     * @var TokenStashInterface
+     */
     protected $stash;
 
-    /** @var UserInterface */
+    /**
+     * @var UserInterface
+     */
     protected $user;
 
-    /** @var array|UserProviderInterface[] */
+    /**
+     * @var array|UserProviderInterface[]
+     */
     protected $providers = array();
 
-    /** @var array|AreaInterface[] */
+    /**
+     * @var array|AreaInterface[]
+     */
     protected $areas = array();
 
     protected $loginUrl;

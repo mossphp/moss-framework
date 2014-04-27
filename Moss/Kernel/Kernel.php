@@ -28,13 +28,19 @@ use Moss\Security\SecurityException;
 class Kernel
 {
 
-    /** @var RouterInterface */
+    /**
+     * @var RouterInterface
+     */
     protected $router;
 
-    /** @var ContainerInterface */
+    /**
+     * @var ContainerInterface
+     */
     protected $container;
 
-    /** @var DispatcherInterface */
+    /**
+     * @var DispatcherInterface
+     */
     protected $dispatcher;
 
     protected $pattern;

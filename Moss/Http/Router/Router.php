@@ -29,7 +29,9 @@ class Router implements RouterInterface
     protected $fallbackNormal = true;
     protected $forceRelative = false;
 
-    /** @var array|RouteInterface[] */
+    /**
+     * @var array|RouteInterface[]
+     */
     protected $routes = array();
 
     /**

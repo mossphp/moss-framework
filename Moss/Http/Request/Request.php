@@ -36,19 +36,29 @@ class Request implements RequestInterface
     private $header;
     private $language;
 
-    /** @var BagInterface */
+    /**
+     * @var BagInterface
+     */
     public $query;
 
-    /** @var BagInterface */
+    /**
+     * @var BagInterface
+     */
     public $body;
 
-    /** @var BagInterface */
+    /**
+     * @var BagInterface
+     */
     public $files;
 
-    /** @var SessionInterface */
+    /**
+     * @var SessionInterface
+     */
     public $session;
 
-    /** @var CookieInterface */
+    /**
+     * @var CookieInterface
+     */
     public $cookie;
 
     /**

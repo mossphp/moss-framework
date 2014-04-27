@@ -20,7 +20,9 @@ namespace Moss\Http\Session;
 class FlashBag implements FlashBagInterface
 {
 
-    /** @var SessionInterface */
+    /**
+     * @var SessionInterface
+     */
     private $session;
     private $prefix;
 

@@ -22,7 +22,9 @@ use Moss\Http\Session\SessionInterface;
 class TokenStash implements TokenStashInterface
 {
 
-    /** @var \Moss\Http\Session\SessionInterface */
+    /**
+     * @var \Moss\Http\Session\SessionInterface
+     */
     protected $stash;
 
     /**
