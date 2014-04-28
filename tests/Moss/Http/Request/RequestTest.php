@@ -7,50 +7,237 @@ namespace Moss\Http\Request;
 class RequestTest extends \PHPUnit_Framework_TestCase
 {
 
-    public function tearDown()
+    /**
+     * @dataProvider serverProvider
+     */
+    public function testServer($offset, $value, $expected)
     {
-        if (isset($GLOBALS['argc'])) {
-            unset($GLOBALS['argc']);
-        }
-
-        if (isset($GLOBALS['argv'])) {
-            unset($GLOBALS['argv']);
-        }
-    }
-
-    public function testConstruct()
-    {
-        $request = new Request(
-            $this->getMock('\Moss\Http\Session\SessionInterface'),
-            $this->getMock('\Moss\Http\Cookie\CookieInterface')
+        $request = new Request();
+        $request->initialize(
+            array(),
+            array(),
+            array(),
+            array($offset => $value)
         );
-        $this->assertInstanceOf('\Moss\Http\Request\RequestInterface', $request);
+
+        $this->assertEquals($expected, $request->server($offset));
     }
 
-    public function testConstructContent()
+    public function serverProvider()
     {
-        $_SERVER['CONTENT_LENGTH'] = 123456;
-        $_SERVER['CONTENT_MD5'] = 'someMD5';
-        $_SERVER['CONTENT_TYPE'] = 'text/plan';
+        return array(
+            array('REQUEST_METHOD', 'GET', 'GET'),
+            array('REQUEST_METHOD', 'POST', 'POST'),
+            array('REQUEST_METHOD', 'OPTIONS', 'OPTIONS'),
+            array('REQUEST_METHOD', 'HEAD', 'HEAD'),
+            array('REQUEST_METHOD', 'HEAD', 'HEAD'),
+            array('REQUEST_METHOD', 'PUT', 'PUT'),
+            array('REQUEST_METHOD', 'DELETE', 'DELETE'),
+            array('REQUEST_METHOD', 'TRACE', 'TRACE'),
 
-        $request = new Request(
-            $this->getMock('\Moss\Http\Session\SessionInterface'),
-            $this->getMock('\Moss\Http\Cookie\CookieInterface')
+            array('SCRIPT_FILENAME', './foo.php', './foo.php'),
+            array('DOCUMENT_ROOT', './', './'),
+
+            array('HTTP_CONTENT_LENGTH', 123456, 123456),
+            array('HTTP_CONTENT_MD5', 'someMD5', 'someMD5'),
+            array('HTTP_CONTENT_TYPE', 'text/plain', 'text/plain'),
+            array('HTTP_ACCEPT_LANGUAGE', 'en-US,en;q=0.8,pl;q=0.6', 'en-US,en;q=0.8,pl;q=0.6'),
+
+            array('HTTP_X_REQUESTED_WITH', 'xmlhttprequest', 'xmlhttprequest'),
+
+            array('HTTP_X_FORWARDED_PROTO', 'https', 'https'),
+            array('HTTP_X_FORWARDED_PROTO', 'ssl', 'ssl'),
+            array('HTTP_X_FORWARDED_PROTO', 'on', 'on'),
+            array('HTTP_X_FORWARDED_PROTO', '1', '1'),
+            array('HTTPS', 'on', 'on'),
+            array('HTTPS', '1', '1'),
+
+            array('REMOTE_ADDR', '127.0.0.1', '127.0.0.1'),
+            array('HTTP_CLIENT_IP', '127.0.0.1', '127.0.0.1'),
+            array('HTTP_X_FORWARDED_FOR', '127.0.0.1', '127.0.0.1'),
+
+            array('HTTP_REFERER', 'http://foo.com', 'http://foo.com'),
+
+            array('HTTP_AUTHORIZATION', 'basic dXNlcjpwdw==', 'basic dXNlcjpwdw=='),
+            array('REDIRECT_HTTP_AUTHORIZATION', 'basic dXNlcjpwdw==', 'basic dXNlcjpwdw=='),
+            array('PHP_AUTH_USER', 'user', 'user'),
+            array('PHP_AUTH_PW', 'pw', 'pw'),
+        );
+    }
+
+    /**
+     * @dataProvider headerProvider
+     */
+    public function testHeader($offset, $value, $expected)
+    {
+        $request = new Request();
+        $request->initialize(
+            array(),
+            array(),
+            array(),
+            array('HTTP_' . strtoupper($offset) => $value)
+        );
+
+        $this->assertEquals($expected, $request->header($offset));
+    }
+
+    public function headerProvider()
+    {
+        return array(
+            array('content_length', 123456, 123456),
+            array('content_md5', 'someMD5', 'someMD5'),
+            array('content_type', 'text/plain', 'text/plain')
+        );
+    }
+
+    public function testPHPAuth()
+    {
+        $request = new Request();
+        $request->initialize(
+            array(),
+            array(),
+            array(),
+            array(
+                'PHP_AUTH_USER' => 'user',
+                'PHP_AUTH_PW' => 'pw'
+            )
+        );
+
+        $this->assertEquals('user', $request->header('php_auth_user'));
+        $this->assertEquals('pw', $request->header('php_auth_pw'));
+    }
+
+    public function testHTTPAuth()
+    {
+        $request = new Request();
+        $request->initialize(
+            array(),
+            array(),
+            array(),
+            array(
+                'HTTP_AUTHORIZATION' => 'basic ' . base64_encode('user:pw')
+            )
+        );
+
+        $this->assertInstanceOf('\Moss\Http\request\RequestInterface', $request);
+        $this->assertEquals('basic ' . base64_encode('user:pw'), $request->header('authorization'));
+        $this->assertEquals('user', $request->header('php_auth_user'));
+        $this->assertEquals('pw', $request->header('php_auth_pw'));
+    }
+
+    public function testHTTPAuthRedirect()
+    {
+        $request = new Request();
+        $request->initialize(
+            array(),
+            array(),
+            array(),
+            array(
+                'REDIRECT_HTTP_AUTHORIZATION' => 'basic ' . base64_encode('user:pw')
+            )
         );
         $this->assertInstanceOf('\Moss\Http\request\RequestInterface', $request);
-        $this->assertEquals($_SERVER['CONTENT_LENGTH'], $request->server('CONTENT_LENGTH'));
-        $this->assertEquals($_SERVER['CONTENT_MD5'], $request->server('CONTENT_MD5'));
-        $this->assertEquals($_SERVER['CONTENT_TYPE'], $request->server('CONTENT_TYPE'));
-        $this->assertEquals($_SERVER['CONTENT_LENGTH'], $request->header('content_length'));
-        $this->assertEquals($_SERVER['CONTENT_MD5'], $request->header('content_md5'));
-        $this->assertEquals($_SERVER['CONTENT_TYPE'], $request->header('content_type'));
+        $this->assertEquals('basic ' . base64_encode('user:pw'), $request->server('REDIRECT_HTTP_AUTHORIZATION'));
+        $this->assertEquals('user', $request->header('php_auth_user'));
+        $this->assertEquals('pw', $request->header('php_auth_pw'));
     }
 
-    public function testConstructWithMagicQuotes()
+    public function testLanguages()
     {
-        if (version_compare(phpversion(), '6.0.0-dev', '<') && get_magic_quotes_gpc()) {
-            $this->markTestSkipped('Magic quotes are off');
-        }
+        $request = new Request();
+        $request->initialize(
+            array(),
+            array(),
+            array(),
+            array(
+                'HTTP_ACCEPT_LANGUAGE' => 'en-US,en;q=0.8,pl;q=0.6'
+            )
+        );
+
+        $this->assertEquals(array('en', 'pl'), $request->language());
+    }
+
+    public function testLocale()
+    {
+        $request = new Request();
+        $request->initialize(
+            array(),
+            array(),
+            array(),
+            array(
+                'HTTP_ACCEPT_LANGUAGE' => 'en-US,en;q=0.8,pl;q=0.6'
+            )
+        );
+
+        $this->assertEquals('en', $request->locale());
+    }
+
+    public function testQueryCLI()
+    {
+        $this->markTestIncomplete();
+    }
+
+    /**
+     * @dataProvider queryProvider
+     */
+    public function testQuery($offset, $value, $expected)
+    {
+        $request = new Request();
+        $request->initialize(
+            array($offset => $value),
+            array(),
+            array(),
+            array(
+                'REQUEST_METHOD' => 'GET'
+            )
+        );
+
+        $this->assertInstanceOf('\Moss\Http\Bag\BagInterface', $request->query);
+        $this->assertInstanceOf('\Moss\Http\Bag\BagInterface', $request->query());
+        $this->assertEquals($expected, $request->query->all());
+    }
+
+    public function queryProvider()
+    {
+        return array(
+            array('foo', 'bar', array('foo' => 'bar')),
+            array('controller', '\Foo\Bar::yada', array('controller' => '\Foo\Bar::yada')),
+            array('locale', 'pl', array('locale' => 'pl')),
+            array('format', 'json', array('format' => 'json')),
+            array('foo.bar', 'yada', array('foo' => array('bar' => 'yada'))),
+            array('f.o.o.b.a.r', 'deep', array('f' => array('o' => array('o' => array('b' => array('a' => array('r' => 'deep'))))))),
+        );
+    }
+
+    /**
+     * @dataProvider bodyProvider
+     */
+    public function testBody($offset, $value, $expected)
+    {
+        $request = new Request();
+        $request->initialize(
+            array(),
+            array($offset => $value),
+            array(),
+            array(
+                'REQUEST_METHOD' => 'POST'
+            )
+        );
+
+        $this->assertInstanceOf('\Moss\Http\Bag\BagInterface', $request->body);
+        $this->assertInstanceOf('\Moss\Http\Bag\BagInterface', $request->body());
+        $this->assertEquals($expected, $request->body->all());
+    }
+
+    public function bodyProvider()
+    {
+        return array(
+            array('foo', 'bar', array('foo' => 'bar')),
+            array('locale', 'pl', array('locale' => 'pl')),
+            array('format', 'json', array('format' => 'json')),
+            array('foo.bar', 'yada', array('foo' => array('bar' => 'yada'))),
+            array('f.o.o.b.a.r', 'deep', array('f' => array('o' => array('o' => array('b' => array('a' => array('r' => 'deep'))))))),
+        );
     }
 
     public function testSession()
@@ -59,776 +246,247 @@ class RequestTest extends \PHPUnit_Framework_TestCase
             $this->getMock('\Moss\Http\Session\SessionInterface'),
             $this->getMock('\Moss\Http\Cookie\CookieInterface')
         );
-        $this->assertInstanceOf('\Moss\Http\Session\SessionInterface', $request->session());
+
         $this->assertInstanceOf('\Moss\Http\Session\SessionInterface', $request->session);
+        $this->assertInstanceOf('\Moss\Http\Session\SessionInterface', $request->session());
     }
 
     public function testCookie()
     {
         $request = new Request(
-            $this->getMock('\Moss\Http\session\SessionInterface'),
+            $this->getMock('\Moss\Http\Session\SessionInterface'),
             $this->getMock('\Moss\Http\Cookie\CookieInterface')
         );
-        $this->assertInstanceOf('\Moss\Http\Cookie\CookieInterface', $request->cookie());
+
         $this->assertInstanceOf('\Moss\Http\Cookie\CookieInterface', $request->cookie);
+        $this->assertInstanceOf('\Moss\Http\Cookie\CookieInterface', $request->cookie());
     }
 
-    public function getServerBlank()
+    public function testFiles()
     {
-        $request = new Request(
-            $this->getMock('\Moss\Http\session\SessionInterface'),
-            $this->getMock('\Moss\Http\Cookie\CookieInterface')
-        );
-        $this->assertNull($request->server('foobar'));
+        $request = new Request();
+        $request->initialize();
+
+        $this->assertInstanceOf('\Moss\Http\Request\FilesBag', $request->files);
+        $this->assertInstanceOf('\Moss\Http\Request\FilesBag', $request->files());
     }
 
-    public function testHeaderBlank()
+    public function testIsAjax()
     {
-        $request = new Request(
-            $this->getMock('\Moss\Http\session\SessionInterface'),
-            $this->getMock('\Moss\Http\Cookie\CookieInterface')
-        );
-        $this->assertNull($request->header('foobar'));
-    }
-
-    public function testConstructPHPAuth()
-    {
-        $_SERVER['PHP_AUTH_USER'] = 'user';
-        $_SERVER['PHP_AUTH_PW'] = 'pw';
-
-        $request = new Request(
-            $this->getMock('\Moss\Http\session\SessionInterface'),
-            $this->getMock('\Moss\Http\Cookie\CookieInterface')
-        );
-        $this->assertInstanceOf('\Moss\Http\request\RequestInterface', $request);
-        $this->assertEquals($_SERVER['PHP_AUTH_USER'], $request->server('PHP_AUTH_USER'));
-        $this->assertEquals($_SERVER['PHP_AUTH_PW'], $request->server('PHP_AUTH_PW'));
-        $this->assertEquals($_SERVER['PHP_AUTH_USER'], $request->header('php_auth_user'));
-        $this->assertEquals($_SERVER['PHP_AUTH_PW'], $request->header('php_auth_pw'));
-    }
-
-    public function testConstructHTTPAuth()
-    {
-        $_SERVER['HTTP_AUTHORIZATION'] = 'basic ' . base64_encode('user:pw');
-
-        $request = new Request(
-            $this->getMock('\Moss\Http\session\SessionInterface'),
-            $this->getMock('\Moss\Http\Cookie\CookieInterface')
-        );
-        $this->assertInstanceOf('\Moss\Http\request\RequestInterface', $request);
-        $this->assertEquals($_SERVER['HTTP_AUTHORIZATION'], $request->server('HTTP_AUTHORIZATION'));
-        $this->assertEquals('basic ' . base64_encode('user:pw'), $request->header('authorization'));
-        $this->assertEquals('user', $request->header('php_auth_user'));
-        $this->assertEquals('pw', $request->header('php_auth_pw'));
-    }
-
-    public function testConstructHTTPAuthRedirect()
-    {
-        $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] = 'basic ' . base64_encode('user:pw');
-
-        $request = new Request(
-            $this->getMock('\Moss\Http\session\SessionInterface'),
-            $this->getMock('\Moss\Http\Cookie\CookieInterface')
-        );
-        $this->assertInstanceOf('\Moss\Http\request\RequestInterface', $request);
-        $this->assertEquals($_SERVER['REDIRECT_HTTP_AUTHORIZATION'], $request->server('REDIRECT_HTTP_AUTHORIZATION'));
-        $this->assertEquals('user', $request->header('php_auth_user'));
-        $this->assertEquals('pw', $request->header('php_auth_pw'));
-    }
-
-    public function testQuery()
-    {
-        $_SERVER['REQUEST_METHOD'] = 'GET';
-        $_GET = array(
-            'foo' => 'bar',
-            'controller' => 'foobar',
-            'locale' => 'pl',
-            'format' => 'json'
+        $request = new Request();
+        $request->initialize(
+            array(),
+            array(),
+            array(),
+            array('HTTP_X_REQUESTED_WITH' => 'xmlhttprequest')
         );
 
-        $request = new Request(
-            $this->getMock('\Moss\Http\session\SessionInterface'),
-            $this->getMock('\Moss\Http\Cookie\CookieInterface')
-        );
-
-        $this->assertEquals(
-            $request->query->get('foo'), $request->query()
-                                           ->get('foo')
-        );
-        $this->assertEquals(
-            $request->query->get('controller'), $request->query()
-                                                  ->get('controller')
-        );
-        $this->assertEquals(
-            $request->query->get('locale'), $request->query()
-                                              ->get('locale')
-        );
-        $this->assertEquals(
-            $request->query->get('format'), $request->query()
-                                              ->get('format')
-        );
-
-        $this->assertEquals('bar', $request->query->get('foo'));
-        $this->assertEquals('foobar', $request->query->get('controller'));
-        $this->assertEquals('pl', $request->query->get('locale'));
-        $this->assertEquals('json', $request->query->get('format'));
-    }
-
-    /**
-     * @dataProvider cliQueryProvider
-     */
-    public function testCLIQuery($arg, $expected, $url = null)
-    {
-        $_SERVER['REQUEST_METHOD'] = 'CLI';
-        $GLOBALS['argc'] = count($arg);
-        $GLOBALS['argv'] = $arg;
-
-        $request = new Request(
-            $this->getMock('\Moss\Http\session\SessionInterface'),
-            $this->getMock('\Moss\Http\Cookie\CookieInterface')
-        );
-
-        $this->assertEquals($expected, $request->query->all());
-        $this->assertEquals($url, $request->path());
-    }
-
-    public function cliQueryProvider()
-    {
-        return array(
-            array(
-                array('index.php', 'foo'),
-                array(),
-                'foo'
-            ),
-            array(
-                array('index.php', '-foo'),
-                array('foo' => true)
-            ),
-            array(
-                array('index.php', '--foo'),
-                array('foo' => true)
-            ),
-            array(
-                array('index.php', 'foo=bar'),
-                array(),
-                'foo=bar'
-            ),
-            array(
-                array('index.php', '-foo=bar'),
-                array('foo' => 'bar')
-            ),
-            array(
-                array('index.php', '--foo=bar'),
-                array('foo' => 'bar')
-            ),
-        );
-    }
-
-    public function testSetQuery()
-    {
-        $request = new Request(
-            $this->getMock('\Moss\Http\session\SessionInterface'),
-            $this->getMock('\Moss\Http\Cookie\CookieInterface')
-        );
-
-        $this->assertEquals('bar', $request->query->get('foo', 'bar'));
-        $this->assertEquals('foobar', $request->query->get('controller', 'foobar'));
-        $this->assertEquals('pl', $request->query->get('locale', 'pl'));
-        $this->assertEquals('json', $request->query->get('format', 'json'));
-        $this->assertEquals('yada', $request->query->get('foo.bar', 'yada'));
-        $this->assertEquals('deep', $request->query->get('f.o.o.b.a.r', 'deep'));
-    }
-
-    public function testBody()
-    {
-        $_SERVER['REQUEST_METHOD'] = 'POST';
-        $_POST = array(
-            'foo' => 'bar',
-            'controller' => 'foobar',
-            'locale' => 'pl',
-            'format' => 'json'
-        );
-
-        $request = new Request(
-            $this->getMock('\Moss\Http\session\SessionInterface'),
-            $this->getMock('\Moss\Http\Cookie\CookieInterface')
-        );
-
-        $this->assertEquals(
-            $request->body->get('foo'), $request->body()
-                                          ->get('foo')
-        );
-        $this->assertEquals(
-            $request->body->get('controller'), $request->body()
-                                                 ->get('controller')
-        );
-        $this->assertEquals(
-            $request->body->get('locale'), $request->body()
-                                             ->get('locale')
-        );
-        $this->assertEquals(
-            $request->body->get('format'), $request->body()
-                                             ->get('format')
-        );
-
-        $this->assertEquals('bar', $request->body->get('foo'));
-        $this->assertEquals('foobar', $request->body->get('controller'));
-        $this->assertEquals('pl', $request->body->get('locale'));
-        $this->assertEquals('json', $request->body->get('format'));
-    }
-
-    public function testSetBody()
-    {
-        $request = new Request(
-            $this->getMock('\Moss\Http\session\SessionInterface'),
-            $this->getMock('\Moss\Http\Cookie\CookieInterface')
-        );
-        $this->assertEquals('bar', $request->body->get('foo', 'bar'));
-        $this->assertEquals('foobar', $request->body->get('controller', 'foobar'));
-        $this->assertEquals('pl', $request->body->get('locale', 'pl'));
-        $this->assertEquals('json', $request->body->get('format', 'json'));
-        $this->assertEquals('yada', $request->body->get('foo.bar.zope', 'yada'));
-        $this->assertEquals(
-            'deep', $request->body()
-                      ->get('f.o.o.b.a.r', 'deep')
-        );
-    }
-
-    public function testFile()
-    {
-        $_FILES['foo'] = array(
-            'name' => 'bar.txt',
-            'type' => 'text/plain',
-            'tmp_name' => 'whatever2',
-            'error' => 0,
-            'size' => 123
-        );
-        $result = array(
-            'name' => 'bar.txt',
-            'type' => 'text/plain',
-            'tmp_name' => 'whatever2',
-            'error' => 0,
-            'size' => 123
-        );
-
-        $request = new Request(
-            $this->getMock('\Moss\Http\session\SessionInterface'),
-            $this->getMock('\Moss\Http\Cookie\CookieInterface')
-        );
-
-        $this->assertEquals(
-            $request->files->get('foo'), $request->files()
-                                           ->get('foo')
-        );
-
-        $this->assertEquals($result, $request->files->get('foo'));
-    }
-
-    public function testFileDeep()
-    {
-        $_FILES = array(
-            'foo' => array(
-                'name' => array(
-                    'foo' => 'foo.txt',
-                    'bar' => 'bar.txt'
-                ),
-                'type' => array(
-                    'foo' => 'text/plain',
-                    'bar' => 'text/plain'
-                ),
-                'tmp_name' => array(
-                    'foo' => 'foo_tmp',
-                    'bar' => 'bar_tmp'
-                ),
-                'error' => array(
-                    'foo' => 0,
-                    'bar' => 0
-                ),
-                'size' => array(
-                    'foo' => 123,
-                    'bar' => 456
-                )
-            ),
-        );
-
-        $result = array(
-            'foo' => array(
-                'name' => 'foo.txt',
-                'type' => 'text/plain',
-                'tmp_name' => 'foo_tmp',
-                'error' => 0,
-                'size' => 123
-            ),
-            'bar' => array(
-                'name' => 'bar.txt',
-                'type' => 'text/plain',
-                'tmp_name' => 'bar_tmp',
-                'error' => 0,
-                'size' => 456
-            )
-        );
-
-        $request = new Request(
-            $this->getMock('\Moss\Http\session\SessionInterface'),
-            $this->getMock('\Moss\Http\Cookie\CookieInterface')
-        );
-        $this->assertEquals($result, $request->files->get('foo'));
-    }
-
-    /**
-     * @dataProvider errorDataProvider
-     */
-    public function testFileError($key, $data)
-    {
-        $_FILES[$key] = $data;
-
-        $request = new Request(
-            $this->getMock('\Moss\Http\session\SessionInterface'),
-            $this->getMock('\Moss\Http\Cookie\CookieInterface')
-        );
-
-        $this->assertEquals(
-            $data,
-            $request->files->uploaded($key)
-                ->getRaw()
-        );
-    }
-
-    public function errorDataProvider()
-    {
-        return array(
-            array(
-                'bar1',
-                array(
-                    'name' => 'bar.txt',
-                    'type' => 'text/plain',
-                    'tmp_name' => 'whatever2',
-                    'error' => 1,
-                    'size' => 0
-                )
-            ),
-            array(
-                'bar2',
-                array(
-                    'name' => 'bar.txt',
-                    'type' => 'text/plain',
-                    'tmp_name' => 'whatever2',
-                    'error' => 2,
-                    'size' => 0
-                )
-            ),
-            array(
-                'bar3',
-                array(
-                    'name' => 'bar.txt',
-                    'type' => 'text/plain',
-                    'tmp_name' => 'whatever2',
-                    'error' => 3,
-                    'size' => 0
-                )
-            ),
-            array(
-                'bar4',
-                array(
-                    'name' => 'bar.txt',
-                    'type' => 'text/plain',
-                    'tmp_name' => 'whatever2',
-                    'error' => 4,
-                    'size' => 0
-                )
-            ),
-            array(
-                'bar5',
-                array(
-                    'name' => 'bar.txt',
-                    'type' => 'text/plain',
-                    'tmp_name' => 'whatever2',
-                    'error' => 5,
-                    'size' => 0
-                )
-            ),
-            array(
-                'bar6',
-                array(
-                    'name' => 'bar.txt',
-                    'type' => 'text/plain',
-                    'tmp_name' => 'whatever2',
-                    'error' => 6,
-                    'size' => 0
-                )
-            ),
-            array(
-                'bar7',
-                array(
-                    'name' => 'bar.txt',
-                    'type' => 'text/plain',
-                    'tmp_name' => 'whatever2',
-                    'error' => 7,
-                    'size' => 0
-                )
-            ),
-            array(
-                'bar8',
-                array(
-                    'name' => 'bar.txt',
-                    'type' => 'text/plain',
-                    'tmp_name' => 'whatever2',
-                    'error' => 8,
-                    'size' => 0
-                )
-            )
-        );
-    }
-
-    public function testIsSecureFalse()
-    {
-        $request = new Request(
-            $this->getMock('\Moss\Http\session\SessionInterface'),
-            $this->getMock('\Moss\Http\Cookie\CookieInterface')
-        );
-        $this->assertFalse($request->isSecure());
-    }
-
-    public function testIsSecureTrue()
-    {
-        $_SERVER['HTTPS'] = 'ON';
-        $request = new Request(
-            $this->getMock('\Moss\Http\session\SessionInterface'),
-            $this->getMock('\Moss\Http\Cookie\CookieInterface')
-        );
-        $this->assertTrue($request->isSecure());
-    }
-
-    public function testIsAjaxFalse()
-    {
-        $request = new Request(
-            $this->getMock('\Moss\Http\session\SessionInterface'),
-            $this->getMock('\Moss\Http\Cookie\CookieInterface')
-        );
-        $this->assertFalse($request->isAjax());
-    }
-
-    public function testIsAjaxTrue()
-    {
-        $_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHTTPREQUEST';
-        $request = new Request(
-            $this->getMock('\Moss\Http\session\SessionInterface'),
-            $this->getMock('\Moss\Http\Cookie\CookieInterface')
-        );
         $this->assertTrue($request->isAjax());
     }
 
-    public function testMethodCLI()
+    /**
+     * @dataProvider secureProvider
+     */
+    public function testIsSecure($server)
     {
-        $_SERVER['REQUEST_METHOD'] = null;
-        $request = new Request(
-            $this->getMock('\Moss\Http\session\SessionInterface'),
-            $this->getMock('\Moss\Http\Cookie\CookieInterface')
+        $request = new Request();
+        $request->initialize(
+            array(),
+            array(),
+            array(),
+            $server
         );
-        $this->assertEquals('CLI', $request->method());
+
+        $this->assertTrue($request->isSecure());
     }
 
-    public function testMethodGET()
+    public function secureProvider()
     {
-        $_SERVER['REQUEST_METHOD'] = 'GET';
-        $request = new Request(
-            $this->getMock('\Moss\Http\session\SessionInterface'),
-            $this->getMock('\Moss\Http\Cookie\CookieInterface')
+        return array(
+            array(array('HTTP_X_FORWARDED_PROTO' => 'https')),
+            array(array('HTTP_X_FORWARDED_PROTO' => 'ssl')),
+            array(array('HTTP_X_FORWARDED_PROTO' => 'on')),
+            array(array('HTTP_X_FORWARDED_PROTO' => '1')),
+            array(array('HTTPS' => 'on')),
+            array(array('HTTPS' => '1')),
         );
-        $this->assertEquals('GET', $request->method());
-    }
-
-    public function testMethodBODY()
-    {
-        $_SERVER['REQUEST_METHOD'] = 'POST';
-        $request = new Request(
-            $this->getMock('\Moss\Http\session\SessionInterface'),
-            $this->getMock('\Moss\Http\Cookie\CookieInterface')
-        );
-        $this->assertEquals('POST', $request->method());
-    }
-
-    public function testMethodPUT()
-    {
-        $_SERVER['REQUEST_METHOD'] = 'PUT';
-        $request = new Request(
-            $this->getMock('\Moss\Http\session\SessionInterface'),
-            $this->getMock('\Moss\Http\Cookie\CookieInterface')
-        );
-        $this->assertEquals('PUT', $request->method());
-    }
-
-    public function testMethodDELETE()
-    {
-        $_SERVER['REQUEST_METHOD'] = 'DELETE';
-        $request = new Request(
-            $this->getMock('\Moss\Http\session\SessionInterface'),
-            $this->getMock('\Moss\Http\Cookie\CookieInterface')
-        );
-        $this->assertEquals('DELETE', $request->method());
-    }
-
-    public function testSchema()
-    {
-        $_SERVER['SERVER_PROTOCOL'] = 'Http';
-        $request = new Request(
-            $this->getMock('\Moss\Http\session\SessionInterface'),
-            $this->getMock('\Moss\Http\Cookie\CookieInterface')
-        );
-        $this->assertEquals('http', $request->schema());
-    }
-
-    public function testSchemaSecure()
-    {
-        $_SERVER['HTTPS'] = 'on';
-        $request = new Request(
-            $this->getMock('\Moss\Http\session\SessionInterface'),
-            $this->getMock('\Moss\Http\Cookie\CookieInterface')
-        );
-        $this->assertEquals('https', $request->schema());
-    }
-
-    public function testDomain()
-    {
-        $_SERVER['HTTP_HOST'] = 'foo.test.com';
-        $request = new Request(
-            $this->getMock('\Moss\Http\session\SessionInterface'),
-            $this->getMock('\Moss\Http\Cookie\CookieInterface')
-        );
-        $this->assertEquals('foo.test.com', $request->host());
     }
 
     /**
-     * @dataProvider dirProvider
+     * @dataProvider methodProvider
      */
-    public function testDir($document, $script, $dir)
+    public function testMethod($method)
     {
-        $_SERVER['DOCUMENT_ROOT'] = $document;
-        $_SERVER['SCRIPT_FILENAME'] = $script;
-
-        $request = new Request(
-            $this->getMock('\Moss\Http\session\SessionInterface'),
-            $this->getMock('\Moss\Http\Cookie\CookieInterface')
+        $request = new Request();
+        $request->initialize(
+            array(),
+            array(),
+            array(),
+            array('REQUEST_METHOD' => $method)
         );
-        $this->assertEquals($dir, $request->dir());
+
+        $this->assertEquals($method, $request->method());
     }
 
-    public function dirProvider()
+    public function methodProvider()
     {
         return array(
-            array('c:/yada/htdocs/Moss/web/', 'c:/yada/htdocs/Moss/web/index.php', '/'),
-            array('c:/yada/htdocs/', 'c:/yada/htdocs/Moss/web/index.php', '/Moss/web/'),
-            array('/home/foo/www', '/home/foo/www/web/index.php', '/web/'),
-            array('/home/foo/www/web', '/home/foo/www/web/index.php', '/'),
+            array('GET'),
+            array('POST'),
+            array('OPTIONS'),
+            array('HEAD'),
+            array('HEAD'),
+            array('PUT'),
+            array('DELETE'),
+            array('TRACE'),
         );
     }
 
-    public function testBaseName()
+    /**
+     * @dataProvider schemaProvider
+     */
+    public function testSchema($server, $expected)
     {
-        $_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.1';
-        $_SERVER['REQUEST_URI'] = '/foo/index.html?foo=bar';
-        $_SERVER['DOCUMENT_ROOT'] = '/home/foo/www/web/';
-        $_SERVER['SCRIPT_FILENAME'] = '/home/foo/www/web/index.php';
-        $_SERVER['HTTP_HOST'] = 'test.com';
-
-        $request = new Request(
-            $this->getMock('\Moss\Http\session\SessionInterface'),
-            $this->getMock('\Moss\Http\Cookie\CookieInterface')
+        $request = new Request();
+        $request->initialize(
+            array(),
+            array(),
+            array(),
+            $server
         );
-        $this->assertEquals('http://test.com/', $request->baseName());
+
+        $this->assertEquals($expected, $request->schema());
     }
 
-    public function testSetBaseName()
+    public function schemaProvider()
     {
-        $_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.1';
-        $_SERVER['REQUEST_URI'] = '/foo/index.html?foo=bar';
-        $_SERVER['DOCUMENT_ROOT'] = '/home/foo/www/web/';
-        $_SERVER['SCRIPT_FILENAME'] = '/home/foo/www/web/index.php';
-        $_SERVER['HTTP_HOST'] = 'test.com';
-
-        $request = new Request(
-            $this->getMock('\Moss\Http\session\SessionInterface'),
-            $this->getMock('\Moss\Http\Cookie\CookieInterface')
+        return array(
+            array(array('HTTP_X_FORWARDED_PROTO' => 'on'), 'https'),
+            array(array('HTTP_X_FORWARDED_PROTO' => '1'), 'https'),
+            array(array('HTTPS' => 'on'), 'https'),
+            array(array('HTTPS' => '1'), 'https'),
+            array(array(), 'http'),
         );
-        $this->assertEquals('http://test.com/', $request->baseName());
-
-        $request->baseName('http://yada.com/');
-        $this->assertEquals('http://yada.com/', $request->baseName());
     }
 
-    public function testClientIpRemote()
+    public function testPathsWithProperDomainRedirect()
     {
-        $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
-
-        $request = new Request(
-            $this->getMock('\Moss\Http\session\SessionInterface'),
-            $this->getMock('\Moss\Http\Cookie\CookieInterface')
+        $request = new Request();
+        $request->initialize(
+            array(
+                'foo' => 'bar'
+            ),
+            array(),
+            array(),
+            array(
+                'REQUEST_METHOD' => 'GET',
+                'SERVER_PROTOCOL' => 'HTTP/1.1',
+                'REQUEST_URI' => '/foo/index.html',
+                'DOCUMENT_ROOT' => '/home/foo/www/',
+                'SCRIPT_FILENAME' => '/home/foo/www/web/index.php',
+                'HTTP_HOST' => 'test.com',
+                'REDIRECT_URL' => '/',
+            )
         );
+
+        $this->assertEquals('http', $request->schema());
+        $this->assertEquals('test.com', $request->host());
+        $this->assertEquals('/', $request->dir());
+        $this->assertEquals('/foo/index.html', $request->path());
+        $this->assertEquals('http://test.com/foo/index.html', $request->uri(false));
+        $this->assertEquals('http://test.com/foo/index.html?foo=bar', $request->uri(true));
+    }
+
+    public function testPathsWithInvalidDomainRedirect()
+    {
+        $request = new Request();
+        $request->initialize(
+            array(
+                'foo' => 'bar'
+            ),
+            array(),
+            array(),
+            array(
+                'REQUEST_METHOD' => 'GET',
+                'SERVER_PROTOCOL' => 'HTTP/1.1',
+                'REQUEST_URI' => '/foo/index.html',
+                'DOCUMENT_ROOT' => '/home/foo/www/',
+                'SCRIPT_FILENAME' => '/home/foo/www/web/index.php',
+                'HTTP_HOST' => 'test.com',
+                'REDIRECT_URL' => '/web/',
+            )
+        );
+
+        $this->assertEquals('http://test.com/web/', $request->baseName());
+        $this->assertEquals('http', $request->schema());
+        $this->assertEquals('test.com', $request->host());
+        $this->assertEquals('/web/', $request->dir());
+        $this->assertEquals('/foo/index.html', $request->path());
+        $this->assertEquals('http://test.com/web/foo/index.html', $request->uri(false));
+        $this->assertEquals('http://test.com/web/foo/index.html?foo=bar', $request->uri(true));
+    }
+
+    /**
+     * @dataProvider ipProvider
+     */
+    public function testIp($header)
+    {
+        $request = new Request();
+        $request->initialize(
+            array(),
+            array(),
+            array(),
+            array($header => '127.0.0.1')
+        );
+
         $this->assertEquals('127.0.0.1', $request->clientIp());
     }
 
-    public function testClientIpForwarded()
+    public function ipProvider()
     {
-        $_SERVER['HTTP_X_FORWARDED_FOR'] = '127.0.0.1';
-
-        $request = new Request(
-            $this->getMock('\Moss\Http\session\SessionInterface'),
-            $this->getMock('\Moss\Http\Cookie\CookieInterface')
+        return array(
+            array('REMOTE_ADDR'),
+            array('HTTP_CLIENT_IP'),
+            array('HTTP_X_FORWARDED_FOR')
         );
-        $this->assertEquals('127.0.0.1', $request->clientIp());
-    }
-
-    public function testClientIpHTTPClientIp()
-    {
-        $_SERVER['HTTP_CLIENT_IP'] = '127.0.0.1';
-
-        $request = new Request(
-            $this->getMock('\Moss\Http\session\SessionInterface'),
-            $this->getMock('\Moss\Http\Cookie\CookieInterface')
-        );
-        $this->assertEquals('127.0.0.1', $request->clientIp());
     }
 
     public function testController()
     {
-        $request = new Request(
-            $this->getMock('\Moss\Http\session\SessionInterface'),
-            $this->getMock('\Moss\Http\Cookie\CookieInterface')
+        $request = new Request();
+        $request->initialize(
+            array('controller' => '\Foo\Bar\Controller::yada'),
+            array(),
+            array(),
+            array()
         );
-        $this->assertEquals(null, $request->controller());
-    }
 
-    public function testSetController()
-    {
-        $request = new Request(
-            $this->getMock('\Moss\Http\session\SessionInterface'),
-            $this->getMock('\Moss\Http\Cookie\CookieInterface')
-        );
-        $this->assertEquals(null, $request->controller());
-        $this->assertEquals('foobar', $request->controller('foobar'));
-    }
-
-    public function testPath()
-    {
-        $_SERVER['REQUEST_URI'] = '/foo/index.html?foo=bar';
-
-        $request = new Request(
-            $this->getMock('\Moss\Http\session\SessionInterface'),
-            $this->getMock('\Moss\Http\Cookie\CookieInterface')
-        );
-        $this->assertEquals('/foo/index.html', $request->path());
-    }
-
-    public function testUri()
-    {
-        $_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.1';
-        $_SERVER['REQUEST_URI'] = '/foo/index.html';
-        $_SERVER['DOCUMENT_ROOT'] = '/home/foo/www/web/';
-        $_SERVER['SCRIPT_FILENAME'] = '/home/foo/www/web/index.php';
-        $_SERVER['HTTP_HOST'] = 'test.com';
-        $_GET['foo'] = 'bar';
-
-        $request = new Request(
-            $this->getMock('\Moss\Http\session\SessionInterface'),
-            $this->getMock('\Moss\Http\Cookie\CookieInterface')
-        );
-        $this->assertEquals('http://test.com/foo/index.html?foo=bar', $request->uri(true));
-    }
-
-    /**
-     * @dataProvider redirectProvider
-     */
-    public function testInvalidRedirect($uri, $root, $redirect, $dir, $path)
-    {
-        $_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.0';
-        $_SERVER['REQUEST_URI'] = $uri;
-        $_SERVER['DOCUMENT_ROOT'] = $root;
-        $_SERVER['SCRIPT_FILENAME'] = '/home/foo/www/Moss/web/index.php';
-        $_SERVER['HTTP_HOST'] = 'test.com';
-        $_SERVER['REDIRECT_URL'] = $redirect;
-
-        $request = new Request(
-            $this->getMock('\Moss\Http\session\SessionInterface'),
-            $this->getMock('\Moss\Http\Cookie\CookieInterface')
-        );
-        $this->assertEquals(array($dir, $path), array($request->dir(), $request->path()));
-    }
-
-    public function redirectProvider()
-    {
-        return array(
-            array('/foo/index.html?foo=bar', '/home/foo/www/Moss/web/', false, '/', '/foo/index.html'),
-            array('/foo/index.html?foo=bar', '/home/foo/www/Moss/', false, '/web/', '/foo/index.html'),
-            array('/foo/index.html?foo=bar', '/home/foo/www/', false, '/Moss/web/', '/foo/index.html'),
-
-            array('/foo/index.html?foo=bar', '/home/foo/www/Moss/', '/web/', '/web/', '/foo/index.html'),
-            array('/foo/index.html?foo=bar', '/home/foo/www/', '/Moss/web/', '/Moss/web/', '/foo/index.html'),
-        );
-    }
-
-    public function testReferer()
-    {
-        $_SERVER['HTTP_REFERER'] = 'test.com';
-
-        $request = new Request(
-            $this->getMock('\Moss\Http\session\SessionInterface'),
-            $this->getMock('\Moss\Http\Cookie\CookieInterface')
-        );
-        $this->assertEquals('test.com', $request->referrer());
-    }
-
-    public function testLocaleFromHeader()
-    {
-        $_SERVER['HTTP_ACCEPT_LANGUAGE'] = 'pl,en-us;q=0.7,en;q=0.3';
-
-        $request = new Request(
-            $this->getMock('\Moss\Http\session\SessionInterface'),
-            $this->getMock('\Moss\Http\Cookie\CookieInterface')
-        );
-        $this->assertEquals('pl', $request->locale());
-    }
-
-    public function testLocaleFromQuery()
-    {
-        $_GET['locale'] = 'pl';
-
-        $request = new Request(
-            $this->getMock('\Moss\Http\session\SessionInterface'),
-            $this->getMock('\Moss\Http\Cookie\CookieInterface')
-        );
-        $this->assertEquals('pl', $request->locale());
-    }
-
-    public function testSetLocale()
-    {
-        $_SERVER['HTTP_ACCEPT_LANGUAGE'] = 'pl,en-us;q=0.7,en;q=0.3';
-
-        $request = new Request(
-            $this->getMock('\Moss\Http\session\SessionInterface'),
-            $this->getMock('\Moss\Http\Cookie\CookieInterface')
-        );
-        $request->locale('en');
-        $this->assertEquals('en', $request->locale());
+        $this->assertEquals('\Foo\Bar\Controller::yada', $request->controller());
     }
 
     public function testFormat()
     {
-        $_GET['format'] = 'json';
-
-        $request = new Request(
-            $this->getMock('\Moss\Http\session\SessionInterface'),
-            $this->getMock('\Moss\Http\Cookie\CookieInterface')
+        $request = new Request();
+        $request->initialize(
+            array('format' => 'json'),
+            array(),
+            array(),
+            array()
         );
+
         $this->assertEquals('json', $request->format());
     }
 
-    public function testSetFormat()
+    public function testReferrer()
     {
-        $request = new Request(
-            $this->getMock('\Moss\Http\session\SessionInterface'),
-            $this->getMock('\Moss\Http\Cookie\CookieInterface')
+        $request = new Request();
+        $request->initialize(
+            array(),
+            array(),
+            array(),
+            array('HTTP_REFERER' => 'http://www.foo.bar/')
         );
-        $request->format('json');
-        $this->assertEquals('json', $request->format());
+
+        $this->assertEquals('http://www.foo.bar/', $request->referrer());
     }
 }

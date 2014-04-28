@@ -97,7 +97,7 @@ class Request implements RequestInterface
     {
         $this->server = $server;
 
-        $this->header = $this->resolveHeaders();
+        $this->header = $this->resolveHeaders(array_merge($get, $post, $server));
         $this->language = $this->resolveLanguages();
 
         if ($this->locale() === null) {
@@ -108,7 +108,7 @@ class Request implements RequestInterface
         $this->path = $this->resolvePath();
         $this->baseName = $this->resolveBaseName();
 
-        $this->query = new Bag($this->resolveGET($get));
+        $this->query = new Bag($this->resolveParameters($get));
         $this->body = new Bag($this->resolveBody($post));
         $this->files = new FilesBag($files);
 
@@ -160,11 +160,12 @@ class Request implements RequestInterface
     /**
      * Resolves headers data
      *
+     * @param array $parameters
+     *
      * @return array
      */
-    protected function resolveHeaders()
+    protected function resolveHeaders(array $parameters)
     {
-        $parameters = array_merge($_GET, $_POST, $_SERVER);
         $headers = array();
 
         foreach ($parameters as $key => $value) {
@@ -208,7 +209,7 @@ class Request implements RequestInterface
      */
     protected function resolveDir()
     {
-        $dir = substr($this->server['SCRIPT_FILENAME'], strlen($this->server['DOCUMENT_ROOT']));
+        $dir = substr($this->server('SCRIPT_FILENAME'), strlen($this->server('DOCUMENT_ROOT')));
         $dir = str_replace('\\', '/', $dir);
         $dir = '/' . trim(substr($dir, 0, strrpos($dir, '/')), '/') . '/';
 
@@ -287,13 +288,13 @@ class Request implements RequestInterface
     }
 
     /**
-     * Resolves query data from passed array and CLI
+     * Resolves request parameters from passed array and CLI
      *
      * @param array $get
      *
      * @return array
      */
-    protected function resolveGET(array $get = array())
+    protected function resolveParameters(array $get = array())
     {
         if ($this->method() != 'CLI' || !isset($GLOBALS['argc']) || !isset($GLOBALS['argv']) || $GLOBALS['argc'] <= 1) {
             return $get;
@@ -390,7 +391,7 @@ class Request implements RequestInterface
             }
         }
 
-        rsort($codes);
+        sort($codes);
 
         return $codes;
     }
@@ -634,6 +635,16 @@ class Request implements RequestInterface
     public function referrer()
     {
         return empty($this->server['HTTP_REFERER']) ? null : $this->server['HTTP_REFERER'];
+    }
+
+    /**
+     * Returns languages sorted by quality (priority)
+     *
+     * @return array
+     */
+    public function language()
+    {
+        return $this->language;
     }
 
     /**
