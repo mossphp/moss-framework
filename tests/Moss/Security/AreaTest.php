@@ -7,44 +7,73 @@ class AreaTest extends \PHPUnit_Framework_TestCase
 
     public function testPattern()
     {
-        $area = new Area('bundle:*:!login|logout');
-        $this->assertEquals('bundle:*:!login|logout', $area->pattern());
+        $area = new Area('bundle/*/(!login|logout)');
+        $this->assertEquals('bundle/*/(!login|logout)', $area->pattern());
     }
 
     public function testRoles()
     {
-        $area = new Area('bundle:*:!login|logout', array('some', 'roles'));
+        $area = new Area('bundle/*/(!login|logout)', array('some', 'roles'));
         $this->assertEquals(array('some', 'roles'), $area->roles());
     }
 
     public function testIps()
     {
-        $area = new Area('bundle:*:!login|!logout', array(), array('127.0.0.1'));
+        $area = new Area('bundle/*/(!login|!logout)', array(), array('127.0.0.1'));
         $this->assertEquals(array('127.0.0.1'), $area->ips());
     }
 
-    public function testMatch()
+    /**
+     * @dataProvider matchingProvider
+     */
+    public function testMatching($path)
     {
-        $area = new Area('bundle:*:!login|logout');
+        $area = new Area('bundle/*/(!login|logout)');
 
-        $requestBlock = $this->getMock('\Moss\Http\request\RequestInterface');
-        $requestBlock
+        $request = $this->getMock('\Moss\Http\Request\RequestInterface');
+        $request
             ->expects($this->any())
-            ->method('controller')
-            ->will($this->returnValue('bundle:something:index'));
-        $this->assertTrue($area->match($requestBlock));
+            ->method('path')
+            ->will($this->returnValue($path));
+        $this->assertTrue($area->match($request));
+    }
 
-        $requestPass = $this->getMock('\Moss\Http\request\RequestInterface');
-        $requestPass
+    public function matchingProvider()
+    {
+        return array(
+            array('/bundle/foo/notLogin'),
+            array('/bundle/foo/notLogout'),
+            array('/bundle/bar/yada'),
+        );
+    }
+
+    /**
+     * @dataProvider notMatchingProvider
+     */
+    public function testNotMatching($path)
+    {
+        $area = new Area('bundle/*/(!login|logout)');
+
+        $request = $this->getMock('\Moss\Http\Request\RequestInterface');
+        $request
             ->expects($this->any())
-            ->method('controller')
-            ->will($this->returnValue('bundle:something:login'));
-        $this->assertFalse($area->match($requestPass));
+            ->method('path')
+            ->will($this->returnValue($path));
+        $this->assertFalse($area->match($request));
+    }
+
+    public function notMatchingProvider()
+    {
+        return array(
+            array('/bundle/foo/login'),
+            array('/bundle/bar/logout'),
+            array('/foo/bar/yada'),
+        );
     }
 
     public function testAuthUserRoleFail()
     {
-        $area = new Area('bundle:*:!login|logout', array('role'));
+        $area = new Area('bundle/*/(!login|logout)', array('role'));
 
         $user = $this->getMock('\Moss\Security\UserInterface');
         $user
@@ -57,14 +86,14 @@ class AreaTest extends \PHPUnit_Framework_TestCase
 
     public function testAuthUserIPFail()
     {
-        $area = new Area('bundle:*:!login|logout', array(), array('127.0.0.1'));
+        $area = new Area('bundle/*/(!login|logout)', array(), array('127.0.0.1'));
         $user = $this->getMock('\Moss\Security\UserInterface');
         $this->assertFalse($area->authorize($user, '127.0.0.2'));
     }
 
     public function testAuthUserRole()
     {
-        $area = new Area('bundle:*:!login|logout', array('role'));
+        $area = new Area('bundle/*/(!login|logout)', array('role'));
 
         $user = $this->getMock('\Moss\Security\UserInterface');
         $user
@@ -77,7 +106,7 @@ class AreaTest extends \PHPUnit_Framework_TestCase
 
     public function testAuthUserIP()
     {
-        $area = new Area('bundle:*:!login|logout', array(), array('127.0.0.1'));
+        $area = new Area('bundle/*/(!login|logout)', array(), array('127.0.0.1'));
         $user = $this->getMock('\Moss\Security\UserInterface');
         $this->assertTrue($area->authorize($user, '127.0.0.1'));
     }

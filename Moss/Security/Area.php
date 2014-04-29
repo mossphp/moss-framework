@@ -21,7 +21,7 @@ use \Moss\Http\Request\RequestInterface;
  */
 class Area implements AreaInterface
 {
-    const ANY = '[^:]+';
+    const ANY = '[^\/]+';
 
     protected $pattern;
     protected $regex;
@@ -42,7 +42,6 @@ class Area implements AreaInterface
         $this->pattern = $pattern;
         $this->regex = $this->buildRegExp($pattern);
 
-        $this->regexp = $this->buildRegExp($pattern);
         $this->roles = (array) $roles;
         $this->ips = (array) $ips;
     }
@@ -56,22 +55,23 @@ class Area implements AreaInterface
      */
     protected function buildRegExp($pattern)
     {
-        preg_match_all('#(' . self::ANY . ')#m', $pattern, $patternMatches);
+        $pattern = '\/'.str_replace('/', '\/', ltrim($pattern, '/'));
+        preg_match_all('#(' . self::ANY . ')#im', $pattern, $patternMatches);
 
         foreach ($patternMatches[1] as &$match) {
             if (strpos($match, '*') !== false) {
                 $match = str_replace('*', self::ANY, $match);
             }
 
-            if (strpos($match, '!') === 0) {
-                $match = self::ANY . '(?<!' . substr($match, 1) . ')';
+            if (preg_match('#\(![^\)]+\)#i', $match)) {
+                $match = preg_replace('/^\(!([^\)]+)\)$/i', '(?!.*\b($1)\b).*', $match);
             }
 
             unset($match);
         }
 
         $pattern = str_replace($patternMatches[0], $patternMatches[1], $pattern);
-        $pattern = '/^' . $pattern . '$/';
+        $pattern = '/^' . $pattern . '$/i';
 
         return $pattern;
     }
@@ -87,7 +87,7 @@ class Area implements AreaInterface
     }
 
     /**
-     * Checks if identifier matches auth url
+     * Checks if path matches auth url
      * Returns true if matches
      *
      * @param RequestInterface $request
@@ -96,11 +96,7 @@ class Area implements AreaInterface
      */
     public function match(RequestInterface $request)
     {
-        if (preg_match($this->regex, $request->controller())) {
-            return true;
-        }
-
-        return false;
+        return (bool) preg_match($this->regex, $request->path());
     }
 
     /**
