@@ -1,6 +1,6 @@
 imports:
     - php
 filter:
-    excluded_paths: [cache/*, compile/*, docs/*, vendor/*, tests/*]
+    excluded_paths: [cache/*, compile/*, docs/*, tests/*, vendor/*, web/* ]
 tools:
     external_code_coverage: true
