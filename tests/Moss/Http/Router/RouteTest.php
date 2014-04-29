@@ -217,7 +217,7 @@ class RouteTest extends \PHPUnit_Framework_TestCase
     public function testMakeWithHost($uri, $pattern, $arguments = array())
     {
         $route = new Route($pattern, 'some:controller', $arguments);
-        $this->assertEquals($uri, $route->make('http', 'host.com', $arguments));
+        $this->assertEquals($uri, $route->make('http://host.com', $arguments));
     }
 
     public function makeProvider()

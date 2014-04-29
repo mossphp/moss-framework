@@ -47,13 +47,8 @@ class RouterTest extends \PHPUnit_Framework_TestCase
 
         $request
             ->expects($this->any())
-            ->method('schema')
-            ->will($this->returnValue('http'));
-
-        $request
-            ->expects($this->any())
-            ->method('host')
-            ->will($this->returnValue('test.com'));
+            ->method('baseName')
+            ->will($this->returnValue('http://test.com'));
 
         $request
             ->expects($this->any())
@@ -176,13 +171,8 @@ class RouterTest extends \PHPUnit_Framework_TestCase
 
         $request
             ->expects($this->any())
-            ->method('schema')
-            ->will($this->returnValue('http'));
-
-        $request
-            ->expects($this->any())
-            ->method('host')
-            ->will($this->returnValue('test.com'));
+            ->method('baseName')
+            ->will($this->returnValue('http://test.com'));
 
         $request
             ->expects($this->any())
@@ -202,8 +192,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         $this->router->match($request);
 
         $expected = array(
-            'schema' => 'http',
-            'host' => 'test.com',
+            'host' => 'http://test.com',
             'controller' => 'router:foo:bar',
             'locale' => 'fr',
             'format' => 'yml'

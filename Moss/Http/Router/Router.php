@@ -24,7 +24,6 @@ class Router implements RouterInterface
 {
 
     protected $defaults = array(
-        'schema' => null,
         'host' => null,
         'controller' => null,
         'locale' => null,
@@ -104,8 +103,7 @@ class Router implements RouterInterface
             $request->controller($route->controller());
 
             $this->defaults = array(
-                'schema' => $request->schema(),
-                'host' => $request->host(),
+                'host' => $request->baseName(),
                 'controller' => $request->controller(),
                 'locale' => $request->locale(),
                 'format' => $request->format()
@@ -132,7 +130,7 @@ class Router implements RouterInterface
         $controller = $this->resolveController($controller);
 
         if (isset($this->routes[$controller])) {
-            return $this->routes[$controller]->make($this->defaults['schema'], $this->defaults['host'], $arguments);
+            return $this->routes[$controller]->make($this->defaults['host'], $arguments);
         }
 
         foreach ($this->routes as $route) {
@@ -140,7 +138,7 @@ class Router implements RouterInterface
                 continue;
             }
 
-            return $route->make($this->defaults['schema'], $this->defaults['host'], $arguments);
+            return $route->make($this->defaults['host'], $arguments);
         }
 
         throw new RouterException('Unable to make url, matching route for "' . $controller . '" not found');

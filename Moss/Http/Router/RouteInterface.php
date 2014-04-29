@@ -102,11 +102,10 @@ interface RouteInterface
     /**
      * Creates route url
      *
-     * @param null|string $schema
-     * @param null|string $host
-     * @param array       $arguments
+     * @param string $host
+     * @param array  $arguments
      *
      * @return string
      */
-    public function make($schema = null, $host = null, $arguments = array());
+    public function make($host, $arguments = array());
 }

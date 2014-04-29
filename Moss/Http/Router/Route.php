@@ -343,14 +343,13 @@ class Route implements RouteInterface
     /**
      * Creates route url
      *
-     * @param null|string $schema
-     * @param null|string $host
-     * @param array       $arguments
+     * @param string $host
+     * @param array  $arguments
      *
      * @return string
      * @throws RouteException
      */
-    public function make($schema = null, $host = null, $arguments = array())
+    public function make($host, $arguments = array())
     {
         foreach (array_keys($this->conditionals) as $key) {
             if (isset($arguments[$key])) {
@@ -397,6 +396,11 @@ class Route implements RouteInterface
         }
 
         $url = ltrim($url, './');
+
+        $schema = null;
+        if (strpos($host, '://') !== false) {
+            list($schema, $host) = explode('://', rtrim($host, '/'));
+        }
 
         if ($this->host && !preg_match('/^' . str_replace('#basename#', '.*', preg_quote($this->host)) . '$/', $host)) {
             $host = str_replace('#basename#', $host, $this->host);
