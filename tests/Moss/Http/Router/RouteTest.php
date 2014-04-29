@@ -217,33 +217,24 @@ class RouteTest extends \PHPUnit_Framework_TestCase
     public function testMakeWithHost($uri, $pattern, $arguments = array())
     {
         $route = new Route($pattern, 'some:controller', $arguments);
-        $this->assertEquals('Http://host.com/'.ltrim($uri, '/'), $route->make('Http://host.com/', $arguments));
-    }
-
-    /**
-     * @dataProvider makeProvider
-     */
-    public function testMakeWithoutHost($uri, $pattern, $arguments = array())
-    {
-        $route = new Route($pattern, 'some:controller', $arguments);
-        $this->assertEquals('./'.ltrim($uri, '/'), $route->make(null, $arguments));
+        $this->assertEquals($uri, $route->make('http', 'host.com', $arguments));
     }
 
     public function makeProvider()
     {
         return array(
-            array('/foo/', '/foo/'),
-            array('/foo/', '/foo/', array('foo' => 123)),
-            array('/foo/1/', '/foo/{bar:\d}/', array('bar' => 1)),
-            array('/foo/123/', '/foo/{bar:\d}/', array('bar' => 123)),
-            array('/foo/1/a/', '/foo/{bar:\d}/{yada:\w}/', array('bar' => 1, 'yada' => 'a')),
-            array('/foo/123/abc/', '/foo/{bar:\d}/{yada:\w}/', array('bar' => 123, 'yada' => 'abc')),
-            array('/foo/1/', '/foo/{bar:\d}/({yada:\w}/)', array('bar' => 1)),
-            array('/foo/123/abc/', '/foo/{bar:\d}/({yada:\w}/)', array('bar' => 123, 'yada' => 'abc')),
-            array('/foo/1/a.html', '/foo/{bar:\d}/{yada:\w}.html', array('bar' => 1, 'yada' => 'a')),
-            array('/foo/123/abc.html', '/foo/{bar:\d}/{yada:\w}.html', array('bar' => 123, 'yada' => 'abc')),
-            array('/foo/1/', '/foo/{bar:\d}/({yada:\w}.html)', array('bar' => 1)),
-            array('/foo/123/abc.html', '/foo/{bar:\d}/({yada:\w}.html)', array('bar' => 123, 'yada' => 'abc')),
+            array('http://host.com/foo/', '/foo/'),
+            array('http://host.com/foo/', '/foo/', array('foo' => 123)),
+            array('http://host.com/foo/1/', '/foo/{bar:\d}/', array('bar' => 1)),
+            array('http://host.com/foo/123/', '/foo/{bar:\d}/', array('bar' => 123)),
+            array('http://host.com/foo/1/a/', '/foo/{bar:\d}/{yada:\w}/', array('bar' => 1, 'yada' => 'a')),
+            array('http://host.com/foo/123/abc/', '/foo/{bar:\d}/{yada:\w}/', array('bar' => 123, 'yada' => 'abc')),
+            array('http://host.com/foo/1/', '/foo/{bar:\d}/({yada:\w}/)', array('bar' => 1)),
+            array('http://host.com/foo/123/abc/', '/foo/{bar:\d}/({yada:\w}/)', array('bar' => 123, 'yada' => 'abc')),
+            array('http://host.com/foo/1/a.html', '/foo/{bar:\d}/{yada:\w}.html', array('bar' => 1, 'yada' => 'a')),
+            array('http://host.com/foo/123/abc.html', '/foo/{bar:\d}/{yada:\w}.html', array('bar' => 123, 'yada' => 'abc')),
+            array('http://host.com/foo/1/', '/foo/{bar:\d}/({yada:\w}.html)', array('bar' => 1)),
+            array('http://host.com/foo/123/abc.html', '/foo/{bar:\d}/({yada:\w}.html)', array('bar' => 123, 'yada' => 'abc')),
         );
     }
 

@@ -343,14 +343,14 @@ class Route implements RouteInterface
     /**
      * Creates route url
      *
+     * @param null|string $schema
      * @param null|string $host
      * @param array       $arguments
-     * @param bool        $forceRelative
      *
      * @return string
      * @throws RouteException
      */
-    public function make($host = null, $arguments = array(), $forceRelative = false)
+    public function make($schema = null, $host = null, $arguments = array())
     {
         foreach (array_keys($this->conditionals) as $key) {
             if (isset($arguments[$key])) {
@@ -397,19 +397,6 @@ class Route implements RouteInterface
         }
 
         $url = ltrim($url, './');
-
-        if (!empty($this->host) && empty($host)) {
-            throw new RouteException('Unable to create absolute url. Invalid or empty host name');
-        }
-
-        if (empty($this->host) && (empty($host) || $forceRelative == true)) {
-            return './' . $url;
-        }
-
-        $schema = null;
-        if (strpos($host, '://') !== false) {
-            list($schema, $host) = explode('://', rtrim($host, '/'));
-        }
 
         if ($this->host && !preg_match('/^' . str_replace('#basename#', '.*', preg_quote($this->host)) . '$/', $host)) {
             $host = str_replace('#basename#', $host, $this->host);
