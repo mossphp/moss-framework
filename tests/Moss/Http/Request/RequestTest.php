@@ -6,6 +6,16 @@ namespace Moss\Http\Request;
  */
 class RequestTest extends \PHPUnit_Framework_TestCase
 {
+    public function tearDown()
+    {
+        if (isset($GLOBALS['argc'])) {
+            unset($GLOBALS['argc']);
+        }
+
+        if (isset($GLOBALS['argv'])) {
+            unset($GLOBALS['argv']);
+        }
+    }
 
     /**
      * @dataProvider serverProvider
@@ -172,9 +182,58 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('en', $request->locale());
     }
 
-    public function testQueryCLI()
+    /**
+     * @dataProvider consoleProvider
+     */
+    public function testConsole($arg, $expected, $url = null)
     {
-        $this->markTestIncomplete();
+        $GLOBALS['argc'] = count($arg);
+        $GLOBALS['argv'] = $arg;
+
+        $request = new Request();
+        $request->initialize(
+            array(),
+            array(),
+            array(),
+            array(
+                'REQUEST_METHOD' => 'CLI'
+            )
+        );
+
+        $this->assertEquals($expected, $request->query->all());
+        $this->assertEquals($url, $request->path());
+    }
+
+    public function consoleProvider()
+    {
+        return array(
+            array(
+                array('index.php', 'foo'),
+                array(),
+                'foo'
+            ),
+            array(
+                array('index.php', '-foo'),
+                array('foo' => true)
+            ),
+            array(
+                array('index.php', '--foo'),
+                array('foo' => true)
+            ),
+            array(
+                array('index.php', 'foo=bar'),
+                array(),
+                'foo=bar'
+            ),
+            array(
+                array('index.php', '-foo=bar'),
+                array('foo' => 'bar')
+            ),
+            array(
+                array('index.php', '--foo=bar'),
+                array('foo' => 'bar')
+            ),
+        );
     }
 
     /**
