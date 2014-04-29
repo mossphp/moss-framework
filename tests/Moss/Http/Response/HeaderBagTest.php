@@ -181,8 +181,8 @@ class HeaderBagTest extends \PHPUnit_Framework_TestCase
         return array(
             array('Content-Type', 'text/plain'),
             array('Content-Type', 'text/html; charset=UTF-8'),
-            array('Location', 'Http://google.com'),
-            array('Refresh', '10; URL=Http://google.com'),
+            array('Location', 'http://google.com'),
+            array('Refresh', '10; URL=http://google.com'),
         );
     }
 }
