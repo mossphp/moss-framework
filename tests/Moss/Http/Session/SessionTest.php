@@ -3,6 +3,8 @@ namespace Moss\Http\Session;
 
 class MockSession extends Session
 {
+    private $randCounter = 0;
+
     public function __construct($name = 'PHPSESSID', $cacheLimiter = '')
     {
         $this->name($name);
@@ -37,7 +39,7 @@ class MockSession extends Session
 
     private function rand()
     {
-        return substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyz"), 0, 1) . substr(md5(microtime(true)), 1);
+        return md5($this->randCounter++);
     }
 }
 
