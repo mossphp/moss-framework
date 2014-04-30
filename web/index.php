@@ -25,7 +25,7 @@ use Moss\Http\Request\Request;
 use Moss\Http\Session\Session;
 use Moss\Http\Cookie\Cookie;
 
-use Moss\Kernel\Kernel;
+use Moss\Kernel\App;
 
 // autoloader
 $loader = new Loader();
@@ -33,5 +33,5 @@ $loader->addNamespace('Moss', array(__DIR__ . '/../Moss/'));
 $loader->addNamespace(null, array(__DIR__ . '/../src/'));
 $loader->register();
 
-$moss = new \Moss\Moss(require __DIR__ . '/bootstrap.php');
+$moss = new \Moss\Kernel\App(require __DIR__ . '/bootstrap.php');
 $moss->run()->send();
