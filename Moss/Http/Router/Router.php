@@ -144,6 +144,14 @@ class Router implements RouterInterface
         throw new RouterException('Unable to make url, matching route for "' . $controller . '" not found');
     }
 
+    /**
+     * Resolves controller from passed value or from defaults
+     *
+     * @param mixed $controller
+     *
+     * @return mixed
+     * @throws RouterException
+     */
     private function resolveController($controller)
     {
         if ($controller) {

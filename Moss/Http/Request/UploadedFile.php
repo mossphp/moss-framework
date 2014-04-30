@@ -25,6 +25,7 @@ class UploadedFile extends \SplFileInfo
      * Constructor
      *
      * @param array $array
+     *
      * @throws UploadedFileException
      */
     public function __construct(array $array)
@@ -55,7 +56,7 @@ class UploadedFile extends \SplFileInfo
      *
      * @param string $path
      * @param string $file
-     * @param bool $overwrite
+     * @param bool   $overwrite
      *
      * @return \SplFileObject
      * @throws UploadedFileException
@@ -82,6 +83,14 @@ class UploadedFile extends \SplFileInfo
         return new \SplFileObject($target);
     }
 
+    /**
+     * Builds file name with path
+     *
+     * @param string      $path
+     * @param null|string $file
+     *
+     * @return string
+     */
     protected function getTarget($path, $file = null)
     {
         if ($file === null) {

@@ -155,6 +155,14 @@ class View implements ViewInterface
         return ob_get_clean();
     }
 
+    /**
+     * Translates view identifier to path
+     *
+     * @param string $name
+     *
+     * @return mixed|string
+     * @throws ViewException
+     */
     protected function traslate($name)
     {
         preg_match_all('/^(?P<bundle>[^:]+):(?P<directory>[^:]*:)?(?P<file>.+)$/', $name, $matches, \PREG_SET_ORDER);

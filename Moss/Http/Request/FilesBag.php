@@ -44,6 +44,14 @@ class FilesBag extends Bag
         parent::__construct();
     }
 
+    /**
+     * Rebuilds $_FILES array
+     *
+     * @param array $result
+     * @param string $property
+     * @param array $node
+     * @param string $path
+     */
     protected function property(&$result, $property, $node, $path = '')
     {
         if (is_array($node)) {

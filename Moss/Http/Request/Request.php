@@ -316,6 +316,12 @@ class Request implements RequestInterface
         return array_merge($get, $cli);
     }
 
+    /**
+     * Removes quotes
+     * @param string $val
+     *
+     * @return string
+     */
     protected function unquote(&$val)
     {
         return $val = trim($val, '"\'');
@@ -442,6 +448,15 @@ class Request implements RequestInterface
         return $this->getFromArray($this->header, $key, $default);
     }
 
+    /**
+     * Retrieves value from passed array
+     *
+     * @param array $array
+     * @param null|string $key
+     * @param null|string $default
+     *
+     * @return null
+     */
     private function getFromArray($array, $key = null, $default = null)
     {
         if ($key === null) {

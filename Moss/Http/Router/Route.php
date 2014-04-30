@@ -275,6 +275,13 @@ class Route implements RouteInterface
         return true;
     }
 
+    /**
+     * Returns true if request matches schema or if no schema restrictions set
+     *
+     * @param RequestInterface $request
+     *
+     * @return bool
+     */
     private function matchSchema(RequestInterface $request)
     {
         if (empty($this->schema)) {
@@ -288,6 +295,13 @@ class Route implements RouteInterface
         return false;
     }
 
+    /**
+     * Returns true if request matches methods or if no methods restrictions set
+     *
+     * @param RequestInterface $request
+     *
+     * @return bool
+     */
     private function matchMethods(RequestInterface $request)
     {
         if (empty($this->methods)) {
@@ -300,6 +314,13 @@ class Route implements RouteInterface
         return false;
     }
 
+    /**
+     * Returns true if request matches host or if no host restrictions set
+     *
+     * @param RequestInterface $request
+     *
+     * @return bool
+     */
     private function matchHost(RequestInterface $request)
     {
         if (empty($this->host)) {
@@ -428,11 +449,27 @@ class Route implements RouteInterface
         return $urlString;
     }
 
+    /**
+     * Builds key
+     *
+     * @param string $key
+     *
+     * @return string
+     */
     private function key($key)
     {
         return '#' . $key . '#';
     }
 
+    /**
+     * Asserts argument value
+     *
+     * @param $regex
+     * @param $value
+     * @param $key
+     *
+     * @throws RouteException
+     */
     private function assertArgumentValue($regex, $value, $key)
     {
         if (!preg_match('/^' . $regex . '$/i', $value)) {
