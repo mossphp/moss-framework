@@ -321,7 +321,7 @@ class Moss
             throw new MossException(sprintf('Invalid controller type, got "%s"', gettype($controller)));
         }
 
-        if(is_scalar($response)) {
+        if (is_scalar($response)) {
             return new Response($response);
         }
 

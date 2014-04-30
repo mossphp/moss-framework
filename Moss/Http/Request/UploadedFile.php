@@ -68,7 +68,7 @@ class UploadedFile extends \SplFileInfo
 
         $target = $this->getTarget($path, $file);
 
-        if(!$overwrite && is_file($target)) {
+        if (!$overwrite && is_file($target)) {
             throw new UploadedFileException(sprintf('Could not move the file "%s" to "%s" ( Target file already exists )', $this->getPathname(), $target));
         }
 
@@ -168,4 +168,4 @@ class UploadedFile extends \SplFileInfo
     {
         return $this->raw['error'] === UPLOAD_ERR_OK && is_uploaded_file($this->getPathname());
     }
-} 
+}
