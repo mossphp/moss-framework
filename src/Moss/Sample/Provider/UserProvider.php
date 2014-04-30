@@ -38,7 +38,7 @@ class UserProvider implements UserProviderInterface
      *
      * @param array $credentials
      *
-     * @return $this
+     * @return TokenInterface
      * @throws AuthenticationException
      */
     public function tokenize(array $credentials)
