@@ -111,13 +111,25 @@ class Response implements ResponseInterface
     {
         if ($content !== null) {
             if (!is_scalar($content) && !is_callable(array($content, '__toString'))) {
-                throw new ResponseException('Response content must be a scalar or object with __toString() method "' . (is_object($content) ? get_class($content) : gettype($content)) . '" given.');
+                throw new ResponseException('Response content must be a scalar or object with __toString() method "' . $this->getType($content) . '" given.');
             }
 
             $this->content = (string) $content;
         }
 
         return $this->content;
+    }
+
+    /**
+     * Returns variable type or its class in case of objects
+     *
+     * @param mixed $var
+     *
+     * @return string
+     */
+    private function getType($var)
+    {
+        return is_object($var) ? get_class($var) : gettype($var);
     }
 
     /**
