@@ -217,24 +217,45 @@ class RouteTest extends \PHPUnit_Framework_TestCase
     public function testMakeWithHost($uri, $pattern, $arguments = array())
     {
         $route = new Route($pattern, 'some:controller', $arguments);
-        $this->assertEquals($uri, $route->make('http://host.com', $arguments));
+        $this->assertEquals('http://host.com' . $uri, $route->make('http://host.com', $arguments));
     }
 
     public function makeProvider()
     {
         return array(
-            array('http://host.com/foo/', '/foo/'),
-            array('http://host.com/foo/', '/foo/', array('foo' => 123)),
-            array('http://host.com/foo/1/', '/foo/{bar:\d}/', array('bar' => 1)),
-            array('http://host.com/foo/123/', '/foo/{bar:\d}/', array('bar' => 123)),
-            array('http://host.com/foo/1/a/', '/foo/{bar:\d}/{yada:\w}/', array('bar' => 1, 'yada' => 'a')),
-            array('http://host.com/foo/123/abc/', '/foo/{bar:\d}/{yada:\w}/', array('bar' => 123, 'yada' => 'abc')),
-            array('http://host.com/foo/1/', '/foo/{bar:\d}/({yada:\w}/)', array('bar' => 1)),
-            array('http://host.com/foo/123/abc/', '/foo/{bar:\d}/({yada:\w}/)', array('bar' => 123, 'yada' => 'abc')),
-            array('http://host.com/foo/1/a.html', '/foo/{bar:\d}/{yada:\w}.html', array('bar' => 1, 'yada' => 'a')),
-            array('http://host.com/foo/123/abc.html', '/foo/{bar:\d}/{yada:\w}.html', array('bar' => 123, 'yada' => 'abc')),
-            array('http://host.com/foo/1/', '/foo/{bar:\d}/({yada:\w}.html)', array('bar' => 1)),
-            array('http://host.com/foo/123/abc.html', '/foo/{bar:\d}/({yada:\w}.html)', array('bar' => 123, 'yada' => 'abc')),
+            array('/foo/', '/foo/'),
+            array('/foo/', '/foo/', array('foo' => 123)),
+            array('/foo/1/', '/foo/{bar:\d}/', array('bar' => 1)),
+            array('/foo/123/', '/foo/{bar:\d}/', array('bar' => 123)),
+            array('/foo/1/a/', '/foo/{bar:\d}/{yada:\w}/', array('bar' => 1, 'yada' => 'a')),
+            array('/foo/123/abc/', '/foo/{bar:\d}/{yada:\w}/', array('bar' => 123, 'yada' => 'abc')),
+            array('/foo/1/', '/foo/{bar:\d}/({yada:\w}/)', array('bar' => 1)),
+            array('/foo/123/abc/', '/foo/{bar:\d}/({yada:\w}/)', array('bar' => 123, 'yada' => 'abc')),
+            array('/foo/1/a.html', '/foo/{bar:\d}/{yada:\w}.html', array('bar' => 1, 'yada' => 'a')),
+            array('/foo/123/abc.html', '/foo/{bar:\d}/{yada:\w}.html', array('bar' => 123, 'yada' => 'abc')),
+            array('/foo/1/', '/foo/{bar:\d}/({yada:\w}.html)', array('bar' => 1)),
+            array('/foo/123/abc.html', '/foo/{bar:\d}/({yada:\w}.html)', array('bar' => 123, 'yada' => 'abc')),
+        );
+    }
+
+    /**
+     * @dataProvider hostProvider
+     */
+    public function testMakeWithHostSubDomain($schema, $host)
+    {
+        $route = new Route('/foo/', 'some:controller');
+        $route->host('sub.#basename#');
+        $this->assertEquals($schema . '://sub.' . $host . '/foo/', $route->make($schema . '://' . $host));
+    }
+
+    public function hostProvider()
+    {
+        return array(
+            array('http', 'foo.com'),
+            array('http', 'bar.com'),
+            array('https', 'foo.com'),
+            array('https', 'bar.com'),
+            array('http', 'ver.sub.domain.com'),
         );
     }
 

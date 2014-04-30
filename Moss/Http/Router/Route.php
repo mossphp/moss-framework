@@ -327,8 +327,7 @@ class Route implements RouteInterface
             return true;
         }
 
-        $regex = str_replace('#basename#', '.*', preg_quote($this->host));
-
+        $regex = str_replace($this->key('basename'), '.*', preg_quote($this->host));
         if (preg_match('/^' . $regex . '$/', $request->host())) {
             return true;
         }
@@ -423,8 +422,9 @@ class Route implements RouteInterface
             list($schema, $host) = explode('://', rtrim($host, '/'));
         }
 
-        if ($this->host && !preg_match('/^' . str_replace('#basename#', '.*', preg_quote($this->host)) . '$/', $host)) {
-            $host = str_replace('#basename#', $host, $this->host);
+        $regex = '/^' . str_replace($this->key('basename'), '.*', preg_quote($this->host)) . '$/';
+        if ($this->host && !preg_match($regex, $host)) {
+            $host = str_replace($this->key('basename'), $host, $this->host);
         }
 
         return ($schema ? $schema . '://' : null) . $host . '/' . $url;
