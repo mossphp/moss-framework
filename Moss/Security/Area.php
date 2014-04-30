@@ -64,7 +64,7 @@ class Area implements AreaInterface
             }
 
             if (preg_match('#\(![^\)]+\)#i', $match)) {
-                $match = preg_replace('/^\(!([^\)]+)\)$/i', '(?!.*\b($1)\b).*', $match);
+                $match = preg_replace('/^\(!([^\)]+)\)$/i', '(?!.*\b($1)\b).+', $match);
             }
 
             unset($match);

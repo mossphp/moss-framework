@@ -67,7 +67,10 @@ class AreaTest extends \PHPUnit_Framework_TestCase
         return array(
             array('/bundle/foo/login'),
             array('/bundle/bar/logout'),
+            array('/bundle/foo/'),
+            array('/bundle/bar/'),
             array('/foo/bar/yada'),
+            array('/foo/bar/'),
         );
     }
 
