@@ -9,15 +9,15 @@
  * file that was distributed with this source code.
  */
 
-namespace Moss;
+namespace Moss\Kernel;
 
 /**
- * Moss exception
+ * Moss Kernel exception
  *
- * @package Moss
+ * @package Moss Kernel
  * @author  Michal Wachowski <wachowski.michal@gmail.com>
  */
-class MossException extends \Exception
+class AppException extends \Exception
 {
 
 }

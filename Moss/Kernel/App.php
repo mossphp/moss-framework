@@ -9,14 +9,12 @@
 * file that was distributed with this source code.
 */
 
-namespace Moss;
+namespace Moss\Kernel;
 
 use Moss\Config\Config;
 use Moss\Http\Response\Response;
 use Moss\Http\Response\ResponseInterface;
 use Moss\Http\Router\RouterException;
-use Moss\Kernel\ErrorHandler;
-use Moss\Kernel\ExceptionHandler;
 use Moss\Container\Container;
 use Moss\Dispatcher\Dispatcher;
 use Moss\Http\Router\Router;
@@ -26,7 +24,13 @@ use Moss\Http\Session\Session;
 use Moss\Http\Cookie\Cookie;
 use Moss\Security\SecurityException;
 
-class Moss
+/**
+ * Moss app kernel
+ *
+ * @package Moss Kernel
+ * @author  Michal Wachowski <wachowski.michal@gmail.com>
+ */
+class App
 {
     const SEPARATOR = '::';
 
@@ -101,6 +105,13 @@ class Moss
             ->register('request', $this->request);
     }
 
+    /**
+     * Builds container and its definitions
+     *
+     * @param array $config
+     *
+     * @return Container
+     */
     private function buildContainer(array $config)
     {
         $container = new Container();
@@ -116,6 +127,14 @@ class Moss
         return $container;
     }
 
+    /**
+     * Creates dispatcher instance and event listeners
+     *
+     * @param Container $container
+     * @param array     $config
+     *
+     * @return Dispatcher
+     */
     private function buildDispatcher(Container $container, array $config)
     {
         $dispatcher = new Dispatcher($container);
@@ -128,6 +147,13 @@ class Moss
         return $dispatcher;
     }
 
+    /**
+     * Builds router, routes and registers routes in router
+     *
+     * @param array $config
+     *
+     * @return Router
+     */
     private function buildRouter(array $config)
     {
         $router = new Router();
@@ -263,11 +289,11 @@ class Moss
             $response = $this->callController($action, $this->request);
 
             if (!$response) {
-                throw new MossException(sprintf('There was no response returned from the controller "%s" handling "%s"', $action, $this->request->uri(true)));
+                throw new AppException(sprintf('There was no response returned from the controller "%s" handling "%s"', $action, $this->request->uri(true)));
             }
 
             if (!$response instanceof ResponseInterface) {
-                throw new MossException(sprintf('Response returned from "%s" handling "%s" must be instance of ResponseInterface, got "%s"', $action, $this->request->uri(true), is_object($response) ? get_class($response) : gettype($response)));
+                throw new AppException(sprintf('Response returned from "%s" handling "%s" must be instance of ResponseInterface, got "%s"', $action, $this->request->uri(true), is_object($response) ? get_class($response) : gettype($response)));
             }
 
             $response = $this->fire('kernel.response', $response);
@@ -286,12 +312,19 @@ class Moss
         }
 
         if (!$response instanceof ResponseInterface) {
-            throw new MossException(sprintf('Received response is not an instance of ResponseInterface', $this->request->uri(true)));
+            throw new AppException(sprintf('Received response is not an instance of ResponseInterface', $this->request->uri(true)));
         }
 
         return $this->fire('kernel.send', $response);
     }
 
+    /**
+     * Builds event message from exception
+     *
+     * @param \Exception $e
+     *
+     * @return string
+     */
     private function eventMsg(\Exception $e)
     {
         return sprintf('%s (%s line:%s)', $e->getMessage(), $e->getFile(), $e->getLine());
@@ -299,11 +332,13 @@ class Moss
 
     /**
      * Calls controller from callable or class
+
      *
-     * @param string|array|callable $controller
+*@param string|array|callable $controller
+
      *
-     * @return mixed
-     * @throws MossException
+*@return mixed
+     * @throws AppException
      */
     private function callController($controller)
     {
@@ -318,7 +353,7 @@ class Moss
         } elseif (is_callable($controller)) {
             $response = $this->callClosureController($controller);
         } else {
-            throw new MossException(sprintf('Invalid controller type, got "%s"', gettype($controller)));
+            throw new AppException(sprintf('Invalid controller type, got "%s"', gettype($controller)));
         }
 
         if (is_scalar($response)) {
@@ -328,15 +363,33 @@ class Moss
         return $response;
     }
 
+    /**
+     * Calls function as controller
+     *
+     * @param string $function
+     *
+     * @return string|ResponseInterface
+     */
     private function callFunctionController($function)
     {
         return call_user_func($function, $this);
     }
 
+    /**
+     * Calls class method as controller
+
+     *
+*@param string $controller
+     * @param string $action
+
+     *
+*@return string|ResponseInterface
+     * @throws AppException
+     */
     private function callClassController($controller, $action)
     {
         if (!class_exists($controller)) {
-            throw new MossException(sprintf('Invalid class name or class "%s" does not exists', $controller));
+            throw new AppException(sprintf('Invalid class name or class "%s" does not exists', $controller));
         }
 
         $instance = new $controller($this);
@@ -346,7 +399,7 @@ class Moss
         }
 
         if (false === $response = $this->callMethod($instance, $action)) {
-            throw new MossException(sprintf('Unable to call action "%s" on controller "%s"', $action, $controller));
+            throw new AppException(sprintf('Unable to call action "%s" on controller "%s"', $action, $controller));
         }
 
         if ($res = $this->callMethod($instance, 'after')) {
@@ -373,6 +426,13 @@ class Moss
         return call_user_func(array($instance, $method));
     }
 
+    /**
+     * Calls closure as controller
+     *
+     * @param callable $closure
+     *
+     * @return string|ResponseInterface
+     */
     private function callClosureController($closure)
     {
         return $closure($this);
