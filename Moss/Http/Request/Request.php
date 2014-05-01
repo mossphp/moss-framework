@@ -47,7 +47,7 @@ class Request implements RequestInterface
     public $body;
 
     /**
-     * @var BagInterface
+     * @var BagInterface|FilesBag
      */
     public $files;
 
