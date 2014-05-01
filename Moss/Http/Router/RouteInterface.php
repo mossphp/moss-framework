@@ -95,7 +95,7 @@ interface RouteInterface
      * @param       $controller
      * @param array $arguments
      *
-     * @return mixed
+     * @return bool
      */
     public function check($controller, $arguments = array());
 
