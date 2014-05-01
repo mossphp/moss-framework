@@ -129,7 +129,7 @@ class Router implements RouterInterface
     {
         $controller = $this->resolveController($controller);
 
-        if (isset($this->routes[$controller])) {
+        if (is_scalar($controller) && isset($this->routes[$controller])) {
             return $this->routes[$controller]->make($this->defaults['host'], $arguments);
         }
 
