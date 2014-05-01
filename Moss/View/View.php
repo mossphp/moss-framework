@@ -31,7 +31,7 @@ class View implements ViewInterface
      * @param array  $vars
      * @param string $pattern
      */
-    public function __construct(array $vars = array(), $pattern = '../src/{bundle}/{directory}/view/{file}.php')
+    public function __construct(array $vars = array(), $pattern = '../src/{bundle}/{directory}/View/{file}.php')
     {
         $this->vars = $vars;
         $this->pattern = $pattern;
