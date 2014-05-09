@@ -12,16 +12,16 @@
 namespace Moss\Kernel;
 
 use Moss\Config\Config;
-use Moss\Http\Response\Response;
-use Moss\Http\Response\ResponseInterface;
-use Moss\Http\Router\RouterException;
 use Moss\Container\Container;
 use Moss\Dispatcher\Dispatcher;
-use Moss\Http\Router\Router;
-use Moss\Http\Router\Route;
-use Moss\Http\Request\Request;
-use Moss\Http\Session\Session;
 use Moss\Http\Cookie\Cookie;
+use Moss\Http\Request\Request;
+use Moss\Http\Response\Response;
+use Moss\Http\Response\ResponseInterface;
+use Moss\Http\Router\Route;
+use Moss\Http\Router\Router;
+use Moss\Http\Router\RouterException;
+use Moss\Http\Session\Session;
 use Moss\Security\SecurityException;
 
 /**
@@ -88,7 +88,7 @@ class App
 
 // components
         $this->container = $this->buildContainer((array) $this->config->get('container'));
-        $this->dispatcher = $this->buildDispatcher($this->container, $this->config->get('dispatcher'));
+        $this->dispatcher = $this->buildDispatcher($this->config->get('dispatcher'));
         $this->router = $this->buildRouter((array) $this->config->get('router'));
 
         $this->session = new Session($this->config->get('framework.session.name'), $this->config->get('framework.session.cacheLimiter'));
@@ -130,14 +130,13 @@ class App
     /**
      * Creates dispatcher instance and event listeners
      *
-     * @param Container $container
-     * @param array     $config
+     * @param array $config
      *
      * @return Dispatcher
      */
-    private function buildDispatcher(Container $container, array $config)
+    private function buildDispatcher(array $config)
     {
-        $dispatcher = new Dispatcher($container);
+        $dispatcher = new Dispatcher($this->container);
         foreach ((array) $config as $event => $listeners) {
             foreach ($listeners as $listener) {
                 $dispatcher->register($event, $listener);
@@ -332,12 +331,10 @@ class App
 
     /**
      * Calls controller from callable or class
-
      *
-*@param string|array|callable $controller
-
+     * @param string|array|callable $controller
      *
-*@return mixed
+     * @return mixed
      * @throws AppException
      */
     private function callController($controller)
@@ -377,13 +374,11 @@ class App
 
     /**
      * Calls class method as controller
-
      *
-*@param string $controller
+     * @param string $controller
      * @param string $action
-
      *
-*@return string|ResponseInterface
+     * @return string|ResponseInterface
      * @throws AppException
      */
     private function callClassController($controller, $action)
