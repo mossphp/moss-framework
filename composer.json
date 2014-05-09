@@ -35,6 +35,6 @@
 		"moss/bridge": "Adds Twig as templating engine with additional functionalities"
 	},
 	"autoload": {
-		"psr-0": { "": "src/", "Moss": "" }
+		"psr-4": { "": "src/", "Moss\\": "Moss/" }
 	}
 }
