@@ -187,6 +187,21 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
         );
     }
 
+    public function testPrefixedImport()
+    {
+        $data = array(
+            'import' => array(
+                'prefix' => array(
+                    'container' => array('var' => 'value')
+                )
+            )
+        );
+
+        $config = new Config();
+        $config->import($data);
+        $this->assertEquals('value', $config->get('container.prefix:var'));
+    }
+
     /**
      * @expectedException \Moss\Config\ConfigException
      * @expectedExceptionMessage Event listener must be callable
@@ -268,5 +283,98 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
     {
         $config = new Config();
         $this->assertNull($config->get('directories.foo'));
+    }
+
+    /**
+     * @dataProvider dataProvider
+     */
+    public function testOffsetUnset($offset, $value)
+    {
+        $config = new Config();
+        $config['container'][$offset] = $value;
+        unset($config['container'][$offset]);
+        $this->assertEquals(4, $config->count());
+    }
+
+    /**
+     * @dataProvider dataProvider
+     */
+    public function testOffsetGetSet($offset, $value)
+    {
+        $config = new Config();
+        $config->offsetSet($offset, $value);
+        $this->assertEquals($value, $config[$offset]);
+    }
+
+    /**
+     * @dataProvider dataProvider
+     */
+    public function testOffsetGetEmpty($offset)
+    {
+        $config = new Config();
+        $this->assertNull(null, $config[$offset]);
+    }
+
+    /**
+     * @dataProvider dataProvider
+     */
+    public function testOffsetSetWithoutKey($value)
+    {
+        $config = new Config();
+        $config[] = $value;
+        $this->assertEquals($value, $config[0]);
+    }
+
+    /**
+     * @dataProvider dataProvider
+     */
+    public function testOffsetExists($offset, $value)
+    {
+        $config = new Config();
+        $config->offsetSet($offset, $value);
+        $this->assertTrue(isset($config[$offset]));
+    }
+
+    /**
+     * @dataProvider dataProvider
+     */
+    public function testCount($offset, $value)
+    {
+        $config = new Config();
+        $config->offsetSet(1, $offset);
+        $config->offsetSet(2, $value);
+        $this->assertEquals(6, $config->count());
+    }
+
+    public function dataProvider()
+    {
+        return array(
+            array('foo', 1, array('foo' => 1)),
+            array('bar', 'lorem', array('bar' => 'lorem')),
+            array('yada', array('yada' => 'yada'), array('yada' => array('yada' => 'yada'))),
+            array('dada', new \stdClass(), array('dada' => new \stdClass())),
+            array('foo.bar', 'yada', array('foo' => array('bar' => 'yada')), array('foo' => array()))
+        );
+    }
+
+    public function testIterator()
+    {
+        $config = new Config();
+
+        $expected = array(
+            'framework' => array(
+                'error' => array('display' => true, 'level' => -1, 'detail' => true),
+                'session' => array('name' => 'PHPSESSID', 'cacheLimiter' => ''),
+                'cookie' => array('domain' => null, 'path' => '/', 'http' => true, 'ttl' => 2592000)
+            ),
+            'container' => array(),
+            'dispatcher' => array(),
+            'router' => array(),
+        );
+
+        foreach ($config as $key => $val) {
+            $this->assertTrue(isset($expected[$key]));
+            $this->assertEquals($expected[$key], $val);
+        }
     }
 }
