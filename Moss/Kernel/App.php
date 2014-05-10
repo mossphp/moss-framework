@@ -80,10 +80,10 @@ class App
         $this->config = new Config($config, $mode);
 
 // error handling
-        $errHandler = new ErrorHandler($this->config->get('framework.error.level'));
+        $errHandler = new ErrorHandler($this->config['framework']['error']['level']);
         $errHandler->register();
 
-        $excHandler = new ExceptionHandler($this->config->get('framework.error.detail') && isset($_SERVER['REQUEST_METHOD']));
+        $excHandler = new ExceptionHandler($this->config['framework']['error']['detail'] && isset($_SERVER['REQUEST_METHOD']));
         $excHandler->register();
 
 // components
@@ -91,8 +91,8 @@ class App
         $this->dispatcher = $this->buildDispatcher($this->config->get('dispatcher'));
         $this->router = $this->buildRouter((array) $this->config->get('router'));
 
-        $this->session = new Session($this->config->get('framework.session.name'), $this->config->get('framework.session.cacheLimiter'));
-        $this->cookie = new Cookie($this->config->get('framework.cookie.domain'), $this->config->get('framework.cookie.path'));
+        $this->session = new Session($this->config['framework']['session']['name'], $this->config['framework']['session']['cacheLimiter']);
+        $this->cookie = new Cookie($this->config['framework']['cookie']['domain'], $this->config['framework']['cookie']['path']);
         $this->request = new Request($this->session, $this->cookie);
 
 // registering components
