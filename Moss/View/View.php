@@ -144,13 +144,17 @@ class View implements ViewInterface
      * Renders view
      *
      * @return string
-     * @throws \InvalidArgumentException
+     * @throws ViewException
      */
     public function render()
     {
         ob_start();
         extract($this->vars);
-        require $this->traslate($this->template);
+        $file = $this->translate($this->template);
+
+        if (!is_file($file)) {
+            throw new ViewException(sprintf('Unable to load template file %s (%s)', $this->template, $file));
+        }
 
         return ob_get_clean();
     }
@@ -160,10 +164,10 @@ class View implements ViewInterface
      *
      * @param string $name
      *
-     * @return mixed|string
+     * @return string
      * @throws ViewException
      */
-    protected function traslate($name)
+    protected function translate($name)
     {
         preg_match_all('/^(?P<bundle>[^:]+):(?P<directory>[^:]*:)?(?P<file>.+)$/', $name, $matches, \PREG_SET_ORDER);
 
@@ -178,10 +182,6 @@ class View implements ViewInterface
 
         $file = strtr($this->pattern, $r);
         $file = str_replace(array('\\', '_', '//'), '/', $file);
-
-        if (!is_file($file)) {
-            throw new ViewException(sprintf('Unable to load template file %s (%s)', $name, $file));
-        }
 
         return $file;
     }
@@ -214,8 +214,10 @@ class View implements ViewInterface
      */
     public function offsetSet($offset, $value)
     {
-        if (empty($offset)) {
-            $offset = array_push($_COOKIE, $value);
+        if ($offset === null) {
+            array_push($this->vars, $value);
+
+            return;
         }
 
         $this->vars[$offset] = $value;

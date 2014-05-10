@@ -17,7 +17,7 @@ namespace Moss\View;
  * @package Moss View
  * @author  Michal Wachowski <wachowski.michal@gmail.com>
  */
-interface ViewInterface extends \ArrayAccess, \Countable
+interface ViewInterface extends \ArrayAccess, \Iterator, \Countable
 {
 
     /**
