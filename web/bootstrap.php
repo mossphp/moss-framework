@@ -26,7 +26,7 @@ return array(
             'public' => __DIR__ . '/../web/',
         ),
         'view' => array(
-            'component' => function (\Moss\Container\Container $container) {
+            'component' => function (\Moss\Container\ContainerInterface $container) {
                     $view = new \Moss\View\View();
                     $view
                         ->set('request', $container->get('request'))
