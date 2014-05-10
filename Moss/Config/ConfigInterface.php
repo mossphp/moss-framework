@@ -17,7 +17,7 @@ namespace Moss\Config;
  * @package Moss Config
  * @author  Michal Wachowski <wachowski.michal@gmail.com>
  */
-interface ConfigInterface
+interface ConfigInterface extends \ArrayAccess, \Iterator, \Countable
 {
 
     /**
