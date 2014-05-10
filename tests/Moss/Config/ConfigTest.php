@@ -291,8 +291,8 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
     public function testOffsetUnset($offset, $value)
     {
         $config = new Config();
-        $config['container'][$offset] = $value;
-        unset($config['container'][$offset]);
+        $config[$offset] = $value;
+        unset($config[$offset]);
         $this->assertEquals(4, $config->count());
     }
 
@@ -302,7 +302,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
     public function testOffsetGetSet($offset, $value)
     {
         $config = new Config();
-        $config->offsetSet($offset, $value);
+        $config[$offset] = $value;
         $this->assertEquals($value, $config[$offset]);
     }
 
@@ -331,7 +331,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
     public function testOffsetExists($offset, $value)
     {
         $config = new Config();
-        $config->offsetSet($offset, $value);
+        $config[$offset] = $value;
         $this->assertTrue(isset($config[$offset]));
     }
 
@@ -341,8 +341,8 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
     public function testCount($offset, $value)
     {
         $config = new Config();
-        $config->offsetSet(1, $offset);
-        $config->offsetSet(2, $value);
+        $config[1] = $offset;
+        $config[2] = $value;
         $this->assertEquals(6, $config->count());
     }
 

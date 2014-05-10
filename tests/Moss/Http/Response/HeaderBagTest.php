@@ -107,8 +107,8 @@ class HeaderBagTest extends \PHPUnit_Framework_TestCase
     public function testOffsetUnset($offset, $value)
     {
         $bag = new HeaderBag();
-        $bag->offsetSet($offset, $value);
-        $bag->offsetUnset($offset);
+        $bag[$offset] = $value;
+        unset($bag[$offset]);
         $this->assertEquals(0, $bag->count());
     }
 
@@ -118,7 +118,7 @@ class HeaderBagTest extends \PHPUnit_Framework_TestCase
     public function testOffsetGetSet($offset, $value)
     {
         $bag = new HeaderBag();
-        $bag->offsetSet($offset, $value);
+        $bag[$offset] = $value;
         $this->assertEquals($value, $bag[$offset]);
     }
 
@@ -147,7 +147,7 @@ class HeaderBagTest extends \PHPUnit_Framework_TestCase
     public function testOffsetExists($offset, $value)
     {
         $bag = new HeaderBag();
-        $bag->offsetSet($offset, $value);
+        $bag[$offset] = $value;
         $this->assertTrue(isset($bag[$offset]));
     }
 
@@ -157,7 +157,7 @@ class HeaderBagTest extends \PHPUnit_Framework_TestCase
     public function testIterator($offset, $value)
     {
         $bag = new HeaderBag();
-        $bag->offsetSet($offset, $value);
+        $bag[$offset] = $value;
 
         foreach ($bag as $key => $val) {
             $this->assertEquals($key, $offset);
@@ -171,8 +171,8 @@ class HeaderBagTest extends \PHPUnit_Framework_TestCase
     public function testCount($offset, $value)
     {
         $bag = new HeaderBag();
-        $bag->offsetSet(1, $offset);
-        $bag->offsetSet(2, $value);
+        $bag[1] = $offset;
+        $bag[2] = $value;
         $this->assertEquals(2, $bag->count());
     }
 
