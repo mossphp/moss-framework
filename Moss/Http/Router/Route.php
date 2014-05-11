@@ -21,11 +21,11 @@ use Moss\Http\Request\RequestInterface;
  */
 class Route implements RouteInterface
 {
+    const REGEX = '/(\()?(\{([^}]+)\})(?(1)([^()]*)|())(\))?/i';
+
     protected $controller;
-
-    protected $regex;
     protected $pattern;
-
+    protected $regex;
 
     protected $requirements = array();
     protected $arguments = array();
@@ -47,7 +47,7 @@ class Route implements RouteInterface
     {
         $this->controller = $controller;
         $this->pattern = $pattern;
-        $this->regex = preg_replace_callback('/(\()?(\{([^}]+)\})(?(1)([^()]*)|())(\))?/i', array($this, 'callback'), $pattern, \PREG_SET_ORDER);
+        $this->regex = preg_replace_callback(self::REGEX, array($this, 'callback'), $pattern, \PREG_SET_ORDER);
 
         foreach ($arguments as $key => $value) {
             if (!isset($this->requirements[$key])) {
@@ -75,11 +75,7 @@ class Route implements RouteInterface
      */
     private function callback($match, $default = '[a-z0-9-._]')
     {
-        if (strpos($match[3], ':') === false) {
-            $match[3] .= ':' . $default;
-        }
-
-        list($key, $regexp) = explode(':', $match[3]);
+        list($key, $regexp) = strpos($match[3], ':') === false ? array($match[3], $default) : explode(':', $match[3]);
 
         if (in_array(substr($regexp, -1), array('+', '*', '?'))) {
             throw new RouteException('Route must not end with quantification token');
@@ -243,10 +239,78 @@ class Route implements RouteInterface
      */
     public function match(RequestInterface $request)
     {
-        if (!$this->matchSchema($request) || !$this->matchMethods($request) || !$this->matchHost($request)) {
-            return false;
+        return $this->matchSchema($request->schema()) && $this->matchMethods($request->method()) && $this->matchHost($request->host()) && $this->matchPath($request->path());
+    }
+
+    /**
+     * Returns true if request matches schema or if no schema restrictions set
+     *
+     * @param string $schema
+     *
+     * @return bool
+     */
+    private function matchSchema($schema)
+    {
+        if (empty($this->schema)) {
+            return true;
         }
 
+        if (strpos($schema, $this->schema) !== false) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Returns true if request matches methods or if no methods restrictions set
+     *
+     * @param string $method
+     *
+     * @return bool
+     */
+    private function matchMethods($method)
+    {
+        if (empty($this->methods)) {
+            return true;
+        }
+        if (in_array($method, $this->methods)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Returns true if request matches host or if no host restrictions set
+     *
+     * @param string $host
+     *
+     * @return bool
+     */
+    private function matchHost($host)
+    {
+        if (empty($this->host)) {
+            return true;
+        }
+
+        $regex = str_replace($this->key('basename'), '.*', preg_quote($this->host));
+        if (preg_match('/^' . $regex . '$/', $host)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Returns true if request matches pattern
+     *
+     * @param string $path
+     *
+     * @return bool
+     */
+    private function matchPath($path)
+    {
         $vars = array();
         foreach ($this->requirements as $v => $exp) {
             $k = $this->key($v);
@@ -260,7 +324,7 @@ class Route implements RouteInterface
         $regexp .= substr($regexp, -1) == '/' ? '?' : null;
         $regexp = '/^' . $regexp . '$/i';
 
-        if (!preg_match_all($regexp, $request->path(), $matches, \PREG_SET_ORDER)) {
+        if (!preg_match_all($regexp, $path, $matches, \PREG_SET_ORDER)) {
             return false;
         }
 
@@ -273,66 +337,6 @@ class Route implements RouteInterface
         }
 
         return true;
-    }
-
-    /**
-     * Returns true if request matches schema or if no schema restrictions set
-     *
-     * @param RequestInterface $request
-     *
-     * @return bool
-     */
-    private function matchSchema(RequestInterface $request)
-    {
-        if (empty($this->schema)) {
-            return true;
-        }
-
-        if (strpos($request->schema(), $this->schema) !== false) {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * Returns true if request matches methods or if no methods restrictions set
-     *
-     * @param RequestInterface $request
-     *
-     * @return bool
-     */
-    private function matchMethods(RequestInterface $request)
-    {
-        if (empty($this->methods)) {
-            return true;
-        }
-        if (in_array($request->method(), $this->methods)) {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * Returns true if request matches host or if no host restrictions set
-     *
-     * @param RequestInterface $request
-     *
-     * @return bool
-     */
-    private function matchHost(RequestInterface $request)
-    {
-        if (empty($this->host)) {
-            return true;
-        }
-
-        $regex = str_replace($this->key('basename'), '.*', preg_quote($this->host));
-        if (preg_match('/^' . $regex . '$/', $request->host())) {
-            return true;
-        }
-
-        return false;
     }
 
     /**
