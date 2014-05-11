@@ -148,13 +148,15 @@ class View implements ViewInterface
      */
     public function render()
     {
-        ob_start();
-        extract($this->vars);
         $file = $this->translate($this->template);
 
         if (!is_file($file)) {
             throw new ViewException(sprintf('Unable to load template file %s (%s)', $this->template, $file));
         }
+
+        ob_start();
+        extract($this->vars);
+        require $file;
 
         return ob_get_clean();
     }
