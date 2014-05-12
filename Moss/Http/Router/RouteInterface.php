@@ -38,11 +38,9 @@ interface RouteInterface
     /**
      * Sets value requirements for each argument in pattern
      *
-     * @param array $requirements
-     *
      * @return $this
      */
-    public function requirements($requirements = array());
+    public function requirements();
 
     /**
      * Sets values for each argument in pattern

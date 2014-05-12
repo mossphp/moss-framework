@@ -21,15 +21,16 @@ use Moss\Http\Request\RequestInterface;
  */
 class Route implements RouteInterface
 {
-    const REGEX = '/(\()?(\{([^}]+)\})(?(1)([^()]*)|())(\))?/i';
+    const REGEX = '/(\()?(\{([^}]+)\})(?(1)([^()]*)|())(\))?(\/)?/i';
 
     protected $controller;
     protected $pattern;
     protected $regex;
 
     protected $requirements = array();
+    protected $constraints = array();
+    protected $builders = array();
     protected $arguments = array();
-    protected $conditionals = array();
 
     protected $host;
     protected $schema;
@@ -47,15 +48,18 @@ class Route implements RouteInterface
     {
         $this->controller = $controller;
         $this->pattern = $pattern;
-        $this->regex = preg_replace_callback(self::REGEX, array($this, 'callback'), $pattern, \PREG_SET_ORDER);
+
+        preg_match_all(self::REGEX, $this->pattern, $matches, \PREG_SET_ORDER);
+
+        $this->regex = $this->buildRegexp($this->pattern, $matches);
+        $this->requirements = $this->buildRequirements($matches);
+        $this->builders = $this->buildBuilders($this->pattern, $matches);
+
+        $this->arguments = array_fill_keys(array_keys($this->requirements), null);
 
         foreach ($arguments as $key => $value) {
             if (!isset($this->requirements[$key])) {
                 $this->requirements[$key] = $value;
-            }
-
-            if (!isset($this->conditionals[$key])) {
-                $this->conditionals[$key] = null;
             }
 
             $this->arguments[$key] = $value;
@@ -65,62 +69,122 @@ class Route implements RouteInterface
     }
 
     /**
-     * Builds pattern regular expression
+     * Builds regular expression for route matching
      *
-     * @param array  $match
-     * @param string $default
+     * @param string $pattern
+     * @param array  $matches
      *
      * @return string
      * @throws RouteException
      */
-    private function callback($match, $default = '[a-z0-9-._]')
+    private function buildRegexp($pattern, array $matches)
     {
-        list($key, $regexp) = strpos($match[3], ':') === false ? array($match[3], $default) : explode(':', $match[3]);
+        $src = array();
+        $trg = array();
+        foreach ($matches as $match) {
+            list($key, $regexp) = $this->splitSegment($match[3]);
 
-        if (in_array(substr($regexp, -1), array('+', '*', '?'))) {
-            throw new RouteException('Route must not end with quantification token');
+            if (in_array(substr($regexp, -1), array('+', '*', '?'))) {
+                throw new RouteException('Route must not end with quantification token');
+            }
+
+            $src[rtrim($match[0], '/')] = $key;
+
+            $trg[$key] = '(?P<' . $key . '>' . $regexp . '+)';
+
+            if ($match[1] == '(') {
+                $trg[$key] = '(' . $trg[$key] . $this->buildConditionalSlash(preg_quote($match[4], '/')) . ')?';
+            }
         }
 
-        if ($match[0][0] == '(') {
-            $this->requirements[$key] = $regexp . '*' . '(' . preg_quote($match[4], '/') . ')?';
-            $this->conditionals[$key] = $match[4];
+        $pattern = strtr($pattern, $src);
+        $pattern = preg_quote($pattern, '/');
+        $pattern = strtr($pattern, $trg);
+        $pattern = str_replace('\/((?P', '\/?((?P', $pattern);
+        $pattern = $this->buildConditionalSlash($pattern);
 
-            return $this->key($key);
-        }
-
-        $this->requirements[$key] = $regexp . '+';
-        $this->conditionals[$key] = null;
-        $this->arguments[$key] = null;
-
-        return $this->key($key) . $match[4];
+        return '/^' . $pattern . '$/i';
     }
 
     /**
-     * Rebuilds pattern from regular expression
+     * Adds conditional slash if slash is last char in string (preg quoted)
+     *
+     * @param string $pattern
+     *
+     * @return string
+     */
+    private function buildConditionalSlash($pattern)
+    {
+        if (substr($pattern, -2) === '\/') {
+            $pattern .= '?';
+        }
+
+        return $pattern;
+    }
+
+    /**
+     * Builds array of regular expression for route arguments
+     *
+     * @param array $matches
+     *
+     * @return array
+     */
+    private function buildRequirements(array $matches)
+    {
+        $result = array();
+        foreach ($matches as $match) {
+            list($key, $regexp) = $this->splitSegment($match[3]);
+            $result[$key] = $regexp . ($match[1] == '(' ? '*' : '+');
+        }
+
+        return $result;
+    }
+
+    /**
+     * Builds array allowing route creation
+     *
+     * @param string $pattern
+     * @param array  $matches
+     *
+     * @return array
+     */
+    private function buildBuilders($pattern, array $matches)
+    {
+        $result = array(
+            'pattern' => $pattern,
+            'segments' => array()
+        );
+
+        foreach ($matches as $match) {
+            list($key,) = $this->splitSegment($match[3]);
+            $result['pattern'] = str_replace($match[0], '{' . $key . '}', $result['pattern']);
+            $result['segments']['{' . $key . '}'] = '{value}' . $match[4] . (isset($match[7]) ? $match[7] : '');
+        }
+
+        return $result;
+    }
+
+    /**
+     * Splits segment into key - regexp part
+     *
+     * @param string $segment
+     * @param string $default
+     *
+     * @return array
+     */
+    private function splitSegment($segment, $default = '[a-z0-9-._]')
+    {
+        return strpos($segment, ':') === false ? array($segment, $default) : explode(':', $segment);
+    }
+
+    /**
+     * Returns pattern
      *
      * @return string
      */
     public function pattern()
     {
-        if (!empty($this->pattern)) {
-            return $this->pattern;
-        }
-
-        $arguments = array();
-        foreach ($this->requirements as $key => $v) {
-            if ($this->conditionals[$key]) {
-                $v = substr($v, 0, -strlen(preg_quote($this->conditionals[$key])) + 4);
-            }
-
-            $pattern = '{%s:%s}%s';
-            if (substr($v, -1) === '*') {
-                $pattern = '({%s:%s}%s)';
-            }
-
-            $arguments[$this->key($key)] = sprintf($pattern, $key, substr($v, 0, -1), $this->conditionals[$key]);
-        }
-
-        return $this->pattern = strtr($this->regex, $arguments);
+        return $this->pattern;
     }
 
     /**
@@ -134,27 +198,12 @@ class Route implements RouteInterface
     }
 
     /**
-     * Sets regex for each of required values
-     *
-     * @param array $requirements
+     * Returns argument constraints
      *
      * @return array
-     * @throws RouteException
      */
-    public function requirements($requirements = array())
+    public function requirements()
     {
-        if (empty($requirements)) {
-            return $this->requirements;
-        }
-
-        foreach (array_keys($this->requirements) as $key) {
-            if (!array_key_exists($key, $requirements)) {
-                continue;
-            }
-
-            $this->requirements[$key] = $requirements[$key];
-        }
-
         return $this->requirements;
     }
 
@@ -164,7 +213,6 @@ class Route implements RouteInterface
      * @param array $arguments
      *
      * @return array
-     * @throws RouteException
      */
     public function arguments($arguments = array())
     {
@@ -178,7 +226,7 @@ class Route implements RouteInterface
                 continue;
             }
 
-            $this->assertArgumentValue($this->requirements[$key], $value, $key);
+            $this->assertArgumentValue($key, $this->requirements[$key], $value);
             $this->arguments[$key] = $value;
         }
 
@@ -194,7 +242,7 @@ class Route implements RouteInterface
      */
     public function host($host = null)
     {
-        $this->host = empty($host) ? null : str_replace('{basename}', '#basename#', $host);
+        $this->host = empty($host) ? null : $host;
 
         return $this;
     }
@@ -239,7 +287,12 @@ class Route implements RouteInterface
      */
     public function match(RequestInterface $request)
     {
-        return $this->matchSchema($request->schema()) && $this->matchMethods($request->method()) && $this->matchHost($request->host()) && $this->matchPath($request->path());
+        return (
+            $this->matchSchema($request->schema()) &&
+            $this->matchMethods($request->method()) &&
+            $this->matchHost($request->host()) &&
+            $this->matchPath($request->path())
+        );
     }
 
     /**
@@ -294,8 +347,8 @@ class Route implements RouteInterface
             return true;
         }
 
-        $regex = str_replace($this->key('basename'), '.*', preg_quote($this->host));
-        if (preg_match('/^' . $regex . '$/', $host)) {
+        $regex = str_replace('{basename}', '.*', preg_quote($this->host));
+        if (preg_match('/^' . $regex . '$/i', $host)) {
             return true;
         }
 
@@ -311,20 +364,7 @@ class Route implements RouteInterface
      */
     private function matchPath($path)
     {
-        $vars = array();
-        foreach ($this->requirements as $v => $exp) {
-            $k = $this->key($v);
-            $vars[$k] = '(?P<' . $v . '>' . $exp . ')';
-            if ($this->conditionals[$v]) {
-                $vars[$k] = '?' . $vars[$k] . '?';
-            }
-        }
-
-        $regexp = strtr(preg_quote($this->regex, '/'), $vars);
-        $regexp .= substr($regexp, -1) == '/' ? '?' : null;
-        $regexp = '/^' . $regexp . '$/i';
-
-        if (!preg_match_all($regexp, $path, $matches, \PREG_SET_ORDER)) {
+        if (!preg_match_all($this->regex, $path, $matches, \PREG_SET_ORDER)) {
             return false;
         }
 
@@ -333,7 +373,7 @@ class Route implements RouteInterface
                 continue;
             }
 
-            $this->arguments[$k] = $this->conditionals[$k] ? rtrim($v, $this->conditionals[$k]) : $v;
+            $this->arguments[$k] = $v;
         }
 
         return true;
@@ -375,46 +415,25 @@ class Route implements RouteInterface
      */
     public function make($host, $arguments = array())
     {
-        foreach (array_keys($this->conditionals) as $key) {
-            if (isset($arguments[$key])) {
-                continue;
-            }
-
-            $arguments[$key] = null;
-        }
-
-        foreach ($this->requirements as $key => $regex) {
-            if (!array_key_exists($key, $arguments)) {
-                throw new RouteException(sprintf('Missing value for argument "%s" in route "%s"', $key, $this->pattern()));
-            }
-
-            $this->assertArgumentValue($regex, $arguments[$key], $key);
-        }
-
         $url = array();
-        $query = array();
+        foreach ($this->requirements as $key => $regex) {
+            $this->assertArgumentRequirement($key, $regex, $arguments);
 
-        foreach ($arguments as $key => $val) {
-            if (isset($this->requirements[$key])) {
-                if ($this->conditionals[$key] && empty($val)) {
-                    $url[$this->key($key)] = null;
-                } else {
-                    $url[$this->key($key)] = $this->strip($val) . $this->conditionals[$key];
-                }
-
-                continue;
+            if (!empty($arguments[$key]) && isset($this->builders['segments']['{' . $key . '}'])) {
+                $this->assertArgumentValue($key, $regex, $arguments[$key]);
+                $url['{' . $key . '}'] = str_replace('{value}', $this->strip($arguments[$key]), $this->builders['segments']['{' . $key . '}']);
+            } else {
+                $url['{' . $key . '}'] = isset($this->arguments[$key]) ? $this->arguments[$key] : null;
             }
 
-            if (isset($this->arguments[$key])) {
-                continue;
-            }
+            unset($arguments[$key]);
 
-            $query[$key] = $val;
         }
 
-        $url = strtr($this->regex, $url);
+        $url = strtr($this->builders['pattern'], $url);
         $url = str_replace('//', '/', $url);
 
+        $query = array_filter($arguments);
         if (!empty($query)) {
             $url .= '?' . http_build_query($query, null, '&');
         }
@@ -426,12 +445,44 @@ class Route implements RouteInterface
             list($schema, $host) = explode('://', rtrim($host, '/'));
         }
 
-        $regex = '/^' . str_replace($this->key('basename'), '.*', preg_quote($this->host)) . '$/';
+        $regex = '/^' . str_replace('\{basename\}', '.*', preg_quote($this->host)) . '$/';
         if ($this->host && !preg_match($regex, $host)) {
-            $host = str_replace($this->key('basename'), $host, $this->host);
+            $host = str_replace('{basename}', $host, $this->host);
         }
 
         return ($schema ? $schema . '://' : null) . $host . '/' . $url;
+    }
+
+    /**
+     * Asserts required argument matches regex
+     *
+     * @param string $key
+     * @param string $regex
+     * @param array  $arguments
+     *
+     * @throws RouteException
+     */
+    private function assertArgumentRequirement($key, $regex, $arguments)
+    {
+        if (substr($regex, -1) === '+' && !array_key_exists($key, $arguments)) {
+            throw new RouteException(sprintf('Missing value for argument "%s" in route "%s"', $key, $this->pattern));
+        }
+    }
+
+    /**
+     * Asserts argument value
+     *
+     * @param string $key
+     * @param string $regex
+     * @param mixed  $value
+     *
+     * @throws RouteException
+     */
+    private function assertArgumentValue($key, $regex, $value)
+    {
+        if (!preg_match('/^' . $regex . '$/i', $value)) {
+            throw new RouteException(sprintf('Invalid value for argument "%s" in route "%s", got "%s" need "/^%s\$/"', $key, $this->pattern, $value, $regex));
+        }
     }
 
     /**
@@ -451,33 +502,5 @@ class Route implements RouteInterface
         $urlString = trim($urlString, '-.');
 
         return $urlString;
-    }
-
-    /**
-     * Builds key
-     *
-     * @param string $key
-     *
-     * @return string
-     */
-    private function key($key)
-    {
-        return '#' . $key . '#';
-    }
-
-    /**
-     * Asserts argument value
-     *
-     * @param $regex
-     * @param $value
-     * @param $key
-     *
-     * @throws RouteException
-     */
-    private function assertArgumentValue($regex, $value, $key)
-    {
-        if (!preg_match('/^' . $regex . '$/i', $value)) {
-            throw new RouteException(sprintf('Invalid value "%s" for argument "%s" in route "%s"', $key, $value, $this->pattern()));
-        }
     }
 }
