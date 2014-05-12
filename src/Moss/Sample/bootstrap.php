@@ -19,7 +19,7 @@ return array(
                     $security = new \Moss\Security\Security($stash, $url);
 
                     // protects all actions but index and login
-                    $security->registerArea(new \Moss\Security\Area('/(!index|login|auth)'));
+                    $security->registerArea(new \Moss\Security\Area('/source'));
 
                     // registers fake provider
                     $security->registerUserProvider(new \Moss\Sample\Provider\UserProvider());
