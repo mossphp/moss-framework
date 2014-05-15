@@ -20,9 +20,7 @@ use Moss\Http\Response\Response;
 use Moss\Http\Response\ResponseInterface;
 use Moss\Http\Router\Route;
 use Moss\Http\Router\Router;
-use Moss\Http\Router\RouterException;
 use Moss\Http\Session\Session;
-use Moss\Security\SecurityException;
 
 /**
  * Moss app kernel
@@ -298,9 +296,9 @@ class App
             $response = $this->fire('kernel.response', $response);
 
             return $this->fire('kernel.send', $response);
-        } catch (SecurityException $e) {
+        } catch (ForbiddenException $e) {
             $response = $this->fire('kernel.403', $e, $this->eventMsg($e));
-        } catch (RouterException $e) {
+        } catch (NotFoundException $e) {
             $response = $this->fire('kernel.404', $e, $this->eventMsg($e));
         } catch (\Exception $e) {
             $response = $this->fire('kernel.500', $e, $this->eventMsg($e));
