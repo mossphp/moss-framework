@@ -193,7 +193,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
 
         $expected = array(
             'host' => 'http://test.com',
-            'controller' => 'router:foo:bar',
+            'route' => 'router_foo_bar',
             'locale' => 'fr',
             'format' => 'yml'
         );
@@ -203,14 +203,14 @@ class RouterTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \Moss\Http\Router\RouterException
-     * @expectedExceptionMessage Unable to make "self" url - default controller was not defined.
+     * @expectedExceptionMessage Unable to make "self" url - default route was not defined.
      */
-    public function testMakeWithoutDefaultController()
+    public function testMakeWithoutDefaultRoute()
     {
         $this->router->make();
     }
 
-    public function testMakeWithDefaultController()
+    public function testMakeWithDefaultRoute()
     {
         $this->router->match($this->mockRequest('router:foo:bar', '/router/foo/123/'));
         $this->assertEquals('http://test.com/router/foo/123/', $this->router->make(null, array('foo' => 'foo', 'bar' => 123)));
@@ -230,12 +230,12 @@ class RouterTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \Moss\Http\Router\RouterException
-     * @expectedExceptionMessage Unable to make url, matching route for "invalid:controller" not found
+     * @expectedExceptionMessage Unable to make url, matching route for "invalid_controller" not found
      */
     public function testMakeWithInvalidController()
     {
         $this->router->match($this->mockRequest('router:foo:bar', '/router/foo/123/', 'http://test.com/'));
-        $this->router->make('invalid:controller');
+        $this->router->make('invalid_controller');
     }
 
     public function testMake()

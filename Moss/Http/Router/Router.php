@@ -25,7 +25,7 @@ class Router implements RouterInterface
 
     protected $defaults = array(
         'host' => null,
-        'controller' => null,
+        'route' => null,
         'locale' => null,
         'format' => null
     );
@@ -48,7 +48,7 @@ class Router implements RouterInterface
     /**
      * Registers route definition into routing table
      *
-     * @param string $name
+     * @param string         $name
      * @param RouteInterface $routeDefinition
      *
      * @return $this
@@ -81,7 +81,7 @@ class Router implements RouterInterface
      */
     public function match(RequestInterface $request)
     {
-        foreach ($this->routes as $route) {
+        foreach ($this->routes as $name => $route) {
             if (!$route->match($request)) {
                 continue;
             }
@@ -104,7 +104,7 @@ class Router implements RouterInterface
 
             $this->defaults = array(
                 'host' => $request->baseName(),
-                'controller' => $request->controller(),
+                'route' => $name,
                 'locale' => $request->locale(),
                 'format' => $request->format()
             );
@@ -119,49 +119,49 @@ class Router implements RouterInterface
      * Makes link
      * If corresponding route exists - friendly link is generated, otherwise normal
      *
-     * @param null|string $controller controller identifier, if null request controller is used
-     * @param array       $arguments  additional arguments
+     * @param null|string $name      controller identifier, if null request controller is used
+     * @param array       $arguments additional arguments
      *
      * @return string
      * @throws RouterException
      */
-    public function make($controller = null, $arguments = array())
+    public function make($name = null, $arguments = array())
     {
-        $controller = $this->resolveController($controller);
+        $name = $this->resolveName($name);
 
-        if (is_scalar($controller) && isset($this->routes[$controller])) {
-            return $this->routes[$controller]->make($this->defaults['host'], $arguments);
+        if (is_scalar($name) && isset($this->routes[$name])) {
+            return $this->routes[$name]->make($this->defaults['host'], $arguments);
         }
 
         foreach ($this->routes as $route) {
-            if (!$route->check($controller, $arguments)) {
+            if (!$route->check($name, $arguments)) {
                 continue;
             }
 
             return $route->make($this->defaults['host'], $arguments);
         }
 
-        throw new RouterException('Unable to make url, matching route for "' . $controller . '" not found');
+        throw new RouterException('Unable to make url, matching route for "' . $name . '" not found');
     }
 
     /**
      * Resolves controller from passed value or from defaults
      *
-     * @param mixed $controller
+     * @param mixed $name
      *
      * @return mixed
      * @throws RouterException
      */
-    private function resolveController($controller)
+    private function resolveName($name)
     {
-        if ($controller) {
-            return $controller;
+        if ($name) {
+            return $name;
         }
 
-        if (!isset($this->defaults['controller'])) {
-            throw new RouterException('Unable to make "self" url - default controller was not defined.');
+        if (!isset($this->defaults['route'])) {
+            throw new RouterException('Unable to make "self" url - default route was not defined.');
         }
 
-        return $this->defaults['controller'];
+        return $this->defaults['route'];
     }
 }
