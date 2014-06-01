@@ -114,6 +114,13 @@ class Bag implements BagInterface
         return $this;
     }
 
+    /**
+     * Returns reference to sub array
+     *
+     * @param string $offset
+     *
+     * @return mixed
+     */
     private function & getArrayByReference(&$offset)
     {
         $offset = explode(self::SEPARATOR, $offset);
