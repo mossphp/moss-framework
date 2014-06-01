@@ -77,7 +77,7 @@ class FilesBag extends Bag
     {
         $node = $this->get($offset);
 
-        if (array_keys($node) !== $this->keys) {
+        if (!is_array($node) || array_keys($node) !== $this->keys) {
             throw new UploadedFileException(sprintf('No uploaded file under offset "%s"', $offset));
         }
 
