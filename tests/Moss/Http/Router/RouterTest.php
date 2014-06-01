@@ -29,7 +29,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         $this->router->register('domain_router', $route);
     }
 
-    protected function mockRequest($controller, $path, $host = null)
+    protected function mockRequest($route, $path, $host = null)
     {
         $bag = $this->getMock('Moss\Bag\BagInterface');
 
@@ -42,8 +42,8 @@ class RouterTest extends \PHPUnit_Framework_TestCase
 
         $request
             ->expects($this->any())
-            ->method('controller')
-            ->will($this->returnValue($controller));
+            ->method('route')
+            ->will($this->returnValue($route));
 
         $request
             ->expects($this->any())

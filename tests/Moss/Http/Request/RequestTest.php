@@ -510,17 +510,12 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    public function testController()
+    public function testRoute()
     {
         $request = new Request();
-        $request->initialize(
-            array('controller' => '\Foo\Bar\Controller::yada'),
-            array(),
-            array(),
-            array()
-        );
+        $request->route('route_name');
 
-        $this->assertEquals('\Foo\Bar\Controller::yada', $request->controller());
+        $this->assertEquals('route_name', $request->route());
     }
 
     public function testFormat()

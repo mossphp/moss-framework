@@ -25,7 +25,7 @@ use Moss\Http\Session\SessionInterface;
  */
 class Request implements RequestInterface
 {
-    private $controller;
+    private $route;
     private $locale;
     private $format;
 
@@ -112,10 +112,6 @@ class Request implements RequestInterface
         $this->query = new Bag($this->resolveParameters($get));
         $this->body = new Bag($this->resolveBody($post));
         $this->files = new FilesBag($files);
-
-        if (!empty($this->query['controller'])) {
-            $this->controller($this->query['controller']);
-        }
 
         if (!empty($this->query['locale'])) {
             $this->locale($this->query['locale']);
@@ -274,6 +270,7 @@ class Request implements RequestInterface
 
     /**
      * Removes quotes
+     *
      * @param string $val
      *
      * @return string
@@ -325,7 +322,7 @@ class Request implements RequestInterface
      * Returns server param value for given key or null if key does not exists
      *
      * @param null|string $key
-     * @param mixed  $default
+     * @param mixed       $default
      *
      * @return null|string
      */
@@ -350,7 +347,7 @@ class Request implements RequestInterface
     /**
      * Retrieves value from passed array
      *
-     * @param array $array
+     * @param array       $array
      * @param null|string $key
      * @param null|string $default
      *
@@ -526,19 +523,19 @@ class Request implements RequestInterface
     }
 
     /**
-     * Returns requested controller identifier (if available)
+     * Returns requested route name (if successfully resolved)
      *
-     * @param null|string $controller
+     * @param null|string $route
      *
      * @return null|string
      */
-    public function controller($controller = null)
+    public function route($route = null)
     {
-        if ($controller !== null) {
-            $this->controller = $controller;
+        if ($route !== null) {
+            $this->route = $route;
         }
 
-        return $this->controller;
+        return $this->route;
     }
 
     /**
