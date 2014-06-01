@@ -86,7 +86,7 @@ class App
 
 // components
         $this->container = $this->buildContainer((array) $this->config->get('container'));
-        $this->dispatcher = $this->buildDispatcher($this->config->get('dispatcher'));
+        $this->dispatcher = $this->buildDispatcher((array) $this->config->get('dispatcher'));
         $this->router = $this->buildRouter((array) $this->config->get('router'));
 
         $this->session = new Session($this->config['framework']['session']['name'], $this->config['framework']['session']['cacheLimiter']);
