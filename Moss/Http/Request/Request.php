@@ -34,7 +34,7 @@ class Request implements RequestInterface
     private $baseName;
 
     /**
-     * @var array
+     * @var BagInterface
      */
     public $server;
 
@@ -103,7 +103,7 @@ class Request implements RequestInterface
      */
     public function initialize(array $get = array(), array $post = array(), array $files = array(), array $server = array())
     {
-        $this->server = $server;
+        $this->server = new Bag($server);
 
         $this->header = new HeaderBag(array_merge($get, $post, $server));
         $this->language = $this->header->languages();
@@ -335,7 +335,7 @@ class Request implements RequestInterface
      */
     public function server($key = null, $default = null)
     {
-        return $this->getFromArray($this->server, $key, $default);
+        return $this->server->get($key, $default);
     }
 
     /**
@@ -349,28 +349,6 @@ class Request implements RequestInterface
     public function header($key = null, $default = null)
     {
         return $this->header->get($key, $default);
-    }
-
-    /**
-     * Retrieves value from passed array
-     *
-     * @param array       $array
-     * @param null|string $key
-     * @param null|string $default
-     *
-     * @return null
-     */
-    private function getFromArray($array, $key = null, $default = null)
-    {
-        if ($key === null) {
-            return $array;
-        }
-
-        if (!isset($array[$key])) {
-            return $default;
-        }
-
-        return $array[$key];
     }
 
     /**
