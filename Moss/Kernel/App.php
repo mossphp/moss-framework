@@ -273,7 +273,7 @@ class App
                 return $this->fire('kernel.send', $response);
             }
 
-            $action = $this->router->match($this->request);
+            $controller = $this->router->match($this->request);
 
             if ($response = $this->fire('kernel.route')) {
                 return $this->fire('kernel.send', $response);
@@ -283,14 +283,14 @@ class App
                 return $this->fire('kernel.send', $response);
             }
 
-            $response = $this->callController($action, $this->request);
+            $response = $this->callController($controller, $this->request);
 
             if (!$response) {
-                throw new AppException(sprintf('There was no response returned from the controller "%s" handling "%s"', $action, $this->request->uri(true)));
+                throw new AppException(sprintf('There was no response returned from the controller "%s" handling "%s"', $controller, $this->request->uri(true)));
             }
 
             if (!$response instanceof ResponseInterface) {
-                throw new AppException(sprintf('Response returned from "%s" handling "%s" must be instance of ResponseInterface, got "%s"', $action, $this->request->uri(true), is_object($response) ? get_class($response) : gettype($response)));
+                throw new AppException(sprintf('Response returned from "%s" handling "%s" must be instance of ResponseInterface, got "%s"', $controller, $this->request->uri(true), is_object($response) ? get_class($response) : gettype($response)));
             }
 
             $response = $this->fire('kernel.response', $response);
