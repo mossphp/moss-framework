@@ -18,6 +18,7 @@ use Moss\Http\Bag\BagInterface;
  *
  * @package Moss HTTP
  * @author  Michal Wachowski <wachowski.michal@gmail.com>
+ * @todo - move all header related methods from request here and extend Bag
  */
 class HeaderBag implements BagInterface
 {
