@@ -43,37 +43,13 @@ class ResponseRedirect extends Response
     }
 
     /**
-     * Sends headers
-     *
-     * @return ResponseInterface
-     */
-    public function sendHeaders()
-    {
-        if (headers_sent()) {
-            return $this;
-        }
-
-        header($this->protocol . ' ' . $this->status . ' ' . $this->statusTexts[$this->status], true, $this->status);
-
-        foreach ($this->header() as $header => $value) {
-            if ($value === null) {
-                continue;
-            }
-
-            header($header . ': ' . $value);
-        }
-
-        return $this;
-    }
-
-    /**
      * Sends content
      *
      * @return ResponseInterface
      */
     public function sendContent()
     {
-        if (headers_sent() || $this->delay) {
+        if ($this->delay) {
             echo '<script type="text/javascript" language="javascript">setTimeout("window.location.href = \'' . $this->address . '\'", ' . ($this->delay * 1000) . ');</script>' . $this->content;
 
             return $this;
