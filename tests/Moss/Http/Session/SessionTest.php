@@ -3,6 +3,8 @@ namespace Moss\Http\Session;
 
 class MockSession extends Session
 {
+    private $randCounter = 0;
+
     public function __construct($name = 'PHPSESSID', $cacheLimiter = '')
     {
         $this->name($name);
@@ -37,7 +39,7 @@ class MockSession extends Session
 
     private function rand()
     {
-        return substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyz"), 0, 1) . substr(md5(microtime(true)), 1);
+        return md5($this->randCounter++);
     }
 }
 
@@ -105,15 +107,15 @@ class SessionTest extends \PHPUnit_Framework_TestCase
     public function testOffsetUnset()
     {
         $session = new MockSession();
-        $session->offsetSet('foo', 'bar');
-        $session->offsetUnset('foo');
+        $session['foo'] = 'bar';
+        unset($session['foo']);
         $this->assertEquals(0, $session->count());
     }
 
     public function testOffsetSet()
     {
         $session = new MockSession();
-        $session->offsetSet('foo', 'bar');
+        $session['foo'] = 'bar';
         $this->assertEquals('bar', $session['foo']);
     }
 
@@ -121,21 +123,21 @@ class SessionTest extends \PHPUnit_Framework_TestCase
     public function testOffsetGet()
     {
         $session = new MockSession();
-        $session->offsetSet('foo', 'bar');
+        $session['foo'] = 'bar';
         $this->assertEquals('bar', $session['foo']);
     }
 
     public function testOffsetExists()
     {
         $session = new MockSession();
-        $session->offsetSet('foo', 'bar');
+        $session['foo'] = 'bar';
         $this->assertTrue(isset($session['foo']));
     }
 
     public function testCurrent()
     {
         $session = new MockSession();
-        $session->offsetSet('foo', 'bar');
+        $session['foo'] = 'bar';
         $this->assertEquals('bar', $session->current());
     }
 
@@ -143,7 +145,7 @@ class SessionTest extends \PHPUnit_Framework_TestCase
     public function testNext()
     {
         $session = new MockSession();
-        $session->offsetSet('foo', 'bar');
+        $session['foo'] = 'bar';
         $session->next();
         $this->assertFalse($session->current());
     }
@@ -151,7 +153,7 @@ class SessionTest extends \PHPUnit_Framework_TestCase
     public function testKey()
     {
         $session = new MockSession();
-        $session->offsetSet('foo', 'bar');
+        $session['foo'] = 'bar';
         $this->assertEquals('foo', $session->key());
     }
 
@@ -159,7 +161,7 @@ class SessionTest extends \PHPUnit_Framework_TestCase
     public function testValid()
     {
         $session = new MockSession();
-        $session->offsetSet('foo', 'bar');
+        $session['foo'] = 'bar';
         $session->rewind();
         $this->assertTrue($session->valid());
     }
@@ -167,7 +169,7 @@ class SessionTest extends \PHPUnit_Framework_TestCase
     public function testRewind()
     {
         $session = new MockSession();
-        $session->offsetSet('foo', 'bar');
+        $session['foo'] = 'bar';
         $session->rewind();
         $this->assertEquals('bar', $session->current());
     }
@@ -175,7 +177,7 @@ class SessionTest extends \PHPUnit_Framework_TestCase
     public function testCount()
     {
         $session = new MockSession();
-        $session->offsetSet('foo', 'bar');
+        $session['foo'] = 'bar';
         $this->assertEquals(1, $session->count());
     }
 }

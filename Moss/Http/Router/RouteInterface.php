@@ -38,11 +38,9 @@ interface RouteInterface
     /**
      * Sets value requirements for each argument in pattern
      *
-     * @param array $requirements
-     *
      * @return $this
      */
-    public function requirements($requirements = array());
+    public function requirements();
 
     /**
      * Sets values for each argument in pattern
@@ -95,18 +93,17 @@ interface RouteInterface
      * @param       $controller
      * @param array $arguments
      *
-     * @return mixed
+     * @return bool
      */
     public function check($controller, $arguments = array());
 
     /**
      * Creates route url
      *
-     * @param null|string $host
-     * @param array       $arguments
-     * @param bool        $forceRelative
+     * @param string $host
+     * @param array  $arguments
      *
      * @return string
      */
-    public function make($host = null, $arguments = array(), $forceRelative = true);
+    public function make($host, $arguments = array());
 }

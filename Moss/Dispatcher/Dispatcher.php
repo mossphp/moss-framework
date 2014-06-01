@@ -22,10 +22,14 @@ use Moss\Container\ContainerInterface;
 class Dispatcher implements DispatcherInterface
 {
 
-    /** @var ContainerInterface */
+    /**
+     * @var ContainerInterface
+     */
     private $container;
 
-    /** @var array */
+    /**
+     * @var array
+     */
     private $events = array();
 
     private $stop;

@@ -19,7 +19,7 @@ return array(
                     $security = new \Moss\Security\Security($stash, $url);
 
                     // protects all actions but index and login
-                    $security->registerArea(new \Moss\Security\Area('*:*:*:!index|login|auth'));
+                    $security->registerArea(new \Moss\Security\Area('/source'));
 
                     // registers fake provider
                     $security->registerUserProvider(new \Moss\Sample\Provider\UserProvider());
@@ -58,25 +58,25 @@ return array(
     'router' => array(
         'main' => array(
             'pattern' => '/',
-            'controller' => 'Moss:Sample:Sample:index',
+            'controller' => array('Moss\Sample\Controller\SampleController', 'indexAction'),
         ),
         'login' => array(
             'pattern' => '/login/',
-            'controller' => 'Moss:Sample:Sample:login',
+            'controller' => array('Moss\Sample\Controller\SampleController', 'loginAction'),
             'methods' => 'GET'
         ),
         'auth' => array(
             'pattern' => '/login/',
-            'controller' => 'Moss:Sample:Sample:auth',
+            'controller' => array('Moss\Sample\Controller\SampleController', 'authAction'),
             'methods' => 'POST'
         ),
         'logout' => array(
             'pattern' => '/logout/',
-            'controller' => 'Moss:Sample:Sample:logout',
+            'controller' => array('Moss\Sample\Controller\SampleController', 'logoutAction'),
         ),
         'source' => array(
             'pattern' => '/source/',
-            'controller' => 'Moss:Sample:Sample:source',
+            'controller' => array('Moss\Sample\Controller\SampleController', 'sourceAction'),
         )
     )
 );

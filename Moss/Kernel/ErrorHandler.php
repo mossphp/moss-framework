@@ -61,11 +61,10 @@ class ErrorHandler
      * @param string $errstr
      * @param string $errfile
      * @param int    $errline
-     * @param null   $errcontext
      *
      * @throws \ErrorException
      */
-    public function handler($errno, $errstr, $errfile, $errline, $errcontext = null)
+    public function handler($errno, $errstr, $errfile, $errline)
     {
         throw new \ErrorException($errstr, $errno, 0, $errfile, $errline);
     }

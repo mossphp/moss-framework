@@ -1,6 +1,6 @@
 {
 	"name": "moss/moss",
-	"version": "0.8.4",
+	"version": "v0.8.5",
 	"description": "The PHP micro-framework",
 	"keywords": ["microframework"],
 	"type": "framework",
@@ -14,10 +14,6 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"repositories": [
-		{
-			"type": "vcs",
-			"url": "https://github.com/potfur/moss-storage"
-		},
 		{
 			"type": "vcs",
 			"url": "https://github.com/potfur/moss-locale"
@@ -39,6 +35,6 @@
 		"moss/bridge": "Adds Twig as templating engine with additional functionalities"
 	},
 	"autoload": {
-		"psr-0": { "": "src/", "Moss": "" }
+		"psr-4": { "": "src/", "Moss\\": "Moss/" }
 	}
 }

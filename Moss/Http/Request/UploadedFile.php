@@ -25,6 +25,7 @@ class UploadedFile extends \SplFileInfo
      * Constructor
      *
      * @param array $array
+     *
      * @throws UploadedFileException
      */
     public function __construct(array $array)
@@ -55,7 +56,7 @@ class UploadedFile extends \SplFileInfo
      *
      * @param string $path
      * @param string $file
-     * @param bool $overwrite
+     * @param bool   $overwrite
      *
      * @return \SplFileObject
      * @throws UploadedFileException
@@ -68,7 +69,7 @@ class UploadedFile extends \SplFileInfo
 
         $target = $this->getTarget($path, $file);
 
-        if(!$overwrite && is_file($target)) {
+        if (!$overwrite && is_file($target)) {
             throw new UploadedFileException(sprintf('Could not move the file "%s" to "%s" ( Target file already exists )', $this->getPathname(), $target));
         }
 
@@ -82,6 +83,14 @@ class UploadedFile extends \SplFileInfo
         return new \SplFileObject($target);
     }
 
+    /**
+     * Builds file name with path
+     *
+     * @param string      $path
+     * @param null|string $file
+     *
+     * @return string
+     */
     protected function getTarget($path, $file = null)
     {
         if ($file === null) {
@@ -105,7 +114,7 @@ class UploadedFile extends \SplFileInfo
     /**
      * Returns true error occurred
      *
-     * @return int
+     * @return boolean
      */
     public function hasError()
     {
@@ -168,4 +177,4 @@ class UploadedFile extends \SplFileInfo
     {
         return $this->raw['error'] === UPLOAD_ERR_OK && is_uploaded_file($this->getPathname());
     }
-} 
+}

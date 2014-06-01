@@ -112,9 +112,9 @@ class FilesBagTest extends \PHPUnit_Framework_TestCase
     {
         $bag = new FilesBag($data);
         $bag->reset();
-        $bag->offsetSet($offset, $expected);
+        $bag[$offset] = $expected;
         $this->assertEquals($expected, $bag->offsetGet($offset));
-        $bag->offsetUnset($offset);
+        unset($bag[$offset]);
         $this->assertEquals(0, $bag->count());
     }
 
@@ -125,7 +125,7 @@ class FilesBagTest extends \PHPUnit_Framework_TestCase
     {
         $bag = new FilesBag($data);
         $bag->reset();
-        $bag->offsetSet($offset, $expected);
+        $bag[$offset] = $expected;
         $this->assertEquals($expected, $bag[$offset]);
     }
 
@@ -155,7 +155,7 @@ class FilesBagTest extends \PHPUnit_Framework_TestCase
     public function testOffsetExists($offset, $data, $expected)
     {
         $bag = new FilesBag($data);
-        $bag->offsetSet($offset, $expected);
+        $bag[$offset] = $expected;
         $this->assertTrue(isset($bag[$offset]));
     }
 
@@ -165,7 +165,7 @@ class FilesBagTest extends \PHPUnit_Framework_TestCase
     public function testIterator($offset, $data, $expected)
     {
         $bag = new FilesBag($data);
-        $bag->offsetSet($offset, $expected);
+        $bag[$offset] = $expected;
 
         foreach ($bag as $key => $val) {
             $this->assertEquals($key, $offset);
@@ -179,8 +179,8 @@ class FilesBagTest extends \PHPUnit_Framework_TestCase
     public function testCount($offset, $data, $expected)
     {
         $bag = new FilesBag($data);
-        $bag->offsetSet(1, $expected);
-        $bag->offsetSet(2, $expected);
+        $bag[1] = $expected;
+        $bag[2] = $expected;
         $this->assertEquals(count($data) + 2, $bag->count());
     }
 

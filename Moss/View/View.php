@@ -31,7 +31,7 @@ class View implements ViewInterface
      * @param array  $vars
      * @param string $pattern
      */
-    public function __construct(array $vars = array(), $pattern = '../src/{bundle}/{directory}/view/{file}.php')
+    public function __construct(array $vars = array(), $pattern = '../src/{bundle}/{directory}/View/{file}.php')
     {
         $this->vars = $vars;
         $this->pattern = $pattern;
@@ -144,18 +144,32 @@ class View implements ViewInterface
      * Renders view
      *
      * @return string
-     * @throws \InvalidArgumentException
+     * @throws ViewException
      */
     public function render()
     {
+        $file = $this->translate($this->template);
+
+        if (!is_file($file)) {
+            throw new ViewException(sprintf('Unable to load template file %s (%s)', $this->template, $file));
+        }
+
         ob_start();
         extract($this->vars);
-        require $this->traslate($this->template);
+        require $file;
 
         return ob_get_clean();
     }
 
-    protected function traslate($name)
+    /**
+     * Translates view identifier to path
+     *
+     * @param string $name
+     *
+     * @return string
+     * @throws ViewException
+     */
+    protected function translate($name)
     {
         preg_match_all('/^(?P<bundle>[^:]+):(?P<directory>[^:]*:)?(?P<file>.+)$/', $name, $matches, \PREG_SET_ORDER);
 
@@ -170,10 +184,6 @@ class View implements ViewInterface
 
         $file = strtr($this->pattern, $r);
         $file = str_replace(array('\\', '_', '//'), '/', $file);
-
-        if (!is_file($file)) {
-            throw new ViewException(sprintf('Unable to load template file %s (%s)', $name, $file));
-        }
 
         return $file;
     }
@@ -206,8 +216,10 @@ class View implements ViewInterface
      */
     public function offsetSet($offset, $value)
     {
-        if (empty($offset)) {
-            $offset = array_push($_COOKIE, $value);
+        if ($offset === null) {
+            array_push($this->vars, $value);
+
+            return;
         }
 
         $this->vars[$offset] = $value;

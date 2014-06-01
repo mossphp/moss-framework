@@ -172,6 +172,13 @@ interface RequestInterface
     public function referrer();
 
     /**
+     * Returns languages with quality order
+     *
+     * @return array
+     */
+    public function language();
+
+    /**
      * Returns locale
      *
      * @param null|string $locale

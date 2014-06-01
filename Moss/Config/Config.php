@@ -60,7 +60,7 @@ class Config implements ConfigInterface
     /**
      * Sets config mode
      *
-     * @param null $mode
+     * @param null|string $mode
      *
      * @return string
      */
@@ -76,14 +76,24 @@ class Config implements ConfigInterface
     /**
      * Reads configuration properties from passed array
      *
-     * @param array $arr
+     * @param array       $arr
+     * @param null|string $prefix
      *
      * @return $this
      */
-    public function import(array $arr)
+    public function import(array $arr, $prefix = null)
     {
         $importKeys = array();
         foreach ($arr as $key => $node) {
+            if (strpos($key, 'import') === 0) {
+                $mode = substr($key, 7);
+                if ($mode == '' || $mode == $this->mode) {
+                    $importKeys[] = $key;
+                }
+
+                continue;
+            }
+
             switch ($key) {
                 case 'container':
                     $node = $this->applyContainerDefaults($node);
@@ -96,23 +106,68 @@ class Config implements ConfigInterface
                     break;
             }
 
-            if (strpos($key, 'import') === 0) {
-                $mode = substr($key, 7);
-                if ($mode == '' || $mode == $this->mode) {
-                    $importKeys[] = $key;
-                }
-
-                continue;
-            }
-
-            $this->config[$key] = array_merge($this->config[$key], $node);
+            $this->config[$key] = array_merge($this->config[$key], $this->applyPrefix($node, $prefix));
         }
 
         foreach ($importKeys as $key) {
-            array_walk($arr[$key], array($this, 'import'));
+            foreach ($arr[$key] as $key => $value) {
+                $this->import($value, $this->prefixKey($key, $prefix));
+            }
         }
 
         return $this;
+    }
+
+    /**
+     * Applies prefix to array keys
+     *
+     * @param array $array
+     * @param null|string  $prefix
+     *
+     * @return array
+     */
+    private function applyPrefix(array $array, $prefix = null)
+    {
+        if (!$this->checkPrefix($prefix)) {
+            return $array;
+        }
+
+        $result = array();
+        foreach ($array as $key => $value) {
+            $result[$this->prefixKey($key, $prefix)] = $value;
+        }
+
+        return $result;
+    }
+
+    /**
+     * Prefixes key
+     *
+     * @param string $key
+     * @param null|string $prefix
+     *
+     * @return string
+     */
+    private function prefixKey($key, $prefix = null)
+    {
+        if (!$this->checkPrefix($prefix)) {
+            return $key;
+        }
+
+        return $prefix . ':' . $key;
+    }
+
+    /**
+     * Checks if key needs to be prefixed
+     * Only strings are prefixed
+     *
+     * @param string $prefix
+     *
+     * @return bool
+     */
+    private function checkPrefix($prefix)
+    {
+        return !empty($prefix) && !is_numeric($prefix);
     }
 
     /**
@@ -230,5 +285,130 @@ class Config implements ConfigInterface
         }
 
         return $array;
+    }
+
+    /**
+     * Whether a offset exists
+     *
+     * @param mixed $key
+     *
+     * @return boolean true on success or false on failure.
+     */
+    public function offsetExists($key)
+    {
+        return isset($this->config[$key]);
+    }
+
+    /**
+     * Offset to retrieve
+     *
+     * @param mixed $key
+     *
+     * @return mixed Can return all value types.
+     */
+    public function &offsetGet($key)
+    {
+        if (!isset($this->config[$key])) {
+            $this->config[$key] = null;
+        }
+
+        return $this->config[$key];
+    }
+
+    /**
+     * Offset to set
+     *
+     * @param mixed $key
+     * @param mixed $value
+     *
+     * @return void
+     */
+    public function offsetSet($key, $value)
+    {
+        if ($key === null) {
+            array_push($this->config, $value);
+
+            return;
+        }
+
+        $this->config[$key] = $value;
+    }
+
+    /**
+     * Offset to unset
+     *
+     * @param mixed $key
+     *
+     * @return void
+     */
+    public function offsetUnset($key)
+    {
+        unset($this->config[$key]);
+    }
+
+    /**
+     * Count elements of an object
+     *
+     * @return int
+     */
+    public function count()
+    {
+        return count($this->config);
+    }
+
+    /**
+     * Return the current element
+     *
+     * @return mixed
+     */
+    public function current()
+    {
+        return current($this->config);
+    }
+
+    /**
+     * Return the key of the current element
+     *
+     * @return mixed
+     */
+    public function key()
+    {
+        return key($this->config);
+    }
+
+    /**
+     * Move forward to next element
+     *
+     * @return void
+     */
+    public function next()
+    {
+        next($this->config);
+    }
+
+    /**
+     * Rewind the Iterator to the first element
+     *
+     * @return void
+     */
+    public function rewind()
+    {
+        reset($this->config);
+    }
+
+    /**
+     * Checks if current position is valid
+     *
+     * @return bool
+     */
+    public function valid()
+    {
+        $key = key($this->config);
+
+        if ($key === false || $key === null) {
+            return false;
+        }
+
+        return isset($this->config[$key]);
     }
 }

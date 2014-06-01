@@ -46,21 +46,19 @@ interface RouterInterface
      * @param RequestInterface $request
      *
      * @return Router|RouterInterface
-     * @throws RouteException
      */
     public function match(RequestInterface $request);
 
     /**
      * Makes link
      * If corresponding route exists - friendly link is generated, otherwise normal
+
      *
-     * @param null|string $controller    controller identifier, if null request controller is used
-     * @param array       $arguments     additional arguments
-     * @param bool        $forceNormal   if true forces normal link
-     * @param bool        $forceRelative if true forces direct link
+*@param null|string $name controller identifier, if null request controller is used
+     * @param array       $arguments  additional arguments
+
      *
-     * @return string
-     * @throws \InvalidArgumentException|\RangeException
+*@return string
      */
-    public function make($controller = null, $arguments = array(), $forceNormal = false, $forceRelative = false);
+    public function make($name = null, $arguments = array());
 }

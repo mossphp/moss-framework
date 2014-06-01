@@ -11,13 +11,15 @@
 
 namespace Moss\Kernel;
 
+use Moss\Http\Router\RouterException;
+
 /**
- * Moss Kernel exception
+ * Moss Kernel 404 Exception
  *
  * @package Moss Kernel
  * @author  Michal Wachowski <wachowski.michal@gmail.com>
  */
-class KernelException extends \Exception
+class NotFoundException extends RouterException
 {
 
 }

@@ -1,11 +1,9 @@
 <?php
 namespace Moss\Sample\Controller;
 
-use Moss\Container\Container;
-use Moss\Http\Request\Request;
 use Moss\Http\Response\Response;
 use Moss\Http\Response\ResponseRedirect;
-use Moss\Http\Router\Router;
+use Moss\Kernel\App;
 use Moss\Security\AuthenticationException;
 
 /**
@@ -15,19 +13,17 @@ use Moss\Security\AuthenticationException;
  */
 class SampleController
 {
+    protected $app;
+
 
     /**
      * Constructor
      *
-     * @param Container $container
-     * @param Router    $router
-     * @param Request   $request
+     * @param App $moss
      */
-    public function __construct(Container $container, Router $router, Request $request)
+    public function __construct(App $moss)
     {
-        $this->container = & $container;
-        $this->router = & $router;
-        $this->request = & $request;
+        $this->app = & $moss;
     }
 
     /**
@@ -37,7 +33,7 @@ class SampleController
      */
     public function indexAction()
     {
-        $content = $this->container->get('view')
+        $content = $this->app->get('view')
             ->template('Moss:Sample:index')
             ->set('method', __METHOD__)
             ->render();
@@ -63,16 +59,16 @@ class SampleController
     public function authAction()
     {
         try {
-            if (!$this->request->method('post')) {
+            if (!$this->app->request->method('post')) {
                 throw new AuthenticationException('Unable to authenticate, invalid method');
             }
 
-            $this->container->get('security')
-                ->tokenize($this->request->body->all());
+            $this->app->get('security')
+                ->tokenize($this->app->request->body->all());
 
-            return new ResponseRedirect($this->router->make('source'));
+            return new ResponseRedirect($this->app->router->make('source'));
         } catch (AuthenticationException $e) {
-            $this->container->get('flash')
+            $this->app->get('flash')
                 ->add($e->getMessage(), 'error');
 
             return new Response($this->form(), 401);
@@ -86,10 +82,10 @@ class SampleController
      */
     protected function form()
     {
-        return $this->container->get('view')
+        return $this->app->get('view')
             ->template('Moss:Sample:login')
             ->set('method', __METHOD__)
-            ->set('flash', $this->container->get('flash'))
+            ->set('flash', $this->app->get('flash'))
             ->render();
     }
 
@@ -100,10 +96,10 @@ class SampleController
      */
     public function logoutAction()
     {
-        $this->container->get('security')
+        $this->app->get('security')
             ->destroy();
 
-        return new ResponseRedirect($this->router->make('main'));
+        return new ResponseRedirect($this->app->router->make('main'));
     }
 
     /**
@@ -113,8 +109,8 @@ class SampleController
      */
     public function sourceAction()
     {
-        $path = $this->container->get('path.app') . '/Moss/Sample';
-        $content = $this->container->get('view')
+        $path = $this->app->get('path.app') . '/Moss/Sample';
+        $content = $this->app->get('view')
             ->template('Moss:Sample:source')
             ->set('method', __METHOD__)
             ->set('controller', highlight_file($path . '/controller/SampleController.php.', 1))

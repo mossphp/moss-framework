@@ -22,6 +22,8 @@ interface FlashBagInterface extends \Iterator, \ArrayAccess, \Countable
 
     /**
      * Removes all messages from container
+     *
+     * @return FlashBagInterface
      */
     public function reset();
 

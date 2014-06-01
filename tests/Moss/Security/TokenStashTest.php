@@ -6,13 +6,26 @@ class TokenStashTest extends \PHPUnit_Framework_TestCase
 {
 
 
+    public function testTokenStashing()
+    {
+        $token = $this->getMock('\Moss\Security\TokenInterface');
+
+        $session = $this->getMock('\Moss\Http\Session\SessionInterface');
+        $session->expects($this->at(0))->method('regenerate');
+        $session->expects($this->at(1))->method('set')->with('token', $token);
+
+        $stash = new TokenStash($session);
+        $stash->put($token);
+    }
+
     public function testTokenRetrieval()
     {
         $token = $this->getMock('\Moss\Security\TokenInterface');
 
-        $stash = new TokenStash($this->mockSession());
+        $session = $this->getMock('\Moss\Http\Session\SessionInterface');
+        $session->expects($this->once())->method('get')->will($this->returnValue($token));
 
-        $stash->put($token);
+        $stash = new TokenStash($session);
         $this->assertEquals($token, $stash->get());
     }
 
@@ -20,35 +33,16 @@ class TokenStashTest extends \PHPUnit_Framework_TestCase
     {
         $token = $this->getMock('\Moss\Security\TokenInterface');
 
-        $stash = new TokenStash($this->mockSession());
+        $session = $this->getMock('\Moss\Http\Session\SessionInterface');
+        $session->expects($this->once())->method('remove');
+        $session->expects($this->at(0))->method('get')->will($this->returnValue($token));
+        $session->expects($this->at(2))->method('get')->will($this->returnValue(null));
 
-        $stash->put($token);
+        $stash = new TokenStash($session);
         $this->assertEquals($token, $stash->get());
 
         $stash->destroy();
         $this->assertNull($stash->get());
-    }
-
-    protected function mockSession()
-    {
-        $arr = array();
-        $mock = $this->getMock('\Moss\Http\session\SessionInterface');
-        $mock
-            ->expects($this->any())
-            ->method('set')
-            ->will($this->returnCallback(function ($offset, $token) use (&$arr) { $arr[$offset] = $token; }));
-
-        $mock
-            ->expects($this->any())
-            ->method('get')
-            ->will($this->returnCallback(function ($offset) use (&$arr) { return isset($arr[$offset]) ? $arr[$offset] : null; }));
-
-        $mock
-            ->expects($this->any())
-            ->method('remove')
-            ->will($this->returnCallback(function () use (&$arr) { return $arr = array(); }));
-
-        return $mock;
     }
 }
  

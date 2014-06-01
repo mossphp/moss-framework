@@ -34,7 +34,7 @@ interface UserProviderInterface
      *
      * @param array $credentials
      *
-     * @return $this
+     * @return TokenInterface
      */
     public function tokenize(array $credentials);
 

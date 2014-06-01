@@ -36,19 +36,29 @@ class Request implements RequestInterface
     private $header;
     private $language;
 
-    /** @var BagInterface */
+    /**
+     * @var BagInterface
+     */
     public $query;
 
-    /** @var BagInterface */
+    /**
+     * @var BagInterface
+     */
     public $body;
 
-    /** @var BagInterface */
+    /**
+     * @var BagInterface|FilesBag
+     */
     public $files;
 
-    /** @var SessionInterface */
+    /**
+     * @var SessionInterface
+     */
     public $session;
 
-    /** @var CookieInterface */
+    /**
+     * @var CookieInterface
+     */
     public $cookie;
 
     /**
@@ -87,7 +97,7 @@ class Request implements RequestInterface
     {
         $this->server = $server;
 
-        $this->header = $this->resolveHeaders();
+        $this->header = $this->resolveHeaders(array_merge($get, $post, $server));
         $this->language = $this->resolveLanguages();
 
         if ($this->locale() === null) {
@@ -98,7 +108,7 @@ class Request implements RequestInterface
         $this->path = $this->resolvePath();
         $this->baseName = $this->resolveBaseName();
 
-        $this->query = new Bag($this->resolveGET($get));
+        $this->query = new Bag($this->resolveParameters($get));
         $this->body = new Bag($this->resolveBody($post));
         $this->files = new FilesBag($files);
 
@@ -150,11 +160,12 @@ class Request implements RequestInterface
     /**
      * Resolves headers data
      *
+     * @param array $parameters
+     *
      * @return array
      */
-    protected function resolveHeaders()
+    protected function resolveHeaders(array $parameters)
     {
-        $parameters = array_merge($_GET, $_POST, $_SERVER);
         $headers = array();
 
         foreach ($parameters as $key => $value) {
@@ -198,7 +209,7 @@ class Request implements RequestInterface
      */
     protected function resolveDir()
     {
-        $dir = substr($this->server['SCRIPT_FILENAME'], strlen($this->server['DOCUMENT_ROOT']));
+        $dir = substr($this->server('SCRIPT_FILENAME'), strlen($this->server('DOCUMENT_ROOT')));
         $dir = str_replace('\\', '/', $dir);
         $dir = '/' . trim(substr($dir, 0, strrpos($dir, '/')), '/') . '/';
 
@@ -277,13 +288,13 @@ class Request implements RequestInterface
     }
 
     /**
-     * Resolves query data from passed array and CLI
+     * Resolves request parameters from passed array and CLI
      *
      * @param array $get
      *
      * @return array
      */
-    protected function resolveGET(array $get = array())
+    protected function resolveParameters(array $get = array())
     {
         if ($this->method() != 'CLI' || !isset($GLOBALS['argc']) || !isset($GLOBALS['argv']) || $GLOBALS['argc'] <= 1) {
             return $get;
@@ -305,6 +316,12 @@ class Request implements RequestInterface
         return array_merge($get, $cli);
     }
 
+    /**
+     * Removes quotes
+     * @param string $val
+     *
+     * @return string
+     */
     protected function unquote(&$val)
     {
         return $val = trim($val, '"\'');
@@ -380,7 +397,7 @@ class Request implements RequestInterface
             }
         }
 
-        rsort($codes);
+        sort($codes);
 
         return $codes;
     }
@@ -408,7 +425,7 @@ class Request implements RequestInterface
     /**
      * Returns server param value for given key or null if key does not exists
      *
-     * @param string $key
+     * @param null|string $key
      * @param mixed  $default
      *
      * @return null|string
@@ -431,6 +448,15 @@ class Request implements RequestInterface
         return $this->getFromArray($this->header, $key, $default);
     }
 
+    /**
+     * Retrieves value from passed array
+     *
+     * @param array $array
+     * @param null|string $key
+     * @param null|string $default
+     *
+     * @return null
+     */
     private function getFromArray($array, $key = null, $default = null)
     {
         if ($key === null) {
@@ -511,7 +537,7 @@ class Request implements RequestInterface
     /**
      * Returns request protocol
      *
-     * @return null|string
+     * @return string
      */
     public function schema()
     {
@@ -603,7 +629,7 @@ class Request implements RequestInterface
     /**
      * Returns requested controller identifier (if available)
      *
-     * @param string $controller
+     * @param null|string $controller
      *
      * @return null|string
      */
@@ -624,6 +650,16 @@ class Request implements RequestInterface
     public function referrer()
     {
         return empty($this->server['HTTP_REFERER']) ? null : $this->server['HTTP_REFERER'];
+    }
+
+    /**
+     * Returns languages sorted by quality (priority)
+     *
+     * @return array
+     */
+    public function language()
+    {
+        return $this->language;
     }
 
     /**

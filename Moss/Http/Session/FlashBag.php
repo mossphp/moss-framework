@@ -20,7 +20,9 @@ namespace Moss\Http\Session;
 class FlashBag implements FlashBagInterface
 {
 
-    /** @var SessionInterface */
+    /**
+     * @var SessionInterface
+     */
     private $session;
     private $prefix;
 
@@ -46,6 +48,8 @@ class FlashBag implements FlashBagInterface
 
     /**
      * Removes all messages from container
+     *
+     * @return $this
      */
     public function reset()
     {

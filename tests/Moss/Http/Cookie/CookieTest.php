@@ -65,15 +65,15 @@ class CookieTest extends \PHPUnit_Framework_TestCase
     public function testOffsetUnset()
     {
         $cookie = new MockCookie();
-        $cookie->offsetSet('foo', 'bar');
-        $cookie->offsetUnset('foo');
+        $cookie['foo'] = 'bar';
+        unset($cookie['foo']);
         $this->assertEquals(0, $cookie->count());
     }
 
     public function testOffsetSet()
     {
         $cookie = new MockCookie();
-        $cookie->offsetSet('foo', 'bar');
+        $cookie['foo'] = 'bar';
         $this->assertEquals('bar', $cookie->get('foo'));
         $this->assertEquals('bar', $cookie['foo']);
     }
@@ -81,28 +81,28 @@ class CookieTest extends \PHPUnit_Framework_TestCase
     public function testOffsetGet()
     {
         $cookie = new MockCookie();
-        $cookie->offsetSet('foo', 'bar');
+        $cookie['foo'] = 'bar';
         $this->assertEquals('bar', $cookie['foo']);
     }
 
     public function testOffsetExists()
     {
         $cookie = new MockCookie();
-        $cookie->offsetSet('foo', 'bar');
+        $cookie['foo'] = 'bar';
         $this->assertTrue(isset($cookie['foo']));
     }
 
     public function testCurrent()
     {
         $cookie = new MockCookie();
-        $cookie->offsetSet('foo', 'bar');
+        $cookie['foo'] = 'bar';
         $this->assertEquals('bar', $cookie->current());
     }
 
     public function testNext()
     {
         $cookie = new MockCookie();
-        $cookie->offsetSet('foo', 'bar');
+        $cookie['foo'] = 'bar';
         $cookie->next();
         $this->assertFalse($cookie->current());
     }
@@ -110,14 +110,14 @@ class CookieTest extends \PHPUnit_Framework_TestCase
     public function testKey()
     {
         $cookie = new MockCookie();
-        $cookie->offsetSet('foo', 'bar');
+        $cookie['foo'] = 'bar';
         $this->assertEquals('foo', $cookie->key());
     }
 
     public function testValid()
     {
         $cookie = new MockCookie();
-        $cookie->offsetSet('foo', 'bar');
+        $cookie['foo'] = 'bar';
         $cookie->rewind();
         $this->assertTrue($cookie->valid());
     }
@@ -125,7 +125,7 @@ class CookieTest extends \PHPUnit_Framework_TestCase
     public function testRewind()
     {
         $cookie = new MockCookie();
-        $cookie->offsetSet('foo', 'bar');
+        $cookie['foo'] = 'bar';
         $cookie->rewind();
         $this->assertEquals('bar', $cookie->current());
     }
@@ -133,7 +133,7 @@ class CookieTest extends \PHPUnit_Framework_TestCase
     public function testCount()
     {
         $cookie = new MockCookie();
-        $cookie->offsetSet('foo', 'bar');
+        $cookie['foo'] = 'bar';
         $this->assertEquals(1, $cookie->count());
     }
 }

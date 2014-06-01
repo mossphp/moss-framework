@@ -22,7 +22,9 @@ use Moss\Http\Session\SessionInterface;
 class TokenStash implements TokenStashInterface
 {
 
-    /** @var \Moss\Http\Session\SessionInterface */
+    /**
+     * @var \Moss\Http\Session\SessionInterface
+     */
     protected $stash;
 
     /**
@@ -53,7 +55,7 @@ class TokenStash implements TokenStashInterface
     /**
      * Returns stashed token
      *
-     * @return TokenInterface
+     * @return null|TokenInterface
      */
     public function get()
     {
