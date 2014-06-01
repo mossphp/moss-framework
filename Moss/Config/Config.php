@@ -11,16 +11,18 @@
 
 namespace Moss\Config;
 
+use Moss\Bag\Bag;
+
 /**
  * Configuration representation
  *
  * @package Moss Config
  * @author  Michal Wachowski <wachowski.michal@gmail.com>
  */
-class Config implements ConfigInterface
+class Config extends Bag implements ConfigInterface
 {
     protected $mode;
-    protected $config = array(
+    protected $storage = array(
         'framework' => array(
             'error' => array(
                 'display' => true,
@@ -106,7 +108,7 @@ class Config implements ConfigInterface
                     break;
             }
 
-            $this->config[$key] = array_merge($this->config[$key], $this->applyPrefix($node, $prefix));
+            $this->storage[$key] = array_merge($this->storage[$key], $this->applyPrefix($node, $prefix));
         }
 
         foreach ($importKeys as $key) {
@@ -247,168 +249,6 @@ class Config implements ConfigInterface
      */
     public function export()
     {
-        return $this->config;
-    }
-
-    /**
-     * Returns core variable value
-     * If variable is undefined - returns false
-     *
-     * @param string $var     name of core variable
-     * @param mixed  $default default value if variable not found
-     *
-     * @return mixed
-     */
-    public function get($var, $default = null)
-    {
-        return $this->getArrValue($this->config, $var, $default);
-    }
-
-    /**
-     * Returns offset value from array or default value if offset does not exists
-     *
-     * @param array|\ArrayAccess $array
-     * @param string             $offset
-     * @param mixed              $default
-     *
-     * @return mixed
-     */
-    protected function getArrValue($array, $offset, $default = null)
-    {
-        $keys = explode('.', $offset);
-        while ($i = array_shift($keys)) {
-            if (!isset($array[$i])) {
-                return $default;
-            }
-
-            $array = $array[$i];
-        }
-
-        return $array;
-    }
-
-    /**
-     * Whether a offset exists
-     *
-     * @param mixed $key
-     *
-     * @return boolean true on success or false on failure.
-     */
-    public function offsetExists($key)
-    {
-        return isset($this->config[$key]);
-    }
-
-    /**
-     * Offset to retrieve
-     *
-     * @param mixed $key
-     *
-     * @return mixed Can return all value types.
-     */
-    public function &offsetGet($key)
-    {
-        if (!isset($this->config[$key])) {
-            $this->config[$key] = null;
-        }
-
-        return $this->config[$key];
-    }
-
-    /**
-     * Offset to set
-     *
-     * @param mixed $key
-     * @param mixed $value
-     *
-     * @return void
-     */
-    public function offsetSet($key, $value)
-    {
-        if ($key === null) {
-            array_push($this->config, $value);
-
-            return;
-        }
-
-        $this->config[$key] = $value;
-    }
-
-    /**
-     * Offset to unset
-     *
-     * @param mixed $key
-     *
-     * @return void
-     */
-    public function offsetUnset($key)
-    {
-        unset($this->config[$key]);
-    }
-
-    /**
-     * Count elements of an object
-     *
-     * @return int
-     */
-    public function count()
-    {
-        return count($this->config);
-    }
-
-    /**
-     * Return the current element
-     *
-     * @return mixed
-     */
-    public function current()
-    {
-        return current($this->config);
-    }
-
-    /**
-     * Return the key of the current element
-     *
-     * @return mixed
-     */
-    public function key()
-    {
-        return key($this->config);
-    }
-
-    /**
-     * Move forward to next element
-     *
-     * @return void
-     */
-    public function next()
-    {
-        next($this->config);
-    }
-
-    /**
-     * Rewind the Iterator to the first element
-     *
-     * @return void
-     */
-    public function rewind()
-    {
-        reset($this->config);
-    }
-
-    /**
-     * Checks if current position is valid
-     *
-     * @return bool
-     */
-    public function valid()
-    {
-        $key = key($this->config);
-
-        if ($key === false || $key === null) {
-            return false;
-        }
-
-        return isset($this->config[$key]);
+        return $this->storage;
     }
 }

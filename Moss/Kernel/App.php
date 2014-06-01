@@ -86,7 +86,7 @@ class App
 
 // components
         $this->container = $this->buildContainer((array) $this->config->get('container'));
-        $this->dispatcher = $this->buildDispatcher($this->config->get('dispatcher'));
+        $this->dispatcher = $this->buildDispatcher((array) $this->config->get('dispatcher'));
         $this->router = $this->buildRouter((array) $this->config->get('router'));
 
         $this->session = new Session($this->config['framework']['session']['name'], $this->config['framework']['session']['cacheLimiter']);
@@ -286,7 +286,7 @@ class App
                 return $this->fire('kernel.send', $response);
             }
 
-            $response = $this->callController($controller, $this->request);
+            $response = $this->callController($controller);
 
             if (!$response) {
                 throw new AppException(sprintf('There was no response returned from the controller "%s" handling "%s"', $controller, $this->request->uri(true)));

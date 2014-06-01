@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Moss\Http\Bag;
+namespace Moss\Bag;
 
 /**
  * Parameter bag
@@ -30,7 +30,6 @@ class Bag implements BagInterface
     {
         $this->all($storage);
     }
-
 
     /**
      * Retrieves offset value
@@ -59,6 +58,14 @@ class Bag implements BagInterface
      */
     public function set($offset, $value = null)
     {
+        if (is_array($offset)) {
+            foreach ($offset as $key => $value) {
+                $this->storage[$key] = $value;
+            }
+
+            return $this;
+        }
+
         $this->setIntoArray($this->storage, explode(self::SEPARATOR, $offset), $value);
 
         return $this;
@@ -77,16 +84,7 @@ class Bag implements BagInterface
             return $this->count() > 0;
         }
 
-        $offset = explode(self::SEPARATOR, $offset);
-
-        if (count($offset) > 1) {
-            $arr = & $this->getFromArray($this->storage, array_slice($offset, 0, -1), false);
-        } else {
-            $arr = & $this->storage;
-        }
-
-        $offset = array_slice($offset, -1);
-        $offset = reset($offset);
+        $arr = & $this->getArrayByReference($offset);
 
         return is_array($arr) ? array_key_exists($offset, $arr) : false;
     }
@@ -107,6 +105,24 @@ class Bag implements BagInterface
             return $this;
         }
 
+        $arr = & $this->getArrayByReference($offset);
+
+        if (is_array($arr) && array_key_exists($offset, $arr)) {
+            unset($arr[$offset]);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Returns reference to sub array
+     *
+     * @param string $offset
+     *
+     * @return mixed
+     */
+    private function & getArrayByReference(&$offset)
+    {
         $offset = explode(self::SEPARATOR, $offset);
 
         if (count($offset) > 1) {
@@ -118,11 +134,7 @@ class Bag implements BagInterface
         $offset = array_slice($offset, -1);
         $offset = reset($offset);
 
-        if (is_array($arr) && array_key_exists($offset, $arr)) {
-            unset($arr[$offset]);
-        }
-
-        return $this;
+        return $arr;
     }
 
     /**
@@ -163,7 +175,7 @@ class Bag implements BagInterface
      *
      * @param array  $arr
      * @param array  $keys
-     * @param string $default
+     * @param mixed $default
      *
      * @return string
      */
@@ -184,9 +196,9 @@ class Bag implements BagInterface
     /**
      * Sets array elements value
      *
-     * @param array  $array
-     * @param string $keys
-     * @param mixed  $value
+     * @param array $array
+     * @param array $keys
+     * @param mixed $value
      *
      * @return mixed
      */

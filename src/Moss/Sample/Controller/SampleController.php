@@ -59,7 +59,7 @@ class SampleController
     public function authAction()
     {
         try {
-            if (!$this->app->request->method('post')) {
+            if (!$this->app->request->method() != 'post') {
                 throw new AuthenticationException('Unable to authenticate, invalid method');
             }
 
@@ -113,8 +113,8 @@ class SampleController
         $content = $this->app->get('view')
             ->template('Moss:Sample:source')
             ->set('method', __METHOD__)
-            ->set('controller', highlight_file($path . '/controller/SampleController.php.', 1))
-            ->set('bootstrap', highlight_file($path . '/bootstrap.php', 1))
+            ->set('controller', highlight_file($path . '/controller/SampleController.php.', true))
+            ->set('bootstrap', highlight_file($path . '/bootstrap.php', true))
             ->render();
 
         return new Response($content);

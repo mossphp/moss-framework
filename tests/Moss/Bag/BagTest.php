@@ -1,5 +1,5 @@
 <?php
-namespace Moss\Http\Bag;
+namespace Moss\Bag;
 
 
 class BagTest extends \PHPUnit_Framework_TestCase
@@ -13,6 +13,13 @@ class BagTest extends \PHPUnit_Framework_TestCase
         $bag = new Bag();
         $bag->set($offset, $value);
         $this->assertEquals($value, $bag->get($offset));
+    }
+
+    public function testSetArray()
+    {
+        $bag = new Bag();
+        $bag->set(array('foo' => 'bar'));
+        $this->assertEquals('bar', $bag->get('foo'));
     }
 
     /**

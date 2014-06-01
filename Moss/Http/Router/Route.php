@@ -40,7 +40,7 @@ class Route implements RouteInterface
      * Constructor
      *
      * @param string          $pattern
-     * @param string|\Closure $controller
+     * @param string|callable $controller
      * @param array           $arguments
      * @param array           $methods
      */

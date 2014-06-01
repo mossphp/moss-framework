@@ -26,7 +26,7 @@ class Container implements ContainerInterface
     private $components = array();
 
     /**
-     * @var array|object
+     * @var array
      */
     private $instances = array();
 

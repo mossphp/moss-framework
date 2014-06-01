@@ -5,7 +5,7 @@ class MockView extends View
 {
     public function render()
     {
-        return json_encode(array(parent::translate($this->template), $this->vars));
+        return json_encode(array(parent::translate($this->template), $this->storage));
     }
 }
 

@@ -100,7 +100,7 @@ class Router implements RouterInterface
                     ->get('format')
             );
 
-            $request->controller($route->controller());
+            $request->route($name);
 
             $this->defaults = array(
                 'host' => $request->baseName(),
@@ -109,7 +109,7 @@ class Router implements RouterInterface
                 'format' => $request->format()
             );
 
-            return $request->controller();
+            return $request->route();
         }
 
         throw new RouterException('Route for "' . $request->path() . '" not found!');

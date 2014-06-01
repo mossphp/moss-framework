@@ -162,7 +162,7 @@ class Response implements ResponseInterface
      *
      * @param null|string $protocol
      *
-     * @return Response|ResponseInterface
+     * @return string
      */
     public function protocol($protocol = null)
     {
@@ -225,15 +225,29 @@ class Response implements ResponseInterface
 
         header($this->protocol . ' ' . $this->status . ' ' . $this->statusTexts[$this->status], true, $this->status);
 
-        foreach ($this->header() as $header => $value) {
-            if (empty($value)) {
-                continue;
-            }
-
-            header($header . ': ' . $value);
+        foreach ($this->prepareHeaders($this->header) as $header) {
+            header($header);
         }
 
         return $this;
+    }
+
+    /**
+     * Builds array of headers
+     *
+     * @param array $headers
+     *
+     * @return array
+     */
+    protected function prepareHeaders(array $headers)
+    {
+        return array_map(
+            function ($header, $value) {
+                return $header . ':' . $value;
+            },
+
+            array_filter($headers)
+        );
     }
 
     /**
@@ -267,15 +281,8 @@ class Response implements ResponseInterface
      */
     public function __toString()
     {
-        $headers = '';
-        foreach ($this->header as $header => $value) {
-            if (empty($value)) {
-                continue;
-            }
+        $headers = implode(PHP_EOL, $this->prepareHeaders($this->header));
 
-            $headers .= $header . ': ' . $value . "\r\n";
-        }
-
-        return $this->protocol . ' ' . $this->status . ' ' . $this->statusTexts[$this->status] . "\r\n" . $headers . "\r\n" . $this->content;
+        return $this->protocol . ' ' . $this->status . ' ' . $this->statusTexts[$this->status] . PHP_EOL . $headers . PHP_EOL . $this->content;
     }
 }

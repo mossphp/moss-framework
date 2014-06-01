@@ -157,12 +157,13 @@ interface RequestInterface
 
     /**
      * Returns requested controller identifier (if available)
+
      *
-     * @param string $controller
+*@param string $route
      *
-     * @return null|string
+*@return null|string
      */
-    public function controller($controller = null);
+    public function route($route = null);
 
     /**
      * Returns address of page which referred user agent (if any)
