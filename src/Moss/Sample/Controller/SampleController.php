@@ -59,7 +59,7 @@ class SampleController
     public function authAction()
     {
         try {
-            if (!$this->app->request->method('post')) {
+            if (!$this->app->request->method() != 'post') {
                 throw new AuthenticationException('Unable to authenticate, invalid method');
             }
 
