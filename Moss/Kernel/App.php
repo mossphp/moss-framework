@@ -286,7 +286,7 @@ class App
                 return $this->fire('kernel.send', $response);
             }
 
-            $response = $this->callController($controller, $this->request);
+            $response = $this->callController($controller);
 
             if (!$response) {
                 throw new AppException(sprintf('There was no response returned from the controller "%s" handling "%s"', $controller, $this->request->uri(true)));
