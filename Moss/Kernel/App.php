@@ -247,8 +247,8 @@ class App
      * Fires passed event and returns its response or null if no response passed and received
      *
      * @param string $event
-     * @param null   $subject
-     * @param null   $message
+     * @param null|mixed   $subject
+     * @param null|string   $message
      *
      * @return ResponseInterface|null
      */
@@ -274,6 +274,9 @@ class App
             }
 
             $controller = $this->router->match($this->request);
+            if (empty($controller)) {
+                throw new AppException('No controller was returned from request');
+            }
 
             if ($response = $this->fire('kernel.route')) {
                 return $this->fire('kernel.send', $response);
@@ -330,9 +333,9 @@ class App
     /**
      * Calls controller from callable or class
      *
-     * @param string|array|callable $controller
+     * @param mixed $controller
      *
-     * @return mixed
+     * @return ResponseInterface
      * @throws AppException
      */
     private function callController($controller)
