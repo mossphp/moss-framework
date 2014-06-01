@@ -56,7 +56,8 @@ class Area implements AreaInterface
     protected function buildRegExp($pattern)
     {
         $pattern = '/' . trim($pattern, '/');
-        preg_match_all('#(\/?[^\/]+)#im', $pattern, $patternMatches);
+        $pattern = str_replace('/', '\/', $pattern);
+        preg_match_all('#((\\\/)?[^\\\/]+)#im', $pattern, $patternMatches);
 
         foreach ($patternMatches[1] as &$match) {
             if (strpos($match, '*') !== false) {
@@ -65,8 +66,8 @@ class Area implements AreaInterface
 
             if (preg_match('#\(![^\)]+\)#i', $match)) {
                 $match = preg_replace_callback(
-                    '/^(\/)?\(!([^\)]+)\)$/i',
-                    array($this, 'callback'),
+                    '/^(.*)\(!([^\)]+)\)$/i',
+                    array($this, 'buildRegExpCallback'),
                     $match,
                     \PREG_SET_ORDER
                 );
@@ -76,23 +77,14 @@ class Area implements AreaInterface
         }
 
         $pattern = str_replace($patternMatches[0], $patternMatches[1], $pattern);
-        $pattern = str_replace('/', '\/', $pattern);
-        $pattern = '/^' . $pattern . '$/i';
+        $pattern = '/^' . $pattern . '\/?.*$/i';
 
         return $pattern;
     }
 
-    /**
-     * Regexp callback, negated regexp
-     *
-     * @param array $match
-     *
-     * @return string
-     */
-    protected function callback($match)
+    protected function buildRegExpCallback($match)
     {
-
-        return ($match[1] === '/' ? '/?' : $match[1]) . '(?!.*\b(' . $match[2] . ')\b).*';
+        return $match[1] . ($match[1] == '\/' ? '?' : '') . '(?!.*\b(' . $match[2] . ')\b).*';
     }
 
     /**

@@ -41,9 +41,13 @@ class AreaTest extends \PHPUnit_Framework_TestCase
     public function matchingProvider()
     {
         return array(
+            array('/bundle/foo/yada'),
             array('/bundle/foo/notLogin'),
             array('/bundle/foo/notLogout'),
-            array('/bundle/bar/yada'),
+            array('/bundle/foo/loginNot'),
+            array('/bundle/foo/logoutNot'),
+            array('/bundle/foo/'),
+            array('/bundle/foo'),
         );
     }
 
@@ -67,10 +71,8 @@ class AreaTest extends \PHPUnit_Framework_TestCase
         return array(
             array('/bundle/foo/login'),
             array('/bundle/bar/logout'),
-            array('/bundle/foo/'),
-            array('/bundle/bar/'),
             array('/foo/bar/yada'),
-            array('/foo/bar/'),
+            array('/foo/bar/')
         );
     }
 
