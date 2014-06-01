@@ -31,7 +31,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
 
     protected function mockRequest($controller, $path, $host = null)
     {
-        $bag = $this->getMock('Moss\Http\bag\BagInterface');
+        $bag = $this->getMock('Moss\Bag\BagInterface');
 
         $request = $this->getMock('Moss\Http\request\RequestInterface');
 
@@ -162,7 +162,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         $request
             ->expects($this->any())
             ->method('query')
-            ->will($this->returnValue($this->getMock('Moss\Http\Bag\BagInterface')));
+            ->will($this->returnValue($this->getMock('Moss\Bag\BagInterface')));
 
         $request
             ->expects($this->any())

@@ -11,13 +11,15 @@
 
 namespace Moss\View;
 
+use Moss\Bag\BagInterface;
+
 /**
  * Moss ViewInterface
  *
  * @package Moss View
  * @author  Michal Wachowski <wachowski.michal@gmail.com>
  */
-interface ViewInterface extends \ArrayAccess, \Iterator, \Countable
+interface ViewInterface extends BagInterface
 {
 
     /**
@@ -28,27 +30,6 @@ interface ViewInterface extends \ArrayAccess, \Iterator, \Countable
      * @return ViewInterface
      */
     public function template($template);
-
-    /**
-     * Sets variable to be used in template
-     *
-     * @param string|array $offset variable name, if array - its key will be used as variable names
-     * @param null|mixed   $value  variable value
-     *
-     * @return ViewInterface
-     * @throws \InvalidArgumentException
-     */
-    public function set($offset, $value = null);
-
-    /**
-     * Retrieves variable value
-     *
-     * @param string $offset  variable name
-     * @param mixed  $default default value if variable not found
-     *
-     * @return mixed
-     */
-    public function get($offset, $default = null);
 
     /**
      * Renders view

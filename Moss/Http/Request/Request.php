@@ -11,8 +11,8 @@
 
 namespace Moss\Http\Request;
 
-use Moss\Http\Bag\Bag;
-use Moss\Http\Bag\BagInterface;
+use Moss\Bag\Bag;
+use Moss\Bag\BagInterface;
 use Moss\Http\Cookie\CookieInterface;
 use Moss\Http\Session\SessionInterface;
 

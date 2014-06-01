@@ -11,7 +11,7 @@
 
 namespace Moss\Http\Cookie;
 
-use Moss\Http\Bag\BagInterface;
+use Moss\Bag\BagInterface;
 
 /**
  * Cookie objects interface

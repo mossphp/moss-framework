@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Moss\Http\Bag;
+namespace Moss\Bag;
 
 /**
  * Parameter bag
@@ -30,7 +30,6 @@ class Bag implements BagInterface
     {
         $this->all($storage);
     }
-
 
     /**
      * Retrieves offset value
@@ -59,6 +58,14 @@ class Bag implements BagInterface
      */
     public function set($offset, $value = null)
     {
+        if (is_array($offset)) {
+            foreach ($offset as $key => $value) {
+                $this->storage[$key] = $value;
+            }
+
+            return $this;
+        }
+
         $this->setIntoArray($this->storage, explode(self::SEPARATOR, $offset), $value);
 
         return $this;

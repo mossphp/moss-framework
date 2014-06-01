@@ -11,7 +11,7 @@
 
 namespace Moss\Http\Session;
 
-use Moss\Http\Bag\Bag;
+use Moss\Bag\Bag;
 
 /**
  * Session object representation

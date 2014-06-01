@@ -251,8 +251,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
             )
         );
 
-        $this->assertInstanceOf('\Moss\Http\Bag\BagInterface', $request->query);
-        $this->assertInstanceOf('\Moss\Http\Bag\BagInterface', $request->query());
+        $this->assertInstanceOf('\Moss\Bag\BagInterface', $request->query);
+        $this->assertInstanceOf('\Moss\Bag\BagInterface', $request->query());
         $this->assertEquals($expected, $request->query->all());
     }
 
@@ -283,8 +283,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
             )
         );
 
-        $this->assertInstanceOf('\Moss\Http\Bag\BagInterface', $request->body);
-        $this->assertInstanceOf('\Moss\Http\Bag\BagInterface', $request->body());
+        $this->assertInstanceOf('\Moss\Bag\BagInterface', $request->body);
+        $this->assertInstanceOf('\Moss\Bag\BagInterface', $request->body());
         $this->assertEquals($expected, $request->body->all());
     }
 

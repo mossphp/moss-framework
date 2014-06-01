@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Moss\Http\Bag;
+namespace Moss\Bag;
 
 /**
  * Parameter bag interface

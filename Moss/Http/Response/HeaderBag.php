@@ -11,7 +11,7 @@
 
 namespace Moss\Http\Response;
 
-use Moss\Http\Bag\BagInterface;
+use Moss\Bag\BagInterface;
 
 /**
  * Response header bag

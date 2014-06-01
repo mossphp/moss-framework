@@ -11,7 +11,7 @@
 
 namespace Moss\View;
 
-use Moss\Http\Bag\Bag;
+use Moss\Bag\Bag;
 
 /**
  * Moss view

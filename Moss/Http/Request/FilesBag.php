@@ -11,7 +11,7 @@
 
 namespace Moss\Http\Request;
 
-use Moss\Http\Bag\Bag;
+use Moss\Bag\Bag;
 
 /**
  * Files bag used by request
@@ -77,7 +77,7 @@ class FilesBag extends Bag
     {
         $node = $this->get($offset);
 
-        if (!is_array($node) || array_keys($node) !== $this->keys) {
+        if (array_keys($node) !== $this->keys) {
             throw new UploadedFileException(sprintf('No uploaded file under offset "%s"', $offset));
         }
 
