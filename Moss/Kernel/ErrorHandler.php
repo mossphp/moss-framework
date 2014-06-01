@@ -19,7 +19,7 @@ namespace Moss\Kernel;
  */
 class ErrorHandler
 {
-
+    protected $display;
     protected $level;
 
     /**
