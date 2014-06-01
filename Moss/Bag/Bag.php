@@ -175,7 +175,7 @@ class Bag implements BagInterface
      *
      * @param array  $arr
      * @param array  $keys
-     * @param string $default
+     * @param mixed $default
      *
      * @return string
      */
