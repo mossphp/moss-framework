@@ -311,7 +311,7 @@ class ExceptionHandler
         } elseif (is_bool($param)) {
             $str = '<span style="color: ' . $this->colors['keyword'] . '">' . ($param ? 'true' : 'false') . '</span>';
         } else {
-            $str = print_r($param, 1);
+            $str = print_r($param, true);
         }
 
         if ($returnOnly) {
