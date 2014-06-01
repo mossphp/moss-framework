@@ -33,8 +33,15 @@ class Request implements RequestInterface
     private $path;
     private $baseName;
 
-    private $server;
-    private $header;
+    /**
+     * @var array
+     */
+    public $server;
+
+    /**
+     * @var HeaderBag
+     */
+    public $header;
     private $language;
 
     /**
@@ -341,7 +348,7 @@ class Request implements RequestInterface
      */
     public function header($key = null, $default = null)
     {
-        return $this->getFromArray($this->header, $key, $default);
+        return $this->header->get($key, $default);
     }
 
     /**
