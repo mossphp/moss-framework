@@ -11,19 +11,16 @@
 
 namespace Moss\Http\Response;
 
-use Moss\Bag\BagInterface;
+use Moss\Bag\Bag;
 
 /**
  * Response header bag
  *
  * @package Moss HTTP
  * @author  Michal Wachowski <wachowski.michal@gmail.com>
- * @todo - move all header related methods from request here and extend Bag
  */
-class HeaderBag implements BagInterface
+class HeaderBag extends Bag
 {
-    protected $storage = array();
-
     /**
      * Construct
      *
@@ -31,236 +28,108 @@ class HeaderBag implements BagInterface
      */
     public function __construct($storage = array())
     {
-        $this->all($storage);
-    }
-
-
-    /**
-     * Retrieves offset value
-     *
-     * @param string $offset
-     * @param mixed  $default
-     *
-     * @return mixed
-     */
-    public function get($offset = null, $default = null)
-    {
-        if ($offset === null) {
-            return $this->all();
-        }
-
-        return isset($this->storage[$offset]) ? $this->storage[$offset] : $default;
+        $this->all($this->resolveHeaders($storage));
     }
 
     /**
-     * Sets value to offset
+     * Resolves headers data
      *
-     * @param string $offset
-     * @param mixed  $value
-     *
-     * @return $this
-     */
-    public function set($offset, $value = null)
-    {
-        $this->storage[$offset] = $value;
-
-        return $this;
-    }
-
-    /**
-     * Returns true if offset exists in bag
-     *
-     * @param string $offset
-     *
-     * @return bool
-     */
-    public function has($offset = null)
-    {
-        if ($offset === null) {
-            return !empty($this->storage);
-        }
-
-        return isset($this->storage[$offset]);
-    }
-
-    /**
-     * Removes offset from bag
-     * If no offset set, removes all values
-     *
-     * @param string $offset attribute to remove from
-     *
-     * @return $this
-     */
-    public function remove($offset = null)
-    {
-        if ($offset === null) {
-            $this->reset();
-
-            return $this;
-        }
-
-        if (isset($this->storage[$offset])) {
-            unset($this->storage[$offset]);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Returns all options
-     * If array passed, becomes bag content
-     *
-     * @param array $array overwrites values
+     * @param array $parameters
      *
      * @return array
      */
-    public function all($array = array())
+    protected function resolveHeaders(array $parameters)
     {
-        if ($array !== array()) {
-            $this->reset();
+        $headers = array();
 
-            foreach ((array) $array as $key => $value) {
-                $this->set($key, $value);
+        foreach ($parameters as $key => $value) {
+            if (strpos($key, 'HTTP_') === 0) {
+                $headers[substr($key, 5)] = $value;
+            } elseif (in_array($key, array('CONTENT_LENGTH', 'CONTENT_MD5', 'CONTENT_TYPE'))) {
+                $headers[$key] = $value;
             }
         }
 
-        return $this->storage;
-    }
+        if (isset($parameters['PHP_AUTH_USER'])) {
+            $headers['PHP_AUTH_USER'] = $parameters['PHP_AUTH_USER'];
+            $headers['PHP_AUTH_PW'] = isset($parameters['PHP_AUTH_PW']) ? $parameters['PHP_AUTH_PW'] : '';
+        } else {
+            $authorizationHeader = null;
+            if (isset($parameters['HTTP_AUTHORIZATION'])) {
+                $authorizationHeader = $parameters['HTTP_AUTHORIZATION'];
+            } elseif (isset($parameters['REDIRECT_HTTP_AUTHORIZATION'])) {
+                $authorizationHeader = $parameters['REDIRECT_HTTP_AUTHORIZATION'];
+            }
 
-    /**
-     * Removes all options
-     *
-     * @return $this
-     */
-    public function reset()
-    {
-        $this->storage = array();
-
-        return $this;
-    }
-
-    /**
-     * Whether a offset exists
-     *
-     * @param mixed $key
-     *
-     * @return boolean true on success or false on failure.
-     */
-    public function offsetExists($key)
-    {
-        return isset($this->storage[$key]);
-    }
-
-    /**
-     * Offset to retrieve
-     *
-     * @param mixed $key
-     *
-     * @return mixed Can return all value types.
-     */
-    public function &offsetGet($key)
-    {
-        if (!isset($this->storage[$key])) {
-            $this->storage[$key] = null;
+            if ($authorizationHeader !== null && stripos($authorizationHeader, 'basic') === 0) {
+                $exploded = explode(':', base64_decode(substr($authorizationHeader, 6)));
+                if (count($exploded) == 2) {
+                    list($headers['PHP_AUTH_USER'], $headers['PHP_AUTH_PW']) = $exploded;
+                }
+            }
         }
 
-        return $this->storage[$key];
-    }
-
-    /**
-     * Offset to set
-     *
-     * @param mixed $key
-     * @param mixed $value
-     *
-     * @return void
-     */
-    public function offsetSet($key, $value)
-    {
-        if ($key === null) {
-            array_push($this->storage, $value);
-
-            return;
+        if (isset($headers['PHP_AUTH_USER'])) {
+            $headers['AUTHORIZATION'] = 'basic ' . base64_encode($headers['PHP_AUTH_USER'] . ':' . $headers['PHP_AUTH_PW']);
         }
 
-        $this->storage[$key] = $value;
+        return array_change_key_case($headers, CASE_LOWER);
     }
 
     /**
-     * Offset to unset
+     * Retrieves language codes in quality order
+     * Builds array containing two letter language codes sorted by quality codes
      *
-     * @param mixed $key
-     *
-     * @return void
+     * @return array
      */
-    public function offsetUnset($key)
+    public function languages()
     {
-        unset($this->storage[$key]);
-    }
-
-    /**
-     * Count elements of an object
-     *
-     * @return int
-     */
-    public function count()
-    {
-        return count($this->storage);
-    }
-
-    /**
-     * Return the current element
-     *
-     * @return mixed
-     */
-    public function current()
-    {
-        return current($this->storage);
-    }
-
-    /**
-     * Return the key of the current element
-     *
-     * @return mixed
-     */
-    public function key()
-    {
-        return key($this->storage);
-    }
-
-    /**
-     * Move forward to next element
-     *
-     * @return void
-     */
-    public function next()
-    {
-        next($this->storage);
-    }
-
-    /**
-     * Rewind the Iterator to the first element
-     *
-     * @return void
-     */
-    public function rewind()
-    {
-        reset($this->storage);
-    }
-
-    /**
-     * Checks if current position is valid
-     *
-     * @return bool
-     */
-    public function valid()
-    {
-        $key = key($this->storage);
-
-        if ($key === false || $key === null) {
-            return false;
+        if (!$this->get('accept_language')) {
+            return array();
         }
 
-        return isset($this->storage[$key]);
+        $codes = $this->extractHeaders();
+
+        $languages = array();
+        foreach ($codes as $lang) {
+            if (strstr($lang, '-')) {
+                $codes = explode('-', $lang);
+                $lang = strtolower($codes[0]);
+            }
+
+            if (in_array($lang, $languages)) {
+                continue;
+            }
+
+            $languages[] = $lang;
+        }
+
+        return $languages;
+    }
+
+    /**
+     * Extracts language codes from header
+     *
+     * @return array
+     */
+    protected function extractHeaders()
+    {
+        $codes = array();
+        foreach (array_filter(explode(',', $this->get('accept_language'))) as $value) {
+            if (preg_match('/;\s*(q=.*$)/', $value, $match)) {
+                $quality = (float) substr(trim($match[1]), 2) * 10;
+                $value = trim(substr($value, 0, -strlen($match[0])));
+            } else {
+                $quality = 1;
+            }
+
+            if (0 < $quality) {
+                $codes[$quality] = trim($value);
+            }
+        }
+
+        sort($codes);
+
+        return $codes;
     }
 }
