@@ -162,7 +162,7 @@ class Response implements ResponseInterface
      *
      * @param null|string $protocol
      *
-     * @return Response|ResponseInterface
+     * @return string
      */
     public function protocol($protocol = null)
     {
