@@ -419,11 +419,11 @@ class Route implements RouteInterface
         foreach ($this->requirements as $key => $regex) {
             $this->assertArgumentRequirement($key, $regex, $arguments);
 
-            if (!empty($arguments[$key]) && isset($this->builders['segments']['{' . $key . '}'])) {
+            if (array_key_exists($key, $arguments) && isset($this->builders['segments']['{' . $key . '}'])) {
                 $this->assertArgumentValue($key, $regex, $arguments[$key]);
                 $url['{' . $key . '}'] = str_replace('{value}', $this->strip($arguments[$key]), $this->builders['segments']['{' . $key . '}']);
             } else {
-                $url['{' . $key . '}'] = isset($this->arguments[$key]) ? $this->arguments[$key] : null;
+                $url['{' . $key . '}'] = substr($this->requirements[$key], -1) == '+' && isset($this->arguments[$key]) ? $this->arguments[$key] : null;
             }
 
             unset($arguments[$key]);
