@@ -65,7 +65,7 @@ class ResponseRedirect extends Response
      *
      * @param null|string $address redirection address
      *
-     * @return ResponseRedirect
+     * @return string
      */
     public function address($address = null)
     {
