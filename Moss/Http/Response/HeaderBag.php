@@ -115,7 +115,9 @@ class HeaderBag extends Bag
     protected function extractHeaders()
     {
         $codes = array();
-        foreach (array_filter(explode(',', $this->get('accept_language'))) as $value) {
+
+        $header = array_filter(explode(',', (string) $this->get('accept_language')));
+        foreach ($header as $value) {
             if (preg_match('/;\s*(q=.*$)/', $value, $match)) {
                 $quality = (float) substr(trim($match[1]), 2) * 10;
                 $value = trim(substr($value, 0, -strlen($match[0])));
