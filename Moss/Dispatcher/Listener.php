@@ -23,8 +23,8 @@ class Listener implements ListenerInterface
 {
 
     protected $component;
+    protected $method;
     protected $arguments;
-    protected $methods;
 
     /**
      * Constructor
