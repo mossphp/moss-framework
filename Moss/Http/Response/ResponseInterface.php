@@ -92,7 +92,7 @@ interface ResponseInterface
     /**
      * Casts response into string with headers
      *
-     * @return string;
+     * @return string
      */
     public function __toString();
 }

@@ -425,7 +425,7 @@ class Request implements RequestInterface
     /**
      * Returns server param value for given key or null if key does not exists
      *
-     * @param string $key
+     * @param null|string $key
      * @param mixed  $default
      *
      * @return null|string
@@ -537,7 +537,7 @@ class Request implements RequestInterface
     /**
      * Returns request protocol
      *
-     * @return null|string
+     * @return string
      */
     public function schema()
     {
@@ -629,7 +629,7 @@ class Request implements RequestInterface
     /**
      * Returns requested controller identifier (if available)
      *
-     * @param string $controller
+     * @param null|string $controller
      *
      * @return null|string
      */

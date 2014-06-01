@@ -55,7 +55,7 @@ class TokenStash implements TokenStashInterface
     /**
      * Returns stashed token
      *
-     * @return TokenInterface
+     * @return null|TokenInterface
      */
     public function get()
     {

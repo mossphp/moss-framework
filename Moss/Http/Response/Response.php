@@ -160,7 +160,7 @@ class Response implements ResponseInterface
     /**
      * Returns response protocol and its version
      *
-     * @param string $protocol
+     * @param null|string $protocol
      *
      * @return Response|ResponseInterface
      */

@@ -48,6 +48,8 @@ class FlashBag implements FlashBagInterface
 
     /**
      * Removes all messages from container
+     *
+     * @return $this
      */
     public function reset()
     {

@@ -147,9 +147,9 @@ class Router implements RouterInterface
     /**
      * Resolves controller from passed value or from defaults
      *
-     * @param mixed $name
+     * @param null|string $name
      *
-     * @return mixed
+     * @return string
      * @throws RouterException
      */
     private function resolveName($name)

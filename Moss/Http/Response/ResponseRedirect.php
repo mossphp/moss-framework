@@ -87,7 +87,7 @@ class ResponseRedirect extends Response
     /**
      * Sets redirection address
      *
-     * @param string $address redirection address
+     * @param null|string $address redirection address
      *
      * @return ResponseRedirect
      */

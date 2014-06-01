@@ -60,7 +60,7 @@ class Config implements ConfigInterface
     /**
      * Sets config mode
      *
-     * @param null $mode
+     * @param null|string $mode
      *
      * @return string
      */
@@ -118,6 +118,14 @@ class Config implements ConfigInterface
         return $this;
     }
 
+    /**
+     * Applies prefix to array keys
+     *
+     * @param array $array
+     * @param null|string  $prefix
+     *
+     * @return array
+     */
     private function applyPrefix(array $array, $prefix = null)
     {
         if (!$this->checkPrefix($prefix)) {
@@ -132,6 +140,14 @@ class Config implements ConfigInterface
         return $result;
     }
 
+    /**
+     * Prefixes key
+     *
+     * @param string $key
+     * @param null|string $prefix
+     *
+     * @return string
+     */
     private function prefixKey($key, $prefix = null)
     {
         if (!$this->checkPrefix($prefix)) {
@@ -141,6 +157,14 @@ class Config implements ConfigInterface
         return $prefix . ':' . $key;
     }
 
+    /**
+     * Checks if key needs to be prefixed
+     * Only strings are prefixed
+     *
+     * @param string $prefix
+     *
+     * @return bool
+     */
     private function checkPrefix($prefix)
     {
         return !empty($prefix) && !is_numeric($prefix);

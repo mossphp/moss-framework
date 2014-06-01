@@ -20,8 +20,8 @@ class User implements UserInterface
      * Construct
      *
      * @param int|string   $id
-     * @param string|array $role
-     * @param string|array $right
+     * @param array $role
+     * @param array $right
      */
     public function __construct($id, $role, $right)
     {

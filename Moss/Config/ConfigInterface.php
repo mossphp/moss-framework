@@ -24,6 +24,8 @@ interface ConfigInterface extends \ArrayAccess, \Iterator, \Countable
      * Reads configuration properties from passed array
      *
      * @param array $arr
+     *
+     * @return ConfigInterface
      */
     public function import(array $arr);
 

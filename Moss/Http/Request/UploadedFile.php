@@ -114,7 +114,7 @@ class UploadedFile extends \SplFileInfo
     /**
      * Returns true error occurred
      *
-     * @return int
+     * @return boolean
      */
     public function hasError()
     {
