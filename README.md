@@ -1,6 +1,8 @@
 # MOSS Micro Framework
 
 [![Build Status](https://travis-ci.org/potfur/moss.png?branch=master)](https://travis-ci.org/potfur/moss)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/potfur/moss/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/potfur/moss/?branch=master)
+[![Code Coverage](https://scrutinizer-ci.com/g/potfur/moss/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/potfur/moss/?branch=master)
 
 For licence details see LICENCE.md
 Documentation is available in ./docs/
@@ -38,39 +40,32 @@ Download from [github](https://github.com/potfur/moss)
 
 Create new controller `./src/Quick/Start/Controller/QuickController.php` containing:
 
-```php
-namespace Quick\Start\Controller;
+	namespace Quick\Start\Controller;
 
-use Moss\Container\Container;
-use Moss\Http\Response\Response;
+	use Moss\Kernel\App;
+    use Moss\Http\Response\Response;
 
-class DemoController
-{
-	protected $container;
-
-	public function __construct(Container $container)
+	class DemoController
 	{
-		$this->container = $container;
-	}
+		protected $app;
 
-	public function indexAction()
-	{
-		return new Response(__METHOD__);
-	}
-}
-```
+		public function __construct(App $container)
+		{
+			$this->app = $app;
+		}
 
-Now when you call `http://127.0.0.1/moss/web/?controller=Quick_Start_Demo_index` assuming that framework is available under http://127.0.0.1/moss/web/,
-you should see method name `Quick\Start\Controller\DemoController::indexAction`
+		public function indexAction()
+		{
+			return new Response(__METHOD__);
+		}
+	}
 
 To register route to that action that allows to enter `http://127.0.0.1/moss/web/quick-start/`, in `./web/bootstrap.php` in section `router` add
 
-```php
-'index' => array(
-    'pattern' => '/quick-start/',
-    'controller' => 'Quick:Start:Demo:index'
-)
-```
+	'index' => array(
+	    'pattern' => '/quick-start/',
+	    'controller' => '\Quick\Start\Demo::index'
+	)
 
 And that's it, the rest depends on your needs and skills.
 
@@ -89,4 +84,4 @@ And if you submit fix - this would be truly amazing!
 ### Style Guide
 
 All pull requests must adhere to the PSR-2 standard.
-All pull requests must be accompanied by passing PHPUnit tests.
+All pull requests should be accompanied by passing PHPUnit tests.
