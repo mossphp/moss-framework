@@ -101,7 +101,7 @@ class Cookie extends Bag implements CookieInterface
      */
     public function offsetSet($key, $value)
     {
-        if (empty($key)) {
+        if ($key === null) {
             $key = array_push($this->storage, $value);
         } else {
             $this->storage[$key] = $value;

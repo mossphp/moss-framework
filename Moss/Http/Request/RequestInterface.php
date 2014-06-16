@@ -11,7 +11,7 @@
 
 namespace Moss\Http\Request;
 
-use Moss\Http\Bag\BagInterface;
+use Moss\Bag\BagInterface;
 use Moss\Http\Cookie\CookieInterface;
 use Moss\Http\Session\SessionInterface;
 
@@ -75,7 +75,7 @@ interface RequestInterface
     /**
      * Returns files bag
      *
-     * @return FilesBag|BagInterface
+     * @return FilesBag
      */
     public function files();
 

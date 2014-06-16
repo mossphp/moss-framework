@@ -15,11 +15,33 @@ class BagTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($value, $bag->get($offset));
     }
 
+    public function testGetWithDefaultValue()
+    {
+        $bag = new Bag();
+        $this->assertEquals('bar', $bag->get('foo', 'bar'));
+    }
+
     public function testSetArray()
     {
         $bag = new Bag();
         $bag->set(array('foo' => 'bar'));
         $this->assertEquals('bar', $bag->get('foo'));
+    }
+
+    public function testAddElementToStringValue()
+    {
+        $bag = new Bag();
+        $bag->set('foo', 'foo');
+        $bag->set('foo.bar', 'bar');
+        $this->assertEquals(array(0 => 'foo', 'bar' => 'bar'), $bag->get('foo'));
+    }
+
+    public function testSetWithoutOffset()
+    {
+        $bag = new Bag();
+        $bag->set('foo', 'foo');
+        $bag->set(null, 'bar');
+        $this->assertEquals('bar', $bag->get(0));
     }
 
     /**

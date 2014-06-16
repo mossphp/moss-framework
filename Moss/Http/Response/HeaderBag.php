@@ -11,7 +11,7 @@
 
 namespace Moss\Http\Response;
 
-use Moss\Bag\Bag;
+use Moss\Bag\BagInterface;
 
 /**
  * Response header bag
@@ -19,8 +19,10 @@ use Moss\Bag\Bag;
  * @package Moss HTTP
  * @author  Michal Wachowski <wachowski.michal@gmail.com>
  */
-class HeaderBag extends Bag
+class HeaderBag implements BagInterface
 {
+    protected $storage = array();
+
     /**
      * Construct
      *
@@ -28,110 +30,255 @@ class HeaderBag extends Bag
      */
     public function __construct($storage = array())
     {
-        $this->all($this->resolveHeaders($storage));
+        $this->all($storage);
+    }
+
+
+    /**
+     * Retrieves offset value
+     *
+     * @param string $offset
+     * @param mixed  $default
+     *
+     * @return mixed
+     */
+    public function get($offset = null, $default = null)
+    {
+        if ($offset === null) {
+            return $this->all();
+        }
+
+        return isset($this->storage[$offset]) ? $this->storage[$offset] : $default;
     }
 
     /**
-     * Resolves headers data
+     * Sets value to offset
      *
-     * @param array $parameters
+     * @param string $offset
+     * @param mixed  $value
      *
-     * @return array
+     * @return $this
      */
-    protected function resolveHeaders(array $parameters)
+    public function set($offset, $value = null)
     {
-        $headers = array();
+        $this->storage[$offset] = $value;
 
-        foreach ($parameters as $key => $value) {
-            if (strpos($key, 'HTTP_') === 0) {
-                $headers[substr($key, 5)] = $value;
-            } elseif (in_array($key, array('CONTENT_LENGTH', 'CONTENT_MD5', 'CONTENT_TYPE'))) {
-                $headers[$key] = $value;
-            }
-        }
-
-        if (isset($parameters['PHP_AUTH_USER'])) {
-            $headers['PHP_AUTH_USER'] = $parameters['PHP_AUTH_USER'];
-            $headers['PHP_AUTH_PW'] = isset($parameters['PHP_AUTH_PW']) ? $parameters['PHP_AUTH_PW'] : '';
-        } else {
-            $authorizationHeader = null;
-            if (isset($parameters['HTTP_AUTHORIZATION'])) {
-                $authorizationHeader = $parameters['HTTP_AUTHORIZATION'];
-            } elseif (isset($parameters['REDIRECT_HTTP_AUTHORIZATION'])) {
-                $authorizationHeader = $parameters['REDIRECT_HTTP_AUTHORIZATION'];
-            }
-
-            if ($authorizationHeader !== null && stripos($authorizationHeader, 'basic') === 0) {
-                $exploded = explode(':', base64_decode(substr($authorizationHeader, 6)));
-                if (count($exploded) == 2) {
-                    list($headers['PHP_AUTH_USER'], $headers['PHP_AUTH_PW']) = $exploded;
-                }
-            }
-        }
-
-        if (isset($headers['PHP_AUTH_USER'])) {
-            $headers['AUTHORIZATION'] = 'basic ' . base64_encode($headers['PHP_AUTH_USER'] . ':' . $headers['PHP_AUTH_PW']);
-        }
-
-        return array_change_key_case($headers, CASE_LOWER);
+        return $this;
     }
 
     /**
-     * Retrieves language codes in quality order
-     * Builds array containing two letter language codes sorted by quality codes
+     * Returns true if offset exists in bag
      *
-     * @return array
+     * @param string $offset
+     *
+     * @return bool
      */
-    public function languages()
+    public function has($offset = null)
     {
-        if (!$this->get('accept_language')) {
-            return array();
+        if ($offset === null) {
+            return !empty($this->storage);
         }
 
-        $codes = $this->extractHeaders();
-
-        $languages = array();
-        foreach ($codes as $lang) {
-            if (strstr($lang, '-')) {
-                $codes = explode('-', $lang);
-                $lang = strtolower($codes[0]);
-            }
-
-            if (in_array($lang, $languages)) {
-                continue;
-            }
-
-            $languages[] = $lang;
-        }
-
-        return $languages;
+        return isset($this->storage[$offset]);
     }
 
     /**
-     * Extracts language codes from header
+     * Removes offset from bag
+     * If no offset set, removes all values
+     *
+     * @param string $offset attribute to remove from
+     *
+     * @return $this
+     */
+    public function remove($offset = null)
+    {
+        if ($offset === null) {
+            $this->reset();
+
+            return $this;
+        }
+
+        if (isset($this->storage[$offset])) {
+            unset($this->storage[$offset]);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Returns all options
+     * If array passed, becomes bag content
+     *
+     * @param array $array overwrites values
      *
      * @return array
      */
-    protected function extractHeaders()
+    public function all($array = array())
     {
-        $codes = array();
+        if ($array !== array()) {
+            $this->reset();
 
-        $header = array_filter(explode(',', (string) $this->get('accept_language')));
-        foreach ($header as $value) {
-            if (preg_match('/;\s*(q=.*$)/', $value, $match)) {
-                $quality = (float) substr(trim($match[1]), 2) * 10;
-                $value = trim(substr($value, 0, -strlen($match[0])));
-            } else {
-                $quality = 1;
-            }
-
-            if (0 < $quality) {
-                $codes[$quality] = trim($value);
+            foreach ((array) $array as $key => $value) {
+                $this->set($key, $value);
             }
         }
 
-        sort($codes);
+        return $this->storage;
+    }
 
-        return $codes;
+    /**
+     * Removes all options
+     *
+     * @return $this
+     */
+    public function reset()
+    {
+        $this->storage = array();
+
+        return $this;
+    }
+
+    /**
+     * Builds array of headers
+     *
+     * @return array
+     */
+    public function asArray()
+    {
+        $headers = array_filter($this->storage);
+
+        array_walk(
+            $headers,
+            function (&$value, $header) {
+                $value = $header . ': ' . $value;
+            }
+        );
+
+        return array_values($headers);
+    }
+
+    /**
+     * Whether a offset exists
+     *
+     * @param mixed $key
+     *
+     * @return boolean true on success or false on failure.
+     */
+    public function offsetExists($key)
+    {
+        return isset($this->storage[$key]);
+    }
+
+    /**
+     * Offset to retrieve
+     *
+     * @param mixed $key
+     *
+     * @return mixed Can return all value types.
+     */
+    public function &offsetGet($key)
+    {
+        if (!isset($this->storage[$key])) {
+            $this->storage[$key] = null;
+        }
+
+        return $this->storage[$key];
+    }
+
+    /**
+     * Offset to set
+     *
+     * @param mixed $key
+     * @param mixed $value
+     *
+     * @return void
+     */
+    public function offsetSet($key, $value)
+    {
+        if ($key === null) {
+            array_push($this->storage, $value);
+
+            return;
+        }
+
+        $this->storage[$key] = $value;
+    }
+
+    /**
+     * Offset to unset
+     *
+     * @param mixed $key
+     *
+     * @return void
+     */
+    public function offsetUnset($key)
+    {
+        unset($this->storage[$key]);
+    }
+
+    /**
+     * Count elements of an object
+     *
+     * @return int
+     */
+    public function count()
+    {
+        return count($this->storage);
+    }
+
+    /**
+     * Return the current element
+     *
+     * @return mixed
+     */
+    public function current()
+    {
+        return current($this->storage);
+    }
+
+    /**
+     * Return the key of the current element
+     *
+     * @return mixed
+     */
+    public function key()
+    {
+        return key($this->storage);
+    }
+
+    /**
+     * Move forward to next element
+     *
+     * @return void
+     */
+    public function next()
+    {
+        next($this->storage);
+    }
+
+    /**
+     * Rewind the Iterator to the first element
+     *
+     * @return void
+     */
+    public function rewind()
+    {
+        reset($this->storage);
+    }
+
+    /**
+     * Checks if current position is valid
+     *
+     * @return bool
+     */
+    public function valid()
+    {
+        $key = key($this->storage);
+
+        if ($key === false || $key === null) {
+            return false;
+        }
+
+        return isset($this->storage[$key]);
     }
 }

@@ -89,8 +89,12 @@ class App
         $this->dispatcher = $this->buildDispatcher((array) $this->config->get('dispatcher'));
         $this->router = $this->buildRouter((array) $this->config->get('router'));
 
-        $this->session = new Session($this->config['framework']['session']['name'], $this->config['framework']['session']['cacheLimiter']);
-        $this->cookie = new Cookie($this->config['framework']['cookie']['domain'], $this->config['framework']['cookie']['path']);
+        $conf = $this->config['framework']['session'];
+        $this->session = new Session($conf['name'], $conf['cacheLimiter']);
+
+        $conf = $this->config['framework']['cookie'];
+        $this->cookie = new Cookie($conf['domain'], $conf['path'], $conf['http'], $conf['ttl']);
+
         $this->request = new Request($this->session, $this->cookie);
 
 // registering components

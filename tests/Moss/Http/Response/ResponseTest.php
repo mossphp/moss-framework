@@ -1,6 +1,8 @@
 <?php
 namespace Moss\Http\Response;
 
+function headers_sent() { return false; }
+function header($string) { echo $string . PHP_EOL; }
 
 class ResponseTest extends \PHPUnit_Framework_TestCase
 {
@@ -51,8 +53,9 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
         );
         $response = new Response('Foo', 200);
         $this->assertEquals(
-             $headers, $response->header($headers)
-                                ->all()
+            $headers,
+            $response->header($headers)
+                ->all()
         );
     }
 
@@ -67,8 +70,9 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
         $response = new Response('Foo', 200);
         $response->makeNoCache();
         $response->header()
-                 ->remove('Cache-Control');
-        $this->assertEquals(null, $response->header->get('Cache-Control')
+            ->remove('Cache-Control');
+        $this->assertEquals(
+            null, $response->header->get('Cache-Control')
         );
     }
 
@@ -103,18 +107,44 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('HTTP/1.0', $response->protocol('HTTP/1.0'));
     }
 
-//    public function testToString()
-//    {
-//        $response = new Response('Foo', 200);
-//
-//        $expected = 'HTTP/1.1 200 OK
-//Content-Type: text/html; charset=UTF-8
-//Cache-Control: no-cache
-//Pragma: no-cache
-//
-//Foo';
-//
-//        $this->assertEquals($expected, (string) $response);
-//    }
+    public function testSendHeaders()
+    {
+        ob_start();
+        $response = new Response('Foo', 200);
+        $response->sendHeaders();
+        $result = ob_get_clean();
+
+        $expected = array('HTTP/1.1 200 OK', 'Content-Type: text/html; charset=UTF-8', 'Cache-Control: no-cache', 'Pragma: no-cache');
+        $this->assertEquals(implode(PHP_EOL, $expected) . PHP_EOL, $result);
+    }
+
+    public function testSendContent()
+    {
+        ob_start();
+        $response = new Response('Foo', 200);
+        $response->sendContent();
+        $result = ob_get_clean();
+
+        $expected = array('Foo');
+        $this->assertEquals(implode(PHP_EOL, $expected), $result);
+    }
+
+    public function testSend()
+    {
+        ob_start();
+        $response = new Response('Foo', 200);
+        $response->send();
+        $result = ob_get_clean();
+
+        $expected = array('HTTP/1.1 200 OK', 'Content-Type: text/html; charset=UTF-8', 'Cache-Control: no-cache', 'Pragma: no-cache', 'Foo');
+        $this->assertEquals(implode(PHP_EOL, $expected), $result);
+    }
+
+    public function testToString()
+    {
+        $expected = array('HTTP/1.1 200 OK', 'Content-Type: text/html; charset=UTF-8', 'Cache-Control: no-cache', 'Pragma: no-cache', 'Foo');
+        $response = new Response('Foo', 200);
+        $this->assertEquals(implode(PHP_EOL, $expected), (string) $response);
+    }
 
 }

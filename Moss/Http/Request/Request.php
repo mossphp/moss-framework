@@ -14,7 +14,6 @@ namespace Moss\Http\Request;
 use Moss\Bag\Bag;
 use Moss\Bag\BagInterface;
 use Moss\Http\Cookie\CookieInterface;
-use Moss\Http\Response\HeaderBag;
 use Moss\Http\Session\SessionInterface;
 
 /**
@@ -388,7 +387,7 @@ class Request implements RequestInterface
      */
     public function isAjax()
     {
-        return strtolower($this->header('x_requested_with')) == 'xmlhttprequest';
+        return strtolower((string) $this->header('x_requested_with')) == 'xmlhttprequest';
     }
 
     /**
@@ -398,7 +397,7 @@ class Request implements RequestInterface
      */
     public function isSecure()
     {
-        if ($proto = $this->header('x_forwarded_proto')) {
+        if ($proto = (string) $this->header('x_forwarded_proto')) {
             return in_array(strtolower(current(explode(',', $proto))), array('https', 'on', 'ssl', '1'));
         }
 
@@ -467,7 +466,7 @@ class Request implements RequestInterface
     public function baseName($baseName = null)
     {
         if ($baseName !== null) {
-            $this->baseName = $baseName;
+            $this->baseName = rtrim($baseName, '/') . '/';
         }
 
         return $this->baseName;
@@ -499,12 +498,12 @@ class Request implements RequestInterface
         );
 
         foreach ($keys as $offset) {
-            if ($this->server($offset)) {
-                return $this->server($offset);
+            if ($this->server->has($offset)) {
+                return $this->server->get($offset);
             }
         }
 
-        return $this->server('REMOTE_ADDR');
+        return null;
     }
 
     /**

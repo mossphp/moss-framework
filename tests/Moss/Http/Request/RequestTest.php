@@ -75,97 +75,6 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    /**
-     * @dataProvider headerProvider
-     */
-    public function testHeader($offset, $value, $expected)
-    {
-        $request = new Request();
-        $request->initialize(
-            array(),
-            array(),
-            array(),
-            array('HTTP_' . strtoupper($offset) => $value)
-        );
-
-        $this->assertEquals($expected, $request->header($offset));
-    }
-
-    public function headerProvider()
-    {
-        return array(
-            array('content_length', 123456, 123456),
-            array('content_md5', 'someMD5', 'someMD5'),
-            array('content_type', 'text/plain', 'text/plain')
-        );
-    }
-
-    public function testPHPAuth()
-    {
-        $request = new Request();
-        $request->initialize(
-            array(),
-            array(),
-            array(),
-            array(
-                'PHP_AUTH_USER' => 'user',
-                'PHP_AUTH_PW' => 'pw'
-            )
-        );
-
-        $this->assertEquals('user', $request->header('php_auth_user'));
-        $this->assertEquals('pw', $request->header('php_auth_pw'));
-    }
-
-    public function testHTTPAuth()
-    {
-        $request = new Request();
-        $request->initialize(
-            array(),
-            array(),
-            array(),
-            array(
-                'HTTP_AUTHORIZATION' => 'basic ' . base64_encode('user:pw')
-            )
-        );
-
-        $this->assertInstanceOf('\Moss\Http\request\RequestInterface', $request);
-        $this->assertEquals('basic ' . base64_encode('user:pw'), $request->header('authorization'));
-        $this->assertEquals('user', $request->header('php_auth_user'));
-        $this->assertEquals('pw', $request->header('php_auth_pw'));
-    }
-
-    public function testHTTPAuthRedirect()
-    {
-        $request = new Request();
-        $request->initialize(
-            array(),
-            array(),
-            array(),
-            array(
-                'REDIRECT_HTTP_AUTHORIZATION' => 'basic ' . base64_encode('user:pw')
-            )
-        );
-        $this->assertInstanceOf('\Moss\Http\request\RequestInterface', $request);
-        $this->assertEquals('basic ' . base64_encode('user:pw'), $request->server('REDIRECT_HTTP_AUTHORIZATION'));
-        $this->assertEquals('user', $request->header('php_auth_user'));
-        $this->assertEquals('pw', $request->header('php_auth_pw'));
-    }
-
-    public function testLanguages()
-    {
-        $request = new Request();
-        $request->initialize(
-            array(),
-            array(),
-            array(),
-            array(
-                'HTTP_ACCEPT_LANGUAGE' => 'en-US,en;q=0.8,pl;q=0.6'
-            )
-        );
-
-        $this->assertEquals(array('en', 'pl'), $request->language());
-    }
 
     public function testLocale()
     {
@@ -428,6 +337,41 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         );
     }
 
+    public function testBaseName()
+    {
+        $request = new Request();
+        $this->assertEquals('http://foo.test.com/bar/yada/', $request->baseName('http://foo.test.com/bar/yada'));
+    }
+
+    public function testPathsWithQueryString()
+    {
+        $request = new Request();
+        $request->initialize(
+            array(
+                'foo' => 'bar'
+            ),
+            array(),
+            array(),
+            array(
+                'REQUEST_METHOD' => 'GET',
+                'SERVER_PROTOCOL' => 'HTTP/1.1',
+                'REQUEST_URI' => '/foo/index.html?foo=bar',
+                'DOCUMENT_ROOT' => '/home/foo/www/',
+                'SCRIPT_FILENAME' => '/home/foo/www/web/index.php',
+                'HTTP_HOST' => 'test.com',
+                'REDIRECT_URL' => '/',
+            )
+        );
+
+        $this->assertEquals('http://test.com/', $request->baseName());
+        $this->assertEquals('http', $request->schema());
+        $this->assertEquals('test.com', $request->host());
+        $this->assertEquals('/', $request->dir());
+        $this->assertEquals('/foo/index.html', $request->path());
+        $this->assertEquals('http://test.com/foo/index.html', $request->uri(false));
+        $this->assertEquals('http://test.com/foo/index.html?foo=bar', $request->uri(true));
+    }
+
     public function testPathsWithProperDomainRedirect()
     {
         $request = new Request();
@@ -448,6 +392,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
             )
         );
 
+        $this->assertEquals('http://test.com/', $request->baseName());
         $this->assertEquals('http', $request->schema());
         $this->assertEquals('test.com', $request->host());
         $this->assertEquals('/', $request->dir());

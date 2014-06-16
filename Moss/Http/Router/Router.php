@@ -109,7 +109,7 @@ class Router implements RouterInterface
                 'format' => $request->format()
             );
 
-            return $request->route();
+            return $route->controller();
         }
 
         throw new RouterException('Route for "' . $request->path() . '" not found!');

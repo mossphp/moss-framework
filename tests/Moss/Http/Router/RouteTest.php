@@ -143,7 +143,7 @@ class RouteTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider matchProvider
      */
-    public function testMatchUrl($pattern, $path, $arguments = array(), $expectedArguments = array())
+    public function testMatchUrl($pattern, $path, $arguments = array())
     {
         $route = new Route($pattern, 'some:controller', $arguments);
         $route->match($this->mockRequest($path));
@@ -152,7 +152,7 @@ class RouteTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider matchProvider
      */
-    public function testMatchUrlController($pattern, $path, $arguments = array(), $expectedArguments = array())
+    public function testMatchUrlController($pattern, $path, $arguments = array())
     {
         $route = new Route($pattern, 'some:controller', $arguments);
         $route->match($this->mockRequest($path));
@@ -524,18 +524,37 @@ class RouteTest extends \PHPUnit_Framework_TestCase
     {
         $route = new Route('/foo/', 'some:controller');
         $route->host('sub.{basename}');
-        $this->assertEquals($schema . '://sub.' . $host . '/foo/', $route->make($schema . '://' . $host));
+        $this->assertEquals($schema . '://sub.' . $host . '/foo/', $route->make($schema.'://'.$host));
     }
 
     public function hostProvider()
     {
         return array(
-            array('http', 'foo.com'),
-            array('http', 'bar.com'),
-            array('https', 'foo.com'),
-            array('https', 'bar.com'),
+            array('http', 'host.com'),
+            array('https', 'host.com'),
             array('http', 'ver.sub.domain.com'),
         );
+    }
+
+    public function testMakeWithoutSchema()
+    {
+        $route = new Route('/foo/', 'some:controller');
+        $route->host('sub.{basename}');
+        $this->assertEquals('http://sub.host.com/foo/', $route->make('host.com'));
+    }
+
+    public function testMakeHTTPSWithFromHTTPHost()
+    {
+        $route = new Route('/foo/', 'some:controller');
+        $route->schema('https');
+        $this->assertEquals('https://host.com/foo/', $route->make('http://host.com'));
+    }
+
+    public function testMakeWhenInsideSubdirectory()
+    {
+        $route = new Route('/foo/', 'some:controller');
+        $route->schema('https');
+        $this->assertEquals('https://host.com/dir/foo/', $route->make('http://host.com/dir/'));
     }
 
     protected function mockRequest($path, $schema = null, $method = null, $host = null)
@@ -563,6 +582,4 @@ class RouteTest extends \PHPUnit_Framework_TestCase
 
         return $request;
     }
-
-
 }
