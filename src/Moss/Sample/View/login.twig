@@ -1,6 +1,8 @@
 {% extends 'Moss:sample:index' %}
 
 {% block body %}
+    <h1>{{ method }} <small>&lt;-- this is namespaced controller class and its currently executed action</small></h1>
+
     <p>Controller source is protected with credentials (just type <var>login</var> / <var>password</var>)</p>
 
     {% for message in flash %}

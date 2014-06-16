@@ -31,7 +31,7 @@ class SampleController
      *
      * @return Response
      */
-    public function indexAction()
+    public function index()
     {
         $content = $this->app->get('view')
             ->template('Moss:Sample:index')
@@ -46,9 +46,9 @@ class SampleController
      *
      * @return Response
      */
-    public function loginAction()
+    public function login()
     {
-        return new Response($this->form());
+        return new Response($this->buildForm());
     }
 
     /**
@@ -56,13 +56,9 @@ class SampleController
      *
      * @return Response
      */
-    public function authAction()
+    public function auth()
     {
         try {
-            if (!$this->app->request->method() != 'post') {
-                throw new AuthenticationException('Unable to authenticate, invalid method');
-            }
-
             $this->app->get('security')
                 ->tokenize($this->app->request->body->all());
 
@@ -71,7 +67,7 @@ class SampleController
             $this->app->get('flash')
                 ->add($e->getMessage(), 'error');
 
-            return new Response($this->form(), 401);
+            return new Response($this->buildForm(), 401);
         }
     }
 
@@ -80,7 +76,7 @@ class SampleController
      *
      * @return string
      */
-    protected function form()
+    protected function buildForm()
     {
         return $this->app->get('view')
             ->template('Moss:Sample:login')
@@ -94,7 +90,7 @@ class SampleController
      *
      * @return ResponseRedirect
      */
-    public function logoutAction()
+    public function logout()
     {
         $this->app->get('security')
             ->destroy();
@@ -107,7 +103,7 @@ class SampleController
      *
      * @return Response
      */
-    public function sourceAction()
+    public function source()
     {
         $path = $this->app->get('path.app') . '/Moss/Sample';
         $content = $this->app->get('view')

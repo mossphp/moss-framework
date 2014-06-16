@@ -9,7 +9,8 @@
     </style>
 </head>
 <body>
-<h1>{{ method }} <small>&lt;-- this is namespaced controller class and its currently executed action</small></h1>% block body %}
+{% block body %}
+<h1>{{ method }} <small>&lt;-- this is namespaced controller class and its currently executed action</small></h1>
     <p>Moss sample controller and <a href="{{ url('source') }}">it looks like this</a></p>
 {% endblock %}
 </body>
