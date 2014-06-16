@@ -15,7 +15,7 @@ If component depends on other components, just add `$container` as first argumen
 		return $container->get('request')->isAjax();
 	}
 
-## Component represented as class
+## Component represented as callable class
 
 Create component definition for class `Foo` with constructor arguments `arguments`.
 
@@ -44,35 +44,37 @@ Component retrieval is performed by calling `get()` method:
 
 ## Register component, closure or value and instance
 
-Container can register four component types.
+Container can register following component types.
 
-_Component definition_ which is described above under `componentName`:
+_callable_ or _closure (which after all is a callable) under `componentName`:
 
 	$container = new \Moss\Container\Container();
-	$container->register('componentName', $component);
+	$container->register('closureName', $callableInstance);
 
-_closure_ under `closureName`:
-
-	$container->register('closureName', function($container) {
+	$container->register('closureName', function(\Moss\Container\ContainerInterface $container) {
 		return 'closureBody';
 	});
 
 _value_ under `valueName`:
 
+	$container = new \Moss\Container\Container();
 	$container->register('valueName', 'SomeValue');
 
 or some _instance_ for later use:
 
 	$obj = new \stdClsss();
+
+	$container = new \Moss\Container\Container();
 	$container->register('someInstance', $obj);
 
 ## Shared
 
-Each definition, whether it is _component_ or _closure_ can be set as **shared**.
+Each component definition can be set as **shared**.
 
+	$container = new \Moss\Container\Container();
 	$container->register('sharedComponent', $component, true);
 
-If so, after first instantiation their instaces are preserved and returned by reference in future calls.
+If so, after first instantiation their instances are preserved and returned by reference in future calls.
 As a result - there can be only one instance of shared definition (just like singleton but better).
 For example, `Config`, `Router` and `Request` are registered as shared components, but the `View` may have any number of instances.
 
@@ -80,18 +82,27 @@ For example, `Config`, `Router` and `Request` are registered as shared component
 
 ## Component retrieval
 
-Just call `$component = $container->get('componentIdentifier');` and thats it.
+Just call `$component = $container->get('componentIdentifier');` and that's it.
 E.g.:
 
-	$Request = $container->get('Request');
+	$container = new \Moss\Container\Container();
+	$container->set('request', new Request());
+	$request = $container->get('Request');
 	if($Request->isAjax()) {
 		echo 'Its Ajax request';
 	}
 
 To access some values stored in container:
 
+	$container = new \Moss\Container\Container();
+	$container->set('database', array('user' => 'foo', 'pass' => 'bar', 'table' => 'yada'));
 	$db = $container->get('database'); // array('user' => 'foo', 'pass' => 'bar', 'table' => 'yada');
-	$dbUser = $container->get('database.user'); // foo
+
+Or go even deeper:
+
+	$container = new \Moss\Container\Container();
+    $container->set('database', array('user' => 'foo', 'pass' => 'bar', 'table' => 'yada'));
+    $dbUser = $container->get('database.user'); // foo
 
 ## Framework components
 
@@ -104,9 +115,8 @@ Framework by default registers the following components:
  * `Router` - router instance (_shared_)
  * `Session` - session wrapper instance (_shared_)
 
- and of course `Sontainer` itself, all under lowercase names (eg. `config` for `Config`)
+ and of course `container` itself, all under lowercase names (eg. `config` for `Config`)
 
-The components below are by default defined in configuration
-
- * `Logger` - logger compatible with psr-3 (_shared_)
- * `View` - View component, convenient template engine wrapper
+Also there is `View` component (not registered by default) - simple plain php template handler.
+It can be easily changed to Twig view with `moss/bridge` component.
+Both implement same interface, so changes are limited only to templates.

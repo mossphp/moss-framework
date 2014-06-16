@@ -12,7 +12,7 @@ This will output HTML response (`Content-Type: text/html`) with `status code` `2
 
 When creating response, you set (your own or default values) responses `Content-Type` and its `status code`.
 Content type defines what response returns to user, if it is plain text, `HTML` or `PDF`.
-While `status code` defines what response means, eg: `200` means everything is OK, `404` means `not found`, `500` server error, and so on.
+While `status code` defines what response means, eg: `200` means everything is `OK`, `404` means `Not Found`, `500` server error, and so on.
 
 ## Additional headers
 
@@ -29,6 +29,12 @@ To retrieve header:
 
 	$header = $Response->header()->get('Content-Type');
 	$header = $Response->header()->get('Content-Type', 'default-value-when-header-does-not-exist');
+
+There are tree convenient methods to set caching:
+
+ * `::makeNoCache()` setting `Cache-Control` to `no-cache`, same to `Pragma` - this is default value
+ * `::makePublic()` setting `Cache-Control` and `Pragma` to `public`
+ * `::makePrivate()` same as above but sets `private`
 
 ## Redirect
 
