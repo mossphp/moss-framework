@@ -1,19 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<phpunit colors="true" bootstrap="./tests/autoload.php.dist">
+<phpunit colors="true" bootstrap="./vendor/autoload.php">
 	<testsuites>
 		<testsuite name="Moss core">
+			<directory>./tests/Moss/Bag/</directory>
 			<directory>./tests/Moss/Config/</directory>
 			<directory>./tests/Moss/Container/</directory>
 			<directory>./tests/Moss/Dispatcher/</directory>
-			<directory>./tests/Moss/Http/Bag/</directory>
 			<directory>./tests/Moss/Http/Request/</directory>
 			<directory>./tests/Moss/Http/Response/</directory>
 			<directory>./tests/Moss/Http/Router/</directory>
 			<directory>./tests/Moss/Http/Cookie/</directory>
 			<directory>./tests/Moss/Http/Session/</directory>
-			<directory>./tests/Moss/Logger/</directory>
-			<directory>./tests/Moss/Loader/</directory>
+			<!--<directory>./tests/Moss/Kernel/</directory>-->
 			<directory>./tests/Moss/Security/</directory>
 			<directory>./tests/Moss/View/</directory>
 		</testsuite>
