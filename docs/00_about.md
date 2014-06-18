@@ -46,4 +46,4 @@ Then create entry file, eg `./web/index.php` containing:
 	$moss->run()
 	    ->send();
 
-Or download simple sample app from [github](https://github.com/potfur/moss-demoapp)
+Or download simple sample app from [github](https://github.com/potfur/moss-demo-app)
