@@ -52,13 +52,11 @@ interface RouterInterface
     /**
      * Makes link
      * If corresponding route exists - friendly link is generated, otherwise normal
-
      *
-*@param null|string $name controller identifier, if null request controller is used
-     * @param array       $arguments  additional arguments
-
+     * @param null|string $name      controller identifier, if null request controller is used
+     * @param array       $arguments additional arguments
      *
-*@return string
+     * @return string
      */
     public function make($name = null, $arguments = array());
 }
