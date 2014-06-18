@@ -11,9 +11,26 @@
 
 namespace Moss\Http\Request;
 
+function is_uploaded_file($file) {
+    return is_file($file);
+}
+
+function move_uploaded_file($filename, $destination) {
+    return is_file($destination);
+}
 
 class UploadedFileTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @expectedException \Moss\Http\Request\UploadedFileException
+     * @expectedExceptionMessage Missing required array key
+     */
+    public function testMissingKey()
+    {
+        $up = new UploadedFile(array());
+        $up->getOriginalName();
+    }
+
     /**
      * @dataProvider dataProvider
      */
@@ -23,13 +40,73 @@ class UploadedFileTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($data['name'], $up->getOriginalName());
     }
 
-//    /**
-//     * @dataProvider dataProvider
-//     */
-//    public function testMove($data)
-//    {
-//        $this->markTestSkipped();
-//    }
+    public function testMove()
+    {
+        $data = array(
+            'name' => __FILE__,
+            'type' => 'text/plain',
+            'tmp_name' => __FILE__,
+            'error' => UPLOAD_ERR_OK,
+            'size' => filesize(__FILE__)
+        );
+
+        $up = new UploadedFile($data);
+        $up->move(__DIR__, 'UploadedFileTest.php', true);
+    }
+
+    /**
+     * @expectedException \Moss\Http\Request\UploadedFileException
+     * @expectedExceptionMessage Upload was not successful -
+     */
+    public function testMoveWhenUploadWasNotSuccessful()
+    {
+        $data = array(
+            'name' => __FILE__,
+            'type' => 'text/plain',
+            'tmp_name' => __FILE__,
+            'error' => UPLOAD_ERR_CANT_WRITE,
+            'size' => filesize(__FILE__)
+        );
+
+        $up = new UploadedFile($data);
+        $up->move(__DIR__, 'UploadedFileTest.php', true);
+    }
+
+    /**
+     * @expectedException \Moss\Http\Request\UploadedFileException
+     * @expectedExceptionMessage Could not move the file
+     */
+    public function testMoveWhenTargetFileAlreadyExists()
+    {
+        $data = array(
+            'name' => __FILE__,
+            'type' => 'text/plain',
+            'tmp_name' => __FILE__,
+            'error' => UPLOAD_ERR_OK,
+            'size' => filesize(__FILE__)
+        );
+
+        $up = new UploadedFile($data);
+        $up->move(__DIR__, 'UploadedFileTest.php', false);
+    }
+
+    /**
+     * @expectedException \Moss\Http\Request\UploadedFileException
+     * @expectedExceptionMessage Could not move the file
+     */
+    public function testMoveInternalError()
+    {
+        $data = array(
+            'name' => __FILE__,
+            'type' => 'text/plain',
+            'tmp_name' => __FILE__,
+            'error' => UPLOAD_ERR_OK,
+            'size' => filesize(__FILE__)
+        );
+
+        $up = new UploadedFile($data);
+        $up->move(__DIR__, null, false);
+    }
 
     /**
      * @dataProvider dataProvider
@@ -67,13 +144,19 @@ class UploadedFileTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($msg, $up->getErrorMessage());
     }
 
-//    /**
-//     * @dataProvider dataProvider
-//     */
-//    public function testIsValid($data)
-//    {
-//        $this->markTestSkipped();
-//    }
+    public function testIsValid()
+    {
+        $data = array(
+            'name' => __FILE__,
+            'type' => 'text/plain',
+            'tmp_name' => __FILE__,
+            'error' => UPLOAD_ERR_OK,
+            'size' => filesize(__FILE__)
+        );
+
+        $up = new UploadedFile($data);
+        $this->assertEquals(true, $up->isValid());
+    }
 
     public function dataProvider()
     {

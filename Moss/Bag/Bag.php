@@ -58,6 +58,12 @@ class Bag implements BagInterface
      */
     public function set($offset, $value = null)
     {
+        if ($offset === null) {
+            array_push($this->storage, $value);
+
+            return $this;
+        }
+
         if (is_array($offset)) {
             foreach ($offset as $key => $value) {
                 $this->storage[$key] = $value;
@@ -173,8 +179,8 @@ class Bag implements BagInterface
     /**
      * Returns array element matching key
      *
-     * @param array  $arr
-     * @param array  $keys
+     * @param array $arr
+     * @param array $keys
      * @param mixed $default
      *
      * @return string

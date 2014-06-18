@@ -14,6 +14,30 @@ namespace Moss\Http\Request;
 class FilesBagTest extends \PHPUnit_Framework_TestCase
 {
 
+    public function testFILESRebuild()
+    {
+        $data = array(
+            'foo' => array(
+                'name' => array('bar' => 'bar.txt'),
+                'type' => array('bar' => 'text/plain'),
+                'tmp_name' => array('bar' => 'whatever2'),
+                'error' => array('bar' => 0),
+                'size' => array('bar' => 123)
+            )
+        );
+
+        $expected = array(
+            'name' => 'bar.txt',
+            'type' => 'text/plain',
+            'tmp_name' => 'whatever2',
+            'error' => 0,
+            'size' => 123
+        );
+
+        $bag = new FilesBag($data);
+        $this->assertEquals($expected, $bag->get('foo.bar'));
+    }
+
     /**
      * @dataProvider dataProvider
      */
@@ -200,7 +224,6 @@ class FilesBagTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($errorMessage, $node->getErrorMessage());
     }
 
-
     public function dataProvider()
     {
         return array(
@@ -385,6 +408,16 @@ class FilesBagTest extends \PHPUnit_Framework_TestCase
                 'A PHP extension stopped the file upload.',
             )
         );
+    }
+
+    /**
+     * @expectedException \Moss\Http\Request\UploadedFileException
+     * @expectedExceptionMessage No uploaded file under offset
+     */
+    public function testAccessToNonExistingKey()
+    {
+        $bag = new FilesBag(array());
+        $bag->uploaded('foo');
     }
 }
  

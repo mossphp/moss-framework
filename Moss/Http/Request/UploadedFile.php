@@ -64,7 +64,7 @@ class UploadedFile extends \SplFileInfo
     public function move($path, $file = null, $overwrite = false)
     {
         if (!$this->isValid()) {
-            throw new UploadedFileException($this->getErrorMessage());
+            throw new UploadedFileException('Upload was not successful - '.$this->getErrorMessage());
         }
 
         $target = $this->getTarget($path, $file);

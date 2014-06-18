@@ -347,12 +347,10 @@ class Route implements RouteInterface
             return true;
         }
 
-        $regex = str_replace('{basename}', '.*', preg_quote($this->host));
-        if (preg_match('/^' . $regex . '$/i', $host)) {
-            return true;
-        }
+        $host = preg_replace('/^[^:]+:\/\//i', '', $host);
+        $regex = str_replace('\{basename\}', '.*', preg_quote($this->host));
 
-        return false;
+        return preg_match('/^' . $regex . '$/i', $host);
     }
 
     /**
@@ -415,6 +413,50 @@ class Route implements RouteInterface
      */
     public function make($host, $arguments = array())
     {
+        list($schema, $host) = $this->resolveHost($host);
+        $url = $this->buildUrl((array) $arguments);
+
+        $regex = '/^' . str_replace('\{basename\}', '.*', preg_quote($this->host)) . '$/';
+        if ($this->host && !preg_match($regex, $host)) {
+            $host = str_replace('{basename}', $host, $this->host);
+        }
+
+        return ($schema ? $schema . '://' : null) . rtrim($host, '/') . '/' . $url;
+    }
+
+    /**
+     * Resolves schema and host name with dir from passed basename
+     *
+     * @param string $host
+     *
+     * @return array
+     */
+    private function resolveHost($host)
+    {
+        if (strpos($host, '://') !== false) {
+            list($schema, $host) = explode('://', $host, 2);
+        }
+
+        if ($this->schema) {
+            $schema = $this->schema;
+        }
+
+        if (empty($schema)) {
+            $schema = 'http';
+        }
+
+        return array($schema, $host);
+    }
+
+    /**
+     * Builds url with passed arguments
+     *
+     * @param array $arguments
+     *
+     * @return string
+     */
+    private function buildUrl(array $arguments)
+    {
         $url = array();
         foreach ($this->requirements as $key => $regex) {
             $this->assertArgumentRequirement($key, $regex, $arguments);
@@ -427,7 +469,6 @@ class Route implements RouteInterface
             }
 
             unset($arguments[$key]);
-
         }
 
         $url = strtr($this->builders['pattern'], $url);
@@ -440,17 +481,7 @@ class Route implements RouteInterface
 
         $url = ltrim($url, './');
 
-        $schema = null;
-        if (strpos($host, '://') !== false) {
-            list($schema, $host) = explode('://', rtrim($host, '/'));
-        }
-
-        $regex = '/^' . str_replace('\{basename\}', '.*', preg_quote($this->host)) . '$/';
-        if ($this->host && !preg_match($regex, $host)) {
-            $host = str_replace('{basename}', $host, $this->host);
-        }
-
-        return ($schema ? $schema . '://' : null) . $host . '/' . $url;
+        return $url;
     }
 
     /**
@@ -495,6 +526,10 @@ class Route implements RouteInterface
      */
     private function strip($urlString, $separator = '-')
     {
+        if (is_numeric($urlString)) {
+            return $urlString;
+        }
+
         $urlString = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $urlString);
         $urlString = strtolower($urlString);
         $urlString = preg_replace('#[^\w \-\.]+#i', null, $urlString);

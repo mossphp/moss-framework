@@ -19,23 +19,23 @@ Just create an instance, with optional `$_SESSION` and `$_COOKIE` wrappers:
 
 ## Headers and server
 
-Request headers are available via the `::getHeader($header)` method, where `$header` is headers name in lowercase and `-` changed to `_`, eg: `$Request->getHeader('content_type')` will return `Content-Type` or `null` if header not set.
-Environment variables (`$_SERVER`) are accessible via `::getServer($server)` method. Their names are same as in `$_SERVER` superglobal. The `::getServer()` method will return `null` if environment variable is not set.
+Request headers are available via the `::header()->get($header)` method, where `$header` is headers name in lowercase and `-` changed to `_`, eg: `$Request->header()->get('content_type')` will return `Content-Type` or `null` if header not set.
+Environment variables (`$_SERVER`) are accessible via `::server->get($server)` method. Their names are same as in `$_SERVER` superglobal. The `::server()->get('some_var')` method will return `null` if environment variable is not set.
+
+Header and server are also available as public property: `::header->get('some_content')`, `::server->get('some_var')`.
 
 ## GET, POST, PUT and DELETE
 
-To access query (`GET`) arguments use `::query->get($key, $value = null)` method
-For `POST`, `PUT`, `DELETE` arguments call `::post()->get($key, $value = null)` method.
+To access query (`GET`) arguments use `::query()->get($key, $value = null)` method
+For `POST`, `PUT`, `DELETE` arguments call `::body()->get($key, $value = null)` method.
 
 Both methods allow access to multidimensional arrays, just separate keys with `.` (dot) eg:
 
-	$yada = $request->post->get('foo.bar.yada'); // $_POST['foo']['bar']['yada'];
-
-Or via method:
-
-	$yada = $request->post()->get('foo.bar.yada'); // $_POST['foo']['bar']['yada'];
+	$yada = $request->body()->get('foo.bar.yada'); // $_POST['foo']['bar']['yada'];
 
 To set `GET` and `POST` values use respectively `setQuery` and `setPost`
+
+Query and body are also available as public property: `::query->get('some_content')`, `::body->get('some_var')`.
 
 ## Console, aka CLI method
 
@@ -43,31 +43,28 @@ Framework can be run from console, just type:
 
 	php ./web/index.php [arguments]
 
-First unnamed argument will be put in the `path` property and resolved by `Router` just like friendly link.
+First unnamed argument will be put in the `path` property and resolved by `Router` just like requested url.
 Fallowing unnamed arguments and all named arguments will be available in the same way as `GET` arguments.
 Named arguments without value are treated as true flags.
 
  * `foo` - unnamed argument
- * `-foo` - named argument without value (true flag), to treat argument as named, there must be at least one `-`
- * `--foo=bar` - named argument with string value
- * `--foo=[1,2,3]` - named argument with array value
- * `--foo={a:1,b:2,c:3}` - named argument with associative array value
+ * `-foo` - named argument without value (resolved as `true`), to treat argument as named, there must be at least one `-`
+ * `--foo=bar` - named argument with string value `bar`
 
 Eg:
 
-	php ./web/index.php /foo/bar --foo --bar=[1, 2, 3, 4] --yada={a:1, b:2, c:3, d:4}
+	php ./web/index.php /foo/bar --foo -bar=yada
 
 Will request `/foo/bar` route with arguments:
 
 	array(
 		'foo' => true,
-		'bar' => array(1, 2, 3, 4),
-		'yada' => array('a' => 1, 'b' => 2, 'c' => 3, 'd' => 4)
+		'bar' => yada
 	)
 
 ## Files
 
-The `::files->get($key)` method grants access to `FilesBag`, which represents a little bit modified `$_FILES` superglobal.
+The `::files()->get($key)` method grants access to `FilesBag`, which represents a little bit modified `$_FILES` superglobal.
 Structure has been modified as follows:
 
 	// <input type="file" name="foo[bar][yada]"/>
@@ -80,19 +77,26 @@ To upload file (to move uploaded file) from above field, just call:
 
 The `::uploaded()` method returns instance of `UploadedFile` which simplifies file upload.
 
+Files are also available as public property `::files->get($key)`
+
 ## Cookies and session
 
 By default, framework uses its own session and cookie wrappers that - for compliance with `$_SESSION` and `$_COOKIE` superglobals - implemnent ArrayAccess interface.
 If those are not passed in `::__constructor` - `Request` will use native superglobals.
 
-Access to them is available trough `::session->get($key, $value = null)` and `::cookie->get($key, $value = null)` methods - which are similar to `::query->get()` and `::post->get()` methods.
+	$request->session()->get($key, $default = null);
+	$request->session()->set($key, $value);
+	$request->cookie()->get($key, $default = null);
+	$request->cookie()->set($key, $value);
+
+Both session and cookie are available also as public properties `::session->get(..)`, `::cookie->get(..)`
 
 ## Additional methods
 
- * `method` - returns request method
- * `schema` - returns request protocol
- * `host` - returns host on which request is handled
- * `dir` - returns directory (relative to baseName)
+ * `method()` - returns request method
+ * `schema()` - returns request protocol
+ * `host()` - returns host on which request is handled
+ * `dir()` - returns directory (relative to baseName)
 
 ## Twig bridge extension
 

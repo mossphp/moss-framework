@@ -20,7 +20,10 @@ namespace Moss\Http\Response;
 class Response implements ResponseInterface
 {
 
-    public $header = array();
+    /**
+     * @var HeaderBag
+     */
+    public $header;
 
     protected $content = 'OK';
     protected $status = 200;
@@ -225,29 +228,11 @@ class Response implements ResponseInterface
 
         header($this->protocol . ' ' . $this->status . ' ' . $this->statusTexts[$this->status], true, $this->status);
 
-        foreach ($this->prepareHeaders($this->header) as $header) {
+        foreach ($this->header->asArray() as $header) {
             header($header);
         }
 
         return $this;
-    }
-
-    /**
-     * Builds array of headers
-     *
-     * @param array $headers
-     *
-     * @return array
-     */
-    protected function prepareHeaders(array $headers)
-    {
-        return array_map(
-            function ($header, $value) {
-                return $header . ':' . $value;
-            },
-
-            array_filter($headers)
-        );
     }
 
     /**
@@ -281,7 +266,7 @@ class Response implements ResponseInterface
      */
     public function __toString()
     {
-        $headers = implode(PHP_EOL, $this->prepareHeaders($this->header));
+        $headers = implode(PHP_EOL, $this->header->asArray());
 
         return $this->protocol . ' ' . $this->status . ' ' . $this->statusTexts[$this->status] . PHP_EOL . $headers . PHP_EOL . $this->content;
     }

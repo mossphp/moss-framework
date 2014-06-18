@@ -176,6 +176,24 @@ class HeaderBagTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(2, $bag->count());
     }
 
+    public function testAsArray()
+    {
+        $headers = array(
+            'Content-Type'=> 'text/html; charset=UTF-8',
+            'Location'=> 'http://google.com',
+            'Refresh'=> '10; URL=http://google.com',
+        );
+
+        $expected = array(
+            'Content-Type: text/html; charset=UTF-8',
+            'Location: http://google.com',
+            'Refresh: 10; URL=http://google.com',
+        );
+
+        $bag = new HeaderBag($headers);
+        $this->assertEquals($expected, $bag->asArray());
+    }
+
     public function dataProvider()
     {
         return array(

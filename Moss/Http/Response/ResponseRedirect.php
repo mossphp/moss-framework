@@ -49,12 +49,6 @@ class ResponseRedirect extends Response
      */
     public function sendContent()
     {
-        if ($this->delay) {
-            echo '<script type="text/javascript" language="javascript">setTimeout("window.location.href = \'' . $this->address . '\'", ' . ($this->delay * 1000) . ');</script>' . $this->content;
-
-            return $this;
-        }
-
         echo $this->content;
 
         return $this;
@@ -83,7 +77,7 @@ class ResponseRedirect extends Response
      *
      * @param int $delay redirection delay in seconds
      *
-     * @return ResponseRedirect
+     * @return int
      */
     public function delay($delay = null)
     {

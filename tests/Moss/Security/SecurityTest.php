@@ -7,8 +7,8 @@ class SecurityTest extends \PHPUnit_Framework_TestCase
     public function testTokenize()
     {
         $security = new Security($this->getMock('\Moss\Security\TokenStashInterface'));
-        $security->registerUserProvider($this->mockProvider(true, true));
-        $security->tokenize(array('foo', 'bar'));
+        $security->registerUserProvider($this->mockProvider(true, true))
+            ->tokenize(array('foo', 'bar'));
     }
 
     /**
@@ -18,8 +18,8 @@ class SecurityTest extends \PHPUnit_Framework_TestCase
     public function testTokenizeWithEmptyCredentials()
     {
         $security = new Security($this->getMock('\Moss\Security\TokenStashInterface'));
-        $security->registerUserProvider($this->mockProvider(true, false));
-        $security->tokenize(array());
+        $security->registerUserProvider($this->mockProvider(true, false))
+            ->tokenize(array());
     }
 
     /**
@@ -29,8 +29,8 @@ class SecurityTest extends \PHPUnit_Framework_TestCase
     public function testTokenizeFailure()
     {
         $security = new Security($this->getMock('\Moss\Security\TokenStashInterface'));
-        $security->registerUserProvider($this->mockProvider(true, false));
-        $security->tokenize(array('foo', 'bar'));
+        $security->registerUserProvider($this->mockProvider(true, false))
+            ->tokenize(array('foo', 'bar'));
     }
 
     /**
@@ -40,8 +40,8 @@ class SecurityTest extends \PHPUnit_Framework_TestCase
     public function testTokenizeMissingProvider()
     {
         $security = new Security($this->getMock('\Moss\Security\TokenStashInterface'));
-        $security->registerUserProvider($this->mockProvider(false, false));
-        $security->tokenize(array('foo', 'bar'));
+        $security->registerUserProvider($this->mockProvider(false, false))
+            ->tokenize(array('foo', 'bar'));
     }
 
     /**
@@ -51,9 +51,9 @@ class SecurityTest extends \PHPUnit_Framework_TestCase
     public function testAuthWithoutToken()
     {
         $security = new Security($this->getMock('\Moss\Security\TokenStashInterface'));
-        $security->registerArea($this->mockArea());
-        $security->registerUserProvider($this->mockProvider(true, false));
-        $security->authenticate($this->getMock('\Moss\Http\request\RequestInterface'));
+        $security->registerArea($this->mockArea())
+            ->registerUserProvider($this->mockProvider(true, false))
+            ->authenticate($this->getMock('\Moss\Http\request\RequestInterface'));
     }
 
     /**
@@ -75,26 +75,45 @@ class SecurityTest extends \PHPUnit_Framework_TestCase
     public function testAuthWithoutMatchingProvider()
     {
         $security = new Security($this->mockStash(true));
-        $security->registerArea($this->mockArea());
-        $security->registerUserProvider($this->mockProvider(false, false));
-        $security->authenticate($this->getMock('\Moss\Http\request\RequestInterface'));
+        $security->registerArea($this->mockArea())
+            ->registerUserProvider($this->mockProvider(false, false))
+            ->authenticate($this->getMock('\Moss\Http\request\RequestInterface'));
     }
 
-    public function testAuthSuccess()
+    public function testAuthSuccessWithMultipleProviders()
     {
+        $request = $this->getMock('\Moss\Http\request\RequestInterface');
+
         $security = new Security($this->mockStash(true));
-        $security->registerUserProvider($this->mockProvider(false, false));
-        $security->registerUserProvider($this->mockProvider());
-        $security->registerArea($this->mockArea(false, false));
-        $security->registerArea($this->mockArea(true, true));
-        $security->authenticate($this->getMock('\Moss\Http\request\RequestInterface'));
-        $security->authorize($this->getMock('\Moss\Http\request\RequestInterface'));
+        $security->registerUserProvider($this->mockProvider(false, false))
+            ->registerUserProvider($this->mockProvider())
+            ->registerArea($this->mockArea(false, false))
+            ->registerArea($this->mockArea(true, true))
+            ->authenticate($request)
+            ->authorize($request);
     }
 
     public function testAuthSuccessNoAreas()
     {
+        $request = $this->getMock('\Moss\Http\request\RequestInterface');
+
         $security = new Security($this->mockStash());
-        $this->assertInstanceOf('\Moss\Security\SecurityInterface', $security->authorize($this->getMock('\Moss\Http\request\RequestInterface')));
+        $security->authorize($request)->authenticate($request);
+    }
+
+    /**
+     * @expectedException \Moss\Security\AuthorizationException
+     * @expectedExceptionMessage Access denied to area "sample_area". No authenticated user
+     */
+    public function testAuthorizeWithoutUser()
+    {
+        $request = $this->getMock('\Moss\Http\request\RequestInterface');
+
+        $security = new Security($this->mockStash(true));
+        $security->registerUserProvider($this->mockProvider(true, true, false))
+            ->registerArea($this->mockArea(true, true))
+            ->authenticate($request)
+            ->authorize($request);
     }
 
     /**
@@ -103,12 +122,13 @@ class SecurityTest extends \PHPUnit_Framework_TestCase
      */
     public function testAuthorizeDenied()
     {
+        $request = $this->getMock('\Moss\Http\request\RequestInterface');
+
         $security = new Security($this->mockStash(true));
-        $security->registerUserProvider($this->mockProvider(false, true));
-        $security->registerUserProvider($this->mockProvider(true, true));
-        $security->registerArea($this->mockArea(true, false));
-        $security->authenticate($this->getMock('\Moss\Http\request\RequestInterface'));
-        $security->authorize($this->getMock('\Moss\Http\request\RequestInterface'));
+        $security->registerUserProvider($this->mockProvider(true, true))
+            ->registerArea($this->mockArea(true, false))
+            ->authenticate($request)
+            ->authorize($request);
     }
 
     public function testStash()
@@ -126,25 +146,19 @@ class SecurityTest extends \PHPUnit_Framework_TestCase
     public function testUser()
     {
         $security = new Security($this->mockStash(true));
-        $security->registerUserProvider($this->mockProvider(true, true));
-        $security->registerArea($this->mockArea(true, true));
-        $security->authenticate($this->getMock('\Moss\Http\request\RequestInterface'));
+        $security->registerUserProvider($this->mockProvider(true, true))
+            ->registerArea($this->mockArea(true, true))
+            ->authenticate($this->getMock('\Moss\Http\request\RequestInterface'));
 
         $this->assertInstanceOf('\Moss\Security\UserInterface', $security->user());
-    }
-
-    public function testUserNoAuth()
-    {
-        $security = new Security($this->mockStash(true));
-        $this->assertNull($security->user());
     }
 
     public function testDestroy()
     {
         $security = new Security($this->mockStash(true));
-        $security->registerUserProvider($this->mockProvider(true, true));
-        $security->registerArea($this->mockArea(true, true));
-        $security->authenticate($this->getMock('\Moss\Http\request\RequestInterface'));
+        $security->registerUserProvider($this->mockProvider(true, true))
+            ->registerArea($this->mockArea(true, true))
+            ->authenticate($this->getMock('\Moss\Http\request\RequestInterface'));
 
         $this->assertInstanceOf('\Moss\Security\UserInterface', $security->user());
 
@@ -152,6 +166,12 @@ class SecurityTest extends \PHPUnit_Framework_TestCase
 
         $this->assertNull($security->user());
         $this->assertNull($security->token());
+    }
+
+    public function testLoginUrl()
+    {
+        $security = new Security($this->mockStash(true), 'http://foo.bar.com/login/');
+        $this->assertEquals('http://foo.bar.com/login/', $security->loginUrl());
     }
 
     protected function mockStash($token = false)
@@ -177,7 +197,7 @@ class SecurityTest extends \PHPUnit_Framework_TestCase
         return $stash;
     }
 
-    protected function mockProvider($support = true, $auth = true)
+    protected function mockProvider($support = true, $auth = true, $user = true)
     {
         $provider = $this->getMock('\Moss\Security\UserProviderInterface');
 
@@ -204,7 +224,7 @@ class SecurityTest extends \PHPUnit_Framework_TestCase
         $provider
             ->expects($this->any())
             ->method('get')
-            ->will($this->returnValue($this->getMock('\Moss\Security\UserInterface')));
+            ->will($this->returnValue($user ? $this->getMock('\Moss\Security\UserInterface') : null));
 
         return $provider;
     }

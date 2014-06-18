@@ -11,8 +11,8 @@ First, declaring route pointing to controller `controller` (where `controller` i
 
 Or route with controller - action class (one with string name and second with proper callable)
 
-	$route = new \Moss\Http\Router\Route('/{foo:\d}/({bar})', '\Some\Controller::someAction');
-	$route = new \Moss\Http\Router\Route('/{foo:\d}/({bar})', array('\Some\Controller', 'someAction'));
+	$route = new \Moss\Http\Router\Route('/{foo:\d}/({bar})', '\Some\Controller::some');
+	$route = new \Moss\Http\Router\Route('/{foo:\d}/({bar})', array('\Some\Controller', 'some'));
 
 Or create route with closure as controller
 
@@ -60,13 +60,13 @@ Limited schema:
 
     $route->schema('HTTP');
 
-**schema names are case insensitive**.
+**Schema names are case insensitive**.
 
 ## Register route
 
 Create router and register routes:
 
-	$route = new \Moss\Http\Router\Route('/{foo:\w}/({bar:\d})/', 'controller:action');
+	$route = new \Moss\Http\Router\Route('/{foo:\w}/({bar:\d})/', $controller);
 
 	$router = new Router();
 	$router->register('routeName', $route);
@@ -75,7 +75,7 @@ Create router and register routes:
 
 Match request - if matching route is found, controller from matching route is returned. Otherwise RouterException is thrown.
 
-	$controller = $router->match(new Request);
+	$controller = $router->match(new Request());
 
 ## Generate URL from route
 
@@ -83,12 +83,15 @@ To generate URL
 
 	$url = $router->make('routeName', array('foo' => 'foo'));
 
-This will will return URL - if corresponding route exists.
+This will will return URL - if corresponding route exists, otherwise exception will be thrown
 
-## Twig bridge extension
+## View
 
-To generate URL from route in `Twig` use:
+In view use `url` function for generating urls
 
-	{{ url('controller:action', { 'foo': 'foo' }) }} // by controller, works only for non-closure routes
+	<?php echo url('routeName', array('foo' => 'foo')) ?>
+
+Twig bridge uses same function:
+
 	{{ url('routeName', { 'foo': 'foo' }) }} // by route name
 

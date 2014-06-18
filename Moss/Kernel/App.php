@@ -16,7 +16,6 @@ use Moss\Container\Container;
 use Moss\Dispatcher\Dispatcher;
 use Moss\Http\Cookie\Cookie;
 use Moss\Http\Request\Request;
-use Moss\Http\Response\Response;
 use Moss\Http\Response\ResponseInterface;
 use Moss\Http\Router\Route;
 use Moss\Http\Router\Router;
@@ -89,8 +88,12 @@ class App
         $this->dispatcher = $this->buildDispatcher((array) $this->config->get('dispatcher'));
         $this->router = $this->buildRouter((array) $this->config->get('router'));
 
-        $this->session = new Session($this->config['framework']['session']['name'], $this->config['framework']['session']['cacheLimiter']);
-        $this->cookie = new Cookie($this->config['framework']['cookie']['domain'], $this->config['framework']['cookie']['path']);
+        $conf = $this->config['framework']['session'];
+        $this->session = new Session($conf['name'], $conf['cacheLimiter']);
+
+        $conf = $this->config['framework']['cookie'];
+        $this->cookie = new Cookie($conf['domain'], $conf['path'], $conf['http'], $conf['ttl']);
+
         $this->request = new Request($this->session, $this->cookie);
 
 // registering components
@@ -236,7 +239,7 @@ class App
      *
      * @return $this
      */
-    public function event($event, $definition)
+    public function listener($event, $definition)
     {
         $this->dispatcher->register($event, $definition);
 
@@ -246,21 +249,15 @@ class App
     /**
      * Fires passed event and returns its response or null if no response passed and received
      *
-     * @param string $event
-     * @param null|mixed   $subject
-     * @param null|string   $message
+     * @param string      $event
+     * @param null|mixed  $subject
+     * @param null|string $message
      *
-     * @return ResponseInterface|null
+     * @return mixed
      */
     public function fire($event, $subject = null, $message = null)
     {
-        $eventResponse = $this->dispatcher->fire($event, $subject, $message);
-
-        if ($eventResponse instanceof ResponseInterface) {
-            return $eventResponse;
-        }
-
-        return $subject;
+        return $this->dispatcher->fire($event, $subject, $message);
     }
 
     /**
@@ -269,36 +266,25 @@ class App
     public function run()
     {
         try {
-            if ($response = $this->fire('kernel.request')) {
-                return $this->fire('kernel.send', $response);
+            if ($response = $this->fireInternal('kernel.request')) {
+                return $this->fireInternal('kernel.send', $response);
             }
 
             $controller = $this->router->match($this->request);
             if (empty($controller)) {
-                throw new AppException('No controller was returned from request');
+                throw new AppException('No controller was returned from router');
             }
 
-            if ($response = $this->fire('kernel.route')) {
-                return $this->fire('kernel.send', $response);
+            if ($response = $this->fireInternal('kernel.route')) {
+                return $this->fireInternal('kernel.send', $response);
             }
 
-            if ($response = $this->fire('kernel.controller')) {
-                return $this->fire('kernel.send', $response);
+            if ($response = $this->fireInternal('kernel.controller')) {
+                return $this->fireInternal('kernel.send', $response);
             }
 
             $response = $this->callController($controller);
-
-            if (!$response) {
-                throw new AppException(sprintf('There was no response returned from the controller "%s" handling "%s"', $controller, $this->request->uri(true)));
-            }
-
-            if (!$response instanceof ResponseInterface) {
-                throw new AppException(sprintf('Response returned from "%s" handling "%s" must be instance of ResponseInterface, got "%s"', $controller, $this->request->uri(true), is_object($response) ? get_class($response) : gettype($response)));
-            }
-
             $response = $this->fire('kernel.response', $response);
-
-            return $this->fire('kernel.send', $response);
         } catch (ForbiddenException $e) {
             $response = $this->fire('kernel.403', $e, $this->eventMsg($e));
         } catch (NotFoundException $e) {
@@ -307,15 +293,36 @@ class App
             $response = $this->fire('kernel.500', $e, $this->eventMsg($e));
         }
 
-        if (!empty($e) && !$response instanceof ResponseInterface) {
+        if (!empty($e) && empty($response)) {
             throw $e;
         }
 
-        if (!$response instanceof ResponseInterface) {
-            throw new AppException(sprintf('Received response is not an instance of ResponseInterface', $this->request->uri(true)));
+        return $this->fireInternal('kernel.send', $response);
+    }
+
+    /**
+     * Fires internal event
+     *
+     * @param string      $event
+     * @param null|mixed  $subject
+     * @param null|string $message
+     *
+     * @return null|ResponseInterface
+     * @throws AppException
+     */
+    private function fireInternal($event, $subject = null, $message = null)
+    {
+        $response = $this->fire($event, $subject, $message);
+
+        if ($response === null) {
+            return $subject;
         }
 
-        return $this->fire('kernel.send', $response);
+        if (!$response instanceof ResponseInterface) {
+            throw new AppException(sprintf('Received response is not an instance of ResponseInterface when handling event "%s"', $event));
+        }
+
+        return $response;
     }
 
     /**
@@ -351,14 +358,30 @@ class App
         } elseif (is_callable($controller)) {
             $response = $this->callClosureController($controller);
         } else {
-            throw new AppException(sprintf('Invalid controller type, got "%s"', gettype($controller)));
+            throw new AppException(sprintf('Invalid controller type, got "%s"', $this->getType($controller)));
         }
 
-        if (is_scalar($response)) {
-            return new Response($response);
+        if (!$response) {
+            throw new AppException(sprintf('There was no response returned from the controller handling "%s"', $this->request->uri(true)));
+        }
+
+        if (!$response instanceof ResponseInterface) {
+            throw new AppException(sprintf('Invalid response returned from handling "%s", expected ResponseInterface, got "%s"', $this->request->uri(true), $this->getType($response)));
         }
 
         return $response;
+    }
+
+    /**
+     * Returns variable type or in case of objects, their class
+     *
+     * @param mixed $var
+     *
+     * @return string
+     */
+    private function getType($var)
+    {
+        return is_object($var) ? get_class($var) : gettype($var);
     }
 
     /**
