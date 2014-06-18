@@ -20,7 +20,10 @@ namespace Moss\Http\Response;
 class Response implements ResponseInterface
 {
 
-    public $header = array();
+    /**
+     * @var HeaderBag
+     */
+    public $header;
 
     protected $content = 'OK';
     protected $status = 200;

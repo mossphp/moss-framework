@@ -511,7 +511,7 @@ class Request implements RequestInterface
      *
      * @param null|string $route
      *
-     * @return null|string
+     * @return string
      */
     public function route($route = null)
     {

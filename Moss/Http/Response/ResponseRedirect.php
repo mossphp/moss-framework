@@ -77,7 +77,7 @@ class ResponseRedirect extends Response
      *
      * @param int $delay redirection delay in seconds
      *
-     * @return ResponseRedirect
+     * @return int
      */
     public function delay($delay = null)
     {

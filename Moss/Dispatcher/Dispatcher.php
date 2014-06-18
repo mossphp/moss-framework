@@ -95,7 +95,7 @@ class Dispatcher implements DispatcherInterface
      *
      * @param string $event
      * @param mixed  $subject
-     * @param mixed  $message
+     * @param null|string  $message
      *
      * @return mixed
      * @throws \Exception
