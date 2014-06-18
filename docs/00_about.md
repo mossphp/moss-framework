@@ -28,35 +28,22 @@ But still, `Moss framework` wants to be _fashionable_ and follows trends: `closu
 
 ## Quickstart
 
-Download from [github](https://github.com/potfur/moss)
+Add to `composer.json`:
 
-Create new controller `./src/Quick/Start/Controller/QuickController.php` containing:
-
-	namespace Quick\Start\Controller;
-
-	use Moss\Kernel\App;
-    use Moss\Http\Response\Response;
-
-	class DemoController
 	{
-		protected $app;
-
-		public function __construct(App $container)
-		{
-			$this->app = $app;
-		}
-
-		public function indexAction()
-		{
-			return new Response(__METHOD__);
-		}
+	    "require": {
+	        "moss/moss": "*"
+	    }
 	}
 
-To register route to that action that allows to enter `http://127.0.0.1/moss/web/quick-start/`, in `./web/bootstrap.php` in section `router` add
+Then create entry file, eg `./web/index.php` containing:
 
-	'index' => array(
-	    'pattern' => '/quick-start/',
-	    'controller' => '\Quick\Start\Demo::index'
-	)
+	<?php
+	require __DIR__ . '/../vendor/autoload.php';
 
-And that's it, the rest depends on your needs and skills.
+	$moss = new \Moss\Kernel\App();
+	$moss->route('main', '/', function () { return 'Hello world'; });
+	$moss->run()
+	    ->send();
+
+Or download simple sample app from [github](https://github.com/potfur/moss-demoapp)
