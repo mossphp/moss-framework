@@ -11,13 +11,15 @@
 
 namespace Moss\Config;
 
+use Moss\Bag\BagInterface;
+
 /**
  * Config interface
  *
  * @package Moss Config
  * @author  Michal Wachowski <wachowski.michal@gmail.com>
  */
-interface ConfigInterface extends \ArrayAccess, \Iterator, \Countable
+interface ConfigInterface extends BagInterface
 {
 
     /**
@@ -35,14 +37,4 @@ interface ConfigInterface extends \ArrayAccess, \Iterator, \Countable
      * @return array
      */
     public function export();
-
-    /**
-     * Returns core variable value
-     * If variable is undefined - returns false
-     *
-     * @param string $var
-     *
-     * @return mixed
-     */
-    public function get($var);
 }
