@@ -12,7 +12,7 @@
 			<directory>./tests/Moss/Http/Router/</directory>
 			<directory>./tests/Moss/Http/Cookie/</directory>
 			<directory>./tests/Moss/Http/Session/</directory>
-			<!--<directory>./tests/Moss/Kernel/</directory>-->
+			<directory>./tests/Moss/Kernel/</directory>
 			<directory>./tests/Moss/Security/</directory>
 			<directory>./tests/Moss/View/</directory>
 		</testsuite>
