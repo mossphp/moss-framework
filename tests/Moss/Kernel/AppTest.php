@@ -23,6 +23,11 @@ class TestController
     {
         return new Response();
     }
+
+    static public function staticAction()
+    {
+        return new Response();
+    }
 }
 
 class MockApp extends App
@@ -189,12 +194,12 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $app->run();
     }
 
-    public function testRunWithStringClassController()
+    public function testRunWithStringStaticMethodController()
     {
         $router = $this->getMock('\Moss\Http\Router\RouterInterface');
         $router->expects($this->once())
             ->method('match')
-            ->will($this->returnValue('\Moss\Kernel\TestController::action'));
+            ->will($this->returnValue('\Moss\Kernel\TestController::staticAction'));
 
         $components = array(
             'container' => $this->getMock('\Moss\Container\ContainerInterface'),
@@ -210,12 +215,34 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $app->run();
     }
 
+    public function testRunWithStringInstanceMethodController()
+    {
+        $router = $this->getMock('\Moss\Http\Router\RouterInterface');
+        $router->expects($this->once())
+            ->method('match')
+            ->will($this->returnValue('\Moss\Kernel\TestController@action'));
+
+        $components = array(
+            'container' => $this->getMock('\Moss\Container\ContainerInterface'),
+            'config' => $this->getMock('\Moss\Config\ConfigInterface'),
+            'router' => $router,
+            'dispatcher' => $this->getMock('\Moss\Dispatcher\DispatcherInterface'),
+            'session' => $this->getMock('\Moss\Http\Session\SessionInterface'),
+            'cookie' => $this->getMock('\Moss\Http\Cookie\CookieInterface'),
+            'request' => $this->getMock('\Moss\Http\Request\RequestInterface')
+        );
+
+        $app = new MockApp($components);
+        $app->run();
+    }
+
+
     public function testRunWithArrayClassController()
     {
         $router = $this->getMock('\Moss\Http\Router\RouterInterface');
         $router->expects($this->once())
             ->method('match')
-            ->will($this->returnValue(array('\Moss\Kernel\TestController', 'action')));
+            ->will($this->returnValue(array('\Moss\Kernel\TestController', 'staticAction')));
 
         $components = array(
             'container' => $this->getMock('\Moss\Container\ContainerInterface'),
