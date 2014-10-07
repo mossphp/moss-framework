@@ -338,7 +338,7 @@ class App
     /**
      * Calls controller from callable or class
      *
-     * @param mixed $controller
+     * @param string|array|callable $controller
      *
      * @return ResponseInterface
      * @throws AppException
@@ -429,7 +429,7 @@ class App
     /**
      * Calls function as controller
      *
-     * @param string $function
+     * @param string|array|callable $function
      *
      * @return string|ResponseInterface
      */
