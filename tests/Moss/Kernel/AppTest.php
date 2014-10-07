@@ -240,7 +240,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $router = $this->getMock('\Moss\Http\Router\RouterInterface');
         $router->expects($this->once())
             ->method('match')
-            ->will($this->returnValue(array('Invalid\Controller', 'action')));
+            ->will($this->returnValue('Invalid\Controller@action'));
 
         $components = array(
             'container' => $this->getMock('\Moss\Container\ContainerInterface'),
@@ -265,7 +265,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $router = $this->getMock('\Moss\Http\Router\RouterInterface');
         $router->expects($this->once())
             ->method('match')
-            ->will($this->returnValue(array('\Moss\Kernel\TestController', 'invalidAction')));
+            ->will($this->returnValue('\Moss\Kernel\TestController@invalidAction'));
 
         $components = array(
             'container' => $this->getMock('\Moss\Container\ContainerInterface'),
@@ -510,7 +510,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \Moss\Kernel\AppException
-     * @expectedExceptionMessage Received response is not an instance of ResponseInterface when handling event
+     * @expectedExceptionMessage Received response is not an instance of ResponseInterface
      */
     public function testEventReturnsInvalidResponse()
     {
@@ -531,5 +531,160 @@ class AppTest extends \PHPUnit_Framework_TestCase
 
         $app = new MockApp($components);
         $app->run();
+    }
+
+    public function testKernelRequestReturnsResponse()
+    {
+        $dispatcher = $this->getMock('\Moss\Dispatcher\DispatcherInterface');
+        $dispatcher->expects($this->at(0))
+            ->method('fire')
+            ->will($this->returnValue(new Response('Event response')));
+
+        $components = array(
+            'container' => $this->getMock('\Moss\Container\ContainerInterface'),
+            'config' => $this->getMock('\Moss\Config\ConfigInterface'),
+            'router' => $this->getMock('\Moss\Http\Router\RouterInterface'),
+            'dispatcher' => $dispatcher,
+            'session' => $this->getMock('\Moss\Http\Session\SessionInterface'),
+            'cookie' => $this->getMock('\Moss\Http\Cookie\CookieInterface'),
+            'request' => $this->getMock('\Moss\Http\Request\RequestInterface')
+        );
+
+        $app = new MockApp($components);
+        $this->assertEquals('Event response', $app->run()->content());
+    }
+
+    public function testKernelRouteReturnsResponse()
+    {
+        $router = $this->getMock('\Moss\Http\Router\RouterInterface');
+        $router->expects($this->once())
+            ->method('match')
+            ->will($this->returnValue(function () { return new Response(); }));
+
+        $dispatcher = $this->getMock('\Moss\Dispatcher\DispatcherInterface');
+        $dispatcher->expects($this->at(0))
+            ->method('fire')
+            ->with('kernel.request');
+        $dispatcher->expects($this->at(1))
+            ->method('fire')
+            ->will($this->returnValue(new Response('Event response')));
+
+        $components = array(
+            'container' => $this->getMock('\Moss\Container\ContainerInterface'),
+            'config' => $this->getMock('\Moss\Config\ConfigInterface'),
+            'router' => $router,
+            'dispatcher' => $dispatcher,
+            'session' => $this->getMock('\Moss\Http\Session\SessionInterface'),
+            'cookie' => $this->getMock('\Moss\Http\Cookie\CookieInterface'),
+            'request' => $this->getMock('\Moss\Http\Request\RequestInterface')
+        );
+
+        $app = new MockApp($components);
+        $this->assertEquals('Event response', $app->run()->content());
+    }
+
+    public function testKernelControllerReturnsResponse()
+    {
+        $router = $this->getMock('\Moss\Http\Router\RouterInterface');
+        $router->expects($this->once())
+            ->method('match')
+            ->will($this->returnValue(function () { return new Response(); }));
+
+        $dispatcher = $this->getMock('\Moss\Dispatcher\DispatcherInterface');
+        $dispatcher->expects($this->at(0))
+            ->method('fire')
+            ->with('kernel.request');
+        $dispatcher->expects($this->at(1))
+            ->method('fire')
+            ->with('kernel.route');
+        $dispatcher->expects($this->at(2))
+            ->method('fire')
+            ->will($this->returnValue(new Response('Event response')));
+
+        $components = array(
+            'container' => $this->getMock('\Moss\Container\ContainerInterface'),
+            'config' => $this->getMock('\Moss\Config\ConfigInterface'),
+            'router' => $router,
+            'dispatcher' => $dispatcher,
+            'session' => $this->getMock('\Moss\Http\Session\SessionInterface'),
+            'cookie' => $this->getMock('\Moss\Http\Cookie\CookieInterface'),
+            'request' => $this->getMock('\Moss\Http\Request\RequestInterface')
+        );
+
+        $app = new MockApp($components);
+        $this->assertEquals('Event response', $app->run()->content());
+    }
+
+    public function testKernelResponseReturnsResponse()
+    {
+        $router = $this->getMock('\Moss\Http\Router\RouterInterface');
+        $router->expects($this->once())
+            ->method('match')
+            ->will($this->returnValue(function () { return new Response(); }));
+
+        $dispatcher = $this->getMock('\Moss\Dispatcher\DispatcherInterface');
+        $dispatcher->expects($this->at(0))
+            ->method('fire')
+            ->with('kernel.request');
+        $dispatcher->expects($this->at(1))
+            ->method('fire')
+            ->with('kernel.route');
+        $dispatcher->expects($this->at(2))
+            ->method('fire')
+            ->with('kernel.controller');
+        $dispatcher->expects($this->at(3))
+            ->method('fire')
+            ->will($this->returnValue(new Response('Event response')));
+
+        $components = array(
+            'container' => $this->getMock('\Moss\Container\ContainerInterface'),
+            'config' => $this->getMock('\Moss\Config\ConfigInterface'),
+            'router' => $router,
+            'dispatcher' => $dispatcher,
+            'session' => $this->getMock('\Moss\Http\Session\SessionInterface'),
+            'cookie' => $this->getMock('\Moss\Http\Cookie\CookieInterface'),
+            'request' => $this->getMock('\Moss\Http\Request\RequestInterface')
+        );
+
+        $app = new MockApp($components);
+        $this->assertEquals('Event response', $app->run()->content());
+    }
+
+    public function testKernelSendReturnsResponse()
+    {
+        $router = $this->getMock('\Moss\Http\Router\RouterInterface');
+        $router->expects($this->once())
+            ->method('match')
+            ->will($this->returnValue(function () { return new Response(); }));
+
+        $dispatcher = $this->getMock('\Moss\Dispatcher\DispatcherInterface');
+        $dispatcher->expects($this->at(0))
+            ->method('fire')
+            ->with('kernel.request');
+        $dispatcher->expects($this->at(1))
+            ->method('fire')
+            ->with('kernel.route');
+        $dispatcher->expects($this->at(2))
+            ->method('fire')
+            ->with('kernel.controller');
+        $dispatcher->expects($this->at(3))
+            ->method('fire')
+            ->with('kernel.response');
+        $dispatcher->expects($this->at(4))
+            ->method('fire')
+            ->will($this->returnValue(new Response('Event response')));
+
+        $components = array(
+            'container' => $this->getMock('\Moss\Container\ContainerInterface'),
+            'config' => $this->getMock('\Moss\Config\ConfigInterface'),
+            'router' => $router,
+            'dispatcher' => $dispatcher,
+            'session' => $this->getMock('\Moss\Http\Session\SessionInterface'),
+            'cookie' => $this->getMock('\Moss\Http\Cookie\CookieInterface'),
+            'request' => $this->getMock('\Moss\Http\Request\RequestInterface')
+        );
+
+        $app = new MockApp($components);
+        $this->assertEquals('Event response', $app->run()->content());
     }
 }
