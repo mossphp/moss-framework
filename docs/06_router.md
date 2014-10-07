@@ -5,52 +5,76 @@ Routers responsibility is to translate incoming requests into controller calls w
 
 ## Declaring route
 
-First, declaring route pointing to controller `controller` (where `controller` is function name) and two arguments: required `foo` limited to digits and optional `bar` that accepts anything:
+First, declaring route pointing to controller `controller` and two arguments: required `foo` limited to digits and optional `bar` that accepts anything:
 
 	$route = new \Moss\Http\Router\Route('/{foo:\d}/({bar})', 'controller');
 
-Or route with controller - action class (one with string name and second with proper callable)
-
-	$route = new \Moss\Http\Router\Route('/{foo:\d}/({bar})', '\Some\Controller::some');
-	$route = new \Moss\Http\Router\Route('/{foo:\d}/({bar})', array('\Some\Controller', 'some'));
-
-Or create route with closure as controller
-
-	$route = new \Moss\Http\Router\Route('/{foo:\w}/({bar:\d})', function() {
-		return new \Moss\Response\Response('Hello world');
-	});
-
 Set argument default values, needed only for required arguments (eg. route /some-title/ should point to entry with id = 1:
 
-    $route = new \Moss\Http\Router\Route('/some-title/)', '\Some\Controller::someAction', array('id' => 1));
+    $route = new \Moss\Http\Router\Route('/some-title/)', 'controller', array('id' => 1));
+
+### Controller
+
+Controller can be defined in different ways.
+As closure:
+
+	$route = new \Moss\Http\Router\Route('/', function() { ... });
+
+Or as something callable:
+
+	function someController() { ... }
+	$route = new \Moss\Http\Router\Route('/', 'someController'); // function name
+
+	class SomeController {
+		static public function someAction() { ... }
+		public function otherAction() { ... }
+		public function __invoke() { ... }
+	}
+
+	$route = new \Moss\Http\Router\Route('/', array('SomeController', 'someAction'); // static action
+	$route = new \Moss\Http\Router\Route('/', array(new SomeController(), 'someAction'); // method of existing instance
+	$route = new \Moss\Http\Router\Route('/', new SomeController(); // object as callable
+
+Or as closure
+
+	$route = new \Moss\Http\Router\Route('/', function() { ... });
+
+Each of such defined controller will receive dependency container instance as first (and only) argument.
+
+There is better way to define controllers, as classic _controller class_ with _action_.
+
+	$route = new \Moss\Http\Router\Route('/{foo:\d}/({bar})', '\Some\Controller@some');
+
+In this case, when route is called, controller instance will be created and dependency container will be injected to its constructor.
+Actions do not receive any predefined arguments, to this is up to You.
 
 ### Limiting route - domain
 
 Limited to domain:
 
-	$route = new \Moss\Http\Router\Route('/some-title/)', '\Some\Controller::someAction');
+	$route = new \Moss\Http\Router\Route('/some-title/)', 'controller');
     $route->host('foo.com');
 
 Limited to sub domain:
 
-	$route = new \Moss\Http\Router\Route('/some-title/)', '\Some\Controller::someAction');
+	$route = new \Moss\Http\Router\Route('/some-title/)', 'controller');
 	$route->host('sub.foo.com');
 
 Or if we do not want to specify domain:
 
-	$route = new \Moss\Http\Router\Route('/some-title/)', '\Some\Controller::someAction');
+	$route = new \Moss\Http\Router\Route('/some-title/)', 'controller');
 	$route->host('sub.{basename}');
 
 ### Limiting route - method
 
 Limited methods:
 
-	$route = new \Moss\Http\Router\Route('/some-title/)', '\Some\Controller::someAction');
+	$route = new \Moss\Http\Router\Route('/some-title/)', 'controller');
     $route->methods(array('POST'));
 
 Or in constructor:
 
-	$route = new \Moss\Http\Router\Route('/some-title/)', '\Some\Controller::someAction', array('id' => 1), array('GET'));
+	$route = new \Moss\Http\Router\Route('/some-title/)', 'controller', array('id' => 1), array('GET'));
 
 **Method names are case insensitive**.
 
