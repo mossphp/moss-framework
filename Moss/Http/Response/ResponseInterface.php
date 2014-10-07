@@ -32,7 +32,7 @@ interface ResponseInterface
      *
      * @param string $content
      *
-     * @return ResponseInterface
+     * @return string
      */
     public function content($content = null);
 
@@ -41,7 +41,7 @@ interface ResponseInterface
      *
      * @param int $status
      *
-     * @return ResponseInterface
+     * @return int
      */
     public function status($status);
 
@@ -50,12 +50,12 @@ interface ResponseInterface
      *
      * @param string $protocol
      *
-     * @return ResponseInterface
+     * @return string
      */
     public function protocol($protocol = null);
 
     /**
-     * Marsk response as public
+     * Marks response as public
      *
      * @return ResponseInterface
      */
