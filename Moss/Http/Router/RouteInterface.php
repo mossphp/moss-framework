@@ -31,14 +31,14 @@ interface RouteInterface
     /**
      * Returns controller
      *
-     * @return string
+     * @return string|callable
      */
     public function controller();
 
     /**
      * Sets value requirements for each argument in pattern
      *
-     * @return $this
+     * @return array
      */
     public function requirements();
 
@@ -47,7 +47,7 @@ interface RouteInterface
      *
      * @param array $arguments
      *
-     * @return $this
+     * @return array
      */
     public function arguments($arguments = array());
 
@@ -56,7 +56,7 @@ interface RouteInterface
      *
      * @param null|string $host
      *
-     * @return $this
+     * @return string
      */
     public function host($host = null);
 
@@ -65,7 +65,7 @@ interface RouteInterface
      *
      * @param string $schema
      *
-     * @return $this
+     * @return string
      */
     public function schema($schema = null);
 
@@ -74,7 +74,7 @@ interface RouteInterface
      *
      * @param array $methods
      *
-     * @return $this
+     * @return array
      */
     public function methods($methods = array());
 
