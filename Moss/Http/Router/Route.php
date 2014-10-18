@@ -190,7 +190,7 @@ class Route implements RouteInterface
     /**
      * Returns controller
      *
-     * @return string
+     * @return string|callable
      */
     public function controller()
     {
@@ -238,13 +238,13 @@ class Route implements RouteInterface
      *
      * @param null|string $host
      *
-     * @return $this
+     * @return null|string
      */
     public function host($host = null)
     {
         $this->host = empty($host) ? null : $host;
 
-        return $this;
+        return $this->host;
     }
 
     /**
@@ -252,13 +252,13 @@ class Route implements RouteInterface
      *
      * @param string $schema
      *
-     * @return $this
+     * @return null|string
      */
     public function schema($schema = null)
     {
         $this->schema = empty($schema) ? null : $schema;
 
-        return $this;
+        return $this->schema;
     }
 
     /**
@@ -266,7 +266,7 @@ class Route implements RouteInterface
      *
      * @param array $methods
      *
-     * @return $this
+     * @return array
      */
     public function methods($methods = array())
     {
@@ -275,7 +275,7 @@ class Route implements RouteInterface
             $this->methods[] = strtoupper($method);
         }
 
-        return $this;
+        return $this->methods;
     }
 
     /**

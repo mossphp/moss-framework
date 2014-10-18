@@ -262,7 +262,7 @@ class Response implements ResponseInterface
     /**
      * Returns headers and response contents as string
      *
-     * @return string;
+     * @return string
      */
     public function __toString()
     {

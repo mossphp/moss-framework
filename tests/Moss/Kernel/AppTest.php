@@ -15,11 +15,37 @@ namespace Moss\Kernel;
 use Moss\Http\Response\Response;
 use Moss\Http\Router\Route;
 
-function functionController() { return new Response(); }
+function functionController()
+{
+    return new Response();
+}
 
 class TestController
 {
+    public static $before;
+    public static $after;
+
+    public function before()
+    {
+        self::$before = true;
+    }
+
+    public function after()
+    {
+        self::$after = true;
+    }
+
     public function action()
+    {
+        return new Response();
+    }
+
+    public function throwException()
+    {
+        throw new \Exception('Internal error message');
+    }
+
+    static public function staticAction()
     {
         return new Response();
     }
@@ -40,6 +66,12 @@ class MockApp extends App
 
 class AppTest extends \PHPUnit_Framework_TestCase
 {
+    protected function setUp()
+    {
+        parent::setUp();
+        TestController::$before = false;
+        TestController::$after = false;
+    }
 
     public function testAddingRoute()
     {
@@ -165,7 +197,9 @@ class AppTest extends \PHPUnit_Framework_TestCase
         );
 
         $app = new MockApp($components);
-        $app->run();
+        $response = $app->run();
+
+        $this->assertInstanceOf('\Moss\Http\Response\ResponseInterface', $response);
     }
 
     public function testRunWithClosureController()
@@ -186,15 +220,17 @@ class AppTest extends \PHPUnit_Framework_TestCase
         );
 
         $app = new MockApp($components);
-        $app->run();
+        $response = $app->run();
+
+        $this->assertInstanceOf('\Moss\Http\Response\ResponseInterface', $response);
     }
 
-    public function testRunWithStringClassController()
+    public function testRunWithStringStaticMethodController()
     {
         $router = $this->getMock('\Moss\Http\Router\RouterInterface');
         $router->expects($this->once())
             ->method('match')
-            ->will($this->returnValue('\Moss\Kernel\TestController::action'));
+            ->will($this->returnValue('\Moss\Kernel\TestController::staticAction'));
 
         $components = array(
             'container' => $this->getMock('\Moss\Container\ContainerInterface'),
@@ -207,7 +243,57 @@ class AppTest extends \PHPUnit_Framework_TestCase
         );
 
         $app = new MockApp($components);
-        $app->run();
+        $response = $app->run();
+
+        $this->assertInstanceOf('\Moss\Http\Response\ResponseInterface', $response);
+    }
+
+    public function testRunWithStringInstanceMethodController()
+    {
+        $router = $this->getMock('\Moss\Http\Router\RouterInterface');
+        $router->expects($this->once())
+            ->method('match')
+            ->will($this->returnValue('\Moss\Kernel\TestController@action'));
+
+        $components = array(
+            'container' => $this->getMock('\Moss\Container\ContainerInterface'),
+            'config' => $this->getMock('\Moss\Config\ConfigInterface'),
+            'router' => $router,
+            'dispatcher' => $this->getMock('\Moss\Dispatcher\DispatcherInterface'),
+            'session' => $this->getMock('\Moss\Http\Session\SessionInterface'),
+            'cookie' => $this->getMock('\Moss\Http\Cookie\CookieInterface'),
+            'request' => $this->getMock('\Moss\Http\Request\RequestInterface')
+        );
+
+        $app = new MockApp($components);
+        $response = $app->run();
+
+        $this->assertInstanceOf('\Moss\Http\Response\ResponseInterface', $response);
+    }
+
+    public function testRunWithStringInstanceMethodControllerWithBeforeAfterMethods()
+    {
+        $router = $this->getMock('\Moss\Http\Router\RouterInterface');
+        $router->expects($this->once())
+            ->method('match')
+            ->will($this->returnValue('\Moss\Kernel\TestController@action'));
+
+        $components = array(
+            'container' => $this->getMock('\Moss\Container\ContainerInterface'),
+            'config' => $this->getMock('\Moss\Config\ConfigInterface'),
+            'router' => $router,
+            'dispatcher' => $this->getMock('\Moss\Dispatcher\DispatcherInterface'),
+            'session' => $this->getMock('\Moss\Http\Session\SessionInterface'),
+            'cookie' => $this->getMock('\Moss\Http\Cookie\CookieInterface'),
+            'request' => $this->getMock('\Moss\Http\Request\RequestInterface')
+        );
+
+        $app = new MockApp($components);
+        $response = $app->run();
+
+        $this->assertInstanceOf('\Moss\Http\Response\ResponseInterface', $response);
+        $this->assertTrue(TestController::$before);
+        $this->assertTrue(TestController::$after);
     }
 
     public function testRunWithArrayClassController()
@@ -215,7 +301,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $router = $this->getMock('\Moss\Http\Router\RouterInterface');
         $router->expects($this->once())
             ->method('match')
-            ->will($this->returnValue(array('\Moss\Kernel\TestController', 'action')));
+            ->will($this->returnValue(array('\Moss\Kernel\TestController', 'staticAction')));
 
         $components = array(
             'container' => $this->getMock('\Moss\Container\ContainerInterface'),
@@ -228,7 +314,9 @@ class AppTest extends \PHPUnit_Framework_TestCase
         );
 
         $app = new MockApp($components);
-        $app->run();
+        $response = $app->run();
+
+        $this->assertInstanceOf('\Moss\Http\Response\ResponseInterface', $response);
     }
 
     /**
@@ -240,7 +328,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $router = $this->getMock('\Moss\Http\Router\RouterInterface');
         $router->expects($this->once())
             ->method('match')
-            ->will($this->returnValue(array('Invalid\Controller', 'action')));
+            ->will($this->returnValue('Invalid\Controller@action'));
 
         $components = array(
             'container' => $this->getMock('\Moss\Container\ContainerInterface'),
@@ -265,7 +353,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $router = $this->getMock('\Moss\Http\Router\RouterInterface');
         $router->expects($this->once())
             ->method('match')
-            ->will($this->returnValue(array('\Moss\Kernel\TestController', 'invalidAction')));
+            ->will($this->returnValue('\Moss\Kernel\TestController@invalidAction'));
 
         $components = array(
             'container' => $this->getMock('\Moss\Container\ContainerInterface'),
@@ -391,7 +479,9 @@ class AppTest extends \PHPUnit_Framework_TestCase
         );
 
         $app = new MockApp($components);
-        $app->run();
+        $response = $app->run();
+
+        $this->assertInstanceOf('\Moss\Http\Response\ResponseInterface', $response);
     }
 
     /**
@@ -429,7 +519,9 @@ class AppTest extends \PHPUnit_Framework_TestCase
         );
 
         $app = new MockApp($components);
-        $app->run();
+        $response = $app->run();
+
+        $this->assertInstanceOf('\Moss\Http\Response\ResponseInterface', $response);
     }
 
     /**
@@ -467,38 +559,27 @@ class AppTest extends \PHPUnit_Framework_TestCase
         );
 
         $app = new MockApp($components);
-        $app->run();
+        $response = $app->run();
+
+        $this->assertInstanceOf('\Moss\Http\Response\ResponseInterface', $response);
     }
 
     /**
      * @expectedException \Exception
+     * @expectedExceptionMessage Internal error message
      */
     public function testRunInternalErrorEvent()
     {
         $router = $this->getMock('\Moss\Http\Router\RouterInterface');
         $router->expects($this->once())
             ->method('match')
-            ->will($this->returnValue(function () { new \Exception(); }));
-
-        $dispatcher = $this->getMock('\Moss\Dispatcher\DispatcherInterface');
-        $dispatcher->expects($this->at(0))
-            ->method('fire')
-            ->with('kernel.request');
-        $dispatcher->expects($this->at(1))
-            ->method('fire')
-            ->with('kernel.route');
-        $dispatcher->expects($this->at(2))
-            ->method('fire')
-            ->with('kernel.controller');
-        $dispatcher->expects($this->at(3))
-            ->method('fire')
-            ->with('kernel.500');
+            ->will($this->returnValue('\Moss\Kernel\TestController@throwException'));
 
         $components = array(
             'container' => $this->getMock('\Moss\Container\ContainerInterface'),
             'config' => $this->getMock('\Moss\Config\ConfigInterface'),
             'router' => $router,
-            'dispatcher' => $dispatcher,
+            'dispatcher' => $this->getMock('\Moss\Dispatcher\DispatcherInterface'),
             'session' => $this->getMock('\Moss\Http\Session\SessionInterface'),
             'cookie' => $this->getMock('\Moss\Http\Cookie\CookieInterface'),
             'request' => $this->getMock('\Moss\Http\Request\RequestInterface')
@@ -510,7 +591,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \Moss\Kernel\AppException
-     * @expectedExceptionMessage Received response is not an instance of ResponseInterface when handling event
+     * @expectedExceptionMessage Received response is not an instance of ResponseInterface
      */
     public function testEventReturnsInvalidResponse()
     {
@@ -531,5 +612,175 @@ class AppTest extends \PHPUnit_Framework_TestCase
 
         $app = new MockApp($components);
         $app->run();
+    }
+
+    public function testKernelRequestReturnsResponse()
+    {
+        $dispatcher = $this->getMock('\Moss\Dispatcher\DispatcherInterface');
+        $dispatcher->expects($this->at(0))
+            ->method('fire')
+            ->will($this->returnValue(new Response('Event response')));
+
+        $components = array(
+            'container' => $this->getMock('\Moss\Container\ContainerInterface'),
+            'config' => $this->getMock('\Moss\Config\ConfigInterface'),
+            'router' => $this->getMock('\Moss\Http\Router\RouterInterface'),
+            'dispatcher' => $dispatcher,
+            'session' => $this->getMock('\Moss\Http\Session\SessionInterface'),
+            'cookie' => $this->getMock('\Moss\Http\Cookie\CookieInterface'),
+            'request' => $this->getMock('\Moss\Http\Request\RequestInterface')
+        );
+
+        $app = new MockApp($components);
+        $this->assertEquals(
+            'Event response', $app->run()
+                ->content()
+        );
+    }
+
+    public function testKernelRouteReturnsResponse()
+    {
+        $router = $this->getMock('\Moss\Http\Router\RouterInterface');
+        $router->expects($this->once())
+            ->method('match')
+            ->will($this->returnValue(function () { return new Response(); }));
+
+        $dispatcher = $this->getMock('\Moss\Dispatcher\DispatcherInterface');
+        $dispatcher->expects($this->at(0))
+            ->method('fire')
+            ->with('kernel.request');
+        $dispatcher->expects($this->at(1))
+            ->method('fire')
+            ->will($this->returnValue(new Response('Event response')));
+
+        $components = array(
+            'container' => $this->getMock('\Moss\Container\ContainerInterface'),
+            'config' => $this->getMock('\Moss\Config\ConfigInterface'),
+            'router' => $router,
+            'dispatcher' => $dispatcher,
+            'session' => $this->getMock('\Moss\Http\Session\SessionInterface'),
+            'cookie' => $this->getMock('\Moss\Http\Cookie\CookieInterface'),
+            'request' => $this->getMock('\Moss\Http\Request\RequestInterface')
+        );
+
+        $app = new MockApp($components);
+        $this->assertEquals(
+            'Event response', $app->run()
+                ->content()
+        );
+    }
+
+    public function testKernelControllerReturnsResponse()
+    {
+        $router = $this->getMock('\Moss\Http\Router\RouterInterface');
+        $router->expects($this->once())
+            ->method('match')
+            ->will($this->returnValue(function () { return new Response(); }));
+
+        $dispatcher = $this->getMock('\Moss\Dispatcher\DispatcherInterface');
+        $dispatcher->expects($this->at(0))
+            ->method('fire')
+            ->with('kernel.request');
+        $dispatcher->expects($this->at(1))
+            ->method('fire')
+            ->with('kernel.route');
+        $dispatcher->expects($this->at(2))
+            ->method('fire')
+            ->will($this->returnValue(new Response('Event response')));
+
+        $components = array(
+            'container' => $this->getMock('\Moss\Container\ContainerInterface'),
+            'config' => $this->getMock('\Moss\Config\ConfigInterface'),
+            'router' => $router,
+            'dispatcher' => $dispatcher,
+            'session' => $this->getMock('\Moss\Http\Session\SessionInterface'),
+            'cookie' => $this->getMock('\Moss\Http\Cookie\CookieInterface'),
+            'request' => $this->getMock('\Moss\Http\Request\RequestInterface')
+        );
+
+        $app = new MockApp($components);
+        $this->assertEquals(
+            'Event response', $app->run()
+                ->content()
+        );
+    }
+
+    public function testKernelResponseReturnsResponse()
+    {
+        $router = $this->getMock('\Moss\Http\Router\RouterInterface');
+        $router->expects($this->once())
+            ->method('match')
+            ->will($this->returnValue(function () { return new Response(); }));
+
+        $dispatcher = $this->getMock('\Moss\Dispatcher\DispatcherInterface');
+        $dispatcher->expects($this->at(0))
+            ->method('fire')
+            ->with('kernel.request');
+        $dispatcher->expects($this->at(1))
+            ->method('fire')
+            ->with('kernel.route');
+        $dispatcher->expects($this->at(2))
+            ->method('fire')
+            ->with('kernel.controller');
+        $dispatcher->expects($this->at(3))
+            ->method('fire')
+            ->will($this->returnValue(new Response('Event response')));
+
+        $components = array(
+            'container' => $this->getMock('\Moss\Container\ContainerInterface'),
+            'config' => $this->getMock('\Moss\Config\ConfigInterface'),
+            'router' => $router,
+            'dispatcher' => $dispatcher,
+            'session' => $this->getMock('\Moss\Http\Session\SessionInterface'),
+            'cookie' => $this->getMock('\Moss\Http\Cookie\CookieInterface'),
+            'request' => $this->getMock('\Moss\Http\Request\RequestInterface')
+        );
+
+        $app = new MockApp($components);
+        $this->assertEquals(
+            'Event response', $app->run()
+                ->content()
+        );
+    }
+
+    public function testKernelSendReturnsResponse()
+    {
+        $router = $this->getMock('\Moss\Http\Router\RouterInterface');
+        $router->expects($this->once())
+            ->method('match')
+            ->will($this->returnValue(function () { return new Response(); }));
+
+        $dispatcher = $this->getMock('\Moss\Dispatcher\DispatcherInterface');
+        $dispatcher->expects($this->at(0))
+            ->method('fire')
+            ->with('kernel.request');
+        $dispatcher->expects($this->at(1))
+            ->method('fire')
+            ->with('kernel.route');
+        $dispatcher->expects($this->at(2))
+            ->method('fire')
+            ->with('kernel.controller');
+        $dispatcher->expects($this->at(3))
+            ->method('fire')
+            ->with('kernel.response');
+        $dispatcher->expects($this->at(4))
+            ->method('fire')
+            ->will($this->returnValue(new Response('Event response')));
+
+        $components = array(
+            'container' => $this->getMock('\Moss\Container\ContainerInterface'),
+            'config' => $this->getMock('\Moss\Config\ConfigInterface'),
+            'router' => $router,
+            'dispatcher' => $dispatcher,
+            'session' => $this->getMock('\Moss\Http\Session\SessionInterface'),
+            'cookie' => $this->getMock('\Moss\Http\Cookie\CookieInterface'),
+            'request' => $this->getMock('\Moss\Http\Request\RequestInterface')
+        );
+
+        $app = new MockApp($components);
+        $this->assertEquals(
+            'Event response', $app->run()
+                ->content()
+        );
     }
 }

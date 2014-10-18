@@ -19,7 +19,8 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
     {
         $dispatcher = new Dispatcher();
         $result = $dispatcher->register(
-            'foo', function () {
+            'foo',
+            function () {
             }
         );
 
@@ -31,7 +32,8 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
     {
         $dispatcher = new Dispatcher();
         $result = $dispatcher->register(
-            array('foo', 'bar'), function () {
+            array('foo', 'bar'),
+            function () {
             }
         );
 
@@ -44,12 +46,16 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
         $dispatcher = new Dispatcher();
         $result = $dispatcher
             ->register(
-                'foo', function () {
-                }, 1
+                'foo',
+                function () {
+                },
+                1
             )
             ->register(
-                'foo', function () {
-                }, 0
+                'foo',
+                function () {
+                },
+                0
             );
 
 
@@ -67,7 +73,8 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
     {
         $dispatcher = new Dispatcher();
         $dispatcher->register(
-            'foo', function () {
+            'foo',
+            function () {
                 return 'foo';
             }
         );
@@ -92,14 +99,16 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
         $dispatcher = new Dispatcher();
         $dispatcher
             ->register(
-                'foo', function () use ($dispatcher) {
+                'foo',
+                function () use ($dispatcher) {
                     $dispatcher->stop();
 
                     return 'foo';
                 }
             )
             ->register(
-                'foo', function () {
+                'foo',
+                function () {
                     return 'bar';
                 }
             );
@@ -111,7 +120,8 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
     {
         $dispatcher = new Dispatcher();
         $dispatcher->register(
-            'foo:before', function () {
+            'foo:before',
+            function () {
                 return 'foo';
             }
         );
@@ -122,7 +132,8 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
     {
         $dispatcher = new Dispatcher();
         $dispatcher->register(
-            'foo:after', function () {
+            'foo:after',
+            function () {
                 return 'foo';
             }
         );
@@ -136,7 +147,8 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
     {
         $dispatcher = new Dispatcher();
         $dispatcher->register(
-            'foo', function () {
+            'foo',
+            function () {
                 throw new \Exception('forced');
             }
         );
@@ -147,12 +159,14 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
     {
         $dispatcher = new Dispatcher();
         $dispatcher->register(
-            'foo', function () {
+            'foo',
+            function () {
                 throw new \Exception('forced');
             }
         );
         $dispatcher->register(
-            'foo:exception', function () {
+            'foo:exception',
+            function () {
                 return 'foo';
             }
         );
@@ -163,17 +177,20 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
     {
         $dispatcher = new Dispatcher();
         $dispatcher->register(
-            'foo:before', function ($container, $subject) {
+            'foo:before',
+            function ($container, $subject) {
                 return $subject . ':before';
             }
         );
         $dispatcher->register(
-            'foo', function ($container, $subject) {
+            'foo',
+            function ($container, $subject) {
                 return $subject . ':event';
             }
         );
         $dispatcher->register(
-            'foo:after', function ($container, $subject) {
+            'foo:after',
+            function ($container, $subject) {
                 return $subject . ':after';
             }
         );

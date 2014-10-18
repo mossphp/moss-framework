@@ -29,7 +29,7 @@ use Moss\Http\Session\Session;
  */
 class App
 {
-    const SEPARATOR = '::';
+    const SEPARATOR = '@';
 
     /**
      * @var \Moss\Container\Container
@@ -266,8 +266,8 @@ class App
     public function run()
     {
         try {
-            if ($response = $this->fireInternal('kernel.request')) {
-                return $this->fireInternal('kernel.send', $response);
+            if ($evtResponse = $this->fire('kernel.request')) {
+                return $this->send($evtResponse);
             }
 
             $controller = $this->router->match($this->request);
@@ -275,16 +275,18 @@ class App
                 throw new AppException('No controller was returned from router');
             }
 
-            if ($response = $this->fireInternal('kernel.route')) {
-                return $this->fireInternal('kernel.send', $response);
+            if ($evtResponse = $this->fire('kernel.route')) {
+                return $this->send($evtResponse);
             }
 
-            if ($response = $this->fireInternal('kernel.controller')) {
-                return $this->fireInternal('kernel.send', $response);
+            if ($evtResponse = $this->fire('kernel.controller')) {
+                return $this->send($evtResponse);
             }
 
             $response = $this->callController($controller);
-            $response = $this->fire('kernel.response', $response);
+            if ($evtResponse = $this->fire('kernel.response', $response)) {
+                return $this->send($evtResponse);
+            }
         } catch (ForbiddenException $e) {
             $response = $this->fire('kernel.403', $e, $this->eventMsg($e));
         } catch (NotFoundException $e) {
@@ -293,33 +295,29 @@ class App
             $response = $this->fire('kernel.500', $e, $this->eventMsg($e));
         }
 
-        if (!empty($e) && empty($response)) {
+        if (isset($e) && (empty($response) || $response instanceof \Exception)) {
             throw $e;
         }
 
-        return $this->fireInternal('kernel.send', $response);
+        return $this->send($response);
     }
 
     /**
-     * Fires internal event
+     * Returns response from app
      *
-     * @param string      $event
-     * @param null|mixed  $subject
-     * @param null|string $message
+     * @param mixed|ResponseInterface $response
      *
-     * @return null|ResponseInterface
+     * @return ResponseInterface
      * @throws AppException
      */
-    private function fireInternal($event, $subject = null, $message = null)
+    private function send($response)
     {
-        $response = $this->fire($event, $subject, $message);
-
-        if ($response === null) {
-            return $subject;
+        if ($evtResponse = $this->fire('kernel.send', $response)) {
+            $response = $evtResponse;
         }
 
         if (!$response instanceof ResponseInterface) {
-            throw new AppException(sprintf('Received response is not an instance of ResponseInterface when handling event "%s"', $event));
+            throw new AppException(sprintf('Received response is not an instance of ResponseInterface, got "%s"', $this->getType($response)));
         }
 
         return $response;
@@ -340,7 +338,7 @@ class App
     /**
      * Calls controller from callable or class
      *
-     * @param mixed $controller
+     * @param string|array|callable $controller
      *
      * @return ResponseInterface
      * @throws AppException
@@ -348,15 +346,10 @@ class App
     private function callController($controller)
     {
         if (is_string($controller) && strpos($controller, self::SEPARATOR) !== false) {
-            $controller = explode(self::SEPARATOR, $controller);
-        }
-
-        if (is_string($controller)) {
-            $response = $this->callFunctionController($controller);
-        } elseif (is_array($controller)) {
-            $response = $this->callClassController($controller[0], $controller[1]);
+            list($controller, $action) = explode(self::SEPARATOR, $controller);
+            $response = $this->callClassController($controller, $action);
         } elseif (is_callable($controller)) {
-            $response = $this->callClosureController($controller);
+            $response = $this->callCallableController($controller);
         } else {
             throw new AppException(sprintf('Invalid controller type, got "%s"', $this->getType($controller)));
         }
@@ -382,18 +375,6 @@ class App
     private function getType($var)
     {
         return is_object($var) ? get_class($var) : gettype($var);
-    }
-
-    /**
-     * Calls function as controller
-     *
-     * @param string $function
-     *
-     * @return string|ResponseInterface
-     */
-    private function callFunctionController($function)
-    {
-        return call_user_func($function, $this);
     }
 
     /**
@@ -446,14 +427,15 @@ class App
     }
 
     /**
-     * Calls closure as controller
+     * Calls function as controller
      *
-     * @param callable $closure
+     * @param string|array|callable $function
      *
      * @return string|ResponseInterface
      */
-    private function callClosureController($closure)
+    private function callCallableController($function)
     {
-        return $closure($this);
+        return call_user_func($function, $this);
     }
+
 }
