@@ -15,13 +15,34 @@ namespace Moss\Kernel;
 use Moss\Http\Response\Response;
 use Moss\Http\Router\Route;
 
-function functionController() { return new Response(); }
+function functionController()
+{
+    return new Response();
+}
 
 class TestController
 {
+    public static $before;
+    public static $after;
+
+    public function before()
+    {
+        self::$before = true;
+    }
+
+    public function after()
+    {
+        self::$after = true;
+    }
+
     public function action()
     {
         return new Response();
+    }
+
+    public function throwException()
+    {
+        throw new \Exception('Internal error message');
     }
 
     static public function staticAction()
@@ -45,6 +66,12 @@ class MockApp extends App
 
 class AppTest extends \PHPUnit_Framework_TestCase
 {
+    protected function setUp()
+    {
+        parent::setUp();
+        TestController::$before = false;
+        TestController::$after = false;
+    }
 
     public function testAddingRoute()
     {
@@ -170,7 +197,9 @@ class AppTest extends \PHPUnit_Framework_TestCase
         );
 
         $app = new MockApp($components);
-        $app->run();
+        $response = $app->run();
+
+        $this->assertInstanceOf('\Moss\Http\Response\ResponseInterface', $response);
     }
 
     public function testRunWithClosureController()
@@ -191,7 +220,9 @@ class AppTest extends \PHPUnit_Framework_TestCase
         );
 
         $app = new MockApp($components);
-        $app->run();
+        $response = $app->run();
+
+        $this->assertInstanceOf('\Moss\Http\Response\ResponseInterface', $response);
     }
 
     public function testRunWithStringStaticMethodController()
@@ -212,7 +243,9 @@ class AppTest extends \PHPUnit_Framework_TestCase
         );
 
         $app = new MockApp($components);
-        $app->run();
+        $response = $app->run();
+
+        $this->assertInstanceOf('\Moss\Http\Response\ResponseInterface', $response);
     }
 
     public function testRunWithStringInstanceMethodController()
@@ -233,9 +266,35 @@ class AppTest extends \PHPUnit_Framework_TestCase
         );
 
         $app = new MockApp($components);
-        $app->run();
+        $response = $app->run();
+
+        $this->assertInstanceOf('\Moss\Http\Response\ResponseInterface', $response);
     }
 
+    public function testRunWithStringInstanceMethodControllerWithBeforeAfterMethods()
+    {
+        $router = $this->getMock('\Moss\Http\Router\RouterInterface');
+        $router->expects($this->once())
+            ->method('match')
+            ->will($this->returnValue('\Moss\Kernel\TestController@action'));
+
+        $components = array(
+            'container' => $this->getMock('\Moss\Container\ContainerInterface'),
+            'config' => $this->getMock('\Moss\Config\ConfigInterface'),
+            'router' => $router,
+            'dispatcher' => $this->getMock('\Moss\Dispatcher\DispatcherInterface'),
+            'session' => $this->getMock('\Moss\Http\Session\SessionInterface'),
+            'cookie' => $this->getMock('\Moss\Http\Cookie\CookieInterface'),
+            'request' => $this->getMock('\Moss\Http\Request\RequestInterface')
+        );
+
+        $app = new MockApp($components);
+        $response = $app->run();
+
+        $this->assertInstanceOf('\Moss\Http\Response\ResponseInterface', $response);
+        $this->assertTrue(TestController::$before);
+        $this->assertTrue(TestController::$after);
+    }
 
     public function testRunWithArrayClassController()
     {
@@ -255,7 +314,9 @@ class AppTest extends \PHPUnit_Framework_TestCase
         );
 
         $app = new MockApp($components);
-        $app->run();
+        $response = $app->run();
+
+        $this->assertInstanceOf('\Moss\Http\Response\ResponseInterface', $response);
     }
 
     /**
@@ -418,7 +479,9 @@ class AppTest extends \PHPUnit_Framework_TestCase
         );
 
         $app = new MockApp($components);
-        $app->run();
+        $response = $app->run();
+
+        $this->assertInstanceOf('\Moss\Http\Response\ResponseInterface', $response);
     }
 
     /**
@@ -456,7 +519,9 @@ class AppTest extends \PHPUnit_Framework_TestCase
         );
 
         $app = new MockApp($components);
-        $app->run();
+        $response = $app->run();
+
+        $this->assertInstanceOf('\Moss\Http\Response\ResponseInterface', $response);
     }
 
     /**
@@ -494,38 +559,27 @@ class AppTest extends \PHPUnit_Framework_TestCase
         );
 
         $app = new MockApp($components);
-        $app->run();
+        $response = $app->run();
+
+        $this->assertInstanceOf('\Moss\Http\Response\ResponseInterface', $response);
     }
 
     /**
      * @expectedException \Exception
+     * @expectedExceptionMessage Internal error message
      */
     public function testRunInternalErrorEvent()
     {
         $router = $this->getMock('\Moss\Http\Router\RouterInterface');
         $router->expects($this->once())
             ->method('match')
-            ->will($this->returnValue(function () { new \Exception(); }));
-
-        $dispatcher = $this->getMock('\Moss\Dispatcher\DispatcherInterface');
-        $dispatcher->expects($this->at(0))
-            ->method('fire')
-            ->with('kernel.request');
-        $dispatcher->expects($this->at(1))
-            ->method('fire')
-            ->with('kernel.route');
-        $dispatcher->expects($this->at(2))
-            ->method('fire')
-            ->with('kernel.controller');
-        $dispatcher->expects($this->at(3))
-            ->method('fire')
-            ->with('kernel.500');
+            ->will($this->returnValue('\Moss\Kernel\TestController@throwException'));
 
         $components = array(
             'container' => $this->getMock('\Moss\Container\ContainerInterface'),
             'config' => $this->getMock('\Moss\Config\ConfigInterface'),
             'router' => $router,
-            'dispatcher' => $dispatcher,
+            'dispatcher' => $this->getMock('\Moss\Dispatcher\DispatcherInterface'),
             'session' => $this->getMock('\Moss\Http\Session\SessionInterface'),
             'cookie' => $this->getMock('\Moss\Http\Cookie\CookieInterface'),
             'request' => $this->getMock('\Moss\Http\Request\RequestInterface')
@@ -578,7 +632,10 @@ class AppTest extends \PHPUnit_Framework_TestCase
         );
 
         $app = new MockApp($components);
-        $this->assertEquals('Event response', $app->run()->content());
+        $this->assertEquals(
+            'Event response', $app->run()
+                ->content()
+        );
     }
 
     public function testKernelRouteReturnsResponse()
@@ -607,7 +664,10 @@ class AppTest extends \PHPUnit_Framework_TestCase
         );
 
         $app = new MockApp($components);
-        $this->assertEquals('Event response', $app->run()->content());
+        $this->assertEquals(
+            'Event response', $app->run()
+                ->content()
+        );
     }
 
     public function testKernelControllerReturnsResponse()
@@ -639,7 +699,10 @@ class AppTest extends \PHPUnit_Framework_TestCase
         );
 
         $app = new MockApp($components);
-        $this->assertEquals('Event response', $app->run()->content());
+        $this->assertEquals(
+            'Event response', $app->run()
+                ->content()
+        );
     }
 
     public function testKernelResponseReturnsResponse()
@@ -674,7 +737,10 @@ class AppTest extends \PHPUnit_Framework_TestCase
         );
 
         $app = new MockApp($components);
-        $this->assertEquals('Event response', $app->run()->content());
+        $this->assertEquals(
+            'Event response', $app->run()
+                ->content()
+        );
     }
 
     public function testKernelSendReturnsResponse()
@@ -712,6 +778,9 @@ class AppTest extends \PHPUnit_Framework_TestCase
         );
 
         $app = new MockApp($components);
-        $this->assertEquals('Event response', $app->run()->content());
+        $this->assertEquals(
+            'Event response', $app->run()
+                ->content()
+        );
     }
 }
