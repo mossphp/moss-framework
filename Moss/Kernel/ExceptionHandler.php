@@ -244,24 +244,24 @@ class ExceptionHandler
                 $references[] = $hash;
 
                 $className = get_class($param);
-                $r = new \ReflectionClass($className);
+                $ref = new \ReflectionClass($className);
 
                 $str = '<span style="color: ' . $this->colors['object'] . '">' . $className . ' Object</span> (';
 
                 if ($this->maxDepth && ($this->maxDepth <= $indent)) {
                     $str .= '*DEPTH LIMIT*)';
                 } else {
-                    foreach ($r->getConstants() as $eachConstantName => $eachConstant) {
+                    foreach ($ref->getConstants() as $eachConstantName => $eachConstant) {
                         $str .= $this->br . str_repeat($this->indent, $indent + 1) . '<span style="color: ' . $this->colors['keyword'] . '">const</span> [' . $eachConstantName . ']' . ' => ' . $this->colorify($eachConstant);
                     }
 
-                    $staticPNames = array_keys($r->getStaticProperties());
+                    $staticPNames = array_keys($ref->getStaticProperties());
 
                     $allPNames = array_map(
-                        function ($property) {
+                        function (\ReflectionProperty $property) {
                             return $property->name;
                         },
-                        $r->getProperties()
+                        $ref->getProperties()
                     );
 
                     $propertyNames = array_merge($staticPNames, array_diff($allPNames, $staticPNames));
