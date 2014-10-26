@@ -129,7 +129,7 @@ class ExceptionHandler
      *
      * @param \Exception $exception
      */
-    public function handlerTerse($exception)
+    public function handlerTerse(\Exception $exception)
     {
         if (!headers_sent()) {
             header('HTTP/1.1 500 Internal Server Error', true, 500);
@@ -144,7 +144,7 @@ class ExceptionHandler
      *
      * @param \Exception $exception
      */
-    public function handlerVerbose($exception)
+    public function handlerVerbose(\Exception $exception)
     {
         if (!headers_sent()) {
             header('HTTP/1.1 500 Internal Server Error', true, 500);
@@ -158,7 +158,12 @@ class ExceptionHandler
             <title>Bad Moss: %1$s - %2$s - %3$s:%4$u</title>
             <style>
                 body, code { font: medium/1.5em monospace; }
+
                 h1, h2 { font-size: 1.25em; }
+
+                div:nth-child(4) { position: fixed; right: 0.5em; top: 0.5em; width: 100%; padding: 0.25em 1em; }
+                div:nth-child(4) a { text-decoration: none; padding: 0.25em 0.75em; color: #fff; background: #444; border-radius: 1em; }
+
                 table { width: auto; border-collapse: collapse; overflow: hidden; }
 
                 td { vertical-align: top; }
@@ -172,14 +177,19 @@ class ExceptionHandler
         </head>
         <body>
             <h1>Bad Moss: %1$s - &quot;%2$s&quot;</h1>
-            <div>
-                <h2>File: %3$s:%4$u</h2>
-                %5$s
-            </div>
-            <div>
-                <h2>Trace</h2>
-                %6$s
-            </div>
+
+                <div>
+                    <h2 id="trace">Trace</h2>
+                    %6$s
+                </div>
+                <div>
+                    <h2 id="listing">File: %3$s:%4$u</h2>
+                    %5$s
+                </div>
+                <div>
+                    <a href="#trace">Trace</a>
+                    <a href="#trace">Listing</a>
+                </div>
         </body>
         </html>',
             get_class($exception),
