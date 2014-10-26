@@ -5,30 +5,26 @@ filter:
 tools:
     external_code_coverage: true
     php_code_sniffer: true
-        extensions:
-            - php
         config:
-            tab_width:            4
-            encoding:             utf8
-            ruleset:              ~
-            standard:             PSR2
+            tab_width: 4
+            encoding: utf8
+            ruleset: ~
+            standard: PSR2
     php_mess_detector:
-        extensions:
-            - php
         config:
             design_rules:
-                exit_expression:      true
-                eval_expression:      true
-                goto_statement:       true
+                exit_expression: true
+                eval_expression: true
+                goto_statement: true
             unused_code_rules:
-                unused_private_field:  true
-                unused_local_variable:  true
-                unused_private_method:  true
-                unused_formal_parameter:  true
+                unused_private_field: true
+                unused_local_variable: true
+                unused_private_method: true
+                unused_formal_parameter: true
             controversial_rules:
-                superglobals:         true
-                camel_case_class_name:  true
-                camel_case_property_name:  true
-                camel_case_method_name:  true
-                camel_case_parameter_name:  true
-                camel_case_variable_name:  true
+                superglobals: true
+                camel_case_class_name: true
+                camel_case_property_name: true
+                camel_case_method_name: true
+                camel_case_parameter_name: true
+                camel_case_variable_name: true
