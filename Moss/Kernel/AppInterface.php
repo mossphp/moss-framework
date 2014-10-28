@@ -16,6 +16,7 @@ use Moss\Container\ContainerInterface;
 use Moss\Dispatcher\DispatcherInterface;
 use Moss\Http\Cookie\CookieInterface;
 use Moss\Http\Request\RequestInterface;
+use Moss\Http\Response\ResponseInterface;
 use Moss\Http\Router\RouterInterface;
 use Moss\Http\Session\SessionInterface;
 
@@ -132,6 +133,8 @@ interface AppInterface {
 
     /**
      * Handles request
+     *
+     * @return ResponseInterface
      */
     public function run();
 } 

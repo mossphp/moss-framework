@@ -302,6 +302,8 @@ class App implements AppInterface
 
     /**
      * Handles request
+     *
+     * @return ResponseInterface
      */
     public function run()
     {
