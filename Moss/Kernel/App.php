@@ -14,6 +14,7 @@ namespace Moss\Kernel;
 use Moss\Config\Config;
 use Moss\Config\ConfigInterface;
 use Moss\Container\Container;
+use Moss\Container\ContainerInterface;
 use Moss\Dispatcher\Dispatcher;
 use Moss\Dispatcher\DispatcherInterface;
 use Moss\Http\Cookie\Cookie;
@@ -40,7 +41,7 @@ class App implements AppInterface
     /**
      * @var \Moss\Container\Container
      */
-    public $container;
+    protected $container;
 
     /**
      * Constructor
@@ -227,6 +228,16 @@ class App implements AppInterface
     {
         return $this->dispatcher()
             ->fire($event, $subject, $message);
+    }
+
+    /**
+     * Returns Container instance
+     *
+     * @return ContainerInterface
+     */
+    public function container()
+    {
+        return $this->container;
     }
 
     /**

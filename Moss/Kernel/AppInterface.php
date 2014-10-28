@@ -12,6 +12,7 @@
 namespace Moss\Kernel;
 
 use Moss\Config\ConfigInterface;
+use Moss\Container\ContainerInterface;
 use Moss\Dispatcher\DispatcherInterface;
 use Moss\Http\Cookie\CookieInterface;
 use Moss\Http\Request\RequestInterface;
@@ -79,6 +80,13 @@ interface AppInterface {
      * @return mixed
      */
     public function fire($event, $subject = null, $message = null);
+
+    /**
+     * Returns Container instance
+     *
+     * @return ContainerInterface
+     */
+    public function container();
 
     /**
      * Returns Config instance
