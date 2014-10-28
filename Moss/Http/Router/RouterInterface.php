@@ -45,7 +45,7 @@ interface RouterInterface
      *
      * @param RequestInterface $request
      *
-     * @return Router|RouterInterface
+     * @return callable
      */
     public function match(RequestInterface $request);
 

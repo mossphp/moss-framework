@@ -76,7 +76,7 @@ class Router implements RouterInterface
      *
      * @param RequestInterface $request
      *
-     * @return string
+     * @return callable
      * @throws RouterException
      */
     public function match(RequestInterface $request)
