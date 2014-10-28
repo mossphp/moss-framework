@@ -12,14 +12,20 @@
 namespace Moss\Kernel;
 
 use Moss\Config\Config;
+use Moss\Config\ConfigInterface;
 use Moss\Container\Container;
 use Moss\Dispatcher\Dispatcher;
+use Moss\Dispatcher\DispatcherInterface;
 use Moss\Http\Cookie\Cookie;
+use Moss\Http\Cookie\CookieInterface;
 use Moss\Http\Request\Request;
+use Moss\Http\Request\RequestInterface;
 use Moss\Http\Response\ResponseInterface;
 use Moss\Http\Router\Route;
 use Moss\Http\Router\Router;
+use Moss\Http\Router\RouterInterface;
 use Moss\Http\Session\Session;
+use Moss\Http\Session\SessionInterface;
 
 /**
  * Moss app kernel
@@ -27,7 +33,7 @@ use Moss\Http\Session\Session;
  * @package Moss Kernel
  * @author  Michal Wachowski <wachowski.michal@gmail.com>
  */
-class App
+class App implements AppInterface
 {
     const SEPARATOR = '@';
 
@@ -37,36 +43,6 @@ class App
     public $container;
 
     /**
-     * @var \Moss\Config\Config
-     */
-    public $config;
-
-    /**
-     * @var \Moss\Http\Router\Router
-     */
-    public $router;
-
-    /**
-     * @var \Moss\Dispatcher\Dispatcher
-     */
-    public $dispatcher;
-
-    /**
-     * @var \Moss\Http\Session\Session
-     */
-    public $session;
-
-    /**
-     * @var \Moss\Http\Cookie\Cookie
-     */
-    public $cookie;
-
-    /**
-     * @var \Moss\Http\Request\Request
-     */
-    public $request;
-
-    /**
      * Constructor
      *
      * @param array  $config
@@ -74,36 +50,38 @@ class App
      */
     public function __construct($config = array(), $mode = null)
     {
-        $this->config = new Config($config, $mode);
+        $config = new Config($config, $mode);
 
-// error handling
-        $errHandler = new ErrorHandler($this->config['framework']['error']['level']);
+        // error handling
+        $errHandler = new ErrorHandler($config['framework']['error']['level']);
         $errHandler->register();
 
-        $excHandler = new ExceptionHandler($this->config['framework']['error']['detail'] && isset($_SERVER['REQUEST_METHOD']));
+        $excHandler = new ExceptionHandler($config['framework']['error']['detail'] && isset($_SERVER['REQUEST_METHOD']));
         $excHandler->register();
 
-// components
-        $this->container = $this->buildContainer((array) $this->config->get('container'));
-        $this->dispatcher = $this->buildDispatcher((array) $this->config->get('dispatcher'));
-        $this->router = $this->buildRouter((array) $this->config->get('router'));
+        // container
+        $this->container = $this->buildContainer((array) $config['container']);
 
-        $conf = $this->config['framework']['session'];
-        $this->session = new Session($conf['name'], $conf['cacheLimiter']);
+        // components
+        $dispatcher = $this->buildDispatcher((array) $config['dispatcher']);
+        $router = $this->buildRouter((array) $config['router']);
 
-        $conf = $this->config['framework']['cookie'];
-        $this->cookie = new Cookie($conf['domain'], $conf['path'], $conf['http'], $conf['ttl']);
+        $conf = $config['framework']['session'];
+        $session = new Session($conf['name'], $conf['cacheLimiter']);
 
-        $this->request = new Request($this->session, $this->cookie);
+        $conf = $config['framework']['cookie'];
+        $cookie = new Cookie($conf['domain'], $conf['path'], $conf['http'], $conf['ttl']);
 
-// registering components
+        $request = new Request($session, $cookie);
+
+        // registering components
         $this->container
-            ->register('config', $this->config)
-            ->register('router', $this->router)
-            ->register('dispatcher', $this->dispatcher)
-            ->register('session', $this->session)
-            ->register('cookie', $this->cookie)
-            ->register('request', $this->request);
+            ->register('config', $config)
+            ->register('router', $router)
+            ->register('dispatcher', $dispatcher)
+            ->register('session', $session)
+            ->register('cookie', $cookie)
+            ->register('request', $request);
     }
 
     /**
@@ -186,18 +164,6 @@ class App
     }
 
     /**
-     * Shitty but handy magic
-     *
-     * @param string $name
-     *
-     * @return mixed
-     */
-    public function __get($name)
-    {
-        return $this->container->get($name);
-    }
-
-    /**
      * Registers route
      *
      * @param string          $name
@@ -210,7 +176,8 @@ class App
      */
     public function route($name, $pattern, $controller, $arguments = array(), $methods = array())
     {
-        $this->router->register($name, new Route($pattern, $controller, $arguments, $methods));
+        $this->router()
+            ->register($name, new Route($pattern, $controller, $arguments, $methods));
 
         return $this;
     }
@@ -241,7 +208,8 @@ class App
      */
     public function listener($event, $definition)
     {
-        $this->dispatcher->register($event, $definition);
+        $this->dispatcher()
+            ->register($event, $definition);
 
         return $this;
     }
@@ -257,7 +225,68 @@ class App
      */
     public function fire($event, $subject = null, $message = null)
     {
-        return $this->dispatcher->fire($event, $subject, $message);
+        return $this->dispatcher()
+            ->fire($event, $subject, $message);
+    }
+
+    /**
+     * Returns Config instance
+     *
+     * @return ConfigInterface
+     */
+    public function config()
+    {
+        return $this->get('config');
+    }
+
+    /**
+     * Returns Router instance
+     *
+     * @return RouterInterface
+     */
+    public function router()
+    {
+        return $this->get('router');
+    }
+
+    /**
+     * Returns event dispatcher instance
+     *
+     * @return DispatcherInterface
+     */
+    public function dispatcher()
+    {
+        return $this->get('dispatcher');
+    }
+
+    /**
+     * Returns request instance
+     *
+     * @return RequestInterface
+     */
+    public function request()
+    {
+        return $this->get('request');
+    }
+
+    /**
+     * Returns session instance
+     *
+     * @return SessionInterface
+     */
+    public function session()
+    {
+        return $this->get('session');
+    }
+
+    /**
+     * Returns cookie instance
+     *
+     * @return CookieInterface
+     */
+    public function cookie()
+    {
+        return $this->get('cookie');
     }
 
     /**
@@ -270,7 +299,9 @@ class App
                 return $this->send($evtResponse);
             }
 
-            $controller = $this->router->match($this->request);
+            $controller = $this->router()
+                ->match($this->request());
+
             if (empty($controller)) {
                 throw new AppException('No controller was returned from router');
             }
