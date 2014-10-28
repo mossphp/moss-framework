@@ -5,9 +5,9 @@ In both cases, value returned by closure or action, must be instance of `Respons
 
 ## As closure
 
-If controller is represented by closure situation is simple, closure is injected with `App` instance and should return string or `ResponseInterface`.
+If controller is represented by closure situation is simple, closure is injected with `AppInterface` instance (later referred as `App`) and should return string or `ResponseInterface`.
 
-	function(\Moss\Kernel\App $app)
+	function(\Moss\Kernel\AppAppInterface $app)
 	{
 		return new \Moss\Http\Response\Response('Hello world');
 	}
@@ -19,7 +19,7 @@ Therefore, action parameters can be used as needed, but must be optional, otherw
 
 	class SomeController
 	{
-		public function __controller(\Moss\Kernel\App $app)
+		public function __controller(\Moss\Kernel\AppInterface $app)
 		{
 			// ...
 		}
