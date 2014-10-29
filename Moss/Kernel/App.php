@@ -92,7 +92,7 @@ class App implements AppInterface
      *
      * @return Container
      */
-    private function buildContainer(array $config)
+    protected function buildContainer(array $config)
     {
         $container = new Container();
         foreach ((array) $config as $name => $component) {
@@ -114,7 +114,7 @@ class App implements AppInterface
      *
      * @return Dispatcher
      */
-    private function buildDispatcher(array $config)
+    protected function buildDispatcher(array $config)
     {
         $dispatcher = new Dispatcher($this->container);
         foreach ((array) $config as $event => $listeners) {
@@ -133,7 +133,7 @@ class App implements AppInterface
      *
      * @return Router
      */
-    private function buildRouter(array $config)
+    protected function buildRouter(array $config)
     {
         $router = new Router();
         foreach ((array) $config as $name => $definition) {
