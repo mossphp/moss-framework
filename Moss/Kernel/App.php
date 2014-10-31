@@ -323,29 +323,7 @@ class App implements AppInterface
     public function run()
     {
         try {
-            if ($evtResponse = $this->fire('kernel.request')) {
-                return $this->send($evtResponse);
-            }
-
-            $controller = $this->router()
-                ->match($this->request());
-
-            if (empty($controller)) {
-                throw new AppException('No controller was returned from router');
-            }
-
-            if ($evtResponse = $this->fire('kernel.route')) {
-                return $this->send($evtResponse);
-            }
-
-            if ($evtResponse = $this->fire('kernel.controller')) {
-                return $this->send($evtResponse);
-            }
-
-            $response = $this->callController($controller);
-            if ($evtResponse = $this->fire('kernel.response', $response)) {
-                return $this->send($evtResponse);
-            }
+            $response = $this->resolveResponse();
         } catch (ForbiddenException $e) {
             $response = $this->fire('kernel.403', $e, $this->eventMsg($e));
         } catch (NotFoundException $e) {
@@ -358,25 +336,48 @@ class App implements AppInterface
             throw $e;
         }
 
-        return $this->send($response);
-    }
-
-    /**
-     * Returns response from app
-     *
-     * @param mixed|ResponseInterface $response
-     *
-     * @return ResponseInterface
-     * @throws AppException
-     */
-    private function send($response)
-    {
         if ($evtResponse = $this->fire('kernel.send', $response)) {
             $response = $evtResponse;
         }
 
         if (!$response instanceof ResponseInterface) {
             throw new AppException(sprintf('Received response is not an instance of ResponseInterface, got "%s"', $this->getType($response)));
+        }
+
+        return $response;
+    }
+
+    /**
+     * Resolves response
+     *
+     * @return ResponseInterface
+     * @throws AppException
+     */
+    private function resolveResponse()
+    {
+        if ($evtResponse = $this->fire('kernel.request')) {
+            return $evtResponse;
+        }
+
+        $controller = $this->router()
+            ->match($this->request());
+
+        if (empty($controller)) {
+            throw new AppException('No controller was returned from router');
+        }
+
+        if ($evtResponse = $this->fire('kernel.route')) {
+            return $evtResponse;
+        }
+
+        if ($evtResponse = $this->fire('kernel.controller')) {
+            return $evtResponse;
+        }
+
+        $response = $this->callController($controller);
+
+        if ($evtResponse = $this->fire('kernel.response', $response)) {
+            return $evtResponse;
         }
 
         return $response;
@@ -414,21 +415,11 @@ class App implements AppInterface
         }
 
         if (!$response) {
-            throw new AppException(
-                sprintf(
-                    'There was no response returned from the controller handling "%s"', $this->request()
-                        ->uri(true)
-                )
-            );
+            throw new AppException(sprintf('There was no response returned from the controller handling "%s"', $this->request()->uri(true)));
         }
 
         if (!$response instanceof ResponseInterface) {
-            throw new AppException(
-                sprintf(
-                    'Invalid response returned from handling "%s", expected ResponseInterface, got "%s"', $this->request()
-                        ->uri(true), $this->getType($response)
-                )
-            );
+            throw new AppException(sprintf('Invalid response returned from handling "%s", expected ResponseInterface, got "%s"', $this->request()->uri(true), $this->getType($response)));
         }
 
         return $response;
