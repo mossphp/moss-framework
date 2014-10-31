@@ -174,7 +174,7 @@ class App implements AppInterface
      */
     function __get($name)
     {
-        // TODO: Implement __get() method.
+        return $this->get($name);
     }
 
 
