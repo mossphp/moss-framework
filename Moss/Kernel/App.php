@@ -165,6 +165,20 @@ class App implements AppInterface
     }
 
     /**
+     * Returns parameter or component from container under set name
+     *
+     * @param string $name
+     *
+     * @return mixed
+     * @deprecated
+     */
+    function __get($name)
+    {
+        // TODO: Implement __get() method.
+    }
+
+
+    /**
      * Registers route
      *
      * @param string          $name
@@ -304,6 +318,7 @@ class App implements AppInterface
      * Handles request
      *
      * @return ResponseInterface
+     * @throws \Exception
      */
     public function run()
     {
@@ -399,11 +414,21 @@ class App implements AppInterface
         }
 
         if (!$response) {
-            throw new AppException(sprintf('There was no response returned from the controller handling "%s"', $this->request()->uri(true)));
+            throw new AppException(
+                sprintf(
+                    'There was no response returned from the controller handling "%s"', $this->request()
+                        ->uri(true)
+                )
+            );
         }
 
         if (!$response instanceof ResponseInterface) {
-            throw new AppException(sprintf('Invalid response returned from handling "%s", expected ResponseInterface, got "%s"', $this->request()->uri(true), $this->getType($response)));
+            throw new AppException(
+                sprintf(
+                    'Invalid response returned from handling "%s", expected ResponseInterface, got "%s"', $this->request()
+                        ->uri(true), $this->getType($response)
+                )
+            );
         }
 
         return $response;
