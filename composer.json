@@ -27,7 +27,7 @@
 		"php": ">=5.3.4"
 	},
 	"require-dev": {
-		"phpunit/phpunit": "3.7.*"
+		"phpunit/phpunit": ">=3.7"
 	},
 	"suggest": {
 		"moss/storage": "Simple ORM (data mapper), accelerates logic development",
