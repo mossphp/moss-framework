@@ -99,8 +99,6 @@ class ExceptionHandler
             <style>
                 body, code { font: medium/1.5em monospace; }
 
-                h1, h2 { font-size: 1.25em; }
-
                 div:nth-child(4) { position: fixed; right: 0.5em; top: 0.5em; width: 100%; padding: 0.25em 1em; }
                 div:nth-child(4) a { text-decoration: none; padding: 0.25em 0.75em; color: #444; background: #aef; border-radius: 1em; }
 
@@ -111,8 +109,8 @@ class ExceptionHandler
                 td:nth-child(2) { position: relative; padding: 0 0 0 0.5em; z-index: 2; }
 
                 td, td span { white-space: nowrap; }
-                td span.mark { position: relative; font-weight: bold; color: #f00; }
-                td span.mark:after { content: \'.\'; position: absolute; top: -0.2em; left: -2em; width: 10000em; background: #f00; opacity: 0.25; }
+                td span#mark { position: relative; font-weight: bold; color: #f00; }
+                td span#mark:after { content: \'.\'; position: absolute; top: -0.2em; left: -2em; width: 10000em; background: #f00; opacity: 0.25; }
             </style>
         </head>
         <body>
@@ -129,7 +127,7 @@ class ExceptionHandler
                 <div>
                     <a href="#trace">Trace</a>
                     <a href="#listing">Listing</a>
-                    <a href="#error">Error line</a>
+                    <a href="#mark">Error line</a>
                 </div>
         </body>
         </html>',
@@ -153,21 +151,15 @@ class ExceptionHandler
      */
     protected function lineNum($lineSeparator, $source, $mark = null)
     {
-        $lines = array();
+        $count = count(explode($lineSeparator, $source));
         $tpl = '<span %s>%u</span>';
-        foreach (explode($lineSeparator, $source) as $i => $line) {
-            if ($i + 1 == $mark) {
-                $lines[] = sprintf($tpl, 'class="mark"', $i + 1);
-                continue;
-            }
 
-            if ($i + 15 == $mark) {
-                $lines[] = sprintf($tpl, 'id="error"', $i + 1);
-                continue;
-            }
-
+        $lines = array();
+        for($i = 0; $i < $count; $i++) {
             $lines[] = sprintf($tpl, '', $i + 1);
         }
+
+        $lines[$mark - 1] = sprintf($tpl, 'id="mark"', $i + 1);
 
         return sprintf('<table><tr><td>%s</td><td>%s</td></tr></table>', implode($lineSeparator, $lines), $source);
     }
