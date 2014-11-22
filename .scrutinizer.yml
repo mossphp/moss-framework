@@ -3,4 +3,8 @@ imports:
 filter:
     excluded_paths: [cache/*, compile/*, docs/*, tests/*, vendor/*, web/* ]
 tools:
+    php_sim: true
+    php_pdepend: true
+    php_analyzer: true
     external_code_coverage: true
+

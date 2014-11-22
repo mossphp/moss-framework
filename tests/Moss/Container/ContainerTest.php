@@ -126,4 +126,13 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
         $container->Unregister('foo');
         $this->assertFalse($container->exists('foo'));
     }
+
+    public function testRegisterOverwrite()
+    {
+        $container = new Container();
+        $container->register('foo', new \stdClass());
+        $component = $container->get('foo');
+        $container->register('foo', new \stdClass());
+        $this->assertNotSame($component, $container->get('foo'));
+    }
 }

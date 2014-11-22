@@ -39,8 +39,6 @@ class ErrorHandler
      */
     public function register()
     {
-        ini_set('display_errors', (string) $this->display);
-
         error_reporting($this->level);
         set_error_handler(array($this, 'handler'), $this->level);
     }

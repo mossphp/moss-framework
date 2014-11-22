@@ -53,6 +53,12 @@ class TestController
 
 class MockApp extends App
 {
+    protected $dispatcher;
+    protected $router;
+    protected $session;
+    protected $cookie;
+    protected $request;
+
     public function __construct(array $components)
     {
         $this->container = $components['container'];
@@ -61,6 +67,31 @@ class MockApp extends App
         $this->session = $components['session'];
         $this->cookie = $components['cookie'];
         $this->request = $components['request'];
+    }
+
+    public function router()
+    {
+        return $this->router;
+    }
+
+    public function dispatcher()
+    {
+        return $this->dispatcher;
+    }
+
+    public function request()
+    {
+        return $this->request;
+    }
+
+    public function session()
+    {
+        return $this->session;
+    }
+
+    public function cookie()
+    {
+        return $this->cookie;
     }
 }
 
