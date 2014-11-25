@@ -19,7 +19,8 @@ Neither one of those minimalistic, closure lovers :)
 
 `Moss` was developed a solution with small footprint, easily to extend, with as small dependencies as possible (actually - none).
 
-But still, `Moss framework` wants to be _fashionable_ and follows trends: `closures`, `event dispatching`, `dependency injection`, `aspect oriented programming`
+But still, `Moss framework` wants to be _fashionable_ and follows trends: `closures`, `event dispatching`, `dependency injection`, `aspect oriented programming`.
+Why there's no mention about `MVC`? Because `Moss` does not implement it, but gives freedom to do it in your favorite way.
 
 ## Features
 
