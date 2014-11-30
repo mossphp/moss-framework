@@ -21,5 +21,8 @@
 		"moss/storage": "Simple ORM (data mapper), accelerates logic development",
 		"moss/locale": "Translation/localisation class based on one from Sf2",
 		"moss/bridge": "Adds Twig as templating engine with additional functionalities"
+	},
+	"autoload": {
+		"psr-4": { "Moss\\": "Moss/" }
 	}
 }
