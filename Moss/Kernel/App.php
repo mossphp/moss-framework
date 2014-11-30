@@ -13,9 +13,7 @@ namespace Moss\Kernel;
 
 use Moss\Config\Config;
 use Moss\Config\ConfigInterface;
-use Moss\Container\Container;
 use Moss\Container\ContainerInterface;
-use Moss\Dispatcher\Dispatcher;
 use Moss\Dispatcher\DispatcherInterface;
 use Moss\Http\Cookie\Cookie;
 use Moss\Http\Cookie\CookieInterface;
@@ -23,10 +21,12 @@ use Moss\Http\Request\Request;
 use Moss\Http\Request\RequestInterface;
 use Moss\Http\Response\ResponseInterface;
 use Moss\Http\Router\Route;
-use Moss\Http\Router\Router;
 use Moss\Http\Router\RouterInterface;
 use Moss\Http\Session\Session;
 use Moss\Http\Session\SessionInterface;
+use Moss\Kernel\Factory\ContainerFactory;
+use Moss\Kernel\Factory\DispatcherFactory;
+use Moss\Kernel\Factory\RouterFactory;
 
 /**
  * Moss app kernel
@@ -61,11 +61,15 @@ class App implements AppInterface
         $excHandler->register();
 
         // container
-        $this->container = $this->buildContainer((array) $config['container']);
+        $containerFactory = new ContainerFactory();
+        $this->container = $containerFactory->build((array) $config['container']);
 
         // components
-        $dispatcher = $this->buildDispatcher((array) $config['dispatcher']);
-        $router = $this->buildRouter((array) $config['router']);
+        $dispatcherFactory = new DispatcherFactory();
+        $dispatcher = $dispatcherFactory->build((array) $config['dispatcher']);
+
+        $routerFactory = new RouterFactory();
+        $router = $routerFactory->build((array) $config['router']);
 
         $conf = $config['framework']['session'];
         $session = new Session($conf['name'], $conf['cacheLimiter']);
@@ -83,73 +87,6 @@ class App implements AppInterface
             ->register('session', $session)
             ->register('cookie', $cookie)
             ->register('request', $request);
-    }
-
-    /**
-     * Builds container and its definitions
-     *
-     * @param array $config
-     *
-     * @return Container
-     */
-    protected function buildContainer(array $config)
-    {
-        $container = new Container();
-        foreach ((array) $config as $name => $component) {
-            if (array_key_exists('component', $component) && is_callable($component['component'])) {
-                $container->register($name, $component['component'], $component['shared']);
-                continue;
-            }
-
-            $container->register($name, $component);
-        }
-
-        return $container;
-    }
-
-    /**
-     * Creates dispatcher instance and event listeners
-     *
-     * @param array $config
-     *
-     * @return Dispatcher
-     */
-    protected function buildDispatcher(array $config)
-    {
-        $dispatcher = new Dispatcher($this->container);
-        foreach ((array) $config as $event => $listeners) {
-            foreach ($listeners as $listener) {
-                $dispatcher->register($event, $listener);
-            }
-        }
-
-        return $dispatcher;
-    }
-
-    /**
-     * Builds router, routes and registers routes in router
-     *
-     * @param array $config
-     *
-     * @return Router
-     */
-    protected function buildRouter(array $config)
-    {
-        $router = new Router();
-        foreach ((array) $config as $name => $definition) {
-            $route = new Route($definition['pattern'], $definition['controller'], $definition['arguments'], $definition['methods']);
-
-            if (array_key_exists('host', $definition)) {
-                $route->host($definition['host']);
-            }
-            if (array_key_exists('schema', $definition)) {
-                $route->schema($definition['schema']);
-            }
-
-            $router->register($name, $route);
-        }
-
-        return $router;
     }
 
     /**
