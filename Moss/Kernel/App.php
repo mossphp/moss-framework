@@ -408,6 +408,8 @@ class App implements AppInterface
         if (is_string($controller) && strpos($controller, self::SEPARATOR) !== false) {
             list($controller, $action) = explode(self::SEPARATOR, $controller);
             $response = $this->callClassController($controller, $action);
+        } elseif (is_string($controller) && class_exists($controller) && method_exists($controller, '__invoke')) {
+            $response = $this->callCallableController(new $controller);
         } elseif (is_callable($controller)) {
             $response = $this->callCallableController($controller);
         } else {
