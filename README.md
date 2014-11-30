@@ -40,7 +40,7 @@ Add to `composer.json`:
 
 	{
 	    "require": {
-	        "moss/moss": "*"
+	        "moss/framework": ">=1.0"
 	    }
 	}
 
