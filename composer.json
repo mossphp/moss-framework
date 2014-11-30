@@ -1,26 +1,14 @@
 {
-	"name": "moss/moss",
-	"version": "v1.0",
+	"name": "moss/framework",
+	"version": "v1.0.2",
 	"description": "The PHP micro-framework",
-	"keywords": ["microframework"],
+	"keywords": ["microframework", "framework"],
 	"type": "framework",
 	"license": "MIT",
 	"authors": [
 		{
 			"name": "Michal Wachowski",
 			"email": "wachowski.michal@gmail.com"
-		}
-	],
-	"minimum-stability": "dev",
-	"prefer-stable": true,
-	"repositories": [
-		{
-			"type": "vcs",
-			"url": "https://github.com/potfur/moss-locale"
-		},
-		{
-			"type": "vcs",
-			"url": "https://github.com/potfur/moss-twig-bridge"
 		}
 	],
 	"require": {
@@ -32,9 +20,9 @@
 	"suggest": {
 		"moss/storage": "Simple ORM (data mapper), accelerates logic development",
 		"moss/locale": "Translation/localisation class based on one from Sf2",
-		"moss/twig-bridge": "Adds Twig as templating engine with additional functionalities"
+		"moss/bridge": "Adds Twig as templating engine with additional functionalities"
 	},
 	"autoload": {
-		"psr-4": { "": "src/", "Moss\\": "Moss/" }
+		"psr-4": { "Moss\\": "Moss/" }
 	}
 }
