@@ -1,8 +1,8 @@
 # MOSS Micro Framework
 
-[![Build Status](https://travis-ci.org/potfur/moss.png?branch=master)](https://travis-ci.org/potfur/moss)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/potfur/moss/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/potfur/moss/?branch=master)
-[![Code Coverage](https://scrutinizer-ci.com/g/potfur/moss/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/potfur/moss/?branch=master)
+[![Build Status](https://travis-ci.org/potfur/moss-framework.png?branch=master)](https://travis-ci.org/potfur/moss-framework)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/potfur/moss-framework/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/potfur/moss-framework/?branch=master)
+[![Code Coverage](https://scrutinizer-ci.com/g/potfur/moss-framework/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/potfur/moss-framework/?branch=master)
 
 For licence details see LICENCE.md
 Documentation is available in ./docs/
