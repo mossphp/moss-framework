@@ -30,7 +30,7 @@ class Dispatcher implements DispatcherInterface
     /**
      * @var array
      */
-    private $events = array();
+    private $events = [];
 
     private $stop;
 
@@ -78,7 +78,7 @@ class Dispatcher implements DispatcherInterface
         }
 
         if (!isset($this->events[$event])) {
-            $this->events[$event] = array();
+            $this->events[$event] = [];
         }
 
         if ($priority === null) {
@@ -87,7 +87,7 @@ class Dispatcher implements DispatcherInterface
             return;
         }
 
-        array_splice($this->events[$event], (int) $priority, 0, array($listener));
+        array_splice($this->events[$event], (int) $priority, 0, [$listener]);
     }
 
     /**
@@ -105,7 +105,7 @@ class Dispatcher implements DispatcherInterface
         $this->stop = false;
 
         try {
-            foreach (array($event . ':before', $event, $event . ':after') as $eventName) {
+            foreach ([$event . ':before', $event, $event . ':after'] as $eventName) {
                 if ($this->stop) {
                     break;
                 }

@@ -29,7 +29,7 @@ class Response implements ResponseInterface
     protected $status = 200;
     protected $protocol = 'HTTP/1.1';
 
-    protected $statusTexts = array(
+    protected $statusTexts = [
         100 => 'Continue',
         101 => 'Switching Protocols',
         200 => 'OK',
@@ -71,7 +71,7 @@ class Response implements ResponseInterface
         503 => 'Service Unavailable',
         504 => 'Gateway Timeout',
         505 => 'HTTP Version Not Supported',
-    );
+    ];
 
     /**
      * Creates text/html response instance
@@ -113,7 +113,7 @@ class Response implements ResponseInterface
     public function content($content = null)
     {
         if ($content !== null) {
-            if (!is_scalar($content) && !is_callable(array($content, '__toString'))) {
+            if (!is_scalar($content) && !is_callable([$content, '__toString'])) {
                 throw new ResponseException('Response content must be a scalar or object with __toString() method "' . $this->getType($content) . '" given.');
             }
 

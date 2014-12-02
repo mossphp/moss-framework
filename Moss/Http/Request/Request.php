@@ -100,7 +100,7 @@ class Request implements RequestInterface
      * @param array $files
      * @param array $server
      */
-    public function initialize(array $get = array(), array $post = array(), array $files = array(), array $server = array())
+    public function initialize(array $get = [], array $post = [], array $files = [], array $server = [])
     {
         $this->server = new Bag($server);
 
@@ -136,9 +136,9 @@ class Request implements RequestInterface
     protected function removeSlashes()
     {
         if (version_compare(phpversion(), '6.0.0-dev', '<') && get_magic_quotes_gpc()) {
-            $_POST = array_map(array($this, 'removeSlashed'), $_POST);
-            $_GET = array_map(array($this, 'removeSlashed'), $_GET);
-            $_COOKIE = array_map(array($this, 'removeSlashed'), $_COOKIE);
+            $_POST = array_map([$this, 'removeSlashed'], $_POST);
+            $_GET = array_map([$this, 'removeSlashed'], $_GET);
+            $_COOKIE = array_map([$this, 'removeSlashed'], $_COOKIE);
         }
 
         return $this;
@@ -154,7 +154,7 @@ class Request implements RequestInterface
     protected function removeSlashed($value)
     {
         if (is_array($value)) {
-            return array_map(array($this, 'removeSlashed'), $value);
+            return array_map([$this, 'removeSlashed'], $value);
         }
 
         return stripslashes($value);
@@ -199,7 +199,7 @@ class Request implements RequestInterface
         $nodes = explode('/', trim($nodes, '/'));
         $redirect = explode('/', trim($this->server['REDIRECT_URL'], '/'));
 
-        $path = array();
+        $path = [];
         foreach ($nodes as $node) {
             if (!in_array($node, $redirect)) {
                 $path[] = $node;
@@ -252,13 +252,13 @@ class Request implements RequestInterface
      *
      * @return array
      */
-    protected function resolveParameters(array $get = array())
+    protected function resolveParameters(array $get = [])
     {
         if ($this->method() != 'CLI' || !isset($GLOBALS['argc']) || !isset($GLOBALS['argv']) || $GLOBALS['argc'] <= 1) {
             return $get;
         }
 
-        $cli = array();
+        $cli = [];
         for ($i = 1; $i < $GLOBALS['argc']; $i++) {
             if (preg_match_all('/^-+([^=]+)(=(.+))?$/i', $GLOBALS['argv'][$i], $arg, PREG_SET_ORDER)) {
                 $cli[$arg[0][1]] = isset($arg[0][3]) ? $this->unquote($arg[0][3]) : true;
@@ -293,11 +293,11 @@ class Request implements RequestInterface
      *
      * @return array
      */
-    protected function resolveBody(array $post = array())
+    protected function resolveBody(array $post = [])
     {
-        $rest = array();
+        $rest = [];
 
-        if (in_array($this->method(), array('OPTIONS', 'HEAD', 'PUT', 'DELETE', 'TRACE'))) {
+        if (in_array($this->method(), ['OPTIONS', 'HEAD', 'PUT', 'DELETE', 'TRACE'])) {
             parse_str(file_get_contents('php://input'), $rest);
         }
 
@@ -398,7 +398,7 @@ class Request implements RequestInterface
     public function isSecure()
     {
         if ($proto = (string) $this->header('x_forwarded_proto')) {
-            return in_array(strtolower(current(explode(',', $proto))), array('https', 'on', 'ssl', '1'));
+            return in_array(strtolower(current(explode(',', $proto))), ['https', 'on', 'ssl', '1']);
         }
 
         return strtolower($this->server('HTTPS')) == 'on' || $this->server('HTTPS') == 1;
@@ -491,11 +491,11 @@ class Request implements RequestInterface
      */
     public function clientIp()
     {
-        $keys = array(
+        $keys = [
             'REMOTE_ADDR',
             'HTTP_CLIENT_IP',
             'HTTP_X_FORWARDED_FOR',
-        );
+        ];
 
         foreach ($keys as $offset) {
             if ($this->server->has($offset)) {

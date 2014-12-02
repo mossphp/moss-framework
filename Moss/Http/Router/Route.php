@@ -27,10 +27,10 @@ class Route implements RouteInterface
     protected $pattern;
     protected $regex;
 
-    protected $requirements = array();
-    protected $constraints = array();
-    protected $builders = array();
-    protected $arguments = array();
+    protected $requirements = [];
+    protected $constraints = [];
+    protected $builders = [];
+    protected $arguments = [];
 
     protected $host;
     protected $schema;
@@ -44,7 +44,7 @@ class Route implements RouteInterface
      * @param array           $arguments
      * @param array           $methods
      */
-    public function __construct($pattern, $controller, $arguments = array(), $methods = array())
+    public function __construct($pattern, $controller, array $arguments = [], array $methods = [])
     {
         $this->controller = $controller;
         $this->pattern = $pattern;
@@ -79,12 +79,12 @@ class Route implements RouteInterface
      */
     private function buildRegexp($pattern, array $matches)
     {
-        $src = array();
-        $trg = array();
+        $src = [];
+        $trg = [];
         foreach ($matches as $match) {
             list($key, $regexp) = $this->splitSegment($match[3]);
 
-            if (in_array(substr($regexp, -1), array('+', '*', '?'))) {
+            if (in_array(substr($regexp, -1), ['+', '*', '?'])) {
                 throw new RouteException('Route must not end with quantification token');
             }
 
@@ -131,7 +131,7 @@ class Route implements RouteInterface
      */
     private function buildRequirements(array $matches)
     {
-        $result = array();
+        $result = [];
         foreach ($matches as $match) {
             list($key, $regexp) = $this->splitSegment($match[3]);
             $result[$key] = $regexp . ($match[1] == '(' ? '*' : '+');
@@ -150,10 +150,10 @@ class Route implements RouteInterface
      */
     private function buildBuilders($pattern, array $matches)
     {
-        $result = array(
+        $result = [
             'pattern' => $pattern,
-            'segments' => array()
-        );
+            'segments' => []
+        ];
 
         foreach ($matches as $match) {
             list($key,) = $this->splitSegment($match[3]);
@@ -174,7 +174,7 @@ class Route implements RouteInterface
      */
     private function splitSegment($segment, $default = '[a-z0-9-._]')
     {
-        return strpos($segment, ':') === false ? array($segment, $default) : explode(':', $segment);
+        return strpos($segment, ':') === false ? [$segment, $default] : explode(':', $segment);
     }
 
     /**
@@ -214,7 +214,7 @@ class Route implements RouteInterface
      *
      * @return array
      */
-    public function arguments($arguments = array())
+    public function arguments(array $arguments = [])
     {
         if (empty($arguments)) {
             return $this->arguments;
@@ -268,9 +268,9 @@ class Route implements RouteInterface
      *
      * @return array
      */
-    public function methods($methods = array())
+    public function methods(array $methods = [])
     {
-        $methods = (array) $methods;
+        $methods = $methods;
         foreach ($methods as &$method) {
             $this->methods[] = strtoupper($method);
         }
@@ -385,7 +385,7 @@ class Route implements RouteInterface
      *
      * @return bool
      */
-    public function check($controller, $arguments = array())
+    public function check($controller, array $arguments = [])
     {
         if ($this->controller !== $controller) {
             return false;
@@ -411,10 +411,10 @@ class Route implements RouteInterface
      * @return string
      * @throws RouteException
      */
-    public function make($host, $arguments = array())
+    public function make($host, array $arguments = [])
     {
         list($schema, $host) = $this->resolveHost($host);
-        $url = $this->buildUrl((array) $arguments);
+        $url = $this->buildUrl($arguments);
 
         $regex = '/^' . str_replace('\{basename\}', '.*', preg_quote($this->host)) . '$/';
         if ($this->host && !preg_match($regex, $host)) {
@@ -457,7 +457,7 @@ class Route implements RouteInterface
      */
     private function buildUrl(array $arguments)
     {
-        $url = array();
+        $url = [];
         foreach ($this->requirements as $key => $regex) {
             $this->assertArgumentRequirement($key, $regex, $arguments);
 
