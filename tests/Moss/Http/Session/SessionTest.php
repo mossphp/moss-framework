@@ -53,7 +53,7 @@ class SessionTest extends \PHPUnit_Framework_TestCase
         $session = new Session();
         $session->set('foo', 'bar');
         $session->set('yada', 'yada');
-        $this->assertEquals(array('foo' => 'bar', 'yada' => 'yada'), $session->all());
+        $this->assertEquals(['foo' => 'bar', 'yada' => 'yada'], $session->all());
     }
 
     public function testReset()

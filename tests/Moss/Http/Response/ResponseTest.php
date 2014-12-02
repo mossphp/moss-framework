@@ -26,7 +26,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
      */
     public function testInvalidContent()
     {
-        new Response(array());
+        new Response([]);
     }
 
     public function testValidStatus()
@@ -46,11 +46,11 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 
     public function testAllHeaders()
     {
-        $headers = array(
+        $headers = [
             'Content-Type' => 'text/html; charset=UTF-8',
             'Cache-Control' => 'no-cache',
             'Pragma' => 'no-cache'
-        );
+        ];
         $response = new Response('Foo', 200);
         $this->assertEquals(
             $headers,
@@ -114,7 +114,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
         $response->sendHeaders();
         $result = ob_get_clean();
 
-        $expected = array('HTTP/1.1 200 OK', 'Content-Type: text/html; charset=UTF-8', 'Cache-Control: no-cache', 'Pragma: no-cache');
+        $expected = ['HTTP/1.1 200 OK', 'Content-Type: text/html; charset=UTF-8', 'Cache-Control: no-cache', 'Pragma: no-cache'];
         $this->assertEquals(implode(PHP_EOL, $expected) . PHP_EOL, $result);
     }
 
@@ -125,7 +125,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
         $response->sendContent();
         $result = ob_get_clean();
 
-        $expected = array('Foo');
+        $expected = ['Foo'];
         $this->assertEquals(implode(PHP_EOL, $expected), $result);
     }
 
@@ -136,13 +136,13 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
         $response->send();
         $result = ob_get_clean();
 
-        $expected = array('HTTP/1.1 200 OK', 'Content-Type: text/html; charset=UTF-8', 'Cache-Control: no-cache', 'Pragma: no-cache', 'Foo');
+        $expected = ['HTTP/1.1 200 OK', 'Content-Type: text/html; charset=UTF-8', 'Cache-Control: no-cache', 'Pragma: no-cache', 'Foo'];
         $this->assertEquals(implode(PHP_EOL, $expected), $result);
     }
 
     public function testToString()
     {
-        $expected = array('HTTP/1.1 200 OK', 'Content-Type: text/html; charset=UTF-8', 'Cache-Control: no-cache', 'Pragma: no-cache', 'Foo');
+        $expected = ['HTTP/1.1 200 OK', 'Content-Type: text/html; charset=UTF-8', 'Cache-Control: no-cache', 'Pragma: no-cache', 'Foo'];
         $response = new Response('Foo', 200);
         $this->assertEquals(implode(PHP_EOL, $expected), (string) $response);
     }

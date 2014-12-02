@@ -37,7 +37,7 @@ class CookieTest extends \PHPUnit_Framework_TestCase
         $cookie->set('foo', 'bar');
         $this->assertEquals('bar', $cookie->get('foo'));
         $cookie->remove();
-        $this->assertEquals(array(), $cookie->get());
+        $this->assertEquals([], $cookie->get());
     }
 
     public function testAll()
@@ -45,7 +45,7 @@ class CookieTest extends \PHPUnit_Framework_TestCase
         $cookie = new Cookie();
         $cookie->set('foo', 'bar');
         $cookie->set('yada', 'yada');
-        $this->assertEquals(array('foo' => 'bar', 'yada' => 'yada'), $cookie->all());
+        $this->assertEquals(['foo' => 'bar', 'yada' => 'yada'], $cookie->all());
     }
 
     public function testReset()

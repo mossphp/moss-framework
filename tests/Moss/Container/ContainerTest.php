@@ -26,8 +26,8 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     public function testDeepValueFromArray()
     {
         $container = new Container();
-        $container->register('foo', array('bar' => 'yada'));
-        $this->assertEquals(array('bar' => 'yada'), $container->get('foo'));
+        $container->register('foo', ['bar' => 'yada']);
+        $this->assertEquals(['bar' => 'yada'], $container->get('foo'));
         $this->assertEquals('yada', $container->get('foo.bar'));
     }
 

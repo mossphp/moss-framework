@@ -8,7 +8,7 @@ class SecurityTest extends \PHPUnit_Framework_TestCase
     {
         $security = new Security($this->getMock('\Moss\Security\TokenStashInterface'));
         $security->registerUserProvider($this->mockProvider(true, true))
-            ->tokenize(array('foo', 'bar'));
+            ->tokenize(['foo', 'bar']);
     }
 
     /**
@@ -19,7 +19,7 @@ class SecurityTest extends \PHPUnit_Framework_TestCase
     {
         $security = new Security($this->getMock('\Moss\Security\TokenStashInterface'));
         $security->registerUserProvider($this->mockProvider(true, false))
-            ->tokenize(array());
+            ->tokenize([]);
     }
 
     /**
@@ -30,7 +30,7 @@ class SecurityTest extends \PHPUnit_Framework_TestCase
     {
         $security = new Security($this->getMock('\Moss\Security\TokenStashInterface'));
         $security->registerUserProvider($this->mockProvider(true, false))
-            ->tokenize(array('foo', 'bar'));
+            ->tokenize(['foo', 'bar']);
     }
 
     /**
@@ -41,7 +41,7 @@ class SecurityTest extends \PHPUnit_Framework_TestCase
     {
         $security = new Security($this->getMock('\Moss\Security\TokenStashInterface'));
         $security->registerUserProvider($this->mockProvider(false, false))
-            ->tokenize(array('foo', 'bar'));
+            ->tokenize(['foo', 'bar']);
     }
 
     /**

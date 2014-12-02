@@ -24,10 +24,10 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     {
         $request = new Request();
         $request->initialize(
-            array(),
-            array(),
-            array(),
-            array($offset => $value)
+            [],
+            [],
+            [],
+            [$offset => $value]
         );
 
         $this->assertEquals($expected, $request->server($offset));
@@ -35,44 +35,44 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
     public function serverProvider()
     {
-        return array(
-            array('REQUEST_METHOD', 'GET', 'GET'),
-            array('REQUEST_METHOD', 'POST', 'POST'),
-            array('REQUEST_METHOD', 'OPTIONS', 'OPTIONS'),
-            array('REQUEST_METHOD', 'HEAD', 'HEAD'),
-            array('REQUEST_METHOD', 'HEAD', 'HEAD'),
-            array('REQUEST_METHOD', 'PUT', 'PUT'),
-            array('REQUEST_METHOD', 'DELETE', 'DELETE'),
-            array('REQUEST_METHOD', 'TRACE', 'TRACE'),
+        return [
+            ['REQUEST_METHOD', 'GET', 'GET'],
+            ['REQUEST_METHOD', 'POST', 'POST'],
+            ['REQUEST_METHOD', 'OPTIONS', 'OPTIONS'],
+            ['REQUEST_METHOD', 'HEAD', 'HEAD'],
+            ['REQUEST_METHOD', 'HEAD', 'HEAD'],
+            ['REQUEST_METHOD', 'PUT', 'PUT'],
+            ['REQUEST_METHOD', 'DELETE', 'DELETE'],
+            ['REQUEST_METHOD', 'TRACE', 'TRACE'],
 
-            array('SCRIPT_FILENAME', './foo.php', './foo.php'),
-            array('DOCUMENT_ROOT', './', './'),
+            ['SCRIPT_FILENAME', './foo.php', './foo.php'],
+            ['DOCUMENT_ROOT', './', './'],
 
-            array('HTTP_CONTENT_LENGTH', 123456, 123456),
-            array('HTTP_CONTENT_MD5', 'someMD5', 'someMD5'),
-            array('HTTP_CONTENT_TYPE', 'text/plain', 'text/plain'),
-            array('HTTP_ACCEPT_LANGUAGE', 'en-US,en;q=0.8,pl;q=0.6', 'en-US,en;q=0.8,pl;q=0.6'),
+            ['HTTP_CONTENT_LENGTH', 123456, 123456],
+            ['HTTP_CONTENT_MD5', 'someMD5', 'someMD5'],
+            ['HTTP_CONTENT_TYPE', 'text/plain', 'text/plain'],
+            ['HTTP_ACCEPT_LANGUAGE', 'en-US,en;q=0.8,pl;q=0.6', 'en-US,en;q=0.8,pl;q=0.6'],
 
-            array('HTTP_X_REQUESTED_WITH', 'xmlhttprequest', 'xmlhttprequest'),
+            ['HTTP_X_REQUESTED_WITH', 'xmlhttprequest', 'xmlhttprequest'],
 
-            array('HTTP_X_FORWARDED_PROTO', 'https', 'https'),
-            array('HTTP_X_FORWARDED_PROTO', 'ssl', 'ssl'),
-            array('HTTP_X_FORWARDED_PROTO', 'on', 'on'),
-            array('HTTP_X_FORWARDED_PROTO', '1', '1'),
-            array('HTTPS', 'on', 'on'),
-            array('HTTPS', '1', '1'),
+            ['HTTP_X_FORWARDED_PROTO', 'https', 'https'],
+            ['HTTP_X_FORWARDED_PROTO', 'ssl', 'ssl'],
+            ['HTTP_X_FORWARDED_PROTO', 'on', 'on'],
+            ['HTTP_X_FORWARDED_PROTO', '1', '1'],
+            ['HTTPS', 'on', 'on'],
+            ['HTTPS', '1', '1'],
 
-            array('REMOTE_ADDR', '127.0.0.1', '127.0.0.1'),
-            array('HTTP_CLIENT_IP', '127.0.0.1', '127.0.0.1'),
-            array('HTTP_X_FORWARDED_FOR', '127.0.0.1', '127.0.0.1'),
+            ['REMOTE_ADDR', '127.0.0.1', '127.0.0.1'],
+            ['HTTP_CLIENT_IP', '127.0.0.1', '127.0.0.1'],
+            ['HTTP_X_FORWARDED_FOR', '127.0.0.1', '127.0.0.1'],
 
-            array('HTTP_REFERER', 'http://foo.com', 'http://foo.com'),
+            ['HTTP_REFERER', 'http://foo.com', 'http://foo.com'],
 
-            array('HTTP_AUTHORIZATION', 'basic dXNlcjpwdw==', 'basic dXNlcjpwdw=='),
-            array('REDIRECT_HTTP_AUTHORIZATION', 'basic dXNlcjpwdw==', 'basic dXNlcjpwdw=='),
-            array('PHP_AUTH_USER', 'user', 'user'),
-            array('PHP_AUTH_PW', 'pw', 'pw'),
-        );
+            ['HTTP_AUTHORIZATION', 'basic dXNlcjpwdw==', 'basic dXNlcjpwdw=='],
+            ['REDIRECT_HTTP_AUTHORIZATION', 'basic dXNlcjpwdw==', 'basic dXNlcjpwdw=='],
+            ['PHP_AUTH_USER', 'user', 'user'],
+            ['PHP_AUTH_PW', 'pw', 'pw'],
+        ];
     }
 
 
@@ -80,12 +80,12 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     {
         $request = new Request();
         $request->initialize(
-            array(),
-            array(),
-            array(),
-            array(
+            [],
+            [],
+            [],
+            [
                 'HTTP_ACCEPT_LANGUAGE' => 'en-US,en;q=0.8,pl;q=0.6'
-            )
+            ]
         );
 
         $this->assertEquals('en', $request->locale());
@@ -101,12 +101,12 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
         $request = new Request();
         $request->initialize(
-            array(),
-            array(),
-            array(),
-            array(
+            [],
+            [],
+            [],
+            [
                 'REQUEST_METHOD' => 'CLI'
-            )
+            ]
         );
 
         $this->assertEquals($expected, $request->query->all());
@@ -115,34 +115,34 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
     public function consoleProvider()
     {
-        return array(
-            array(
-                array('index.php', 'foo'),
-                array(),
+        return [
+            [
+                ['index.php', 'foo'],
+                [],
                 'foo'
-            ),
-            array(
-                array('index.php', '-foo'),
-                array('foo' => true)
-            ),
-            array(
-                array('index.php', '--foo'),
-                array('foo' => true)
-            ),
-            array(
-                array('index.php', 'foo=bar'),
-                array(),
+            ],
+            [
+                ['index.php', '-foo'],
+                ['foo' => true]
+            ],
+            [
+                ['index.php', '--foo'],
+                ['foo' => true]
+            ],
+            [
+                ['index.php', 'foo=bar'],
+                [],
                 'foo=bar'
-            ),
-            array(
-                array('index.php', '-foo=bar'),
-                array('foo' => 'bar')
-            ),
-            array(
-                array('index.php', '--foo=bar'),
-                array('foo' => 'bar')
-            ),
-        );
+            ],
+            [
+                ['index.php', '-foo=bar'],
+                ['foo' => 'bar']
+            ],
+            [
+                ['index.php', '--foo=bar'],
+                ['foo' => 'bar']
+            ],
+        ];
     }
 
     /**
@@ -152,12 +152,12 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     {
         $request = new Request();
         $request->initialize(
-            array($offset => $value),
-            array(),
-            array(),
-            array(
+            [$offset => $value],
+            [],
+            [],
+            [
                 'REQUEST_METHOD' => 'GET'
-            )
+            ]
         );
 
         $this->assertInstanceOf('\Moss\Bag\BagInterface', $request->query);
@@ -167,14 +167,14 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
     public function queryProvider()
     {
-        return array(
-            array('foo', 'bar', array('foo' => 'bar')),
-            array('controller', '\Foo\Bar::yada', array('controller' => '\Foo\Bar::yada')),
-            array('locale', 'pl', array('locale' => 'pl')),
-            array('format', 'json', array('format' => 'json')),
-            array('foo.bar', 'yada', array('foo' => array('bar' => 'yada'))),
-            array('f.o.o.b.a.r', 'deep', array('f' => array('o' => array('o' => array('b' => array('a' => array('r' => 'deep'))))))),
-        );
+        return [
+            ['foo', 'bar', ['foo' => 'bar']],
+            ['controller', '\Foo\Bar::yada', ['controller' => '\Foo\Bar::yada']],
+            ['locale', 'pl', ['locale' => 'pl']],
+            ['format', 'json', ['format' => 'json']],
+            ['foo.bar', 'yada', ['foo' => ['bar' => 'yada']]],
+            ['f.o.o.b.a.r', 'deep', ['f' => ['o' => ['o' => ['b' => ['a' => ['r' => 'deep']]]]]]],
+        ];
     }
 
     /**
@@ -184,12 +184,12 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     {
         $request = new Request();
         $request->initialize(
-            array(),
-            array($offset => $value),
-            array(),
-            array(
+            [],
+            [$offset => $value],
+            [],
+            [
                 'REQUEST_METHOD' => 'POST'
-            )
+            ]
         );
 
         $this->assertInstanceOf('\Moss\Bag\BagInterface', $request->body);
@@ -199,13 +199,13 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
     public function bodyProvider()
     {
-        return array(
-            array('foo', 'bar', array('foo' => 'bar')),
-            array('locale', 'pl', array('locale' => 'pl')),
-            array('format', 'json', array('format' => 'json')),
-            array('foo.bar', 'yada', array('foo' => array('bar' => 'yada'))),
-            array('f.o.o.b.a.r', 'deep', array('f' => array('o' => array('o' => array('b' => array('a' => array('r' => 'deep'))))))),
-        );
+        return [
+            ['foo', 'bar', ['foo' => 'bar']],
+            ['locale', 'pl', ['locale' => 'pl']],
+            ['format', 'json', ['format' => 'json']],
+            ['foo.bar', 'yada', ['foo' => ['bar' => 'yada']]],
+            ['f.o.o.b.a.r', 'deep', ['f' => ['o' => ['o' => ['b' => ['a' => ['r' => 'deep']]]]]]],
+        ];
     }
 
     public function testSession()
@@ -243,10 +243,10 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     {
         $request = new Request();
         $request->initialize(
-            array(),
-            array(),
-            array(),
-            array('HTTP_X_REQUESTED_WITH' => 'xmlhttprequest')
+            [],
+            [],
+            [],
+            ['HTTP_X_REQUESTED_WITH' => 'xmlhttprequest']
         );
 
         $this->assertTrue($request->isAjax());
@@ -259,9 +259,9 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     {
         $request = new Request();
         $request->initialize(
-            array(),
-            array(),
-            array(),
+            [],
+            [],
+            [],
             $server
         );
 
@@ -270,14 +270,14 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
     public function secureProvider()
     {
-        return array(
-            array(array('HTTP_X_FORWARDED_PROTO' => 'https')),
-            array(array('HTTP_X_FORWARDED_PROTO' => 'ssl')),
-            array(array('HTTP_X_FORWARDED_PROTO' => 'on')),
-            array(array('HTTP_X_FORWARDED_PROTO' => '1')),
-            array(array('HTTPS' => 'on')),
-            array(array('HTTPS' => '1')),
-        );
+        return [
+            [['HTTP_X_FORWARDED_PROTO' => 'https']],
+            [['HTTP_X_FORWARDED_PROTO' => 'ssl']],
+            [['HTTP_X_FORWARDED_PROTO' => 'on']],
+            [['HTTP_X_FORWARDED_PROTO' => '1']],
+            [['HTTPS' => 'on']],
+            [['HTTPS' => '1']],
+        ];
     }
 
     /**
@@ -287,10 +287,10 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     {
         $request = new Request();
         $request->initialize(
-            array(),
-            array(),
-            array(),
-            array('REQUEST_METHOD' => $method)
+            [],
+            [],
+            [],
+            ['REQUEST_METHOD' => $method]
         );
 
         $this->assertEquals($method, $request->method());
@@ -298,16 +298,16 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
     public function methodProvider()
     {
-        return array(
-            array('GET'),
-            array('POST'),
-            array('OPTIONS'),
-            array('HEAD'),
-            array('HEAD'),
-            array('PUT'),
-            array('DELETE'),
-            array('TRACE'),
-        );
+        return [
+            ['GET'],
+            ['POST'],
+            ['OPTIONS'],
+            ['HEAD'],
+            ['HEAD'],
+            ['PUT'],
+            ['DELETE'],
+            ['TRACE'],
+        ];
     }
 
     /**
@@ -317,9 +317,9 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     {
         $request = new Request();
         $request->initialize(
-            array(),
-            array(),
-            array(),
+            [],
+            [],
+            [],
             $server
         );
 
@@ -328,13 +328,13 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
     public function schemaProvider()
     {
-        return array(
-            array(array('HTTP_X_FORWARDED_PROTO' => 'on'), 'https'),
-            array(array('HTTP_X_FORWARDED_PROTO' => '1'), 'https'),
-            array(array('HTTPS' => 'on'), 'https'),
-            array(array('HTTPS' => '1'), 'https'),
-            array(array(), 'http'),
-        );
+        return [
+            [['HTTP_X_FORWARDED_PROTO' => 'on'], 'https'],
+            [['HTTP_X_FORWARDED_PROTO' => '1'], 'https'],
+            [['HTTPS' => 'on'], 'https'],
+            [['HTTPS' => '1'], 'https'],
+            [[], 'http'],
+        ];
     }
 
     public function testBaseName()
@@ -347,12 +347,12 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     {
         $request = new Request();
         $request->initialize(
-            array(
+            [
                 'foo' => 'bar'
-            ),
-            array(),
-            array(),
-            array(
+            ],
+            [],
+            [],
+            [
                 'REQUEST_METHOD' => 'GET',
                 'SERVER_PROTOCOL' => 'HTTP/1.1',
                 'REQUEST_URI' => '/foo/index.html?foo=bar',
@@ -360,7 +360,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
                 'SCRIPT_FILENAME' => '/home/foo/www/web/index.php',
                 'HTTP_HOST' => 'test.com',
                 'REDIRECT_URL' => '/',
-            )
+            ]
         );
 
         $this->assertEquals('http://test.com/', $request->baseName());
@@ -376,12 +376,12 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     {
         $request = new Request();
         $request->initialize(
-            array(
+            [
                 'foo' => 'bar'
-            ),
-            array(),
-            array(),
-            array(
+            ],
+            [],
+            [],
+            [
                 'REQUEST_METHOD' => 'GET',
                 'SERVER_PROTOCOL' => 'HTTP/1.1',
                 'REQUEST_URI' => '/foo/index.html',
@@ -389,7 +389,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
                 'SCRIPT_FILENAME' => '/home/foo/www/web/index.php',
                 'HTTP_HOST' => 'test.com',
                 'REDIRECT_URL' => '/',
-            )
+            ]
         );
 
         $this->assertEquals('http://test.com/', $request->baseName());
@@ -405,12 +405,12 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     {
         $request = new Request();
         $request->initialize(
-            array(
+            [
                 'foo' => 'bar'
-            ),
-            array(),
-            array(),
-            array(
+            ],
+            [],
+            [],
+            [
                 'REQUEST_METHOD' => 'GET',
                 'SERVER_PROTOCOL' => 'HTTP/1.1',
                 'REQUEST_URI' => '/foo/index.html',
@@ -418,7 +418,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
                 'SCRIPT_FILENAME' => '/home/foo/www/web/index.php',
                 'HTTP_HOST' => 'test.com',
                 'REDIRECT_URL' => '/web/',
-            )
+            ]
         );
 
         $this->assertEquals('http://test.com/web/', $request->baseName());
@@ -437,10 +437,10 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     {
         $request = new Request();
         $request->initialize(
-            array(),
-            array(),
-            array(),
-            array($header => '127.0.0.1')
+            [],
+            [],
+            [],
+            [$header => '127.0.0.1']
         );
 
         $this->assertEquals('127.0.0.1', $request->clientIp());
@@ -448,11 +448,11 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
     public function ipProvider()
     {
-        return array(
-            array('REMOTE_ADDR'),
-            array('HTTP_CLIENT_IP'),
-            array('HTTP_X_FORWARDED_FOR')
-        );
+        return [
+            ['REMOTE_ADDR'],
+            ['HTTP_CLIENT_IP'],
+            ['HTTP_X_FORWARDED_FOR']
+        ];
     }
 
     public function testRoute()
@@ -467,10 +467,10 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     {
         $request = new Request();
         $request->initialize(
-            array('format' => 'json'),
-            array(),
-            array(),
-            array()
+            ['format' => 'json'],
+            [],
+            [],
+            []
         );
 
         $this->assertEquals('json', $request->format());
@@ -480,10 +480,10 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     {
         $request = new Request();
         $request->initialize(
-            array(),
-            array(),
-            array(),
-            array('HTTP_REFERER' => 'http://www.foo.bar/')
+            [],
+            [],
+            [],
+            ['HTTP_REFERER' => 'http://www.foo.bar/']
         );
 
         $this->assertEquals('http://www.foo.bar/', $request->referrer());

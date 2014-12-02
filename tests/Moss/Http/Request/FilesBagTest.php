@@ -16,23 +16,23 @@ class FilesBagTest extends \PHPUnit_Framework_TestCase
 
     public function testFILESRebuild()
     {
-        $data = array(
-            'foo' => array(
-                'name' => array('bar' => 'bar.txt'),
-                'type' => array('bar' => 'text/plain'),
-                'tmp_name' => array('bar' => 'whatever2'),
-                'error' => array('bar' => 0),
-                'size' => array('bar' => 123)
-            )
-        );
+        $data = [
+            'foo' => [
+                'name' => ['bar' => 'bar.txt'],
+                'type' => ['bar' => 'text/plain'],
+                'tmp_name' => ['bar' => 'whatever2'],
+                'error' => ['bar' => 0],
+                'size' => ['bar' => 123]
+            ]
+        ];
 
-        $expected = array(
+        $expected = [
             'name' => 'bar.txt',
             'type' => 'text/plain',
             'tmp_name' => 'whatever2',
             'error' => 0,
             'size' => 123
-        );
+        ];
 
         $bag = new FilesBag($data);
         $this->assertEquals($expected, $bag->get('foo.bar'));
@@ -89,8 +89,8 @@ class FilesBagTest extends \PHPUnit_Framework_TestCase
     public function testAllReplace($offset, $data, $expected)
     {
         $bag = new FilesBag($data);
-        $bag->all(array($offset => $expected));
-        $this->assertEquals(array($offset => $expected), $bag->all());
+        $bag->all([$offset => $expected]);
+        $this->assertEquals([$offset => $expected], $bag->all());
     }
 
     /**
@@ -115,7 +115,7 @@ class FilesBagTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($data, $bag->all());
 
         $bag->remove();
-        $this->assertEquals(array(), $bag->all());
+        $this->assertEquals([], $bag->all());
     }
 
     /**
@@ -126,7 +126,7 @@ class FilesBagTest extends \PHPUnit_Framework_TestCase
         $bag = new FilesBag($data);
         $this->assertEquals($data, $bag->all());
         $bag->reset();
-        $this->assertEquals(array(), $bag->all());
+        $this->assertEquals([], $bag->all());
     }
 
     /**
@@ -226,188 +226,188 @@ class FilesBagTest extends \PHPUnit_Framework_TestCase
 
     public function dataProvider()
     {
-        return array(
-            array(
+        return [
+            [
                 'bar0',
-                array(
-                    'bar0' => array(
+                [
+                    'bar0' => [
                         'name' => 'bar.txt',
                         'type' => 'text/plain',
                         'tmp_name' => 'whatever2',
                         'error' => 0,
                         'size' => 123
-                    )
-                ),
-                array(
+                    ]
+                ],
+                [
                     'name' => 'bar.txt',
                     'type' => 'text/plain',
                     'tmp_name' => 'whatever2',
                     'error' => 0,
                     'size' => 123
-                ),
+                ],
                 null
-            ),
-            array(
+            ],
+            [
                 'bar1',
-                array(
-                    'bar1' => array(
+                [
+                    'bar1' => [
                         'name' => 'bar.txt',
                         'type' => 'text/plain',
                         'tmp_name' => 'whatever2',
                         'error' => 1,
                         'size' => 0
-                    )
-                ),
-                array(
+                    ]
+                ],
+                [
                     'name' => 'bar.txt',
                     'type' => 'text/plain',
                     'tmp_name' => 'whatever2',
                     'error' => 1,
                     'size' => 0
-                ),
+                ],
                 'The uploaded file exceeds the upload_max_filesize directive in php.ini.',
-            ),
-            array(
+            ],
+            [
                 'bar2',
-                array(
-                    'bar2' => array(
+                [
+                    'bar2' => [
                         'name' => 'bar.txt',
                         'type' => 'text/plain',
                         'tmp_name' => 'whatever2',
                         'error' => 2,
                         'size' => 0
-                    )
-                ),
-                array(
+                    ]
+                ],
+                [
                     'name' => 'bar.txt',
                     'type' => 'text/plain',
                     'tmp_name' => 'whatever2',
                     'error' => 2,
                     'size' => 0
-                ),
+                ],
                 'The uploaded file exceeds the MAX_FILE_SIZE directive specified in HTML form.',
-            ),
-            array(
+            ],
+            [
                 'bar3',
-                array(
-                    'bar3' => array(
+                [
+                    'bar3' => [
                         'name' => 'bar.txt',
                         'type' => 'text/plain',
                         'tmp_name' => 'whatever2',
                         'error' => 3,
                         'size' => 0
-                    )
-                ),
-                array(
+                    ]
+                ],
+                [
                     'name' => 'bar.txt',
                     'type' => 'text/plain',
                     'tmp_name' => 'whatever2',
                     'error' => 3,
                     'size' => 0
-                ),
+                ],
                 'The uploaded file was only partially uploaded.',
-            ),
-            array(
+            ],
+            [
                 'bar4',
-                array(
-                    'bar4' => array(
+                [
+                    'bar4' => [
                         'name' => 'bar.txt',
                         'type' => 'text/plain',
                         'tmp_name' => 'whatever2',
                         'error' => 4,
                         'size' => 0
-                    )
-                ),
-                array(
+                    ]
+                ],
+                [
                     'name' => 'bar.txt',
                     'type' => 'text/plain',
                     'tmp_name' => 'whatever2',
                     'error' => 4,
                     'size' => 0
-                ),
+                ],
                 'No file was uploaded.',
-            ),
-            array(
+            ],
+            [
                 'bar5',
-                array(
-                    'bar5' => array(
+                [
+                    'bar5' => [
                         'name' => 'bar.txt',
                         'type' => 'text/plain',
                         'tmp_name' => 'whatever2',
                         'error' => 5,
                         'size' => 0
-                    )
-                ),
-                array(
+                    ]
+                ],
+                [
                     'name' => 'bar.txt',
                     'type' => 'text/plain',
                     'tmp_name' => 'whatever2',
                     'error' => 5,
                     'size' => 0
-                ),
+                ],
                 'Unknown error occurred.',
-            ),
-            array(
+            ],
+            [
                 'bar6',
-                array(
-                    'bar6' => array(
+                [
+                    'bar6' => [
                         'name' => 'bar.txt',
                         'type' => 'text/plain',
                         'tmp_name' => 'whatever2',
                         'error' => 6,
                         'size' => 0
-                    )
-                ),
-                array(
+                    ]
+                ],
+                [
                     'name' => 'bar.txt',
                     'type' => 'text/plain',
                     'tmp_name' => 'whatever2',
                     'error' => 6,
                     'size' => 0
-                ),
+                ],
                 'Missing a temporary folder.',
-            ),
-            array(
+            ],
+            [
                 'bar7',
-                array(
-                    'bar7' => array(
+                [
+                    'bar7' => [
                         'name' => 'bar.txt',
                         'type' => 'text/plain',
                         'tmp_name' => 'whatever2',
                         'error' => 7,
                         'size' => 0
-                    )
-                ),
-                array(
+                    ]
+                ],
+                [
                     'name' => 'bar.txt',
                     'type' => 'text/plain',
                     'tmp_name' => 'whatever2',
                     'error' => 7,
                     'size' => 0
-                ),
+                ],
                 'Failed to write file to disk.',
-            ),
-            array(
+            ],
+            [
                 'bar8',
-                array(
-                    'bar8' => array(
+                [
+                    'bar8' => [
                         'name' => 'bar.txt',
                         'type' => 'text/plain',
                         'tmp_name' => 'whatever2',
                         'error' => 8,
                         'size' => 0
-                    )
-                ),
-                array(
+                    ]
+                ],
+                [
                     'name' => 'bar.txt',
                     'type' => 'text/plain',
                     'tmp_name' => 'whatever2',
                     'error' => 8,
                     'size' => 0
-                ),
+                ],
                 'A PHP extension stopped the file upload.',
-            )
-        );
+            ]
+        ];
     }
 
     /**
@@ -416,8 +416,7 @@ class FilesBagTest extends \PHPUnit_Framework_TestCase
      */
     public function testAccessToNonExistingKey()
     {
-        $bag = new FilesBag(array());
+        $bag = new FilesBag([]);
         $bag->uploaded('foo');
     }
 }
- 
