@@ -77,7 +77,7 @@ class Route implements RouteInterface
      * @return string
      * @throws RouteException
      */
-    private function buildRegexp($pattern, array $matches)
+    protected function buildRegexp($pattern, array $matches)
     {
         $src = [];
         $trg = [];
@@ -113,7 +113,7 @@ class Route implements RouteInterface
      *
      * @return string
      */
-    private function buildConditionalSlash($pattern)
+    protected function buildConditionalSlash($pattern)
     {
         if (substr($pattern, -2) === '\/') {
             $pattern .= '?';
@@ -129,7 +129,7 @@ class Route implements RouteInterface
      *
      * @return array
      */
-    private function buildRequirements(array $matches)
+    protected function buildRequirements(array $matches)
     {
         $result = [];
         foreach ($matches as $match) {
@@ -148,7 +148,7 @@ class Route implements RouteInterface
      *
      * @return array
      */
-    private function buildBuilders($pattern, array $matches)
+    protected function buildBuilders($pattern, array $matches)
     {
         $result = [
             'pattern' => $pattern,
@@ -172,7 +172,7 @@ class Route implements RouteInterface
      *
      * @return array
      */
-    private function splitSegment($segment, $default = '[a-z0-9-._]')
+    protected function splitSegment($segment, $default = '[a-z0-9-._]')
     {
         return strpos($segment, ':') === false ? [$segment, $default] : explode(':', $segment);
     }
@@ -270,7 +270,6 @@ class Route implements RouteInterface
      */
     public function methods(array $methods = [])
     {
-        $methods = $methods;
         foreach ($methods as &$method) {
             $this->methods[] = strtoupper($method);
         }
@@ -302,7 +301,7 @@ class Route implements RouteInterface
      *
      * @return bool
      */
-    private function matchSchema($schema)
+    protected function matchSchema($schema)
     {
         if (empty($this->schema)) {
             return true;
@@ -322,7 +321,7 @@ class Route implements RouteInterface
      *
      * @return bool
      */
-    private function matchMethods($method)
+    protected function matchMethods($method)
     {
         if (empty($this->methods)) {
             return true;
@@ -341,7 +340,7 @@ class Route implements RouteInterface
      *
      * @return bool
      */
-    private function matchHost($host)
+    protected function matchHost($host)
     {
         if (empty($this->host)) {
             return true;
@@ -360,7 +359,7 @@ class Route implements RouteInterface
      *
      * @return bool
      */
-    private function matchPath($path)
+    protected function matchPath($path)
     {
         if (!preg_match_all($this->regex, $path, $matches, \PREG_SET_ORDER)) {
             return false;
@@ -431,7 +430,7 @@ class Route implements RouteInterface
      *
      * @return array
      */
-    private function resolveHost($host)
+    protected function resolveHost($host)
     {
         if (strpos($host, '://') !== false) {
             list($schema, $host) = explode('://', $host, 2);
@@ -455,7 +454,7 @@ class Route implements RouteInterface
      *
      * @return string
      */
-    private function buildUrl(array $arguments)
+    protected function buildUrl(array $arguments)
     {
         $url = [];
         foreach ($this->requirements as $key => $regex) {
@@ -493,7 +492,7 @@ class Route implements RouteInterface
      *
      * @throws RouteException
      */
-    private function assertArgumentRequirement($key, $regex, $arguments)
+    protected function assertArgumentRequirement($key, $regex, $arguments)
     {
         if (substr($regex, -1) === '+' && !array_key_exists($key, $arguments)) {
             throw new RouteException(sprintf('Missing value for argument "%s" in route "%s"', $key, $this->pattern));
@@ -509,7 +508,7 @@ class Route implements RouteInterface
      *
      * @throws RouteException
      */
-    private function assertArgumentValue($key, $regex, $value)
+    protected function assertArgumentValue($key, $regex, $value)
     {
         if (!preg_match('/^' . $regex . '$/i', $value)) {
             throw new RouteException(sprintf('Invalid value for argument "%s" in route "%s", got "%s" need "/^%s\$/"', $key, $this->pattern, $value, $regex));
@@ -524,14 +523,13 @@ class Route implements RouteInterface
      *
      * @return string
      */
-    private function strip($urlString, $separator = '-')
+    protected function strip($urlString, $separator = '-')
     {
         if (is_numeric($urlString)) {
             return $urlString;
         }
 
         $urlString = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $urlString);
-        $urlString = strtolower($urlString);
         $urlString = preg_replace('#[^\w \-\.]+#i', null, $urlString);
         $urlString = preg_replace('/[ -\.]+/', $separator, $urlString);
         $urlString = trim($urlString, '-.');
