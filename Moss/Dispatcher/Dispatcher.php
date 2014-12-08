@@ -25,14 +25,14 @@ class Dispatcher implements DispatcherInterface
     /**
      * @var ContainerInterface
      */
-    private $container;
+    protected $container;
 
     /**
      * @var array
      */
-    private $events = [];
+    protected $events = [];
 
-    private $stop;
+    protected $stop;
 
     /**
      * Constructor
@@ -71,7 +71,7 @@ class Dispatcher implements DispatcherInterface
      *
      * @throws DispatcherException
      */
-    private function registerListener($event, $listener, $priority)
+    protected function registerListener($event, $listener, $priority)
     {
         if (!is_callable($listener)) {
             throw new DispatcherException(sprintf('Invalid event listener. Only callables or ListenerInterface instances can be registered, got "%s"', gettype($listener)));

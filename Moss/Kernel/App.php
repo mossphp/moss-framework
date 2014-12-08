@@ -290,7 +290,7 @@ class App implements AppInterface
      * @return ResponseInterface
      * @throws AppException
      */
-    private function resolveResponse()
+    protected function resolveResponse()
     {
         if ($evtResponse = $this->fire('kernel.request')) {
             return $evtResponse;
@@ -340,7 +340,7 @@ class App implements AppInterface
      * @return ResponseInterface
      * @throws AppException
      */
-    private function callController($controller)
+    protected function callController($controller)
     {
         if (is_string($controller) && strpos($controller, self::SEPARATOR) !== false) {
             list($controller, $action) = explode(self::SEPARATOR, $controller);

@@ -24,49 +24,49 @@ use Moss\Http\Session\SessionInterface;
  */
 class Request implements RequestInterface
 {
-    private $route;
-    private $locale;
-    private $format;
+    protected $route;
+    protected $locale;
+    protected $format;
 
-    private $dir;
-    private $path;
-    private $baseName;
+    protected $dir;
+    protected $path;
+    protected $baseName;
 
     /**
      * @var BagInterface
      */
-    public $server;
+    protected $server;
 
     /**
      * @var HeaderBag
      */
-    public $header;
-    private $language;
+    protected $header;
+    protected $language;
 
     /**
      * @var BagInterface
      */
-    public $query;
+    protected $query;
 
     /**
      * @var BagInterface
      */
-    public $body;
+    protected $body;
 
     /**
      * @var BagInterface|FilesBag
      */
-    public $files;
+    protected $files;
 
     /**
      * @var SessionInterface
      */
-    public $session;
+    protected $session;
 
     /**
      * @var CookieInterface
      */
-    public $cookie;
+    protected $cookie;
 
     /**
      * Constructor

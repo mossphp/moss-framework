@@ -109,7 +109,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
             ]
         );
 
-        $this->assertEquals($expected, $request->query->all());
+        $this->assertEquals($expected, $request->query()->all());
         $this->assertEquals($url, $request->path());
     }
 
@@ -160,9 +160,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
             ]
         );
 
-        $this->assertInstanceOf('\Moss\Bag\BagInterface', $request->query);
         $this->assertInstanceOf('\Moss\Bag\BagInterface', $request->query());
-        $this->assertEquals($expected, $request->query->all());
+        $this->assertEquals($expected, $request->query()->all());
     }
 
     public function queryProvider()
@@ -192,9 +191,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
             ]
         );
 
-        $this->assertInstanceOf('\Moss\Bag\BagInterface', $request->body);
         $this->assertInstanceOf('\Moss\Bag\BagInterface', $request->body());
-        $this->assertEquals($expected, $request->body->all());
+        $this->assertEquals($expected, $request->body()->all());
     }
 
     public function bodyProvider()
@@ -215,7 +213,6 @@ class RequestTest extends \PHPUnit_Framework_TestCase
             $this->getMock('\Moss\Http\Cookie\CookieInterface')
         );
 
-        $this->assertInstanceOf('\Moss\Http\Session\SessionInterface', $request->session);
         $this->assertInstanceOf('\Moss\Http\Session\SessionInterface', $request->session());
     }
 
@@ -226,7 +223,6 @@ class RequestTest extends \PHPUnit_Framework_TestCase
             $this->getMock('\Moss\Http\Cookie\CookieInterface')
         );
 
-        $this->assertInstanceOf('\Moss\Http\Cookie\CookieInterface', $request->cookie);
         $this->assertInstanceOf('\Moss\Http\Cookie\CookieInterface', $request->cookie());
     }
 
@@ -235,7 +231,6 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $request = new Request();
         $request->initialize();
 
-        $this->assertInstanceOf('\Moss\Http\Request\FilesBag', $request->files);
         $this->assertInstanceOf('\Moss\Http\Request\FilesBag', $request->files());
     }
 
