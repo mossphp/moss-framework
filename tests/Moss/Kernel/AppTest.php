@@ -119,7 +119,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
                 )
             );
 
-        $components = array(
+        $components = [
             'container' => $this->getMock('\Moss\Container\ContainerInterface'),
             'config' => $this->getMock('\Moss\Config\ConfigInterface'),
             'router' => $router,
@@ -127,7 +127,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             'session' => $this->getMock('\Moss\Http\Session\SessionInterface'),
             'cookie' => $this->getMock('\Moss\Http\Cookie\CookieInterface'),
             'request' => $this->getMock('\Moss\Http\Request\RequestInterface')
-        );
+        ];
 
         $app = new MockApp($components);
         $app->route('route', '/route/', function () { });
@@ -135,7 +135,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
 
     public function testAddingComponent()
     {
-        $components = array(
+        $components = [
             'config' => $this->getMock('\Moss\Config\ConfigInterface'),
             'router' => $this->getMock('\Moss\Http\Router\RouterInterface'),
             'dispatcher' => $this->getMock('\Moss\Dispatcher\DispatcherInterface'),
@@ -143,7 +143,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             'cookie' => $this->getMock('\Moss\Http\Cookie\CookieInterface'),
             'request' => $this->getMock('\Moss\Http\Request\RequestInterface'),
             'someComponent' => $this->getMock('\stdClass')
-        );
+        ];
 
         $container = $this->getMock('\Moss\Container\ContainerInterface');
         $container->expects($this->any())
@@ -171,7 +171,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             ->method('register')
             ->with('event.name', function () { }, 0);
 
-        $components = array(
+        $components = [
             'container' => $this->getMock('\Moss\Container\ContainerInterface'),
             'config' => $this->getMock('\Moss\Config\ConfigInterface'),
             'router' => $this->getMock('\Moss\Http\Router\RouterInterface'),
@@ -179,7 +179,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             'session' => $this->getMock('\Moss\Http\Session\SessionInterface'),
             'cookie' => $this->getMock('\Moss\Http\Cookie\CookieInterface'),
             'request' => $this->getMock('\Moss\Http\Request\RequestInterface')
-        );
+        ];
 
         $app = new MockApp($components);
         $app->listener('event.name', function () { }, 0);
@@ -196,7 +196,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             ->method('match')
             ->will($this->returnValue(null));
 
-        $components = array(
+        $components = [
             'container' => $this->getMock('\Moss\Container\ContainerInterface'),
             'config' => $this->getMock('\Moss\Config\ConfigInterface'),
             'router' => $router,
@@ -204,7 +204,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             'session' => $this->getMock('\Moss\Http\Session\SessionInterface'),
             'cookie' => $this->getMock('\Moss\Http\Cookie\CookieInterface'),
             'request' => $this->getMock('\Moss\Http\Request\RequestInterface')
-        );
+        ];
 
         $app = new MockApp($components);
         $app->run();
@@ -217,7 +217,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             ->method('match')
             ->will($this->returnValue('\Moss\Kernel\functionController'));
 
-        $components = array(
+        $components = [
             'container' => $this->getMock('\Moss\Container\ContainerInterface'),
             'config' => $this->getMock('\Moss\Config\ConfigInterface'),
             'router' => $router,
@@ -225,7 +225,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             'session' => $this->getMock('\Moss\Http\Session\SessionInterface'),
             'cookie' => $this->getMock('\Moss\Http\Cookie\CookieInterface'),
             'request' => $this->getMock('\Moss\Http\Request\RequestInterface')
-        );
+        ];
 
         $app = new MockApp($components);
         $response = $app->run();
@@ -240,7 +240,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             ->method('match')
             ->will($this->returnValue(function () { return new Response(); }));
 
-        $components = array(
+        $components = [
             'container' => $this->getMock('\Moss\Container\ContainerInterface'),
             'config' => $this->getMock('\Moss\Config\ConfigInterface'),
             'router' => $router,
@@ -248,7 +248,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             'session' => $this->getMock('\Moss\Http\Session\SessionInterface'),
             'cookie' => $this->getMock('\Moss\Http\Cookie\CookieInterface'),
             'request' => $this->getMock('\Moss\Http\Request\RequestInterface')
-        );
+        ];
 
         $app = new MockApp($components);
         $response = $app->run();
@@ -263,7 +263,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             ->method('match')
             ->will($this->returnValue('\Moss\Kernel\TestController::staticAction'));
 
-        $components = array(
+        $components = [
             'container' => $this->getMock('\Moss\Container\ContainerInterface'),
             'config' => $this->getMock('\Moss\Config\ConfigInterface'),
             'router' => $router,
@@ -271,7 +271,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             'session' => $this->getMock('\Moss\Http\Session\SessionInterface'),
             'cookie' => $this->getMock('\Moss\Http\Cookie\CookieInterface'),
             'request' => $this->getMock('\Moss\Http\Request\RequestInterface')
-        );
+        ];
 
         $app = new MockApp($components);
         $response = $app->run();
@@ -286,7 +286,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             ->method('match')
             ->will($this->returnValue('\Moss\Kernel\TestController@action'));
 
-        $components = array(
+        $components = [
             'container' => $this->getMock('\Moss\Container\ContainerInterface'),
             'config' => $this->getMock('\Moss\Config\ConfigInterface'),
             'router' => $router,
@@ -294,7 +294,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             'session' => $this->getMock('\Moss\Http\Session\SessionInterface'),
             'cookie' => $this->getMock('\Moss\Http\Cookie\CookieInterface'),
             'request' => $this->getMock('\Moss\Http\Request\RequestInterface')
-        );
+        ];
 
         $app = new MockApp($components);
         $response = $app->run();
@@ -309,7 +309,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             ->method('match')
             ->will($this->returnValue('\Moss\Kernel\TestController@action'));
 
-        $components = array(
+        $components = [
             'container' => $this->getMock('\Moss\Container\ContainerInterface'),
             'config' => $this->getMock('\Moss\Config\ConfigInterface'),
             'router' => $router,
@@ -317,7 +317,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             'session' => $this->getMock('\Moss\Http\Session\SessionInterface'),
             'cookie' => $this->getMock('\Moss\Http\Cookie\CookieInterface'),
             'request' => $this->getMock('\Moss\Http\Request\RequestInterface')
-        );
+        ];
 
         $app = new MockApp($components);
         $response = $app->run();
@@ -332,9 +332,9 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $router = $this->getMock('\Moss\Http\Router\RouterInterface');
         $router->expects($this->once())
             ->method('match')
-            ->will($this->returnValue(array('\Moss\Kernel\TestController', 'staticAction')));
+            ->will($this->returnValue(['\Moss\Kernel\TestController', 'staticAction']));
 
-        $components = array(
+        $components = [
             'container' => $this->getMock('\Moss\Container\ContainerInterface'),
             'config' => $this->getMock('\Moss\Config\ConfigInterface'),
             'router' => $router,
@@ -342,7 +342,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             'session' => $this->getMock('\Moss\Http\Session\SessionInterface'),
             'cookie' => $this->getMock('\Moss\Http\Cookie\CookieInterface'),
             'request' => $this->getMock('\Moss\Http\Request\RequestInterface')
-        );
+        ];
 
         $app = new MockApp($components);
         $response = $app->run();
@@ -361,7 +361,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             ->method('match')
             ->will($this->returnValue('Invalid\Controller@action'));
 
-        $components = array(
+        $components = [
             'container' => $this->getMock('\Moss\Container\ContainerInterface'),
             'config' => $this->getMock('\Moss\Config\ConfigInterface'),
             'router' => $router,
@@ -369,7 +369,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             'session' => $this->getMock('\Moss\Http\Session\SessionInterface'),
             'cookie' => $this->getMock('\Moss\Http\Cookie\CookieInterface'),
             'request' => $this->getMock('\Moss\Http\Request\RequestInterface')
-        );
+        ];
 
         $app = new MockApp($components);
         $app->run();
@@ -386,7 +386,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             ->method('match')
             ->will($this->returnValue('\Moss\Kernel\TestController@invalidAction'));
 
-        $components = array(
+        $components = [
             'container' => $this->getMock('\Moss\Container\ContainerInterface'),
             'config' => $this->getMock('\Moss\Config\ConfigInterface'),
             'router' => $router,
@@ -394,7 +394,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             'session' => $this->getMock('\Moss\Http\Session\SessionInterface'),
             'cookie' => $this->getMock('\Moss\Http\Cookie\CookieInterface'),
             'request' => $this->getMock('\Moss\Http\Request\RequestInterface')
-        );
+        ];
 
         $app = new MockApp($components);
         $app->run();
@@ -411,7 +411,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             ->method('match')
             ->will($this->returnValue(new \stdClass()));
 
-        $components = array(
+        $components = [
             'container' => $this->getMock('\Moss\Container\ContainerInterface'),
             'config' => $this->getMock('\Moss\Config\ConfigInterface'),
             'router' => $router,
@@ -419,7 +419,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             'session' => $this->getMock('\Moss\Http\Session\SessionInterface'),
             'cookie' => $this->getMock('\Moss\Http\Cookie\CookieInterface'),
             'request' => $this->getMock('\Moss\Http\Request\RequestInterface')
-        );
+        ];
 
         $app = new MockApp($components);
         $app->run();
@@ -436,7 +436,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             ->method('match')
             ->will($this->returnValue(function () { }));
 
-        $components = array(
+        $components = [
             'container' => $this->getMock('\Moss\Container\ContainerInterface'),
             'config' => $this->getMock('\Moss\Config\ConfigInterface'),
             'router' => $router,
@@ -444,7 +444,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             'session' => $this->getMock('\Moss\Http\Session\SessionInterface'),
             'cookie' => $this->getMock('\Moss\Http\Cookie\CookieInterface'),
             'request' => $this->getMock('\Moss\Http\Request\RequestInterface')
-        );
+        ];
 
         $app = new MockApp($components);
         $app->run();
@@ -461,7 +461,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             ->method('match')
             ->will($this->returnValue(function () { return new \stdClass(); }));
 
-        $components = array(
+        $components = [
             'container' => $this->getMock('\Moss\Container\ContainerInterface'),
             'config' => $this->getMock('\Moss\Config\ConfigInterface'),
             'router' => $router,
@@ -469,7 +469,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             'session' => $this->getMock('\Moss\Http\Session\SessionInterface'),
             'cookie' => $this->getMock('\Moss\Http\Cookie\CookieInterface'),
             'request' => $this->getMock('\Moss\Http\Request\RequestInterface')
-        );
+        ];
 
         $app = new MockApp($components);
         $app->run();
@@ -499,7 +499,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             ->method('fire')
             ->with('kernel.send');
 
-        $components = array(
+        $components = [
             'container' => $this->getMock('\Moss\Container\ContainerInterface'),
             'config' => $this->getMock('\Moss\Config\ConfigInterface'),
             'router' => $router,
@@ -507,7 +507,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             'session' => $this->getMock('\Moss\Http\Session\SessionInterface'),
             'cookie' => $this->getMock('\Moss\Http\Cookie\CookieInterface'),
             'request' => $this->getMock('\Moss\Http\Request\RequestInterface')
-        );
+        ];
 
         $app = new MockApp($components);
         $response = $app->run();
@@ -539,7 +539,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             ->method('fire')
             ->with('kernel.404');
 
-        $components = array(
+        $components = [
             'container' => $this->getMock('\Moss\Container\ContainerInterface'),
             'config' => $this->getMock('\Moss\Config\ConfigInterface'),
             'router' => $router,
@@ -547,7 +547,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             'session' => $this->getMock('\Moss\Http\Session\SessionInterface'),
             'cookie' => $this->getMock('\Moss\Http\Cookie\CookieInterface'),
             'request' => $this->getMock('\Moss\Http\Request\RequestInterface')
-        );
+        ];
 
         $app = new MockApp($components);
         $response = $app->run();
@@ -579,7 +579,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             ->method('fire')
             ->with('kernel.403');
 
-        $components = array(
+        $components = [
             'container' => $this->getMock('\Moss\Container\ContainerInterface'),
             'config' => $this->getMock('\Moss\Config\ConfigInterface'),
             'router' => $router,
@@ -587,7 +587,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             'session' => $this->getMock('\Moss\Http\Session\SessionInterface'),
             'cookie' => $this->getMock('\Moss\Http\Cookie\CookieInterface'),
             'request' => $this->getMock('\Moss\Http\Request\RequestInterface')
-        );
+        ];
 
         $app = new MockApp($components);
         $response = $app->run();
@@ -606,7 +606,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             ->method('match')
             ->will($this->returnValue('\Moss\Kernel\TestController@throwException'));
 
-        $components = array(
+        $components = [
             'container' => $this->getMock('\Moss\Container\ContainerInterface'),
             'config' => $this->getMock('\Moss\Config\ConfigInterface'),
             'router' => $router,
@@ -614,7 +614,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             'session' => $this->getMock('\Moss\Http\Session\SessionInterface'),
             'cookie' => $this->getMock('\Moss\Http\Cookie\CookieInterface'),
             'request' => $this->getMock('\Moss\Http\Request\RequestInterface')
-        );
+        ];
 
         $app = new MockApp($components);
         $app->run();
@@ -631,7 +631,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             ->method('fire')
             ->will($this->returnValue(new \stdClass()));
 
-        $components = array(
+        $components = [
             'container' => $this->getMock('\Moss\Container\ContainerInterface'),
             'config' => $this->getMock('\Moss\Config\ConfigInterface'),
             'router' => $this->getMock('\Moss\Http\Router\RouterInterface'),
@@ -639,7 +639,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             'session' => $this->getMock('\Moss\Http\Session\SessionInterface'),
             'cookie' => $this->getMock('\Moss\Http\Cookie\CookieInterface'),
             'request' => $this->getMock('\Moss\Http\Request\RequestInterface')
-        );
+        ];
 
         $app = new MockApp($components);
         $app->run();
@@ -652,7 +652,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             ->method('fire')
             ->will($this->returnValue(new Response('Event response')));
 
-        $components = array(
+        $components = [
             'container' => $this->getMock('\Moss\Container\ContainerInterface'),
             'config' => $this->getMock('\Moss\Config\ConfigInterface'),
             'router' => $this->getMock('\Moss\Http\Router\RouterInterface'),
@@ -660,7 +660,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             'session' => $this->getMock('\Moss\Http\Session\SessionInterface'),
             'cookie' => $this->getMock('\Moss\Http\Cookie\CookieInterface'),
             'request' => $this->getMock('\Moss\Http\Request\RequestInterface')
-        );
+        ];
 
         $app = new MockApp($components);
         $this->assertEquals(
@@ -684,7 +684,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             ->method('fire')
             ->will($this->returnValue(new Response('Event response')));
 
-        $components = array(
+        $components = [
             'container' => $this->getMock('\Moss\Container\ContainerInterface'),
             'config' => $this->getMock('\Moss\Config\ConfigInterface'),
             'router' => $router,
@@ -692,7 +692,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             'session' => $this->getMock('\Moss\Http\Session\SessionInterface'),
             'cookie' => $this->getMock('\Moss\Http\Cookie\CookieInterface'),
             'request' => $this->getMock('\Moss\Http\Request\RequestInterface')
-        );
+        ];
 
         $app = new MockApp($components);
         $this->assertEquals(
@@ -719,7 +719,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             ->method('fire')
             ->will($this->returnValue(new Response('Event response')));
 
-        $components = array(
+        $components = [
             'container' => $this->getMock('\Moss\Container\ContainerInterface'),
             'config' => $this->getMock('\Moss\Config\ConfigInterface'),
             'router' => $router,
@@ -727,7 +727,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             'session' => $this->getMock('\Moss\Http\Session\SessionInterface'),
             'cookie' => $this->getMock('\Moss\Http\Cookie\CookieInterface'),
             'request' => $this->getMock('\Moss\Http\Request\RequestInterface')
-        );
+        ];
 
         $app = new MockApp($components);
         $this->assertEquals(
@@ -757,7 +757,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             ->method('fire')
             ->will($this->returnValue(new Response('Event response')));
 
-        $components = array(
+        $components = [
             'container' => $this->getMock('\Moss\Container\ContainerInterface'),
             'config' => $this->getMock('\Moss\Config\ConfigInterface'),
             'router' => $router,
@@ -765,7 +765,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             'session' => $this->getMock('\Moss\Http\Session\SessionInterface'),
             'cookie' => $this->getMock('\Moss\Http\Cookie\CookieInterface'),
             'request' => $this->getMock('\Moss\Http\Request\RequestInterface')
-        );
+        ];
 
         $app = new MockApp($components);
         $this->assertEquals(
@@ -798,7 +798,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             ->method('fire')
             ->will($this->returnValue(new Response('Event response')));
 
-        $components = array(
+        $components = [
             'container' => $this->getMock('\Moss\Container\ContainerInterface'),
             'config' => $this->getMock('\Moss\Config\ConfigInterface'),
             'router' => $router,
@@ -806,7 +806,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             'session' => $this->getMock('\Moss\Http\Session\SessionInterface'),
             'cookie' => $this->getMock('\Moss\Http\Cookie\CookieInterface'),
             'request' => $this->getMock('\Moss\Http\Request\RequestInterface')
-        );
+        ];
 
         $app = new MockApp($components);
         $this->assertEquals(

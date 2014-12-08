@@ -42,7 +42,7 @@ interface RequestInterface
      * Returns server param value for given key or default if key does not exists
      *
      * @param string $key
-     * @param mixed  $default
+     * @param mixed $default
      *
      * @return null|string
      */
@@ -52,7 +52,7 @@ interface RequestInterface
      * Returns header value for given key or default if key does not exists
      *
      * @param string $key
-     * @param mixed  $default
+     * @param mixed $default
      *
      * @return null|string
      */
@@ -157,11 +157,10 @@ interface RequestInterface
 
     /**
      * Returns requested controller identifier (if available)
-
      *
-*@param string $route
+     * @param string $route
      *
-*@return null|string
+     * @return null|string
      */
     public function route($route = null);
 

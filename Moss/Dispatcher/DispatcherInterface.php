@@ -36,7 +36,7 @@ interface DispatcherInterface
      *
      * @param string $event
      * @param mixed  $subject
-     * @param mixed  $message
+     * @param string $message
      *
      * @return mixed
      * @throws \Exception

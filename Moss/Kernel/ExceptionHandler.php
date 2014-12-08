@@ -51,7 +51,7 @@ class ExceptionHandler
      */
     public function register()
     {
-        set_exception_handler($this->details ? array($this, 'handlerVerbose') : array($this, 'handlerTerse'));
+        set_exception_handler($this->details ? [$this, 'handlerVerbose'] : [$this, 'handlerTerse']);
     }
 
 
@@ -154,7 +154,7 @@ class ExceptionHandler
         $count = count(explode($lineSeparator, $source));
         $tpl = '<span %s>%u</span>';
 
-        $lines = array();
+        $lines = [];
         for($i = 0; $i < $count; $i++) {
             $lines[] = sprintf($tpl, '', $i + 1);
         }
@@ -169,7 +169,7 @@ class ExceptionHandler
      *
      * @param mixed $var
      *
-     * @return mixed|string
+     * @return string
      */
     public function colorify($var)
     {

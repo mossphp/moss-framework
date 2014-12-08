@@ -18,18 +18,18 @@ use Moss\Kernel\AppException;
 
 class ContainerFactory
 {
-    protected $callableDefaults = array(
+    protected $callableDefaults = [
         'component' => null,
         'shared' => false
-    );
+    ];
 
-    protected $classDefaults = array(
-        'component' => array(
-            'arguments' => array(),
-            'calls' => array()
-        ),
+    protected $classDefaults = [
+        'component' => [
+            'arguments' => [],
+            'calls' => []
+        ],
         'shared' => false
-    );
+    ];
 
     /**
      * Builds container and component definitions
@@ -104,8 +104,8 @@ class ContainerFactory
         if (array_key_exists('class', $definition)) {
             return new Component(
                 $definition['class'],
-                $definition['arguments'] ?: array(),
-                $definition['calls'] ?: array()
+                $definition['arguments'] ?: [],
+                $definition['calls'] ?: []
             );
         }
 

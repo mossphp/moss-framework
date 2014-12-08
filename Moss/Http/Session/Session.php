@@ -75,7 +75,7 @@ class Session extends Bag implements SessionInterface
     {
         unset($this->storage);
 
-        $_SESSION = array();
+        $_SESSION = [];
         session_destroy();
         $this->startSession();
 

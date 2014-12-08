@@ -16,14 +16,14 @@ class RouterFactoryTest extends \PHPUnit_Framework_TestCase
 {
     public function testBuild()
     {
-        $config = array(
-            'foo' => array(
+        $config = [
+            'foo' => [
                 'pattern' => '/',
                 'controller' => 'foo',
-                'arguments' => array(),
-                'methods' => array()
-            )
-        );
+                'arguments' => [],
+                'methods' => []
+            ]
+        ];
 
         $factory = new RouterFactory();
         $result = $factory->build($config);
@@ -33,15 +33,15 @@ class RouterFactoryTest extends \PHPUnit_Framework_TestCase
 
     public function applyDefaults()
     {
-        $expected = array(
+        $expected = [
             'pattern' => '/',
             'controller' => 'foo',
-            'arguments' => array(),
-            'methods' => array()
-        );
+            'arguments' => [],
+            'methods' => []
+        ];
 
         $factory = new RouterFactory();
-        $result = $factory->applyDefaults(array('pattern' => '/', 'controller' => 'foo'));
+        $result = $factory->applyDefaults(['pattern' => '/', 'controller' => 'foo']);
 
         $this->assertEquals($expected, $result);
     }
@@ -52,11 +52,11 @@ class RouterFactoryTest extends \PHPUnit_Framework_TestCase
      */
     public function testPatternKeyMissing()
     {
-        $definition = array(
+        $definition = [
             'controller' => 'foo',
-            'arguments' => array(),
-            'methods' => array()
-        );
+            'arguments' => [],
+            'methods' => []
+        ];
 
         $factory = new RouterFactory();
         $factory->applyDefaults($definition);
@@ -68,11 +68,11 @@ class RouterFactoryTest extends \PHPUnit_Framework_TestCase
      */
     public function testControllerKeyMissing()
     {
-        $definition = array(
+        $definition = [
             'pattern' => '/',
-            'arguments' => array(),
-            'methods' => array()
-        );
+            'arguments' => [],
+            'methods' => []
+        ];
 
         $factory = new RouterFactory();
         $factory->applyDefaults($definition);
@@ -80,12 +80,12 @@ class RouterFactoryTest extends \PHPUnit_Framework_TestCase
 
     public function testDefinition()
     {
-        $definition = array(
+        $definition = [
             'pattern' => '/',
             'controller' => 'foo',
-            'arguments' => array(),
-            'methods' => array()
-        );
+            'arguments' => [],
+            'methods' => []
+        ];
 
         $factory = new RouterFactory();
         $result = $factory->createDefinition($definition);
