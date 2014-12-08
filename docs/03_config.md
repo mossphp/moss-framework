@@ -11,7 +11,6 @@ Configuration is split into sections:
 
 	$arr = array(
 		'framework' => array(),
-		'namespaces' => array(),
 		'container' => array(),
 		'dispatcher' => array(),
 		'router' => array()
@@ -68,20 +67,6 @@ In configuration array, this section looks like this:
 				'path' => '/',
 				'http' => true,
 				'ttl' => 2592000
-			)
-		)
-	);
-
-## Namespaces
-
-The `namespace` section contains list of namespaces that will be registered in autoloaders.
-List is represented as associative array, where key is namespace name, and value array of paths:
-
-	$arr = array(
-		'namespaces' => array(
-			'\some\namespace\' => array(
-				'\first\path\to\',
-				'\second\path\to\'
 			)
 		)
 	);

@@ -16,14 +16,14 @@ class DispatcherFactoryTest extends \PHPUnit_Framework_TestCase
 {
     public function testBuild()
     {
-        $definition = array(
+        $definition = [
             'for' => function () { },
-            'bar' => array(
+            'bar' => [
                 'component' => 'bar',
                 'method' => null,
-                'arguments' => array()
-            )
-        );
+                'arguments' => []
+            ]
+        ];
 
         $factory = new DispatcherFactory();
         $result = $factory->build($definition);
@@ -33,14 +33,14 @@ class DispatcherFactoryTest extends \PHPUnit_Framework_TestCase
 
     public function testApplyDefaults()
     {
-        $expected = array(
+        $expected = [
             'component' => 'foo',
             'method' => 'bar',
-            'arguments' => array()
-        );
+            'arguments' => []
+        ];
 
         $factory = new DispatcherFactory();
-        $result = $factory->applyDefaults(array('component' => 'foo', 'method' => 'bar'));
+        $result = $factory->applyDefaults(['component' => 'foo', 'method' => 'bar']);
 
         $this->assertEquals($expected, $result);
     }
@@ -62,7 +62,7 @@ class DispatcherFactoryTest extends \PHPUnit_Framework_TestCase
     public function testComponentKeyMissing()
     {
         $factory = new DispatcherFactory();
-        $factory->applyDefaults(array());
+        $factory->applyDefaults([]);
     }
 
     public function testCallableDefinition()
@@ -77,11 +77,11 @@ class DispatcherFactoryTest extends \PHPUnit_Framework_TestCase
 
     public function testListenerDefinition()
     {
-        $definition = array(
+        $definition = [
             'component' => 'foo',
             'method' => null,
-            'arguments' => array()
-        );
+            'arguments' => []
+        ];
 
         $factory = new DispatcherFactory();
         $result = $factory->buildDefinition($definition);

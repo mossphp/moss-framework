@@ -48,7 +48,7 @@ interface AppInterface {
      *
      * @return $this
      */
-    public function route($name, $pattern, $controller, $arguments = array(), $methods = array());
+    public function route($name, $pattern, $controller, array $arguments = [], array $methods = []);
 
     /**
      * Registers component in container (also variable)

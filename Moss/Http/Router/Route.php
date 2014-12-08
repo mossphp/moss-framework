@@ -27,10 +27,10 @@ class Route implements RouteInterface
     protected $pattern;
     protected $regex;
 
-    protected $requirements = array();
-    protected $constraints = array();
-    protected $builders = array();
-    protected $arguments = array();
+    protected $requirements = [];
+    protected $constraints = [];
+    protected $builders = [];
+    protected $arguments = [];
 
     protected $host;
     protected $schema;
@@ -44,7 +44,7 @@ class Route implements RouteInterface
      * @param array           $arguments
      * @param array           $methods
      */
-    public function __construct($pattern, $controller, $arguments = array(), $methods = array())
+    public function __construct($pattern, $controller, array $arguments = [], array $methods = [])
     {
         $this->controller = $controller;
         $this->pattern = $pattern;
@@ -77,14 +77,14 @@ class Route implements RouteInterface
      * @return string
      * @throws RouteException
      */
-    private function buildRegexp($pattern, array $matches)
+    protected function buildRegexp($pattern, array $matches)
     {
-        $src = array();
-        $trg = array();
+        $src = [];
+        $trg = [];
         foreach ($matches as $match) {
             list($key, $regexp) = $this->splitSegment($match[3]);
 
-            if (in_array(substr($regexp, -1), array('+', '*', '?'))) {
+            if (in_array(substr($regexp, -1), ['+', '*', '?'])) {
                 throw new RouteException('Route must not end with quantification token');
             }
 
@@ -113,7 +113,7 @@ class Route implements RouteInterface
      *
      * @return string
      */
-    private function buildConditionalSlash($pattern)
+    protected function buildConditionalSlash($pattern)
     {
         if (substr($pattern, -2) === '\/') {
             $pattern .= '?';
@@ -129,9 +129,9 @@ class Route implements RouteInterface
      *
      * @return array
      */
-    private function buildRequirements(array $matches)
+    protected function buildRequirements(array $matches)
     {
-        $result = array();
+        $result = [];
         foreach ($matches as $match) {
             list($key, $regexp) = $this->splitSegment($match[3]);
             $result[$key] = $regexp . ($match[1] == '(' ? '*' : '+');
@@ -148,12 +148,12 @@ class Route implements RouteInterface
      *
      * @return array
      */
-    private function buildBuilders($pattern, array $matches)
+    protected function buildBuilders($pattern, array $matches)
     {
-        $result = array(
+        $result = [
             'pattern' => $pattern,
-            'segments' => array()
-        );
+            'segments' => []
+        ];
 
         foreach ($matches as $match) {
             list($key,) = $this->splitSegment($match[3]);
@@ -172,9 +172,9 @@ class Route implements RouteInterface
      *
      * @return array
      */
-    private function splitSegment($segment, $default = '[a-z0-9-._]')
+    protected function splitSegment($segment, $default = '[a-z0-9-._]')
     {
-        return strpos($segment, ':') === false ? array($segment, $default) : explode(':', $segment);
+        return strpos($segment, ':') === false ? [$segment, $default] : explode(':', $segment);
     }
 
     /**
@@ -214,7 +214,7 @@ class Route implements RouteInterface
      *
      * @return array
      */
-    public function arguments($arguments = array())
+    public function arguments(array $arguments = [])
     {
         if (empty($arguments)) {
             return $this->arguments;
@@ -238,7 +238,7 @@ class Route implements RouteInterface
      *
      * @param null|string $host
      *
-     * @return null|string
+     * @return string
      */
     public function host($host = null)
     {
@@ -252,7 +252,7 @@ class Route implements RouteInterface
      *
      * @param string $schema
      *
-     * @return null|string
+     * @return string
      */
     public function schema($schema = null)
     {
@@ -268,9 +268,8 @@ class Route implements RouteInterface
      *
      * @return array
      */
-    public function methods($methods = array())
+    public function methods(array $methods = [])
     {
-        $methods = (array) $methods;
         foreach ($methods as &$method) {
             $this->methods[] = strtoupper($method);
         }
@@ -302,7 +301,7 @@ class Route implements RouteInterface
      *
      * @return bool
      */
-    private function matchSchema($schema)
+    protected function matchSchema($schema)
     {
         if (empty($this->schema)) {
             return true;
@@ -322,7 +321,7 @@ class Route implements RouteInterface
      *
      * @return bool
      */
-    private function matchMethods($method)
+    protected function matchMethods($method)
     {
         if (empty($this->methods)) {
             return true;
@@ -341,7 +340,7 @@ class Route implements RouteInterface
      *
      * @return bool
      */
-    private function matchHost($host)
+    protected function matchHost($host)
     {
         if (empty($this->host)) {
             return true;
@@ -360,7 +359,7 @@ class Route implements RouteInterface
      *
      * @return bool
      */
-    private function matchPath($path)
+    protected function matchPath($path)
     {
         if (!preg_match_all($this->regex, $path, $matches, \PREG_SET_ORDER)) {
             return false;
@@ -385,7 +384,7 @@ class Route implements RouteInterface
      *
      * @return bool
      */
-    public function check($controller, $arguments = array())
+    public function check($controller, array $arguments = [])
     {
         if ($this->controller !== $controller) {
             return false;
@@ -411,10 +410,10 @@ class Route implements RouteInterface
      * @return string
      * @throws RouteException
      */
-    public function make($host, $arguments = array())
+    public function make($host, array $arguments = [])
     {
         list($schema, $host) = $this->resolveHost($host);
-        $url = $this->buildUrl((array) $arguments);
+        $url = $this->buildUrl($arguments);
 
         $regex = '/^' . str_replace('\{basename\}', '.*', preg_quote($this->host)) . '$/';
         if ($this->host && !preg_match($regex, $host)) {
@@ -431,7 +430,7 @@ class Route implements RouteInterface
      *
      * @return array
      */
-    private function resolveHost($host)
+    protected function resolveHost($host)
     {
         if (strpos($host, '://') !== false) {
             list($schema, $host) = explode('://', $host, 2);
@@ -455,9 +454,9 @@ class Route implements RouteInterface
      *
      * @return string
      */
-    private function buildUrl(array $arguments)
+    protected function buildUrl(array $arguments)
     {
-        $url = array();
+        $url = [];
         foreach ($this->requirements as $key => $regex) {
             $this->assertArgumentRequirement($key, $regex, $arguments);
 
@@ -493,7 +492,7 @@ class Route implements RouteInterface
      *
      * @throws RouteException
      */
-    private function assertArgumentRequirement($key, $regex, $arguments)
+    protected function assertArgumentRequirement($key, $regex, $arguments)
     {
         if (substr($regex, -1) === '+' && !array_key_exists($key, $arguments)) {
             throw new RouteException(sprintf('Missing value for argument "%s" in route "%s"', $key, $this->pattern));
@@ -509,7 +508,7 @@ class Route implements RouteInterface
      *
      * @throws RouteException
      */
-    private function assertArgumentValue($key, $regex, $value)
+    protected function assertArgumentValue($key, $regex, $value)
     {
         if (!preg_match('/^' . $regex . '$/i', $value)) {
             throw new RouteException(sprintf('Invalid value for argument "%s" in route "%s", got "%s" need "/^%s\$/"', $key, $this->pattern, $value, $regex));
@@ -524,14 +523,13 @@ class Route implements RouteInterface
      *
      * @return string
      */
-    private function strip($urlString, $separator = '-')
+    protected function strip($urlString, $separator = '-')
     {
         if (is_numeric($urlString)) {
             return $urlString;
         }
 
         $urlString = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $urlString);
-        $urlString = strtolower($urlString);
         $urlString = preg_replace('#[^\w \-\.]+#i', null, $urlString);
         $urlString = preg_replace('/[ -\.]+/', $separator, $urlString);
         $urlString = trim($urlString, '-.');

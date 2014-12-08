@@ -32,7 +32,7 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
     {
         $dispatcher = new Dispatcher();
         $result = $dispatcher->register(
-            array('foo', 'bar'),
+            ['foo', 'bar'],
             function () {
             }
         );

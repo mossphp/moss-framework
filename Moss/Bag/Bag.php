@@ -19,14 +19,14 @@ namespace Moss\Bag;
  */
 class Bag implements BagInterface
 {
-    protected $storage = array();
+    protected $storage = [];
 
     /**
      * Construct
      *
      * @param array $storage
      */
-    public function __construct($storage = array())
+    public function __construct(array $storage = [])
     {
         $this->all($storage);
     }
@@ -151,12 +151,12 @@ class Bag implements BagInterface
      *
      * @return array
      */
-    public function all($array = array())
+    public function all(array $array = [])
     {
         if ($array !== array()) {
             $this->reset();
 
-            foreach ((array) $array as $key => $value) {
+            foreach ($array as $key => $value) {
                 $this->setIntoArray($this->storage, explode(self::SEPARATOR, $key), $value);
             }
         }
@@ -171,7 +171,7 @@ class Bag implements BagInterface
      */
     public function reset()
     {
-        $this->storage = array();
+        $this->storage = [];
 
         return $this;
     }
@@ -179,24 +179,24 @@ class Bag implements BagInterface
     /**
      * Returns array element matching key
      *
-     * @param array $arr
+     * @param array $array
      * @param array $keys
      * @param mixed $default
      *
      * @return string
      */
-    protected function & getFromArray(&$arr, $keys, $default = null)
+    protected function & getFromArray(&$array, $keys, $default = null)
     {
         $key = array_shift($keys);
-        if (!isset($arr[$key])) {
+        if (!isset($array[$key])) {
             return $default;
         }
 
         if (empty($keys)) {
-            return $arr[$key];
+            return $array[$key];
         }
 
-        return $this->getFromArray($arr[$key], $keys, $default);
+        return $this->getFromArray($array[$key], $keys, $default);
     }
 
     /**

@@ -40,7 +40,7 @@ class ErrorHandler
     public function register()
     {
         error_reporting($this->level);
-        set_error_handler(array($this, 'handler'), $this->level);
+        set_error_handler([$this, 'handler'], $this->level);
     }
 
 

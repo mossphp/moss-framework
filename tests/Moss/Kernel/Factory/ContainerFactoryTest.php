@@ -16,21 +16,21 @@ class ContainerFactoryTest extends \PHPUnit_Framework_TestCase
 {
     public function testBuild()
     {
-        $config = array(
+        $config = [
             'foo' => 'bar',
-            'yada' => array('y', 'a', 'd', 'a'),
-            'function' => array(
+            'yada' => ['y', 'a', 'd', 'a'],
+            'function' => [
                 'component' => function () { },
-            ),
-            'array' => array(
-                'component' => array(
+            ],
+            'array' => [
+                'component' => [
                     'class' => '\stdClass',
-                    'arguments' => array(),
-                    'calls' => array('method' => array('arg'))
-                ),
+                    'arguments' => [],
+                    'calls' => ['method' => ['arg']]
+                ],
                 'shared' => false
-            )
-        );
+            ]
+        ];
 
         $factory = new ContainerFactory();
         $result = $factory->build($config);
@@ -40,9 +40,9 @@ class ContainerFactoryTest extends \PHPUnit_Framework_TestCase
 
     public function testDoNotApplyDefaultsToScalar()
     {
-        $expected = array(
+        $expected = [
             'foo' => 'bar'
-        );
+        ];
 
         $factory = new ContainerFactory();
         $result = $factory->applyDefaults($expected);
@@ -52,10 +52,10 @@ class ContainerFactoryTest extends \PHPUnit_Framework_TestCase
 
     public function testDoNotApplyDefaultsToCallable()
     {
-        $expected = array(
+        $expected = [
             'component' => function () { },
             'shared' => false
-        );
+        ];
 
         $factory = new ContainerFactory();
         $result = $factory->applyDefaults($expected);
@@ -65,23 +65,23 @@ class ContainerFactoryTest extends \PHPUnit_Framework_TestCase
 
     public function testApplyDefaultsToArray()
     {
-        $expected = array(
-            'component' => array(
+        $expected = [
+            'component' => [
                 'class' => '\stdClass',
-                'arguments' => array(),
-                'calls' => array('method' => array('arg'))
-            ),
+                'arguments' => [],
+                'calls' => ['method' => ['arg']]
+            ],
             'shared' => false
-        );
+        ];
 
         $factory = new ContainerFactory();
         $result = $factory->applyDefaults(
-            array(
-                'component' => array(
+            [
+                'component' => [
                     'class' => '\stdClass',
-                    'calls' => array('method' => 'arg')
-                )
-            )
+                    'calls' => ['method' => 'arg']
+                ]
+            ]
         );
 
         $this->assertEquals($expected, $result);
@@ -94,7 +94,7 @@ class ContainerFactoryTest extends \PHPUnit_Framework_TestCase
     public function testClassKeyMissing()
     {
         $factory = new ContainerFactory();
-        $factory->applyDefaults(array('component' => array()));
+        $factory->applyDefaults(['component' => []]);
     }
 
     public function testCallableDefinition()
@@ -111,11 +111,11 @@ class ContainerFactoryTest extends \PHPUnit_Framework_TestCase
 
     public function testComponentDefinition()
     {
-        $definition = array(
+        $definition = [
             'class' => '\stdClass',
-            'arguments' => array(),
-            'calls' => array(),
-        );
+            'arguments' => [],
+            'calls' => [],
+        ];
 
         $factory = new ContainerFactory();
         $result = $factory->buildDefinition($definition);
@@ -130,6 +130,6 @@ class ContainerFactoryTest extends \PHPUnit_Framework_TestCase
     public function testInvalidComponentFormat()
     {
         $factory = new ContainerFactory();
-        $factory->buildDefinition(array('foo'));
+        $factory->buildDefinition(['foo']);
     }
 }

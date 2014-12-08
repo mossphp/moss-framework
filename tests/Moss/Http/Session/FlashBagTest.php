@@ -54,10 +54,10 @@ class FlashBagTest extends \PHPUnit_Framework_TestCase
         $bag->add('foo', 'bar');
         $bag->add('yada', 'yada');
 
-        $result = array(
-            array('message' => 'foo', 'type' => 'bar'),
-            array('message' => 'yada', 'type' => 'yada'),
-        );
+        $result = [
+            ['message' => 'foo', 'type' => 'bar'],
+            ['message' => 'yada', 'type' => 'yada'],
+        ];
 
         $this->assertEquals($result, $bag->get());
     }
@@ -68,9 +68,9 @@ class FlashBagTest extends \PHPUnit_Framework_TestCase
         $bag->add('foo', 'bar');
         $bag->add('yada', 'yada');
 
-        $result = array(
-            array('message' => 'foo', 'type' => 'bar'),
-        );
+        $result = [
+            ['message' => 'foo', 'type' => 'bar'],
+        ];
 
         $this->assertEquals($result, $bag->get('bar'));
     }
@@ -81,10 +81,10 @@ class FlashBagTest extends \PHPUnit_Framework_TestCase
         $bag->add('foo', 'bar');
         $bag->add('yada', 'yada');
 
-        $result = array(
-            array('message' => 'foo', 'type' => 'bar'),
-            array('message' => 'yada', 'type' => 'yada'),
-        );
+        $result = [
+            ['message' => 'foo', 'type' => 'bar'],
+            ['message' => 'yada', 'type' => 'yada'],
+        ];
 
         $this->assertEquals($result[0], $bag->retrieve());
         $this->assertEquals($result[1], $bag->retrieve());
@@ -101,7 +101,7 @@ class FlashBagTest extends \PHPUnit_Framework_TestCase
 
     public function testOffsetGetSet()
     {
-        $msg = array('message' => 'foo', 'type' => 'bar');
+        $msg = ['message' => 'foo', 'type' => 'bar'];
 
         $bag = new FlashBag($this->sessionMock());
         $bag[0] = $msg;
@@ -117,7 +117,7 @@ class FlashBagTest extends \PHPUnit_Framework_TestCase
 
     public function testOffsetSetWithoutKey()
     {
-        $msg = array('message' => 'foo', 'type' => 'bar');
+        $msg = ['message' => 'foo', 'type' => 'bar'];
 
         $bag = new FlashBag($this->sessionMock());
         $bag[] = $msg;
@@ -144,7 +144,7 @@ class FlashBagTest extends \PHPUnit_Framework_TestCase
 
         $i = 0;
         foreach ($bag as $val) {
-            $this->assertEquals(array('message' => 'foo'.$i, 'type' => 'bar'.$i), $val);
+            $this->assertEquals(['message' => 'foo'.$i, 'type' => 'bar'.$i], $val);
             $i++;
         }
     }
@@ -157,13 +157,13 @@ class FlashBagTest extends \PHPUnit_Framework_TestCase
         $mock
             ->expects($this->any())
             ->method('offsetGet')
-            ->will($this->returnCallback(array($this, 'sessionMockGet')));
+            ->will($this->returnCallback([$this, 'sessionMockGet']));
 
         $mock = $this->getMock('\Moss\Http\session\SessionInterface');
         $mock
             ->expects($this->any())
             ->method('offsetSet')
-            ->will($this->returnCallback(array($this, 'sessionMockSet')));
+            ->will($this->returnCallback([$this, 'sessionMockSet']));
 
         return $session;
     }
