@@ -23,7 +23,7 @@ class ListenerTest extends \PHPUnit_Framework_TestCase
     {
         $container = $this->getContainerMock();
 
-        $listener = new Listener('\Moss\Dispatcher\Foobar', null, array());
+        $listener = new Listener('\Moss\Dispatcher\Foobar', null, []);
         $this->assertEquals(new Foobar(), $listener->get($container));
     }
 
@@ -31,7 +31,7 @@ class ListenerTest extends \PHPUnit_Framework_TestCase
     {
         $container = $this->getContainerMock();
 
-        $listener = new Listener('\Moss\Dispatcher\Foobar', 'foo', array());
+        $listener = new Listener('\Moss\Dispatcher\Foobar', 'foo', []);
         $this->assertEquals(new Foobar(), $listener->get($container));
     }
 
@@ -39,9 +39,9 @@ class ListenerTest extends \PHPUnit_Framework_TestCase
     {
         $container = $this->getContainerMock();
 
-        $listener = new Listener('\Moss\Dispatcher\Foobar', 'foo', array('foo', 'bar', array('y', 'a', 'd', 'a')));
+        $listener = new Listener('\Moss\Dispatcher\Foobar', 'foo', ['foo', 'bar', ['y', 'a', 'd', 'a']]);
         $this->assertEquals(
-            new Foobar('foo', 'bar', array('y', 'a', 'd', 'a')), $listener->get($container)
+            new Foobar('foo', 'bar', ['y', 'a', 'd', 'a']), $listener->get($container)
         );
     }
 
@@ -49,7 +49,7 @@ class ListenerTest extends \PHPUnit_Framework_TestCase
     {
         $container = $this->getContainerMock();
 
-        $listener = new Listener('\Moss\Dispatcher\Foobar', 'foo', array('@Subject', '@Message'));
+        $listener = new Listener('\Moss\Dispatcher\Foobar', 'foo', ['@Subject', '@Message']);
         $this->assertEquals(new Foobar('Subject', 'Message'), $listener->get($container, 'Subject', 'Message'));
     }
 
@@ -77,7 +77,7 @@ class ListenerTest extends \PHPUnit_Framework_TestCase
             ->method('get')
             ->will($this->returnValue(new \stdClass()));
 
-        $listener = new Listener('\Moss\Dispatcher\Foobar', 'foo', array('@Foobar', '@Container'));
+        $listener = new Listener('\Moss\Dispatcher\Foobar', 'foo', ['@Foobar', '@Container']);
         $this->assertEquals(new Foobar(new \stdClass(), $container), $listener->get($container));
     }
 
@@ -85,7 +85,7 @@ class ListenerTest extends \PHPUnit_Framework_TestCase
     {
         $container = $this->getContainerMock();
 
-        $listener = new Listener('\Moss\Dispatcher\Foobar', 'foo', array('foo', 'bar', array('y', 'a', 'd', 'a')));
+        $listener = new Listener('\Moss\Dispatcher\Foobar', 'foo', ['foo', 'bar', ['y', 'a', 'd', 'a']]);
         $this->assertEquals($listener($container), $listener->get($container));
     }
 }

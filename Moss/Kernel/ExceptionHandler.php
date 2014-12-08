@@ -21,33 +21,15 @@ class ExceptionHandler
 {
 
     private $details;
-    private $maxDepth;
-    private $maxCount;
-    private $maxStr;
-    private $br = '<br />';
-    private $indent = '&nbsp; &nbsp;';
-    private $colors = array(
-        'keyword' => '#007700',
-        'object' => '#0000BB',
-        'string' => '#DD0000',
-        'numeric' => '#0000BB',
-        'bool' => '#007700',
-    );
 
     /**
      * Constructor
      *
      * @param bool $verbose
-     * @param int  $maxDepth
-     * @param int  $maxCount
-     * @param int  $maxStr
      */
-    public function __construct($verbose = false, $maxDepth = 10, $maxCount = 25, $maxStr = 128)
+    public function __construct($verbose = false)
     {
         $this->verbose($verbose);
-        $this->maxDepth($maxDepth);
-        $this->maxCount($maxCount);
-        $this->maxStr($maxStr);
     }
 
     /**
@@ -65,53 +47,11 @@ class ExceptionHandler
     }
 
     /**
-     * Sets maximum depth of objects/arrays
-     *
-     * @param int $depth
-     *
-     * @return $this
-     */
-    public function maxDepth($depth = 10)
-    {
-        $this->maxDepth = (int) $depth;
-
-        return $this;
-    }
-
-    /**
-     * Sets maximum number of array elements
-     *
-     * @param int $count
-     *
-     * @return $this
-     */
-    public function maxCount($count = 25)
-    {
-        $this->maxCount = (int) $count;
-
-        return $this;
-    }
-
-    /**
-     * Sets maximum string length
-     *
-     * @param int $len
-     *
-     * @return $this
-     */
-    public function maxStr($len = 25)
-    {
-        $this->maxStr = (int) $len;
-
-        return $this;
-    }
-
-    /**
      * Registers handler
      */
     public function register()
     {
-        set_exception_handler($this->details ? array($this, 'handlerVerbose') : array($this, 'handlerTerse'));
+        set_exception_handler($this->details ? [$this, 'handlerVerbose'] : [$this, 'handlerTerse']);
     }
 
 
@@ -159,10 +99,8 @@ class ExceptionHandler
             <style>
                 body, code { font: medium/1.5em monospace; }
 
-                h1, h2 { font-size: 1.25em; }
-
                 div:nth-child(4) { position: fixed; right: 0.5em; top: 0.5em; width: 100%; padding: 0.25em 1em; }
-                div:nth-child(4) a { text-decoration: none; padding: 0.25em 0.75em; color: #fff; background: #444; border-radius: 1em; }
+                div:nth-child(4) a { text-decoration: none; padding: 0.25em 0.75em; color: #444; background: #aef; border-radius: 1em; }
 
                 table { width: auto; border-collapse: collapse; overflow: hidden; }
 
@@ -171,8 +109,8 @@ class ExceptionHandler
                 td:nth-child(2) { position: relative; padding: 0 0 0 0.5em; z-index: 2; }
 
                 td, td span { white-space: nowrap; }
-                td span.mark { position: relative; font-weight: bold; color: #f00; }
-                td span.mark:after { content: \'.\'; position: absolute; top: -0.2em; left: -2em; width: 10000em; background: #f00; opacity: 0.25; }
+                td span#mark { position: relative; font-weight: bold; color: #f00; }
+                td span#mark:after { content: \'.\'; position: absolute; top: -0.2em; left: -2em; width: 10000em; background: #f00; opacity: 0.25; }
             </style>
         </head>
         <body>
@@ -188,7 +126,8 @@ class ExceptionHandler
                 </div>
                 <div>
                     <a href="#trace">Trace</a>
-                    <a href="#trace">Listing</a>
+                    <a href="#listing">Listing</a>
+                    <a href="#mark">Error line</a>
                 </div>
         </body>
         </html>',
@@ -196,138 +135,46 @@ class ExceptionHandler
             $exception->getMessage(),
             $exception->getFile(),
             $exception->getLine(),
-            $this->lineNum(highlight_file($exception->getFile(), true), $exception->getLine()),
-            $this->lineNum($this->colorify($exception->getTrace()))
+            $this->lineNum('<br />', highlight_file($exception->getFile(), true), $exception->getLine()),
+            $this->colorify($exception->getTrace())
         );
     }
 
     /**
      * Adds line numbers
      *
-     * @param      $source
-     * @param null $mark
+     * @param string $lineSeparator
+     * @param string $source
+     * @param null   $mark
      *
      * @return string
      */
-    protected function lineNum($source, $mark = null)
+    protected function lineNum($lineSeparator, $source, $mark = null)
     {
-        $lines = array();
-        foreach (explode($this->br, $source) as $i => $line) {
-            $lines[] = '<span ' . ($i + 1 == $mark ? 'class="mark"' : '') . '>' . ($i + 1) . '</span>';
+        $count = count(explode($lineSeparator, $source));
+        $tpl = '<span %s>%u</span>';
+
+        $lines = [];
+        for($i = 0; $i < $count; $i++) {
+            $lines[] = sprintf($tpl, '', $i + 1);
         }
 
-        return sprintf('<table><tr><td>%s</td><td>%s</td></tr></table>', implode($this->br, $lines), $source);
+        $lines[$mark - 1] = sprintf($tpl, 'id="mark"', $i + 1);
+
+        return sprintf('<table><tr><td>%s</td><td>%s</td></tr></table>', implode($lineSeparator, $lines), $source);
     }
 
     /**
      * Adds colors
      *
-     * @param mixed $param
-     * @param bool  $returnOnly
-     * @param int   $indent
-     * @param array $references
+     * @param mixed $var
      *
-     * @return mixed|string
+     * @return string
      */
-    protected function colorify($param, $returnOnly = false, $indent = 0, $references = array())
+    public function colorify($var)
     {
-        $str = '';
-
-        if (is_null($param)) {
-            $str = '<span style="color: ' . $this->colors['keyword'] . '">null</span>';
-        } elseif (is_object($param)) {
-            $hash = spl_object_hash($param);
-
-            if (in_array($hash, $references, true)) {
-                $str = '*RECURSION*';
-            } else {
-                $references[] = $hash;
-
-                $className = get_class($param);
-                $ref = new \ReflectionClass($className);
-
-                $str = '<span style="color: ' . $this->colors['object'] . '">' . $className . ' Object</span> (';
-
-                if ($this->maxDepth && ($this->maxDepth <= $indent)) {
-                    $str .= '*DEPTH LIMIT*)';
-                } else {
-                    foreach ($ref->getConstants() as $eachConstantName => $eachConstant) {
-                        $str .= $this->br . str_repeat($this->indent, $indent + 1) . '<span style="color: ' . $this->colors['keyword'] . '">const</span> [' . $eachConstantName . ']' . ' => ' . $this->colorify($eachConstant);
-                    }
-
-                    $staticPNames = array_keys($ref->getStaticProperties());
-
-                    $allPNames = array_map(
-                        function (\ReflectionProperty $property) {
-                            return $property->name;
-                        },
-                        $ref->getProperties()
-                    );
-
-                    $propertyNames = array_merge($staticPNames, array_diff($allPNames, $staticPNames));
-
-                    foreach ($propertyNames as $eachPropertyName) {
-                        $p = new \ReflectionProperty($className, $eachPropertyName);
-
-                        $m = $p->getModifiers();
-                        $visiblity = ($m & \ReflectionProperty::IS_PRIVATE ? 'private' : '') . ($m & \ReflectionProperty::IS_PROTECTED ? 'protected' : '') . ($m & \ReflectionProperty::IS_PUBLIC ? 'public' : '');
-                        $isStatic = $m & \ReflectionProperty::IS_STATIC ? true : false;
-                        $p->setAccessible(true);
-
-                        $val = $isStatic ? $p->getValue() : $p->getValue($param);
-
-                        $str .= $this->br . '<span style="color: ' . $this->colors['keyword'] . '">' . str_repeat($this->indent, $indent + 1) . ($isStatic ? 'static ' : '') . '[' . $eachPropertyName . ':' . $visiblity . ']</span>' . " => " . $this->colorify($val, true, $indent + 1, $references);
-                    }
-                    $str .= $this->br . str_repeat($this->indent, $indent) . ')';
-                }
-
-                array_pop($references);
-            }
-        } elseif (is_array($param)) {
-            try {
-                $hash = md5(serialize($param));
-            } catch (\Exception $e) {
-                $hash = null;
-            }
-
-            if (empty($param)) {
-                $str .= 'Array()';
-            } elseif (in_array($hash, $references, true)) {
-                $str = '*RECURSION*';
-            } else {
-                $references[] = $hash;
-                $str .= 'Array(' . count($param) . ') (';
-
-                if ($this->maxDepth && ($this->maxDepth <= $indent)) {
-                    $str .= '*DEPTH LIMIT*)';
-                } else {
-                    $c = 0;
-                    foreach ($param as $eachKey => $eachValue) {
-                        if ($this->maxCount && $c > $this->maxCount) {
-                            $str .= $this->br . str_repeat($this->indent, $indent + 1) . '... (*COUNT LIMIT*)';
-                            break;
-                        }
-
-                        $str .= $this->br . str_repeat($this->indent, $indent + 1) . '[' . $eachKey . "] => " . $this->colorify($eachValue, true, $indent + 1, $references);
-                        $c++;
-                    }
-                    $str .= $this->br . str_repeat($this->indent, $indent) . ')';
-                }
-            }
-        } elseif (is_string($param)) {
-            $str = '<span style="color: ' . $this->colors['string'] . '">' . htmlspecialchars($this->maxStr && strlen($param) > $this->maxStr ? substr($param, 0, $this->maxStr) . '... (*STRING LIMIT*)' : $param) . '</span>';
-        } elseif (is_numeric($param)) {
-            $str = '<span style="color: ' . $this->colors['numeric'] . '">' . htmlspecialchars($param) . '</span>';
-        } elseif (is_bool($param)) {
-            $str = '<span style="color: ' . $this->colors['keyword'] . '">' . ($param ? 'true' : 'false') . '</span>';
-        } else {
-            $str = print_r($param, true);
-        }
-
-        if ($returnOnly) {
-            return $str;
-        }
-
-        return $str;
+        ob_start();
+        var_dump($var);
+        return ob_get_clean();
     }
 }

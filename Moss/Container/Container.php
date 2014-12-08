@@ -23,12 +23,12 @@ class Container implements ContainerInterface
     /**
      * @var array|callable[]
      */
-    private $components = array();
+    protected $components = [];
 
     /**
      * @var array
      */
-    private $instances = array();
+    protected $instances = [];
 
     /**
      * Registers component definition in container

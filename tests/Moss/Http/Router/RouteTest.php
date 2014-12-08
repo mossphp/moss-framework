@@ -16,11 +16,11 @@ class RouteTest extends \PHPUnit_Framework_TestCase
 
     public function patternQuantificationProvider()
     {
-        return array(
-            array('/foo/{bar:.?}/'),
-            array('/foo/{bar:.*}/'),
-            array('/foo/{bar:.+}/'),
-        );
+        return [
+            ['/foo/{bar:.?}/'],
+            ['/foo/{bar:.*}/'],
+            ['/foo/{bar:.+}/'],
+        ];
     }
 
     /**
@@ -34,20 +34,20 @@ class RouteTest extends \PHPUnit_Framework_TestCase
 
     public function requirementsProvider()
     {
-        return array(
-            array('/foo/', array(), array()),
-            array('/foo/{bar:\d}/', array('bar' => '\d+')),
-            array('/foo/{bar:\d}/{yada:\w}/', array('bar' => '\d+', 'yada' => '\w+')),
-            array('/foo/{bar:\d}/({yada:\w})', array('bar' => '\d+', 'yada' => '\w*')),
-            array('/foo/{bar:\d}/({yada:\w})/', array('bar' => '\d+', 'yada' => '\w*')),
-            array('/foo/{bar}/', array('bar' => '[a-z0-9-._]+'), array('bar' => '\w+')),
-            array('/foo/{bar}/{yada}/', array('bar' => '[a-z0-9-._]+', 'yada' => '[a-z0-9-._]+')),
-            array('/foo/{bar}/({yada}/)', array('bar' => '[a-z0-9-._]+', 'yada' => '[a-z0-9-._]*')),
-            array('/foo/{bar}/({yada}/)', array('bar' => '[a-z0-9-._]+', 'yada' => '[a-z0-9-._]*')),
-            array('/foo/{bar}/{yada}.html', array('bar' => '[a-z0-9-._]+', 'yada' => '[a-z0-9-._]+')),
-            array('/foo/{bar}/({yada}.html)', array('bar' => '[a-z0-9-._]+', 'yada' => '[a-z0-9-._]*')),
-            array('/foo/{bar}/({yada}.html)', array('bar' => '[a-z0-9-._]+', 'yada' => '[a-z0-9-._]*')),
-        );
+        return [
+            ['/foo/', [], []],
+            ['/foo/{bar:\d}/', ['bar' => '\d+']],
+            ['/foo/{bar:\d}/{yada:\w}/', ['bar' => '\d+', 'yada' => '\w+']],
+            ['/foo/{bar:\d}/({yada:\w})', ['bar' => '\d+', 'yada' => '\w*']],
+            ['/foo/{bar:\d}/({yada:\w})/', ['bar' => '\d+', 'yada' => '\w*']],
+            ['/foo/{bar}/', ['bar' => '[a-z0-9-._]+'], ['bar' => '\w+']],
+            ['/foo/{bar}/{yada}/', ['bar' => '[a-z0-9-._]+', 'yada' => '[a-z0-9-._]+']],
+            ['/foo/{bar}/({yada}/)', ['bar' => '[a-z0-9-._]+', 'yada' => '[a-z0-9-._]*']],
+            ['/foo/{bar}/({yada}/)', ['bar' => '[a-z0-9-._]+', 'yada' => '[a-z0-9-._]*']],
+            ['/foo/{bar}/{yada}.html', ['bar' => '[a-z0-9-._]+', 'yada' => '[a-z0-9-._]+']],
+            ['/foo/{bar}/({yada}.html)', ['bar' => '[a-z0-9-._]+', 'yada' => '[a-z0-9-._]*']],
+            ['/foo/{bar}/({yada}.html)', ['bar' => '[a-z0-9-._]+', 'yada' => '[a-z0-9-._]*']],
+        ];
     }
 
     /**
@@ -61,19 +61,19 @@ class RouteTest extends \PHPUnit_Framework_TestCase
 
     public function argumentsProvider()
     {
-        return array(
-            array('/foo/', array(), array()),
-            array('/foo/{bar:\d}/', array(), array('bar' => null)),
-            array('/foo/{bar:\d}/', array('foo' => 1), array('foo' => 1, 'bar' => null)),
-            array('/foo/{bar:\d}/{yada:\w}/', array(), array('bar' => null, 'yada' => null)),
-            array('/foo/{bar:\d}/{yada:\w}/', array('foo' => 1), array('foo' => 1, 'bar' => null, 'yada' => null)),
-            array('/foo/{bar:\d}/({yada:\w}/)', array(), array('bar' => null, 'yada' => null)),
-            array('/foo/{bar:\d}/({yada:\w}/)', array('foo' => 1), array('foo' => 1, 'bar' => null, 'yada' => null)),
-            array('/foo/{bar:\d}/{yada:\w}.html', array(), array('bar' => null, 'yada' => null)),
-            array('/foo/{bar:\d}/{yada:\w}.html', array('foo' => 1), array('foo' => 1, 'bar' => null, 'yada' => null)),
-            array('/foo/{bar:\d}/({yada:\w}.html)', array(), array('bar' => null, 'yada' => null)),
-            array('/foo/{bar:\d}/({yada:\w}.html)', array('foo' => 1), array('foo' => 1, 'bar' => null, 'yada' => null)),
-        );
+        return [
+            ['/foo/', [], []],
+            ['/foo/{bar:\d}/', [], ['bar' => null]],
+            ['/foo/{bar:\d}/', ['foo' => 1], ['foo' => 1, 'bar' => null]],
+            ['/foo/{bar:\d}/{yada:\w}/', [], ['bar' => null, 'yada' => null]],
+            ['/foo/{bar:\d}/{yada:\w}/', ['foo' => 1], ['foo' => 1, 'bar' => null, 'yada' => null]],
+            ['/foo/{bar:\d}/({yada:\w}/)', [], ['bar' => null, 'yada' => null]],
+            ['/foo/{bar:\d}/({yada:\w}/)', ['foo' => 1], ['foo' => 1, 'bar' => null, 'yada' => null]],
+            ['/foo/{bar:\d}/{yada:\w}.html', [], ['bar' => null, 'yada' => null]],
+            ['/foo/{bar:\d}/{yada:\w}.html', ['foo' => 1], ['foo' => 1, 'bar' => null, 'yada' => null]],
+            ['/foo/{bar:\d}/({yada:\w}.html)', [], ['bar' => null, 'yada' => null]],
+            ['/foo/{bar:\d}/({yada:\w}.html)', ['foo' => 1], ['foo' => 1, 'bar' => null, 'yada' => null]],
+        ];
     }
 
     /**
@@ -88,12 +88,12 @@ class RouteTest extends \PHPUnit_Framework_TestCase
 
     public function matchSchemaProvider()
     {
-        return array(
-            array('http'),
-            array('http'),
-            array('http', 'http'),
-            array('https', 'https'),
-        );
+        return [
+            ['http'],
+            ['http'],
+            ['http', 'http'],
+            ['https', 'https'],
+        ];
     }
 
     /**
@@ -108,15 +108,15 @@ class RouteTest extends \PHPUnit_Framework_TestCase
 
     public function matchMethodProvider()
     {
-        return array(
-            array('GET', array()),
-            array('POST', array('POST')),
-            array('OPTIONS', array('OPTIONS')),
-            array('HEAD', array('HEAD')),
-            array('PUT', array('POST', 'PUT')),
-            array('DELETE', array('POST', 'DELETE')),
-            array('TRACE', array('TRACE')),
-        );
+        return [
+            ['GET', []],
+            ['POST', ['POST']],
+            ['OPTIONS', ['OPTIONS']],
+            ['HEAD', ['HEAD']],
+            ['PUT', ['POST', 'PUT']],
+            ['DELETE', ['POST', 'DELETE']],
+            ['TRACE', ['TRACE']],
+        ];
     }
 
     /**
@@ -131,19 +131,19 @@ class RouteTest extends \PHPUnit_Framework_TestCase
 
     public function matchHostProvider()
     {
-        return array(
-            array('foo.com'),
-            array('foo.com', 'foo.com'),
-            array('foo.bar.com', 'foo.bar.com'),
-            array('localhost', 'localhost'),
-            array('sub.localhost', 'sub.localhost'),
-        );
+        return [
+            ['foo.com'],
+            ['foo.com', 'foo.com'],
+            ['foo.bar.com', 'foo.bar.com'],
+            ['localhost', 'localhost'],
+            ['sub.localhost', 'sub.localhost'],
+        ];
     }
 
     /**
      * @dataProvider matchProvider
      */
-    public function testMatchUrl($pattern, $path, $arguments = array())
+    public function testMatchUrl($pattern, $path, $arguments = [])
     {
         $route = new Route($pattern, 'some:controller', $arguments);
         $route->match($this->mockRequest($path));
@@ -152,7 +152,7 @@ class RouteTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider matchProvider
      */
-    public function testMatchUrlController($pattern, $path, $arguments = array())
+    public function testMatchUrlController($pattern, $path, $arguments = [])
     {
         $route = new Route($pattern, 'some:controller', $arguments);
         $route->match($this->mockRequest($path));
@@ -162,7 +162,7 @@ class RouteTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider matchProvider
      */
-    public function testMatchUrlArguments($pattern, $path, $arguments = array(), $expectedArguments = array())
+    public function testMatchUrlArguments($pattern, $path, $arguments = [], $expectedArguments = [])
     {
         $route = new Route($pattern, 'some:controller', $arguments);
         $route->match($this->mockRequest($path));
@@ -171,137 +171,137 @@ class RouteTest extends \PHPUnit_Framework_TestCase
 
     public function matchProvider()
     {
-        return array(
-            array(
+        return [
+            [
                 '/foo/',
                 '/foo'
-            ),
-            array(
+            ],
+            [
                 '/foo/',
                 '/foo/'
-            ),
-            array(
+            ],
+            [
                 '/foo/',
                 '/foo',
-                array('foo' => 123),
-                array('foo' => 123)
-            ),
-            array(
+                ['foo' => 123],
+                ['foo' => 123]
+            ],
+            [
                 '/foo/',
                 '/foo/',
-                array('foo' => 123),
-                array('foo' => 123)
+                ['foo' => 123],
+                ['foo' => 123]
 
-            ),
-            array(
+            ],
+            [
                 '/foo/{bar:\d}/',
                 '/foo/1',
-                array(),
-                array('bar' => 1)
-            ),
-            array(
+                [],
+                ['bar' => 1]
+            ],
+            [
                 '/foo/{bar:\d}/',
                 '/foo/1/',
-                array(),
-                array('bar' => 1)
-            ),
-            array(
+                [],
+                ['bar' => 1]
+            ],
+            [
                 '/foo/{bar:\d}/',
                 '/foo/123',
-                array(),
-                array('bar' => 123)
-            ),
-            array(
+                [],
+                ['bar' => 123]
+            ],
+            [
                 '/foo/{bar:\d}/',
                 '/foo/123/',
-                array(),
-                array('bar' => 123)
-            ),
-            array(
+                [],
+                ['bar' => 123]
+            ],
+            [
                 '/foo/{bar:\d}/{yada:\w}/',
                 '/foo/1/a',
-                array(),
-                array('bar' => 1, 'yada' => 'a')
-            ),
-            array(
+                [],
+                ['bar' => 1, 'yada' => 'a']
+            ],
+            [
                 '/foo/{bar:\d}/{yada:\w}/',
                 '/foo/1/a/',
-                array(),
-                array('bar' => 1, 'yada' => 'a')
-            ),
-            array(
+                [],
+                ['bar' => 1, 'yada' => 'a']
+            ],
+            [
                 '/foo/{bar:\d}/{yada:\w}/',
                 '/foo/123/abc',
-                array(),
-                array('bar' => 123, 'yada' => 'abc')
-            ),
-            array(
+                [],
+                ['bar' => 123, 'yada' => 'abc']
+            ],
+            [
                 '/foo/{bar:\d}/{yada:\w}/',
                 '/foo/123/abc/',
-                array(),
-                array('bar' => 123, 'yada' => 'abc')
-            ),
-            array(
+                [],
+                ['bar' => 123, 'yada' => 'abc']
+            ],
+            [
                 '/foo/{bar:\d}/({yada:\w}/)',
                 '/foo/1/',
-                array(),
-                array('bar' => 1, 'yada' => null)
-            ),
-            array(
+                [],
+                ['bar' => 1, 'yada' => null]
+            ],
+            [
                 '/foo/{bar:\d}/({yada:\w}/)',
                 '/foo/123/abc',
-                array(),
-                array('bar' => 123, 'yada' => 'abc')
-            ),
-            array(
+                [],
+                ['bar' => 123, 'yada' => 'abc']
+            ],
+            [
                 '/foo/{bar:\d}/({yada:\w}/)',
                 '/foo/123/abc/',
-                array(),
-                array('bar' => 123, 'yada' => 'abc')
-            ),
-            array(
+                [],
+                ['bar' => 123, 'yada' => 'abc']
+            ],
+            [
                 '/foo/{bar:\d}/{yada:\w}.html',
                 '/foo/1/a.html',
-                array(),
-                array('bar' => 1, 'yada' => 'a')
-            ),
-            array(
+                [],
+                ['bar' => 1, 'yada' => 'a']
+            ],
+            [
                 '/foo/{bar:\d}/{yada:\w}.html',
                 '/foo/1/a.html',
-                array(),
-                array('bar' => 1, 'yada' => 'a')
-            ),
-            array(
+                [],
+                ['bar' => 1, 'yada' => 'a']
+            ],
+            [
                 '/foo/{bar:\d}/{yada:\w}.html',
                 '/foo/123/abc.html',
-                array(),
-                array('bar' => 123, 'yada' => 'abc')
-            ),
-            array(
+                [],
+                ['bar' => 123, 'yada' => 'abc']
+            ],
+            [
                 '/foo/{bar:\d}/{yada:\w}.html',
                 '/foo/123/abc.html',
-                array(),
-                array('bar' => 123, 'yada' => 'abc')
-            ),
-            array(
+                [],
+                ['bar' => 123, 'yada' => 'abc']
+            ],
+            [
                 '/foo/{bar:\d}/({yada:\w}.html)',
                 '/foo/1/',
-                array(),
-                array('bar' => 1, 'yada' => null)
-            ),
-            array(
+                [],
+                ['bar' => 1, 'yada' => null]
+            ],
+            [
                 '/foo/{bar:\d}/({yada:\w}.html)',
                 '/foo/123/abc.html',
-                array(),
-                array('bar' => 123, 'yada' => 'abc')
-            ),
-            array(
+                [],
+                ['bar' => 123, 'yada' => 'abc']
+            ],
+            [
                 '/foo/{bar:\d}/({yada:\w}.html)',
                 '/foo/123/abc.html',
-                array(),
-                array('bar' => 123, 'yada' => 'abc')
-            ),
-        );
+                [],
+                ['bar' => 123, 'yada' => 'abc']
+            ],
+        ];
     }
 
     /**
@@ -315,63 +315,63 @@ class RouteTest extends \PHPUnit_Framework_TestCase
 
     public function checkProvider()
     {
-        return array(
-            array(
+        return [
+            [
                 '/foo',
-                array(),
-                array()
-            ),
-            array(
+                [],
+                []
+            ],
+            [
                 '/foo',
-                array('foo' => 'foo'),
-                array('foo' => 'foo')
-            ),
-            array(
+                ['foo' => 'foo'],
+                ['foo' => 'foo']
+            ],
+            [
                 '/foo',
-                array('bar' => 'bar'),
-                array('bar' => 'bar')
-            ),
-            array(
+                ['bar' => 'bar'],
+                ['bar' => 'bar']
+            ],
+            [
                 '/foo/',
-                array(),
-                array()
-            ),
-            array(
+                [],
+                []
+            ],
+            [
                 '/foo/{bar:\d}',
-                array(),
-                array('bar' => 123)
-            ),
-            array(
+                [],
+                ['bar' => 123]
+            ],
+            [
                 '/foo/{bar:\d}/',
-                array(),
-                array('bar' => 123)
-            ),
-            array(
+                [],
+                ['bar' => 123]
+            ],
+            [
                 '/foo/{bar:\d}/{yada:\w}',
-                array(),
-                array('bar' => 123, 'yada' => 'abc')
-            ),
-            array(
+                [],
+                ['bar' => 123, 'yada' => 'abc']
+            ],
+            [
                 '/foo/{bar:\d}/{yada:\w}/',
-                array(),
-                array('bar' => 123, 'yada' => 'abc')
-            ),
-            array(
-                '/foo/{bar:\d}/({yada:\w})',
-                array(),
-                array('bar' => 123, 'yada' => 'abc')
-            ),
-            array(
-                '/foo/{bar:\d}/({yada:\w})/',
-                array(),
-                array('bar' => 123, 'yada' => 'abc')
-            ),
-            array(
-                '/foo/{bar:\d}/({yada:\w}.html)',
-                array(),
-                array('bar' => 123, 'yada' => 'abc')
-            ),
-        );
+                [],
+                ['bar' => 123, 'yada' => 'abc']
+            ],
+            [
+                '/foo/{bar:\d}/({yada:\w}]',
+                [],
+                ['bar' => 123, 'yada' => 'abc']
+            ],
+            [
+                '/foo/{bar:\d}/({yada:\w}]/',
+                [],
+                ['bar' => 123, 'yada' => 'abc']
+            ],
+            [
+                '/foo/{bar:\d}/({yada:\w}.html]',
+                [],
+                ['bar' => 123, 'yada' => 'abc']
+            ],
+        ];
     }
 
     /**
@@ -394,59 +394,59 @@ class RouteTest extends \PHPUnit_Framework_TestCase
 
     public function failCheckProvider()
     {
-        return array(
-            array(
+        return [
+            [
                 '/foo',
-                array('foo' => 'foo'),
-                array()
-            ),
-            array(
+                ['foo' => 'foo'],
+                []
+            ],
+            [
                 '/foo',
-                array('bar' => 'bar'),
-                array()
-            ),
-            array(
+                ['bar' => 'bar'],
+                []
+            ],
+            [
                 '/foo/{bar:\d}',
-                array(),
-                array()
-            ),
-            array(
+                [],
+                []
+            ],
+            [
                 '/foo/{bar:\d}/',
-                array(),
-                array()
-            ),
-            array(
+                [],
+                []
+            ],
+            [
                 '/foo/{bar:\d}/{yada:\w}',
-                array(),
-                array('bar' => 123)
-            ),
-            array(
+                [],
+                ['bar' => 123]
+            ],
+            [
                 '/foo/{bar:\d}/{yada:\w}/',
-                array(),
-                array('bar' => 123)
-            ),
-            array(
-                '/foo/{bar:\d}/({yada:\w})',
-                array(),
-                array('yada' => 'abc')
-            ),
-            array(
-                '/foo/{bar:\d}/({yada:\w})/',
-                array(),
-                array('yada' => 'abc')
-            ),
-            array(
-                '/foo/{bar:\d}/({yada:\w}.html)',
-                array(),
-                array('yada' => 'abc')
-            ),
-        );
+                [],
+                ['bar' => 123]
+            ],
+            [
+                '/foo/{bar:\d}/({yada:\w}]',
+                [],
+                ['yada' => 'abc']
+            ],
+            [
+                '/foo/{bar:\d}/({yada:\w}]/',
+                [],
+                ['yada' => 'abc']
+            ],
+            [
+                '/foo/{bar:\d}/({yada:\w}.html]',
+                [],
+                ['yada' => 'abc']
+            ],
+        ];
     }
 
     /**
      * @dataProvider makeProvider
      */
-    public function testMakeWithHost($uri, $pattern, $arguments = array())
+    public function testMakeWithHost($uri, $pattern, $arguments = [])
     {
         $route = new Route($pattern, 'some:controller', $arguments);
         $this->assertEquals('http://host.com' . $uri, $route->make('http://host.com', $arguments));
@@ -454,67 +454,67 @@ class RouteTest extends \PHPUnit_Framework_TestCase
 
     public function makeProvider()
     {
-        return array(
-            array(
+        return [
+            [
                 '/foo/',
                 '/foo/'
-            ),
-            array(
+            ],
+            [
                 '/foo/',
                 '/foo/',
-                array('foo' => 123)
-            ),
-            array(
+                ['foo' => 123]
+            ],
+            [
                 '/foo/1/',
                 '/foo/{bar:\d}/',
-                array('bar' => 1)
-            ),
-            array(
+                ['bar' => 1]
+            ],
+            [
                 '/foo/123/',
                 '/foo/{bar:\d}/',
-                array('bar' => 123)
-            ),
-            array(
+                ['bar' => 123]
+            ],
+            [
                 '/foo/1/a/',
                 '/foo/{bar:\d}/{yada:\w}/',
-                array('bar' => 1, 'yada' => 'a')
-            ),
-            array(
+                ['bar' => 1, 'yada' => 'a']
+            ],
+            [
                 '/foo/123/abc/',
                 '/foo/{bar:\d}/{yada:\w}/',
-                array('bar' => 123, 'yada' => 'abc')
-            ),
-            array(
+                ['bar' => 123, 'yada' => 'abc']
+            ],
+            [
                 '/foo/1/',
                 '/foo/{bar:\d}/({yada:\w}/)',
-                array('bar' => 1)
-            ),
-            array(
+                ['bar' => 1]
+            ],
+            [
                 '/foo/123/abc/',
                 '/foo/{bar:\d}/({yada:\w}/)',
-                array('bar' => 123, 'yada' => 'abc')
-            ),
-            array(
+                ['bar' => 123, 'yada' => 'abc']
+            ],
+            [
                 '/foo/1/a.html',
                 '/foo/{bar:\d}/{yada:\w}.html',
-                array('bar' => 1, 'yada' => 'a')
-            ),
-            array(
+                ['bar' => 1, 'yada' => 'a']
+            ],
+            [
                 '/foo/123/abc.html',
                 '/foo/{bar:\d}/{yada:\w}.html',
-                array('bar' => 123, 'yada' => 'abc')
-            ),
-            array(
+                ['bar' => 123, 'yada' => 'abc']
+            ],
+            [
                 '/foo/1/',
-                '/foo/{bar:\d}/({yada:\w}.html)',
-                array('bar' => 1)
-            ),
-            array(
+                '/foo/{bar:\d}/({yada:\w}.html]',
+                ['bar' => 1]
+            ],
+            [
                 '/foo/123/abc.html',
                 '/foo/{bar:\d}/({yada:\w}.html)',
-                array('bar' => 123, 'yada' => 'abc')
-            ),
-        );
+                ['bar' => 123, 'yada' => 'abc']
+            ],
+        ];
     }
 
     /**
@@ -529,11 +529,11 @@ class RouteTest extends \PHPUnit_Framework_TestCase
 
     public function hostProvider()
     {
-        return array(
-            array('http', 'host.com'),
-            array('https', 'host.com'),
-            array('http', 'ver.sub.domain.com'),
-        );
+        return [
+            ['http', 'host.com'],
+            ['https', 'host.com'],
+            ['http', 'ver.sub.domain.com'],
+        ];
     }
 
     public function testMakeWithoutSchema()

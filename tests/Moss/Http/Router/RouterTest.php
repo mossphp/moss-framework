@@ -176,12 +176,12 @@ class RouterTest extends \PHPUnit_Framework_TestCase
 
     public function matchProvider()
     {
-        return array(
-            array('router_foo_bar', '/router/foo-foo/123/', null),
-            array('router_foo', '/router/foo/', null),
-            array('router', '/router/', null),
-            array('domain_router', '/router/', 'http://domain.test.com'),
-        );
+        return [
+            ['router_foo_bar', '/router/foo-foo/123/', null],
+            ['router_foo', '/router/foo/', null],
+            ['router', '/router/', null],
+            ['domain_router', '/router/', 'http://domain.test.com'],
+        ];
     }
 
     public function testDefaults()
@@ -222,12 +222,12 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         $router->register('router', new Route('/router/', 'router'));
         $router->match($request);
 
-        $expected = array(
+        $expected = [
             'host' => 'http://test.com',
             'route' => 'router',
             'locale' => 'fr',
             'format' => 'yml'
-        );
+        ];
 
         $this->assertAttributeEquals($expected, 'defaults', $router);
     }
@@ -250,7 +250,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         $router->register('route', $route);
 
         $router->match($this->mockRequest('/router/foo/123/'));
-        $this->assertEquals('http://test.com/router/foo/123/', $router->make(null, array('foo' => 'foo', 'bar' => 123)));
+        $this->assertEquals('http://test.com/router/foo/123/', $router->make(null, ['foo' => 'foo', 'bar' => 123]));
     }
 
     public function testMakeByName()
@@ -291,7 +291,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         $router->register('route', $route);
 
         $router->match($this->mockRequest('/router/foo/123/'));
-        $this->assertEquals('http://test.com/router/foo/123/', $router->make('route', array('foo' => 'foo', 'bar' => 123), false, false));
+        $this->assertEquals('http://test.com/router/foo/123/', $router->make('route', ['foo' => 'foo', 'bar' => 123], false, false));
     }
 
     public function testMakeWithQuery()
@@ -302,7 +302,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         $router->register('route', $route);
 
         $router->match($this->mockRequest('/router/foo/123/'));
-        $this->assertEquals('http://test.com/router/foo/123/?yada=yada', $router->make('route', array('foo' => 'foo', 'bar' => 123, 'yada' => 'yada')));
+        $this->assertEquals('http://test.com/router/foo/123/?yada=yada', $router->make('route', ['foo' => 'foo', 'bar' => 123, 'yada' => 'yada']));
     }
 
     public function testMakeWithoutOptionalArguments()
@@ -313,7 +313,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         $router->register('route', $route);
 
         $router->match($this->mockRequest('/router/foo/123/'));
-        $this->assertEquals('http://test.com/router/foo/', $router->make('route', array('foo' => 'foo')));
+        $this->assertEquals('http://test.com/router/foo/', $router->make('route', ['foo' => 'foo']));
     }
 
     public function testMakeWithOptionalArguments()
@@ -324,6 +324,6 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         $router->register('route', $route);
 
         $router->match($this->mockRequest('/router/foo/123/'));
-        $this->assertEquals('http://test.com/router/foo/123/', $router->make('route', array('foo' => 'foo', 'bar' => 123)));
+        $this->assertEquals('http://test.com/router/foo/123/', $router->make('route', ['foo' => 'foo', 'bar' => 123]));
     }
 }

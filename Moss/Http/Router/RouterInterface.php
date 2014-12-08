@@ -45,7 +45,7 @@ interface RouterInterface
      *
      * @param RequestInterface $request
      *
-     * @return Router|RouterInterface
+     * @return callable
      */
     public function match(RequestInterface $request);
 
@@ -58,5 +58,5 @@ interface RouterInterface
      *
      * @return string
      */
-    public function make($name = null, $arguments = array());
+    public function make($name = null, array $arguments = []);
 }

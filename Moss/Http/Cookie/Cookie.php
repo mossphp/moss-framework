@@ -84,7 +84,7 @@ class Cookie extends Bag implements CookieInterface
     public function reset()
     {
         foreach (array_keys($this->storage) as $key) {
-            $this->storage = array();
+            $this->storage = [];
             $this->setcookie($key, "", time() - 3600);
         }
 

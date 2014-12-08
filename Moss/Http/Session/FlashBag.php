@@ -42,7 +42,7 @@ class FlashBag implements FlashBagInterface
         $this->session = & $session;
         $this->prefix = $prefix;
         if (!isset($this->session[$this->prefix])) {
-            $this->session[$this->prefix] = array();
+            $this->session[$this->prefix] = [];
         }
     }
 
@@ -53,7 +53,7 @@ class FlashBag implements FlashBagInterface
      */
     public function reset()
     {
-        $this->session[$this->prefix] = array();
+        $this->session[$this->prefix] = [];
 
         return $this;
     }
@@ -68,7 +68,7 @@ class FlashBag implements FlashBagInterface
      */
     public function add($message, $type = 'error')
     {
-        $this->session[$this->prefix][] = array('message' => $message, 'type' => $type);
+        $this->session[$this->prefix][] = ['message' => $message, 'type' => $type];
 
         return $this;
     }
@@ -104,7 +104,7 @@ class FlashBag implements FlashBagInterface
      */
     public function get($type = null)
     {
-        $result = array();
+        $result = [];
 
         foreach ($this->session[$this->prefix] as $i => $message) {
             if ($type === null || $message['type'] === $type) {

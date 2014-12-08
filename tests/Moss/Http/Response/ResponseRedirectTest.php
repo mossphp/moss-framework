@@ -25,7 +25,7 @@ class ResponseRedirectTest extends \PHPUnit_Framework_TestCase
         $response->sendHeaders();
         $result = ob_get_clean();
 
-        $expected = array('HTTP/1.1 302 Found', 'Refresh: 10; URL=http://127.0.0.1/');
+        $expected = ['HTTP/1.1 302 Found', 'Refresh: 10; URL=http://127.0.0.1/'];
         $this->assertEquals(implode(PHP_EOL, $expected) . PHP_EOL, $result);
     }
 
@@ -36,7 +36,7 @@ class ResponseRedirectTest extends \PHPUnit_Framework_TestCase
         $response->sendHeaders();
         $result = ob_get_clean();
 
-        $expected = array('HTTP/1.1 302 Found', 'Location: http://127.0.0.1/');
+        $expected = ['HTTP/1.1 302 Found', 'Location: http://127.0.0.1/'];
         $this->assertEquals(implode(PHP_EOL, $expected) . PHP_EOL, $result);
     }
 
@@ -47,7 +47,7 @@ class ResponseRedirectTest extends \PHPUnit_Framework_TestCase
         $response->sendContent();
         $result = ob_get_clean();
 
-        $expected = array('Redirecting...');
+        $expected = ['Redirecting...'];
         $this->assertEquals(implode(PHP_EOL, $expected), $result);
     }
 
@@ -58,7 +58,7 @@ class ResponseRedirectTest extends \PHPUnit_Framework_TestCase
         $response->send();
         $result = ob_get_clean();
 
-        $expected = array('HTTP/1.1 302 Found', 'Refresh: 10; URL=http://127.0.0.1/', 'Redirecting...');
+        $expected = ['HTTP/1.1 302 Found', 'Refresh: 10; URL=http://127.0.0.1/', 'Redirecting...'];
         $this->assertEquals(implode(PHP_EOL, $expected), $result);
     }
 
@@ -69,14 +69,14 @@ class ResponseRedirectTest extends \PHPUnit_Framework_TestCase
         $response->send();
         $result = ob_get_clean();
 
-        $expected = array('HTTP/1.1 302 Found', 'Location: http://127.0.0.1/', 'Redirecting...');
+        $expected = ['HTTP/1.1 302 Found', 'Location: http://127.0.0.1/', 'Redirecting...'];
         $this->assertEquals(implode(PHP_EOL, $expected), $result);
     }
 
     public function testToString()
     {
         $response = new ResponseRedirect('http://127.0.0.1/', 10);
-        $expected = array('HTTP/1.1 302 Found', 'Refresh: 10; URL=http://127.0.0.1/', 'Redirecting...');
+        $expected = ['HTTP/1.1 302 Found', 'Refresh: 10; URL=http://127.0.0.1/', 'Redirecting...'];
         $this->assertEquals(implode(PHP_EOL, $expected), (string) $response);
     }
 }

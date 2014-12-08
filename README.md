@@ -1,8 +1,8 @@
 # MOSS Micro Framework
 
-[![Build Status](https://travis-ci.org/potfur/moss.png?branch=master)](https://travis-ci.org/potfur/moss)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/potfur/moss/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/potfur/moss/?branch=master)
-[![Code Coverage](https://scrutinizer-ci.com/g/potfur/moss/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/potfur/moss/?branch=master)
+[![Build Status](https://travis-ci.org/potfur/moss-framework.png?branch=master)](https://travis-ci.org/potfur/moss-framework)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/potfur/moss-framework/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/potfur/moss-framework/?branch=master)
+[![Code Coverage](https://scrutinizer-ci.com/g/potfur/moss-framework/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/potfur/moss-framework/?branch=master)
 
 For licence details see LICENCE.md
 Documentation is available in ./docs/
@@ -19,7 +19,8 @@ Neither one of those minimalistic, closure lovers :)
 
 `Moss` was developed a solution with small footprint, easily to extend, with as small dependencies as possible (actually - none).
 
-But still, `Moss framework` wants to be _fashionable_ and follows trends: `closures`, `event dispatching`, `dependency injection`, `aspect oriented programming`
+But still, `Moss framework` wants to be _fashionable_ and follows trends: `closures`, `event dispatching`, `dependency injection`, `aspect oriented programming`.
+Why there's no mention about `MVC`? Because `Moss` does not implement it. Instead - gives freedom to do it in your favorite way.
 
 ## Features
 
@@ -40,7 +41,7 @@ Add to `composer.json`:
 
 	{
 	    "require": {
-	        "moss/moss": "*"
+	        "moss/framework": ">=1.0"
 	    }
 	}
 
@@ -57,18 +58,20 @@ Then create entry file, eg `./web/index.php` containing:
 Or download simple sample app from [github](https://github.com/potfur/moss-demo-app)
 
 ## Contribute
-
+ 
 If you want to submit fix or some other enhancements, feel free to do so.
 Whenever you find a bug it would be nice if you submit it.
 And if you submit fix - this would be truly amazing!
-
+ 
 ### How to Contribute
-
+ 
  * Fork;
  * Create a new branch for each feature/improvement/issue;
  * Send a pull request from branch
-
+ 
 ### Style Guide
-
+ 
 All pull requests must adhere to the PSR-2 standard.
 All pull requests should be accompanied by passing PHPUnit tests.
+Add phpDocs to all methods, including at least a description, all @param, @return and @throws declaration
+

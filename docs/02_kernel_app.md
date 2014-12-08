@@ -26,18 +26,17 @@ In PHP >=5.4 it looks quite fancy
 
 Also, App provides easy access to components:
 
- * `::container` - gives access to `\Moss\Container\Container` instance
- * `::config` - is for `\Moss\Config\Config`
- * `::router` - is `\Moss\Http\Router\Router` instance
- * `::dispatcher` - gives access to `\Moss\Dispatcher\Dispatcher`
- * `::session` - `\Moss\Http\Session\Session`
- * `::cookie` - `\Moss\Http\Cookie\Cookie`
- * `::request` - `\Moss\Http\Request\Request`
+ * `::container()` - gives access to `\Moss\Container\ContainerInterface` instance
+ * `::config()` - is for `\Moss\Config\ConfigInterface`
+ * `::router()` - is `\Moss\Http\Router\RouterInterface` instance
+ * `::dispatcher()` - gives access to `\Moss\Dispatcher\DispatcherInterface`
+ * `::session()` - `\Moss\Http\Session\SessionInterface`
+ * `::cookie()` - `\Moss\Http\Cookie\CookieInterface`
+ * `::request()` - `\Moss\Http\Request\RequestInterface`
 
-Every other component can be resolved trough `::get()` method or magically via `::__get()`.
+Every other component can be resolved trough `::get()` method.
 
 	$request = $app->get('foo');
-	$request = $app->foo;
 
 There is also convenient method to fire events `::fire($event, $subject, $message)`:
 

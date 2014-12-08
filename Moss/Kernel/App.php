@@ -12,14 +12,21 @@
 namespace Moss\Kernel;
 
 use Moss\Config\Config;
-use Moss\Container\Container;
-use Moss\Dispatcher\Dispatcher;
+use Moss\Config\ConfigInterface;
+use Moss\Container\ContainerInterface;
+use Moss\Dispatcher\DispatcherInterface;
 use Moss\Http\Cookie\Cookie;
+use Moss\Http\Cookie\CookieInterface;
 use Moss\Http\Request\Request;
+use Moss\Http\Request\RequestInterface;
 use Moss\Http\Response\ResponseInterface;
 use Moss\Http\Router\Route;
-use Moss\Http\Router\Router;
+use Moss\Http\Router\RouterInterface;
 use Moss\Http\Session\Session;
+use Moss\Http\Session\SessionInterface;
+use Moss\Kernel\Factory\ContainerFactory;
+use Moss\Kernel\Factory\DispatcherFactory;
+use Moss\Kernel\Factory\RouterFactory;
 
 /**
  * Moss app kernel
@@ -27,44 +34,14 @@ use Moss\Http\Session\Session;
  * @package Moss Kernel
  * @author  Michal Wachowski <wachowski.michal@gmail.com>
  */
-class App
+class App implements AppInterface
 {
     const SEPARATOR = '@';
 
     /**
      * @var \Moss\Container\Container
      */
-    public $container;
-
-    /**
-     * @var \Moss\Config\Config
-     */
-    public $config;
-
-    /**
-     * @var \Moss\Http\Router\Router
-     */
-    public $router;
-
-    /**
-     * @var \Moss\Dispatcher\Dispatcher
-     */
-    public $dispatcher;
-
-    /**
-     * @var \Moss\Http\Session\Session
-     */
-    public $session;
-
-    /**
-     * @var \Moss\Http\Cookie\Cookie
-     */
-    public $cookie;
-
-    /**
-     * @var \Moss\Http\Request\Request
-     */
-    public $request;
+    protected $container;
 
     /**
      * Constructor
@@ -72,105 +49,44 @@ class App
      * @param array  $config
      * @param string $mode
      */
-    public function __construct($config = array(), $mode = null)
+    public function __construct(array $config = [], $mode = null)
     {
-        $this->config = new Config($config, $mode);
+        $config = new Config($config, $mode);
 
-// error handling
-        $errHandler = new ErrorHandler($this->config['framework']['error']['level']);
+        // error handling
+        $errHandler = new ErrorHandler($config['framework']['error']['level']);
         $errHandler->register();
 
-        $excHandler = new ExceptionHandler($this->config['framework']['error']['detail'] && isset($_SERVER['REQUEST_METHOD']));
+        $excHandler = new ExceptionHandler($config['framework']['error']['detail'] && isset($_SERVER['REQUEST_METHOD']));
         $excHandler->register();
 
-// components
-        $this->container = $this->buildContainer((array) $this->config->get('container'));
-        $this->dispatcher = $this->buildDispatcher((array) $this->config->get('dispatcher'));
-        $this->router = $this->buildRouter((array) $this->config->get('router'));
+        // container
+        $containerFactory = new ContainerFactory();
+        $this->container = $containerFactory->build((array) $config['container']);
 
-        $conf = $this->config['framework']['session'];
-        $this->session = new Session($conf['name'], $conf['cacheLimiter']);
+        // components
+        $dispatcherFactory = new DispatcherFactory();
+        $dispatcher = $dispatcherFactory->build((array) $config['dispatcher']);
 
-        $conf = $this->config['framework']['cookie'];
-        $this->cookie = new Cookie($conf['domain'], $conf['path'], $conf['http'], $conf['ttl']);
+        $routerFactory = new RouterFactory();
+        $router = $routerFactory->build((array) $config['router']);
 
-        $this->request = new Request($this->session, $this->cookie);
+        $conf = $config['framework']['session'];
+        $session = new Session($conf['name'], $conf['cacheLimiter']);
 
-// registering components
+        $conf = $config['framework']['cookie'];
+        $cookie = new Cookie($conf['domain'], $conf['path'], $conf['http'], $conf['ttl']);
+
+        $request = new Request($session, $cookie);
+
+        // registering components
         $this->container
-            ->register('config', $this->config)
-            ->register('router', $this->router)
-            ->register('dispatcher', $this->dispatcher)
-            ->register('session', $this->session)
-            ->register('cookie', $this->cookie)
-            ->register('request', $this->request);
-    }
-
-    /**
-     * Builds container and its definitions
-     *
-     * @param array $config
-     *
-     * @return Container
-     */
-    private function buildContainer(array $config)
-    {
-        $container = new Container();
-        foreach ((array) $config as $name => $component) {
-            if (array_key_exists('component', $component) && is_callable($component['component'])) {
-                $container->register($name, $component['component'], $component['shared']);
-                continue;
-            }
-
-            $container->register($name, $component);
-        }
-
-        return $container;
-    }
-
-    /**
-     * Creates dispatcher instance and event listeners
-     *
-     * @param array $config
-     *
-     * @return Dispatcher
-     */
-    private function buildDispatcher(array $config)
-    {
-        $dispatcher = new Dispatcher($this->container);
-        foreach ((array) $config as $event => $listeners) {
-            foreach ($listeners as $listener) {
-                $dispatcher->register($event, $listener);
-            }
-        }
-
-        return $dispatcher;
-    }
-
-    /**
-     * Builds router, routes and registers routes in router
-     *
-     * @param array $config
-     *
-     * @return Router
-     */
-    private function buildRouter(array $config)
-    {
-        $router = new Router();
-        foreach ((array) $config as $name => $definition) {
-            $route = new Route($definition['pattern'], $definition['controller'], $definition['arguments'], $definition['methods']);
-
-            if (array_key_exists('host', $definition)) {
-                $route->host($definition['host']);
-            }
-            if (array_key_exists('schema', $definition)) {
-                $route->schema($definition['schema']);
-            }
-
-            $router->register($name, $route);
-        }
-
-        return $router;
+            ->register('config', $config)
+            ->register('router', $router)
+            ->register('dispatcher', $dispatcher)
+            ->register('session', $session)
+            ->register('cookie', $cookie)
+            ->register('request', $request);
     }
 
     /**
@@ -186,16 +102,18 @@ class App
     }
 
     /**
-     * Shitty but handy magic
+     * Returns parameter or component from container under set name
      *
      * @param string $name
      *
      * @return mixed
+     * @deprecated
      */
-    public function __get($name)
+    function __get($name)
     {
-        return $this->container->get($name);
+        return $this->get($name);
     }
+
 
     /**
      * Registers route
@@ -208,9 +126,10 @@ class App
      *
      * @return $this
      */
-    public function route($name, $pattern, $controller, $arguments = array(), $methods = array())
+    public function route($name, $pattern, $controller, array $arguments = [], array $methods = [])
     {
-        $this->router->register($name, new Route($pattern, $controller, $arguments, $methods));
+        $this->router()
+            ->register($name, new Route($pattern, $controller, $arguments, $methods));
 
         return $this;
     }
@@ -241,7 +160,8 @@ class App
      */
     public function listener($event, $definition)
     {
-        $this->dispatcher->register($event, $definition);
+        $this->dispatcher()
+            ->register($event, $definition);
 
         return $this;
     }
@@ -257,36 +177,90 @@ class App
      */
     public function fire($event, $subject = null, $message = null)
     {
-        return $this->dispatcher->fire($event, $subject, $message);
+        return $this->dispatcher()
+            ->fire($event, $subject, $message);
+    }
+
+    /**
+     * Returns Container instance
+     *
+     * @return ContainerInterface
+     */
+    public function container()
+    {
+        return $this->container;
+    }
+
+    /**
+     * Returns Config instance
+     *
+     * @return ConfigInterface
+     */
+    public function config()
+    {
+        return $this->get('config');
+    }
+
+    /**
+     * Returns Router instance
+     *
+     * @return RouterInterface
+     */
+    public function router()
+    {
+        return $this->get('router');
+    }
+
+    /**
+     * Returns event dispatcher instance
+     *
+     * @return DispatcherInterface
+     */
+    public function dispatcher()
+    {
+        return $this->get('dispatcher');
+    }
+
+    /**
+     * Returns request instance
+     *
+     * @return RequestInterface
+     */
+    public function request()
+    {
+        return $this->get('request');
+    }
+
+    /**
+     * Returns session instance
+     *
+     * @return SessionInterface
+     */
+    public function session()
+    {
+        return $this->get('session');
+    }
+
+    /**
+     * Returns cookie instance
+     *
+     * @return CookieInterface
+     */
+    public function cookie()
+    {
+        return $this->get('cookie');
     }
 
     /**
      * Handles request
+     *
+     * @return ResponseInterface
+     * @throws \Exception
      */
     public function run()
     {
         try {
-            if ($evtResponse = $this->fire('kernel.request')) {
-                return $this->send($evtResponse);
-            }
-
-            $controller = $this->router->match($this->request);
-            if (empty($controller)) {
-                throw new AppException('No controller was returned from router');
-            }
-
-            if ($evtResponse = $this->fire('kernel.route')) {
-                return $this->send($evtResponse);
-            }
-
-            if ($evtResponse = $this->fire('kernel.controller')) {
-                return $this->send($evtResponse);
-            }
-
-            $response = $this->callController($controller);
-            if ($evtResponse = $this->fire('kernel.response', $response)) {
-                return $this->send($evtResponse);
-            }
+            $response = $this->resolveResponse();
         } catch (ForbiddenException $e) {
             $response = $this->fire('kernel.403', $e, $this->eventMsg($e));
         } catch (NotFoundException $e) {
@@ -299,25 +273,48 @@ class App
             throw $e;
         }
 
-        return $this->send($response);
-    }
-
-    /**
-     * Returns response from app
-     *
-     * @param mixed|ResponseInterface $response
-     *
-     * @return ResponseInterface
-     * @throws AppException
-     */
-    private function send($response)
-    {
         if ($evtResponse = $this->fire('kernel.send', $response)) {
             $response = $evtResponse;
         }
 
         if (!$response instanceof ResponseInterface) {
             throw new AppException(sprintf('Received response is not an instance of ResponseInterface, got "%s"', $this->getType($response)));
+        }
+
+        return $response;
+    }
+
+    /**
+     * Resolves response
+     *
+     * @return ResponseInterface
+     * @throws AppException
+     */
+    protected function resolveResponse()
+    {
+        if ($evtResponse = $this->fire('kernel.request')) {
+            return $evtResponse;
+        }
+
+        $controller = $this->router()
+            ->match($this->request());
+
+        if (empty($controller)) {
+            throw new AppException('No controller was returned from router');
+        }
+
+        if ($evtResponse = $this->fire('kernel.route')) {
+            return $evtResponse;
+        }
+
+        if ($evtResponse = $this->fire('kernel.controller')) {
+            return $evtResponse;
+        }
+
+        $response = $this->callController($controller);
+
+        if ($evtResponse = $this->fire('kernel.response', $response)) {
+            return $evtResponse;
         }
 
         return $response;
@@ -343,7 +340,7 @@ class App
      * @return ResponseInterface
      * @throws AppException
      */
-    private function callController($controller)
+    protected function callController($controller)
     {
         if (is_string($controller) && strpos($controller, self::SEPARATOR) !== false) {
             list($controller, $action) = explode(self::SEPARATOR, $controller);
@@ -355,11 +352,11 @@ class App
         }
 
         if (!$response) {
-            throw new AppException(sprintf('There was no response returned from the controller handling "%s"', $this->request->uri(true)));
+            throw new AppException(sprintf('There was no response returned from the controller handling "%s"', $this->request()->uri(true)));
         }
 
         if (!$response instanceof ResponseInterface) {
-            throw new AppException(sprintf('Invalid response returned from handling "%s", expected ResponseInterface, got "%s"', $this->request->uri(true), $this->getType($response)));
+            throw new AppException(sprintf('Invalid response returned from handling "%s", expected ResponseInterface, got "%s"', $this->request()->uri(true), $this->getType($response)));
         }
 
         return $response;
@@ -419,17 +416,17 @@ class App
      */
     private function callMethod($instance, $method)
     {
-        if (!method_exists($instance, $method) || !is_callable(array($instance, $method))) {
+        if (!method_exists($instance, $method) || !is_callable([$instance, $method])) {
             return false;
         }
 
-        return call_user_func(array($instance, $method));
+        return call_user_func([$instance, $method]);
     }
 
     /**
      * Calls function as controller
      *
-     * @param string|array|callable $function
+     * @param callable $function
      *
      * @return string|ResponseInterface
      */

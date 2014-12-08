@@ -23,26 +23,26 @@ use Moss\Http\Request\RequestInterface;
 class Router implements RouterInterface
 {
 
-    protected $defaults = array(
+    protected $defaults = [
         'host' => null,
         'route' => null,
         'locale' => null,
         'format' => null
-    );
+    ];
 
     /**
      * @var array|RouteInterface[]
      */
-    protected $routes = array();
+    protected $routes = [];
 
     /**
      * Creates router instance
      *
      * @param array $defaults
      */
-    public function __construct($defaults = array())
+    public function __construct(array $defaults = [])
     {
-        $this->defaults = array_merge($this->defaults, (array) $defaults);
+        $this->defaults = array_merge($this->defaults, $defaults);
     }
 
     /**
@@ -76,7 +76,7 @@ class Router implements RouterInterface
      *
      * @param RequestInterface $request
      *
-     * @return string
+     * @return callable
      * @throws RouterException
      */
     public function match(RequestInterface $request)
@@ -102,12 +102,12 @@ class Router implements RouterInterface
 
             $request->route($name);
 
-            $this->defaults = array(
+            $this->defaults = [
                 'host' => $request->baseName(),
                 'route' => $name,
                 'locale' => $request->locale(),
                 'format' => $request->format()
-            );
+            ];
 
             return $route->controller();
         }
@@ -125,7 +125,7 @@ class Router implements RouterInterface
      * @return string
      * @throws RouterException
      */
-    public function make($name = null, $arguments = array())
+    public function make($name = null, array $arguments = [])
     {
         $name = $this->resolveName($name);
 

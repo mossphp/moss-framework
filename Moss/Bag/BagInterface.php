@@ -68,7 +68,7 @@ interface BagInterface extends \ArrayAccess, \Iterator, \Countable
      *
      * @return array
      */
-    public function all($array = array());
+    public function all(array $array = []);
 
     /**
      * Removes all options

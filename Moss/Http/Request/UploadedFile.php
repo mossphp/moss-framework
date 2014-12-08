@@ -30,7 +30,7 @@ class UploadedFile extends \SplFileInfo
      */
     public function __construct(array $array)
     {
-        $required = array('name', 'type', 'tmp_name', 'error', 'size');
+        $required = ['name', 'type', 'tmp_name', 'error', 'size'];
         foreach ($required as $key) {
             if (!array_key_exists($key, $array)) {
                 throw new UploadedFileException(sprintf('Missing required array key "%s"', $key));

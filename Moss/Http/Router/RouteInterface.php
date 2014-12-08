@@ -49,7 +49,7 @@ interface RouteInterface
      *
      * @return array
      */
-    public function arguments($arguments = array());
+    public function arguments(array $arguments = []);
 
     /**
      * Sets host requirement
@@ -76,7 +76,7 @@ interface RouteInterface
      *
      * @return array
      */
-    public function methods($methods = array());
+    public function methods(array $methods = []);
 
     /**
      * Returns controller if matches request, otherwise returns false
@@ -95,7 +95,7 @@ interface RouteInterface
      *
      * @return bool
      */
-    public function check($controller, $arguments = array());
+    public function check($controller, array $arguments = []);
 
     /**
      * Creates route url
@@ -105,5 +105,5 @@ interface RouteInterface
      *
      * @return string
      */
-    public function make($host, $arguments = array());
+    public function make($host, array $arguments = []);
 }

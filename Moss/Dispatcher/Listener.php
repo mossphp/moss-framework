@@ -33,7 +33,7 @@ class Listener implements ListenerInterface
      * @param string $method
      * @param array  $arguments
      */
-    public function __construct($component, $method = null, $arguments = array())
+    public function __construct($component, $method = null, array $arguments = [])
     {
         $this->component = (string) $component;
         $this->method = (string) $method;
@@ -98,9 +98,9 @@ class Listener implements ListenerInterface
      * @return array
      * @throws DispatcherException
      */
-    protected function prepare(ContainerInterface $container, $arguments = array(), $subject = null, $message = null)
+    protected function prepare(ContainerInterface $container, array $arguments = [], $subject = null, $message = null)
     {
-        $result = array();
+        $result = [];
 
         foreach ($arguments as $k => $arg) {
             if (is_array($arg)) {
