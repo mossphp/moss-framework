@@ -169,7 +169,7 @@ class ExceptionHandler
      *
      * @param mixed $var
      *
-     * @return mixed|string
+     * @return string
      */
     public function colorify($var)
     {

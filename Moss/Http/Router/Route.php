@@ -238,7 +238,7 @@ class Route implements RouteInterface
      *
      * @param null|string $host
      *
-     * @return null|string
+     * @return string
      */
     public function host($host = null)
     {
@@ -252,7 +252,7 @@ class Route implements RouteInterface
      *
      * @param string $schema
      *
-     * @return null|string
+     * @return string
      */
     public function schema($schema = null)
     {

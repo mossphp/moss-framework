@@ -41,7 +41,7 @@ class Dispatcher implements DispatcherInterface
      */
     public function __construct(ContainerInterface $container = null)
     {
-        $this->container = & $container;
+        $this->container = &$container;
     }
 
     /**
@@ -93,9 +93,9 @@ class Dispatcher implements DispatcherInterface
     /**
      * Fires event
      *
-     * @param string      $event
-     * @param mixed       $subject
-     * @param null|string $message
+     * @param string $event
+     * @param mixed  $subject
+     * @param string $message
      *
      * @return mixed
      * @throws \Exception

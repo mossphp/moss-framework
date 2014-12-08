@@ -328,7 +328,7 @@ class Request implements RequestInterface
      * Returns server param value for given key or null if key does not exists
      *
      * @param null|string $key
-     * @param mixed       $default
+     * @param string      $default
      *
      * @return null|string
      */
