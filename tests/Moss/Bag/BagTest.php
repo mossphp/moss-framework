@@ -24,7 +24,7 @@ class BagTest extends \PHPUnit_Framework_TestCase
     public function testSetArray()
     {
         $bag = new Bag();
-        $bag->set(array('foo' => 'bar'));
+        $bag->set(['foo' => 'bar']);
         $this->assertEquals('bar', $bag->get('foo'));
     }
 
@@ -33,7 +33,7 @@ class BagTest extends \PHPUnit_Framework_TestCase
         $bag = new Bag();
         $bag->set('foo', 'foo');
         $bag->set('foo.bar', 'bar');
-        $this->assertEquals(array(0 => 'foo', 'bar' => 'bar'), $bag->get('foo'));
+        $this->assertEquals([0 => 'foo', 'bar' => 'bar'], $bag->get('foo'));
     }
 
     public function testSetWithoutOffset()
@@ -90,14 +90,14 @@ class BagTest extends \PHPUnit_Framework_TestCase
     public function testAllReplace($offset, $value, $expected)
     {
         $bag = new Bag();
-        $bag->all(array($offset => $value));
+        $bag->all([$offset => $value]);
         $this->assertEquals($expected, $bag->all());
     }
 
     /**
      * @dataProvider dataProvider
      */
-    public function testRemove($offset, $value, $expected, $removed = array())
+    public function testRemove($offset, $value, $expected, $removed = [])
     {
         $bag = new Bag();
         $bag->set($offset, $value);
@@ -115,7 +115,7 @@ class BagTest extends \PHPUnit_Framework_TestCase
         $bag->set($offset, $value);
         $this->assertEquals($expected, $bag->all());
         $bag->remove();
-        $this->assertEquals(array(), $bag->all());
+        $this->assertEquals([], $bag->all());
     }
 
     /**
@@ -127,7 +127,7 @@ class BagTest extends \PHPUnit_Framework_TestCase
         $bag->set($offset, $value);
         $this->assertEquals($expected, $bag->all());
         $bag->reset();
-        $this->assertEquals(array(), $bag->all());
+        $this->assertEquals([], $bag->all());
     }
 
     /**
@@ -207,13 +207,12 @@ class BagTest extends \PHPUnit_Framework_TestCase
 
     public function dataProvider()
     {
-        return array(
-            array('foo', 1, array('foo' => 1)),
-            array('bar', 'lorem', array('bar' => 'lorem')),
-            array('yada', array('yada' => 'yada'), array('yada' => array('yada' => 'yada'))),
-            array('dada', new \stdClass(), array('dada' => new \stdClass())),
-            array('foo.bar', 'yada', array('foo' => array('bar' => 'yada')), array('foo' => array()))
-        );
+        return [
+            ['foo', 1, ['foo' => 1]],
+            ['bar', 'lorem', ['bar' => 'lorem']],
+            ['yada', ['yada' => 'yada'], ['yada' => ['yada' => 'yada']]],
+            ['dada', new \stdClass(), ['dada' => new \stdClass()]],
+            ['foo.bar', 'yada', ['foo' => ['bar' => 'yada']], ['foo' => []]]
+        ];
     }
 }
- 

@@ -22,7 +22,7 @@ class HeaderBagTest extends \PHPUnit_Framework_TestCase
     {
         $bag = new HeaderBag();
         $bag->set($offset, $value);
-        $this->assertEquals(array($offset => $value), $bag->get());
+        $this->assertEquals([$offset => $value], $bag->get());
     }
 
     /**
@@ -52,7 +52,7 @@ class HeaderBagTest extends \PHPUnit_Framework_TestCase
     {
         $bag = new HeaderBag();
         $bag->set($offset, $value);
-        $this->assertEquals(array($offset => $value), $bag->all());
+        $this->assertEquals([$offset => $value], $bag->all());
     }
 
     /**
@@ -61,8 +61,8 @@ class HeaderBagTest extends \PHPUnit_Framework_TestCase
     public function testAllReplace($offset, $value)
     {
         $bag = new HeaderBag();
-        $bag->all(array($offset => $value));
-        $this->assertEquals(array($offset => $value), $bag->all());
+        $bag->all([$offset => $value]);
+        $this->assertEquals([$offset => $value], $bag->all());
     }
 
     /**
@@ -72,9 +72,9 @@ class HeaderBagTest extends \PHPUnit_Framework_TestCase
     {
         $bag = new HeaderBag();
         $bag->set($offset, $value);
-        $this->assertEquals(array($offset => $value), $bag->all());
+        $this->assertEquals([$offset => $value], $bag->all());
         $bag->remove($offset);
-        $this->assertEquals(array(), $bag->all());
+        $this->assertEquals([], $bag->all());
     }
 
     /**
@@ -84,9 +84,9 @@ class HeaderBagTest extends \PHPUnit_Framework_TestCase
     {
         $bag = new HeaderBag();
         $bag->set($offset, $value);
-        $this->assertEquals(array($offset => $value), $bag->all());
+        $this->assertEquals([$offset => $value], $bag->all());
         $bag->remove();
-        $this->assertEquals(array(), $bag->all());
+        $this->assertEquals([], $bag->all());
     }
 
     /**
@@ -96,9 +96,9 @@ class HeaderBagTest extends \PHPUnit_Framework_TestCase
     {
         $bag = new HeaderBag();
         $bag->set($offset, $value);
-        $this->assertEquals(array($offset => $value), $bag->all());
+        $this->assertEquals([$offset => $value], $bag->all());
         $bag->reset($offset);
-        $this->assertEquals(array(), $bag->all());
+        $this->assertEquals([], $bag->all());
     }
 
     /**
@@ -178,17 +178,17 @@ class HeaderBagTest extends \PHPUnit_Framework_TestCase
 
     public function testAsArray()
     {
-        $headers = array(
+        $headers = [
             'Content-Type'=> 'text/html; charset=UTF-8',
             'Location'=> 'http://google.com',
             'Refresh'=> '10; URL=http://google.com',
-        );
+        ];
 
-        $expected = array(
+        $expected = [
             'Content-Type: text/html; charset=UTF-8',
             'Location: http://google.com',
             'Refresh: 10; URL=http://google.com',
-        );
+        ];
 
         $bag = new HeaderBag($headers);
         $this->assertEquals($expected, $bag->asArray());
@@ -196,12 +196,11 @@ class HeaderBagTest extends \PHPUnit_Framework_TestCase
 
     public function dataProvider()
     {
-        return array(
-            array('Content-Type', 'text/plain'),
-            array('Content-Type', 'text/html; charset=UTF-8'),
-            array('Location', 'http://google.com'),
-            array('Refresh', '10; URL=http://google.com'),
-        );
+        return [
+            ['Content-Type', 'text/plain'],
+            ['Content-Type', 'text/html; charset=UTF-8'],
+            ['Location', 'http://google.com'],
+            ['Refresh', '10; URL=http://google.com'],
+        ];
     }
 }
- 

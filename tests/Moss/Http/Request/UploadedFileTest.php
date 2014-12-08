@@ -27,7 +27,7 @@ class UploadedFileTest extends \PHPUnit_Framework_TestCase
      */
     public function testMissingKey()
     {
-        $up = new UploadedFile(array());
+        $up = new UploadedFile([]);
         $up->getOriginalName();
     }
 
@@ -42,13 +42,13 @@ class UploadedFileTest extends \PHPUnit_Framework_TestCase
 
     public function testMove()
     {
-        $data = array(
+        $data = [
             'name' => __FILE__,
             'type' => 'text/plain',
             'tmp_name' => __FILE__,
             'error' => UPLOAD_ERR_OK,
             'size' => filesize(__FILE__)
-        );
+        ];
 
         $up = new UploadedFile($data);
         $up->move(__DIR__, 'UploadedFileTest.php', true);
@@ -60,13 +60,13 @@ class UploadedFileTest extends \PHPUnit_Framework_TestCase
      */
     public function testMoveWhenUploadWasNotSuccessful()
     {
-        $data = array(
+        $data = [
             'name' => __FILE__,
             'type' => 'text/plain',
             'tmp_name' => __FILE__,
             'error' => UPLOAD_ERR_CANT_WRITE,
             'size' => filesize(__FILE__)
-        );
+        ];
 
         $up = new UploadedFile($data);
         $up->move(__DIR__, 'UploadedFileTest.php', true);
@@ -78,13 +78,13 @@ class UploadedFileTest extends \PHPUnit_Framework_TestCase
      */
     public function testMoveWhenTargetFileAlreadyExists()
     {
-        $data = array(
+        $data = [
             'name' => __FILE__,
             'type' => 'text/plain',
             'tmp_name' => __FILE__,
             'error' => UPLOAD_ERR_OK,
             'size' => filesize(__FILE__)
-        );
+        ];
 
         $up = new UploadedFile($data);
         $up->move(__DIR__, 'UploadedFileTest.php', false);
@@ -96,13 +96,13 @@ class UploadedFileTest extends \PHPUnit_Framework_TestCase
      */
     public function testMoveInternalError()
     {
-        $data = array(
+        $data = [
             'name' => __FILE__,
             'type' => 'text/plain',
             'tmp_name' => __FILE__,
             'error' => UPLOAD_ERR_OK,
             'size' => filesize(__FILE__)
-        );
+        ];
 
         $up = new UploadedFile($data);
         $up->move(__DIR__, null, false);
@@ -146,13 +146,13 @@ class UploadedFileTest extends \PHPUnit_Framework_TestCase
 
     public function testIsValid()
     {
-        $data = array(
+        $data = [
             'name' => __FILE__,
             'type' => 'text/plain',
             'tmp_name' => __FILE__,
             'error' => UPLOAD_ERR_OK,
             'size' => filesize(__FILE__)
-        );
+        ];
 
         $up = new UploadedFile($data);
         $this->assertEquals(true, $up->isValid());
@@ -160,97 +160,97 @@ class UploadedFileTest extends \PHPUnit_Framework_TestCase
 
     public function dataProvider()
     {
-        return array(
-            array(
-                array(
+        return [
+            [
+                [
                     'name' => 'bar.txt',
                     'type' => 'text/plain',
                     'tmp_name' => 'whatever2',
                     'error' => 0,
                     'size' => 123
-                ),
+                ],
                 null
-            ),
-            array(
-                array(
+            ],
+            [
+                [
                     'name' => 'bar.txt',
                     'type' => 'text/plain',
                     'tmp_name' => 'whatever2',
                     'error' => 1,
                     'size' => 0
-                ),
+                ],
                 'The uploaded file exceeds the upload_max_filesize directive in php.ini.',
-            ),
-            array(
-                array(
+            ],
+            [
+                [
                     'name' => 'bar.txt',
                     'type' => 'text/plain',
                     'tmp_name' => 'whatever2',
                     'error' => 2,
                     'size' => 0
-                ),
+                ],
                 'The uploaded file exceeds the MAX_FILE_SIZE directive specified in HTML form.',
-            ),
-            array(
-                array(
+            ],
+            [
+                [
                     'name' => 'bar.txt',
                     'type' => 'text/plain',
                     'tmp_name' => 'whatever2',
                     'error' => 3,
                     'size' => 0
-                ),
+                ],
                 'The uploaded file was only partially uploaded.',
-            ),
-            array(
-                array(
+            ],
+            [
+                [
                     'name' => 'bar.txt',
                     'type' => 'text/plain',
                     'tmp_name' => 'whatever2',
                     'error' => 4,
                     'size' => 0
-                ),
+                ],
                 'No file was uploaded.',
-            ),
-            array(
-                array(
+            ],
+            [
+                [
                     'name' => 'bar.txt',
                     'type' => 'text/plain',
                     'tmp_name' => 'whatever2',
                     'error' => 5,
                     'size' => 0
-                ),
+                ],
                 'Unknown error occurred.',
-            ),
-            array(
-                array(
+            ],
+            [
+                [
                     'name' => 'bar.txt',
                     'type' => 'text/plain',
                     'tmp_name' => 'whatever2',
                     'error' => 6,
                     'size' => 0
-                ),
+                ],
                 'Missing a temporary folder.',
-            ),
-            array(
-                array(
+            ],
+            [
+                [
                     'name' => 'bar.txt',
                     'type' => 'text/plain',
                     'tmp_name' => 'whatever2',
                     'error' => 7,
                     'size' => 0
-                ),
+                ],
                 'Failed to write file to disk.',
-            ),
-            array(
-                array(
+            ],
+            [
+                [
                     'name' => 'bar.txt',
                     'type' => 'text/plain',
                     'tmp_name' => 'whatever2',
                     'error' => 8,
                     'size' => 0
-                ),
+                ],
                 'A PHP extension stopped the file upload.',
-            )
-        );
+            ]
+        ];
     }
 }

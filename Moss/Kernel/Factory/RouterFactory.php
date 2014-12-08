@@ -18,10 +18,10 @@ use Moss\Kernel\AppException;
 
 class RouterFactory
 {
-    protected $defaults = array(
-        'arguments' => array(),
-        'methods' => array()
-    );
+    protected $defaults = [
+        'arguments' => [],
+        'methods' => []
+    ];
 
 
     /**
@@ -80,8 +80,8 @@ class RouterFactory
         return new Route(
             $definition['pattern'],
             $definition['controller'],
-            $definition['arguments'] ?: array(),
-            $definition['methods'] ?: array()
+            $definition['arguments'] ?: [],
+            $definition['methods'] ?: []
         );
     }
 }

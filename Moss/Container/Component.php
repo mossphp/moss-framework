@@ -31,16 +31,16 @@ class Component implements ComponentInterface
      * @param array  $arguments
      * @param array  $calls
      */
-    public function __construct($class, $arguments = array(), $calls = array())
+    public function __construct($class, array $arguments = [], array $calls = [])
     {
         $this->class = (string) $class;
 
         if (!empty($arguments)) {
-            $this->arguments = (array) $arguments;
+            $this->arguments = $arguments;
         }
 
         if (!empty($calls)) {
-            $this->methods = (array) $calls;
+            $this->methods = $calls;
         }
     }
 
@@ -99,9 +99,9 @@ class Component implements ComponentInterface
      * @return array
      * @throws ContainerException
      */
-    protected function prepare(ContainerInterface $container = null, $arguments = array())
+    protected function prepare(ContainerInterface $container = null, array $arguments = [])
     {
-        $result = array();
+        $result = [];
 
         foreach ($arguments as $k => $arg) {
             if (is_array($arg)) {

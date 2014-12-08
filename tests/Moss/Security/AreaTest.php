@@ -13,14 +13,14 @@ class AreaTest extends \PHPUnit_Framework_TestCase
 
     public function testRoles()
     {
-        $area = new Area('bundle/*/(!login|logout)', array('some', 'roles'));
-        $this->assertEquals(array('some', 'roles'), $area->roles());
+        $area = new Area('bundle/*/(!login|logout)', ['some', 'roles']);
+        $this->assertEquals(['some', 'roles'], $area->roles());
     }
 
     public function testIps()
     {
-        $area = new Area('bundle/*/(!login|!logout)', array(), array('127.0.0.1'));
-        $this->assertEquals(array('127.0.0.1'), $area->ips());
+        $area = new Area('bundle/*/(!login|!logout)', [], ['127.0.0.1']);
+        $this->assertEquals(['127.0.0.1'], $area->ips());
     }
 
     /**
@@ -40,15 +40,15 @@ class AreaTest extends \PHPUnit_Framework_TestCase
 
     public function matchingProvider()
     {
-        return array(
-            array('/bundle/foo/yada'),
-            array('/bundle/foo/notLogin'),
-            array('/bundle/foo/notLogout'),
-            array('/bundle/foo/loginNot'),
-            array('/bundle/foo/logoutNot'),
-            array('/bundle/foo/'),
-            array('/bundle/foo'),
-        );
+        return [
+            ['/bundle/foo/yada'],
+            ['/bundle/foo/notLogin'],
+            ['/bundle/foo/notLogout'],
+            ['/bundle/foo/loginNot'],
+            ['/bundle/foo/logoutNot'],
+            ['/bundle/foo/'],
+            ['/bundle/foo']
+        ];
     }
 
     /**
@@ -68,17 +68,17 @@ class AreaTest extends \PHPUnit_Framework_TestCase
 
     public function notMatchingProvider()
     {
-        return array(
-            array('/bundle/foo/login'),
-            array('/bundle/bar/logout'),
-            array('/foo/bar/yada'),
-            array('/foo/bar/')
-        );
+        return [
+            ['/bundle/foo/login'],
+            ['/bundle/bar/logout'],
+            ['/foo/bar/yada'],
+            ['/foo/bar/']
+        ];
     }
 
     public function testAuthUserRoleFail()
     {
-        $area = new Area('bundle/*/(!login|logout)', array('role'));
+        $area = new Area('bundle/*/(!login|logout)', ['role']);
 
         $user = $this->getMock('\Moss\Security\UserInterface');
         $user
@@ -91,14 +91,14 @@ class AreaTest extends \PHPUnit_Framework_TestCase
 
     public function testAuthUserIPFail()
     {
-        $area = new Area('bundle/*/(!login|logout)', array(), array('127.0.0.1'));
+        $area = new Area('bundle/*/(!login|logout)', [], ['127.0.0.1']);
         $user = $this->getMock('\Moss\Security\UserInterface');
         $this->assertFalse($area->authorize($user, '127.0.0.2'));
     }
 
     public function testAuthUserRole()
     {
-        $area = new Area('bundle/*/(!login|logout)', array('role'));
+        $area = new Area('bundle/*/(!login|logout)', ['role']);
 
         $user = $this->getMock('\Moss\Security\UserInterface');
         $user
@@ -111,7 +111,7 @@ class AreaTest extends \PHPUnit_Framework_TestCase
 
     public function testAuthUserIP()
     {
-        $area = new Area('bundle/*/(!login|logout)', array(), array('127.0.0.1'));
+        $area = new Area('bundle/*/(!login|logout)', [], ['127.0.0.1']);
         $user = $this->getMock('\Moss\Security\UserInterface');
         $this->assertTrue($area->authorize($user, '127.0.0.1'));
     }

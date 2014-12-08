@@ -22,28 +22,28 @@ use Moss\Bag\Bag;
 class Config extends Bag implements ConfigInterface
 {
     protected $mode;
-    protected $storage = array(
-        'framework' => array(
-            'error' => array(
+    protected $storage = [
+        'framework' => [
+            'error' => [
                 'display' => true,
                 'level' => -1,
                 'detail' => true
-            ),
-            'session' => array(
+            ],
+            'session' => [
                 'name' => 'PHPSESSID',
                 'cacheLimiter' => ''
-            ),
-            'cookie' => array(
+            ],
+            'cookie' => [
                 'domain' => null,
                 'path' => '/',
                 'http' => true,
                 'ttl' => 2592000 // one month
-            )
-        ),
-        'container' => array(),
-        'dispatcher' => array(),
-        'router' => array()
-    );
+            ]
+        ],
+        'container' => [],
+        'dispatcher' => [],
+        'router' => []
+    ];
 
     /**
      * Creates Config instance
@@ -53,7 +53,7 @@ class Config extends Bag implements ConfigInterface
      *
      * @throws ConfigException
      */
-    public function __construct($arr = array(), $mode = null)
+    public function __construct(array $arr = [], $mode = null)
     {
         $this->mode($mode);
         $this->import($arr);
@@ -85,7 +85,7 @@ class Config extends Bag implements ConfigInterface
      */
     public function import(array $arr, $prefix = null)
     {
-        $importKeys = array();
+        $importKeys = [];
         foreach ($arr as $key => $node) {
             if (strpos($key, 'import') === 0) {
                 $mode = substr($key, 7);
@@ -94,18 +94,6 @@ class Config extends Bag implements ConfigInterface
                 }
 
                 continue;
-            }
-
-            switch ($key) {
-                case 'container':
-                    $node = $this->applyContainerDefaults($node);
-                    break;
-                case 'dispatcher':
-                    $node = $this->applyDispatcherDefaults($node);
-                    break;
-                case 'router':
-                    $node = $this->applyRouterDefaults($node);
-                    break;
             }
 
             $this->storage[$key] = array_merge($this->storage[$key], $this->applyPrefix($node, $prefix));
@@ -134,7 +122,7 @@ class Config extends Bag implements ConfigInterface
             return $array;
         }
 
-        $result = array();
+        $result = [];
         foreach ($array as $key => $value) {
             $result[$this->prefixKey($key, $prefix)] = $value;
         }
@@ -170,76 +158,6 @@ class Config extends Bag implements ConfigInterface
     private function checkPrefix($prefix)
     {
         return !empty($prefix) && !is_numeric($prefix);
-    }
-
-    /**
-     * Applies default values or missing properties for containers component definition
-     *
-     * @param array $array
-     * @param array $defaults
-     *
-     * @return array
-     */
-    private function applyContainerDefaults(array $array, $defaults = array('shared' => false))
-    {
-        foreach ($array as &$node) {
-            if (!is_array($node) || !array_key_exists('component', $node) || !is_callable($node['component'])) {
-                continue;
-            }
-
-            $node = array_merge($defaults, $node);
-            unset($node);
-        }
-
-        return $array;
-    }
-
-    /**
-     * Applies default values or missing properties for event listener definition
-     *
-     * @param array $array
-     *
-     * @return array
-     * @throws ConfigException
-     */
-    private function applyDispatcherDefaults(array $array)
-    {
-        foreach ($array as $evt) {
-            foreach ($evt as $node) {
-                if (!is_callable($node)) {
-                    throw new ConfigException('Event listener must be callable, got ' . gettype($node));
-                }
-            }
-        }
-
-        return $array;
-    }
-
-    /**
-     * Applies default values or missing properties for route definition
-     *
-     * @param array $array
-     * @param array $defaults
-     *
-     * @return array
-     * @throws ConfigException
-     */
-    private function applyRouterDefaults(array $array, $defaults = array('arguments' => array(), 'methods' => array()))
-    {
-        foreach ($array as &$node) {
-            if (!isset($node['pattern'])) {
-                throw new ConfigException('Missing required "pattern" property in route definition');
-            }
-
-            if (!isset($node['controller'])) {
-                throw new ConfigException('Missing required "controller" property in route definition');
-            }
-
-            $node = array_merge($defaults, $node);
-            unset($node);
-        }
-
-        return $array;
     }
 
     /**

@@ -42,10 +42,10 @@ class Token implements TokenInterface
      */
     public function credentials()
     {
-        return array(
+        return [
             'auth' => $this->auth,
             'user' => $this->user
-        );
+        ];
     }
 
     /**
@@ -112,7 +112,7 @@ class Token implements TokenInterface
      */
     public function serialize()
     {
-        return serialize(array($this->auth, $this->user));
+        return serialize([$this->auth, $this->user]);
     }
 
     /**
