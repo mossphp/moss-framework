@@ -21,7 +21,7 @@ class ComponentTest extends \PHPUnit_Framework_TestCase
 
     public function testGetNoArgs()
     {
-        $component = new Component('\Moss\Container\Foobar', array());
+        $component = new Component('\Moss\Container\Foobar', []);
 
         $result = new Foobar;
         $this->assertEquals($result, $component->get());
@@ -29,9 +29,9 @@ class ComponentTest extends \PHPUnit_Framework_TestCase
 
     public function testSimpleArgs()
     {
-        $component = new Component('\Moss\Container\Foobar', array('foo', 'bar', array('y', 'a', 'd', 'a')));
+        $component = new Component('\Moss\Container\Foobar', ['foo', 'bar', ['y', 'a', 'd', 'a']]);
 
-        $result = new Foobar('foo', 'bar', array('y', 'a', 'd', 'a'));
+        $result = new Foobar('foo', 'bar', ['y', 'a', 'd', 'a']);
         $this->assertEquals($result, $component->get());
     }
 
@@ -41,7 +41,7 @@ class ComponentTest extends \PHPUnit_Framework_TestCase
      */
     public function testComponentArgsWithoutContainer()
     {
-        $component = new Component('\Moss\Container\Foobar', array('@foo', '@bar', '@yada'));
+        $component = new Component('\Moss\Container\Foobar', ['@foo', '@bar', '@yada']);
         $this->assertEquals(new Foobar, $component->get());
     }
 
@@ -53,7 +53,7 @@ class ComponentTest extends \PHPUnit_Framework_TestCase
             ->method($this->anything())
             ->will($this->returnValue('foo'));
 
-        $component = new Component('\Moss\Container\Foobar', array('@foo', '@bar', '@yada', '@Container'));
+        $component = new Component('\Moss\Container\Foobar', ['@foo', '@bar', '@yada', '@Container']);
 
         $result = new Foobar('foo', 'foo', 'foo', $container);
         $this->assertEquals($result, $component->get($container));
@@ -61,8 +61,8 @@ class ComponentTest extends \PHPUnit_Framework_TestCase
 
     public function testComponentMethods()
     {
-        $component = new Component('\Moss\Container\Foobar', array(), array('foo' => array('foo', 'bar', 'yada')));
-        $this->assertAttributeEquals(array('foo', 'bar', 'yada'), 'args', $component->get());
+        $component = new Component('\Moss\Container\Foobar', [], ['foo' => ['foo', 'bar', 'yada']]);
+        $this->assertAttributeEquals(['foo', 'bar', 'yada'], 'args', $component->get());
     }
 
     public function testCallable()
@@ -73,7 +73,7 @@ class ComponentTest extends \PHPUnit_Framework_TestCase
             ->method($this->anything())
             ->will($this->returnValue('foo'));
 
-        $component = new Component('\Moss\Container\Foobar', array('@foo', '@bar', '@yada', '@Container'));
+        $component = new Component('\Moss\Container\Foobar', ['@foo', '@bar', '@yada', '@Container']);
 
         $this->assertEquals($component($container), $component->get($container));
     }

@@ -25,14 +25,14 @@ class Dispatcher implements DispatcherInterface
     /**
      * @var ContainerInterface
      */
-    private $container;
+    protected $container;
 
     /**
      * @var array
      */
-    private $events = array();
+    protected $events = [];
 
-    private $stop;
+    protected $stop;
 
     /**
      * Constructor
@@ -71,14 +71,14 @@ class Dispatcher implements DispatcherInterface
      *
      * @throws DispatcherException
      */
-    private function registerListener($event, $listener, $priority)
+    protected function registerListener($event, $listener, $priority)
     {
         if (!is_callable($listener)) {
             throw new DispatcherException(sprintf('Invalid event listener. Only callables or ListenerInterface instances can be registered, got "%s"', gettype($listener)));
         }
 
         if (!isset($this->events[$event])) {
-            $this->events[$event] = array();
+            $this->events[$event] = [];
         }
 
         if ($priority === null) {
@@ -87,7 +87,7 @@ class Dispatcher implements DispatcherInterface
             return;
         }
 
-        array_splice($this->events[$event], (int) $priority, 0, array($listener));
+        array_splice($this->events[$event], (int) $priority, 0, [$listener]);
     }
 
     /**
@@ -105,7 +105,7 @@ class Dispatcher implements DispatcherInterface
         $this->stop = false;
 
         try {
-            foreach (array($event . ':before', $event, $event . ':after') as $eventName) {
+            foreach ([$event . ':before', $event, $event . ':after'] as $eventName) {
                 if ($this->stop) {
                     break;
                 }

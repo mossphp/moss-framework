@@ -10,18 +10,18 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider importProvider
      */
-    public function testImportExport($import, $expected = array())
+    public function testImportExport($import, $expected = [])
     {
-        $default = array(
-            'framework' => array(
-                'error' => array('display' => true, 'level' => -1, 'detail' => true),
-                'session' => array('name' => 'PHPSESSID', 'cacheLimiter' => ''),
-                'cookie' => array('domain' => null, 'path' => '/', 'http' => true, 'ttl' => 2592000)
-            ),
-            'container' => array(),
-            'dispatcher' => array(),
-            'router' => array(),
-        );
+        $default = [
+            'framework' => [
+                'error' => ['display' => true, 'level' => -1, 'detail' => true],
+                'session' => ['name' => 'PHPSESSID', 'cacheLimiter' => ''],
+                'cookie' => ['domain' => null, 'path' => '/', 'http' => true, 'ttl' => 2592000]
+            ],
+            'container' => [],
+            'dispatcher' => [],
+            'router' => [],
+        ];
 
         $config = new Config();
         $config->import($import);
@@ -31,69 +31,69 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
 
     public function importProvider()
     {
-        return array(
-            array(
-                array(
-                    'framework' => array(
-                        'error' => array('display' => true, 'level' => E_ALL | E_NOTICE, 'detail' => true),
-                        'session' => array('name' => 'PHPSESSID', 'cacheLimiter' => ''),
-                        'cookie' => array('domain' => null, 'path' => '/', 'http' => true, 'ttl' => 2592000)
-                    ),
-                )
-            ),
-            array(
-                array(
-                    'container' => array(
+        return [
+            [
+                [
+                    'framework' => [
+                        'error' => ['display' => true, 'level' => E_ALL | E_NOTICE, 'detail' => true],
+                        'session' => ['name' => 'PHPSESSID', 'cacheLimiter' => ''],
+                        'cookie' => ['domain' => null, 'path' => '/', 'http' => true, 'ttl' => 2592000]
+                    ],
+                ]
+            ],
+            [
+                [
+                    'container' => [
                         'foo' => 'bar',
-                        'name' => array(
+                        'name' => [
                             'component' => function () { },
                             'shared' => false
-                        )
-                    ),
-                )
-            ),
-            array(
-                array(
-                    'dispatcher' => array(
-                        'foo' => array(
+                        ]
+                    ]
+                ]
+            ],
+            [
+                [
+                    'dispatcher' => [
+                        'foo' => [
                             function () { },
-                        )
-                    ),
-                )
-            ),
-            array(
-                array(
-                    'router' => array(
-                        'routeName' => array(
+                        ]
+                    ]
+                ]
+            ],
+            [
+                [
+                    'router' => [
+                        'routeName' => [
                             'pattern' => '/{foo}/({bar})/',
                             'controller' => 'Moss:sample:Sample:index',
-                            'arguments' => array(),
-                            'methods' => array(),
-                        )
-                    )
-                )
-            ),
-            array(
-                array(
-                    'import' => array(
-                        array(
-                            'dispatcher' => array(
-                                'foo' => array(
+                            'arguments' => [],
+                            'methods' => []
+                        ]
+                    ]
+                ]
+            ],
+            [
+                [
+                    'import' => [
+                        [
+                            'dispatcher' => [
+                                'foo' => [
                                     function () { }
-                                )
-                            )
-                        )
-                    )
-                ),
-                array(
-                    'dispatcher' => array(
-                        'foo' => array(
+                                ]
+                            ]
+                        ]
+                    ]
+                ],
+                [
+                    'dispatcher' => [
+                        'foo' => [
                             function () { }
-                        )
-                    ),
-                )
-            )
-        );
+                        ]
+                    ],
+                ]
+            ]
+        ];
     }
 
     /**
@@ -107,11 +107,11 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
 
     public function modeProvider()
     {
-        return array(
-            array(null),
-            array('dev'),
-            array('prod')
-        );
+        return [
+            [null],
+            ['dev'],
+            ['prod']
+        ];
     }
 
     /**
@@ -119,16 +119,16 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
      */
     public function testImportExportWithMode($import, $expected)
     {
-        $default = array(
-            'framework' => array(
-                'error' => array('display' => true, 'level' => -1, 'detail' => true),
-                'session' => array('name' => 'PHPSESSID', 'cacheLimiter' => ''),
-                'cookie' => array('domain' => null, 'path' => '/', 'http' => true, 'ttl' => 2592000)
-            ),
-            'container' => array(),
-            'dispatcher' => array(),
-            'router' => array(),
-        );
+        $default = [
+            'framework' => [
+                'error' => ['display' => true, 'level' => -1, 'detail' => true],
+                'session' => ['name' => 'PHPSESSID', 'cacheLimiter' => ''],
+                'cookie' => ['domain' => null, 'path' => '/', 'http' => true, 'ttl' => 2592000]
+            ],
+            'container' => [],
+            'dispatcher' => [],
+            'router' => []
+        ];
 
         $config = new Config();
         $config->mode('dev');
@@ -139,137 +139,83 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
 
     public function importModeProvider()
     {
-        return array(
-            array(
-                array(
-                    'import' => array(
-                        array(
-                            'container' => array(
+        return [
+            [
+                [
+                    'import' => [
+                        [
+                            'container' => [
                                 'foo' => 'bar',
-                            ),
-                        )
-                    )
-                ),
-                array(
-                    'container' => array(
+                            ]
+                        ]
+                    ]
+                ],
+                [
+                    'container' => [
                         'foo' => 'bar',
-                    ),
-                )
-            ),
-            array(
-                array(
-                    'import_prod' => array(
-                        array(
-                            'container' => array(
-                                'foo' => 'bar',
-                            ),
-                        )
-                    )
-                ),
-                array()
-            ),
-            array(
-                array(
-                    'import_dev' => array(
-                        array(
-                            'container' => array(
-                                'foo' => 'bar',
-                            ),
-                        )
-                    )
-                ),
-                array(
-                    'container' => array(
-                        'foo' => 'bar',
-                    ),
-                )
-            )
-        );
+                    ]
+                ]
+            ],
+            [
+                [
+                    'import_prod' => [
+                        [
+                            'container' => [
+                                'foo' => 'bar'
+                            ],
+                        ]
+                    ]
+                ],
+                []
+            ],
+            [
+                [
+                    'import_dev' => [
+                        [
+                            'container' => [
+                                'foo' => 'bar'
+                            ]
+                        ]
+                    ]
+                ],
+                [
+                    'container' => [
+                        'foo' => 'bar'
+                    ]
+                ]
+            ]
+        ];
     }
 
     public function testPrefixedImport()
     {
-        $data = array(
-            'import' => array(
-                'prefix' => array(
-                    'container' => array('var' => 'value')
-                )
-            )
-        );
+        $data = [
+            'import' => [
+                'prefix' => [
+                    'container' => ['var' => 'value']
+                ]
+            ]
+        ];
 
         $config = new Config();
         $config->import($data);
         $this->assertEquals('value', $config->get('container.prefix:var'));
     }
 
-    /**
-     * @expectedException \Moss\Config\ConfigException
-     * @expectedExceptionMessage Event listener must be callable
-     */
-    public function testInvalidDispatcherImport()
-    {
-        $result = array(
-            'dispatcher' => array(
-                'foo' => array(
-                    'yada' => array()
-                )
-            )
-        );
-
-        $config = new Config();
-        $config->import($result);
-    }
-
-    /**
-     * @expectedException \Moss\Config\ConfigException
-     * @expectedExceptionMessage Missing required "pattern" property in route definition
-     */
-    public function testInvalidRouterImportWithoutPattern()
-    {
-        $result = array(
-            'router' => array(
-                'routeName' => array(
-                    'controller' => 'yada:yada'
-                )
-            )
-        );
-
-        $config = new Config();
-        $config->import($result);
-    }
-
-    /**
-     * @expectedException \Moss\Config\ConfigException
-     * @expectedExceptionMessage Missing required "controller" property in route definition
-     */
-    public function testInvalidRouterImportWithoutController()
-    {
-        $result = array(
-            'router' => array(
-                'routeName' => array(
-                    'pattern' => 'yada/yada'
-                )
-            )
-        );
-
-        $config = new Config();
-        $config->import($result);
-    }
-
     public function testGet()
     {
-        $result = array(
+        $result = [
             'level' => E_ALL | E_NOTICE,
             'detail' => true
-        );
+        ];
 
-        $config = new Config(array('framework' => array('error' => $result)));
+        $config = new Config(['framework' => ['error' => $result]]);
         $this->assertEquals($result, $config->get('framework.error'));
     }
 
     public function testGetDeep()
     {
-        $config = new Config(array('framework' => array('error' => array('detail' => true))));
+        $config = new Config(['framework' => ['error' => ['detail' => true]]]);
         $this->assertTrue($config->get('framework.error.detail'));
     }
 
@@ -348,29 +294,29 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
 
     public function dataProvider()
     {
-        return array(
-            array('foo', 1, array('foo' => 1)),
-            array('bar', 'lorem', array('bar' => 'lorem')),
-            array('yada', array('yada' => 'yada'), array('yada' => array('yada' => 'yada'))),
-            array('dada', new \stdClass(), array('dada' => new \stdClass())),
-            array('foo.bar', 'yada', array('foo' => array('bar' => 'yada')), array('foo' => array()))
-        );
+        return [
+            ['foo', 1, ['foo' => 1]],
+            ['bar', 'lorem', ['bar' => 'lorem']],
+            ['yada', ['yada' => 'yada'], ['yada' => ['yada' => 'yada']]],
+            ['dada', new \stdClass(), ['dada' => new \stdClass()]],
+            ['foo.bar', 'yada', ['foo' => ['bar' => 'yada']], ['foo' => []]]
+        ];
     }
 
     public function testIterator()
     {
         $config = new Config();
 
-        $expected = array(
-            'framework' => array(
-                'error' => array('display' => true, 'level' => -1, 'detail' => true),
-                'session' => array('name' => 'PHPSESSID', 'cacheLimiter' => ''),
-                'cookie' => array('domain' => null, 'path' => '/', 'http' => true, 'ttl' => 2592000)
-            ),
-            'container' => array(),
-            'dispatcher' => array(),
-            'router' => array(),
-        );
+        $expected = [
+            'framework' => [
+                'error' => ['display' => true, 'level' => -1, 'detail' => true],
+                'session' => ['name' => 'PHPSESSID', 'cacheLimiter' => ''],
+                'cookie' => ['domain' => null, 'path' => '/', 'http' => true, 'ttl' => 2592000]
+            ],
+            'container' => [],
+            'dispatcher' => [],
+            'router' => [],
+        ];
 
         foreach ($config as $key => $val) {
             $this->assertTrue(isset($expected[$key]));

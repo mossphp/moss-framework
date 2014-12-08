@@ -5,7 +5,7 @@ class MockView extends View
 {
     public function render()
     {
-        return json_encode(array(parent::translate($this->template), $this->storage));
+        return json_encode([parent::translate($this->template), $this->storage]);
     }
 }
 
@@ -34,15 +34,15 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 
     public function setProvider()
     {
-        return array(
-            array('["..\/src\/foo\/bar\/View\/yada.php",{"a":null}]', 'a'),
-            array('["..\/src\/foo\/bar\/View\/yada.php",{"b":"c"}]', 'b', 'c'),
-            array('["..\/src\/foo\/bar\/View\/yada.php",["d","e"]]', array('d', 'e')),
-            array('["..\/src\/foo\/bar\/View\/yada.php",{"f":["g","h"]}]', 'f', array('g', 'h')),
-            array('["..\/src\/foo\/bar\/View\/yada.php",{"i":"j","k":"l"}]', array('i' => 'j', 'k' => 'l')),
-            array('["..\/src\/foo\/bar\/View\/yada.php",{"m":{"n":"o"}}]', 'm', array('n' => 'o')),
-            array('["..\/src\/foo\/bar\/View\/yada.php",{"m":{"n":"o"}}]', 'm.n', 'o')
-        );
+        return [
+            ['["..\/src\/foo\/bar\/View\/yada.php",{"a":null}]', 'a'],
+            ['["..\/src\/foo\/bar\/View\/yada.php",{"b":"c"}]', 'b', 'c'],
+            ['["..\/src\/foo\/bar\/View\/yada.php",["d","e"]]', ['d', 'e']],
+            ['["..\/src\/foo\/bar\/View\/yada.php",{"f":["g","h"]}]', 'f', ['g', 'h']],
+            ['["..\/src\/foo\/bar\/View\/yada.php",{"i":"j","k":"l"}]', ['i' => 'j', 'k' => 'l']],
+            ['["..\/src\/foo\/bar\/View\/yada.php",{"m":{"n":"o"}}]', 'm', ['n' => 'o']],
+            ['["..\/src\/foo\/bar\/View\/yada.php",{"m":{"n":"o"}}]', 'm.n', 'o']
+        ];
     }
 
     /**
@@ -60,15 +60,15 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 
     public function getProvider()
     {
-        return array(
-            array(null, 'a', 'a'),
-            array('c', 'b', 'b', 'c'),
-            array(0, 'd', array('d', 'e')),
-            array(array('g', 'h'), 'f', 'f', array('g', 'h')),
-            array('j', 'i', array('i' => 'j', 'k' => 'l')),
-            array('o', 'm.n', 'm', array('n' => 'o')),
-            array('o', 'm.n', array('m' => array('n' => 'o')))
-        );
+        return [
+            [null, 'a', 'a'],
+            ['c', 'b', 'b', 'c'],
+            [0, 'd', ['d', 'e']],
+            [['g', 'h'], 'f', 'f', ['g', 'h']],
+            ['j', 'i', ['i' => 'j', 'k' => 'l']],
+            ['o', 'm.n', 'm', ['n' => 'o']],
+            ['o', 'm.n', ['m' => ['n' => 'o']]]
+        ];
     }
 
     public function testRender()
@@ -168,12 +168,12 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 
     public function dataProvider()
     {
-        return array(
-            array('foo', 1, array('foo' => 1)),
-            array('bar', 'lorem', array('bar' => 'lorem')),
-            array('yada', array('yada' => 'yada'), array('yada' => array('yada' => 'yada'))),
-            array('dada', new \stdClass(), array('dada' => new \stdClass())),
-            array('foo.bar', 'yada', array('foo' => array('bar' => 'yada')), array('foo' => array()))
-        );
+        return [
+            ['foo', 1, ['foo' => 1]],
+            ['bar', 'lorem', ['bar' => 'lorem']],
+            ['yada', ['yada' => 'yada'], ['yada' => ['yada' => 'yada']]],
+            ['dada', new \stdClass(), ['dada' => new \stdClass()]],
+            ['foo.bar', 'yada', ['foo' => ['bar' => 'yada']], ['foo' => []]]
+        ];
     }
 }

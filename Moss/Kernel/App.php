@@ -49,7 +49,7 @@ class App implements AppInterface
      * @param array  $config
      * @param string $mode
      */
-    public function __construct($config = array(), $mode = null)
+    public function __construct(array $config = [], $mode = null)
     {
         $config = new Config($config, $mode);
 
@@ -126,7 +126,7 @@ class App implements AppInterface
      *
      * @return $this
      */
-    public function route($name, $pattern, $controller, $arguments = array(), $methods = array())
+    public function route($name, $pattern, $controller, array $arguments = [], array $methods = [])
     {
         $this->router()
             ->register($name, new Route($pattern, $controller, $arguments, $methods));
@@ -290,7 +290,7 @@ class App implements AppInterface
      * @return ResponseInterface
      * @throws AppException
      */
-    private function resolveResponse()
+    protected function resolveResponse()
     {
         if ($evtResponse = $this->fire('kernel.request')) {
             return $evtResponse;
@@ -340,7 +340,7 @@ class App implements AppInterface
      * @return ResponseInterface
      * @throws AppException
      */
-    private function callController($controller)
+    protected function callController($controller)
     {
         if (is_string($controller) && strpos($controller, self::SEPARATOR) !== false) {
             list($controller, $action) = explode(self::SEPARATOR, $controller);
@@ -416,17 +416,17 @@ class App implements AppInterface
      */
     private function callMethod($instance, $method)
     {
-        if (!method_exists($instance, $method) || !is_callable(array($instance, $method))) {
+        if (!method_exists($instance, $method) || !is_callable([$instance, $method])) {
             return false;
         }
 
-        return call_user_func(array($instance, $method));
+        return call_user_func([$instance, $method]);
     }
 
     /**
      * Calls function as controller
      *
-     * @param string|array|callable $function
+     * @param callable $function
      *
      * @return string|ResponseInterface
      */

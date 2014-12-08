@@ -58,5 +58,5 @@ interface RouterInterface
      *
      * @return string
      */
-    public function make($name = null, $arguments = array());
+    public function make($name = null, array $arguments = []);
 }

@@ -31,7 +31,7 @@ class View extends Bag implements ViewInterface
      * @param array  $vars
      * @param string $pattern
      */
-    public function __construct(array $vars = array(), $pattern = '../src/{bundle}/{directory}/View/{file}.php')
+    public function __construct(array $vars = [], $pattern = '../src/{bundle}/{directory}/View/{file}.php')
     {
         $this->pattern = $pattern;
     }
@@ -83,8 +83,8 @@ class View extends Bag implements ViewInterface
     {
         preg_match_all('/^(?P<bundle>[^:]+):(?P<directory>[^:]*:)?(?P<file>.+)$/', $name, $matches, \PREG_SET_ORDER);
 
-        $r = array();
-        foreach (array('bundle', 'directory', 'file') as $k) {
+        $r = [];
+        foreach (['bundle', 'directory', 'file'] as $k) {
             if (empty($matches[0][$k])) {
                 throw new ViewException(sprintf('Invalid or missing "%s" node in view filename "%s"', $k, $name));
             }
@@ -93,7 +93,7 @@ class View extends Bag implements ViewInterface
         }
 
         $file = strtr($this->pattern, $r);
-        $file = str_replace(array('\\', '_', '//'), '/', $file);
+        $file = str_replace(['\\', '_', '//'], '/', $file);
 
         return $file;
     }

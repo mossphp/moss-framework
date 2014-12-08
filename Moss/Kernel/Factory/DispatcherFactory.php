@@ -18,10 +18,10 @@ use Moss\Kernel\AppException;
 
 class DispatcherFactory
 {
-    protected $defaults = array(
+    protected $defaults = [
         'method' => null,
-        'arguments' => array()
-    );
+        'arguments' => []
+    ];
 
 
     /**
@@ -90,7 +90,7 @@ class DispatcherFactory
             return new Listener(
                 $definition['component'],
                 $definition['method'] ?: null,
-                $definition['arguments'] ?: array()
+                $definition['arguments'] ?: []
             );
         }
 
