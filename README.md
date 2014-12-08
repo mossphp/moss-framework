@@ -73,5 +73,5 @@ And if you submit fix - this would be truly amazing!
  
 All pull requests must adhere to the PSR-2 standard.
 All pull requests should be accompanied by passing PHPUnit tests.
-Add phpDocs to all methods, including at least a description, all @param declarations and the @return declaration
+Add phpDocs to all methods, including at least a description, all @param, @return and @throws declaration
 
