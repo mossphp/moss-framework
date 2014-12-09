@@ -155,7 +155,7 @@ class ExceptionHandler
         $tpl = '<span %s>%u</span>';
 
         $lines = [];
-        for($i = 0; $i < $count; $i++) {
+        for ($i = 0; $i < $count; $i++) {
             $lines[] = sprintf($tpl, '', $i + 1);
         }
 
@@ -175,6 +175,7 @@ class ExceptionHandler
     {
         ob_start();
         var_dump($var);
+
         return ob_get_clean();
     }
 }

@@ -1,6 +1,6 @@
 {
 	"name": "moss/framework",
-	"version": "v1.0.2",
+	"version": "v1.1",
 	"description": "The PHP micro-framework",
 	"keywords": ["microframework", "framework"],
 	"type": "framework",

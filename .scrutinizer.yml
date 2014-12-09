@@ -6,5 +6,11 @@ tools:
     php_sim: true
     php_pdepend: true
     php_analyzer: true
+    php_code_sniffer:
+        config:
+            standard: PSR2
     external_code_coverage: true
-
+checks:
+    php:
+        code_rating: true
+        duplication: true
