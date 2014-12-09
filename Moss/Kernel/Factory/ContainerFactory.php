@@ -82,7 +82,12 @@ class ContainerFactory
 
         $definition = array_merge_recursive($this->classDefaults, $definition);
 
-        array_walk($definition['component']['calls'], function (&$call) { $call = (array) $call; });
+        array_walk(
+            $definition['component']['calls'],
+            function (&$call) {
+                $call = (array) $call;
+            }
+        );
 
         return $definition;
     }
