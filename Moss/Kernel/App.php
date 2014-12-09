@@ -109,7 +109,7 @@ class App implements AppInterface
      * @return mixed
      * @deprecated
      */
-    function __get($name)
+    public function __get($name)
     {
         return $this->get($name);
     }

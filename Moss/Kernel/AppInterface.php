@@ -26,7 +26,8 @@ use Moss\Http\Session\SessionInterface;
  * @package Moss Kernel
  * @author  Michal Wachowski <wachowski.michal@gmail.com>
  */
-interface AppInterface {
+interface AppInterface
+{
 
     /**
      * Returns parameter or component from container under set name

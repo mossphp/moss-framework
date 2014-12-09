@@ -68,11 +68,11 @@ class ContainerFactory
      */
     public function applyDefaults($definition)
     {
-        if(!is_array($definition) || !isset($definition['component'])) {
+        if (!is_array($definition) || !isset($definition['component'])) {
             return $definition;
         }
 
-        if(is_callable($definition['component'])) {
+        if (is_callable($definition['component'])) {
             return array_merge($this->callableDefaults, $definition);
         }
 
