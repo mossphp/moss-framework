@@ -16,6 +16,11 @@ use Moss\Http\Router\Route;
 use Moss\Http\Router\Router;
 use Moss\Kernel\AppException;
 
+/**
+ * Class RouterFactory
+ *
+ * @package Moss\Kernel
+ */
 class RouterFactory
 {
     protected $defaults = [
@@ -80,8 +85,8 @@ class RouterFactory
         return new Route(
             $definition['pattern'],
             $definition['controller'],
-            $definition['arguments'] ?: [],
-            $definition['methods'] ?: []
+            $definition['arguments'] ? (array) $definition['arguments'] : [],
+            $definition['methods'] ? (array) $definition['methods'] : []
         );
     }
 }

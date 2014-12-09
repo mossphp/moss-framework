@@ -12,10 +12,16 @@
 namespace Moss\Kernel\Factory;
 
 
+use Moss\Container\ContainerInterface;
 use Moss\Dispatcher\Dispatcher;
 use Moss\Dispatcher\Listener;
 use Moss\Kernel\AppException;
 
+/**
+ * Class DispatcherFactory
+ *
+ * @package Moss\Kernel
+ */
 class DispatcherFactory
 {
     protected $defaults = [
@@ -27,25 +33,28 @@ class DispatcherFactory
     /**
      * Builds event dispatcher and event listeners
      *
-     * @param array $config
+     * @param array                   $config
+     * @param null|ContainerInterface $container
      *
      * @return Dispatcher
      */
-    public function build(array $config)
+    public function build(array $config, ContainerInterface $container = null)
     {
-        $dispatcher = new Dispatcher();
-        foreach ((array) $config as $name => $listener) {
-            if (is_callable($listener)) {
-                $dispatcher->register($name, $listener);
-                continue;
+        $dispatcher = new Dispatcher($container);
+        foreach ((array) $config as $name => $listeners) {
+            foreach ($listeners as $listener) {
+                if (is_callable($listener)) {
+                    $dispatcher->register($name, $listener);
+                    continue;
+                }
+
+                $listener = $this->applyDefaults($listener);
+
+                $dispatcher->register(
+                    $name,
+                    $this->buildDefinition($listener)
+                );
             }
-
-            $listener = $this->applyDefaults($listener);
-
-            $dispatcher->register(
-                $name,
-                $this->buildDefinition($listener)
-            );
         }
 
         return $dispatcher;
@@ -90,7 +99,7 @@ class DispatcherFactory
             return new Listener(
                 $definition['component'],
                 $definition['method'] ?: null,
-                $definition['arguments'] ?: []
+                $definition['arguments'] ? (array) $definition['arguments'] : []
             );
         }
 

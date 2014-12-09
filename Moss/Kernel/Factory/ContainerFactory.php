@@ -16,6 +16,11 @@ use Moss\Container\Component;
 use Moss\Container\Container;
 use Moss\Kernel\AppException;
 
+/**
+ * Class ContainerFactory
+ *
+ * @package Moss\Kernel
+ */
 class ContainerFactory
 {
     protected $callableDefaults = [
@@ -68,11 +73,11 @@ class ContainerFactory
      */
     public function applyDefaults($definition)
     {
-        if(!is_array($definition) || !isset($definition['component'])) {
+        if (!is_array($definition) || !isset($definition['component'])) {
             return $definition;
         }
 
-        if(is_callable($definition['component'])) {
+        if (is_callable($definition['component'])) {
             return array_merge($this->callableDefaults, $definition);
         }
 
@@ -82,7 +87,12 @@ class ContainerFactory
 
         $definition = array_merge_recursive($this->classDefaults, $definition);
 
-        array_walk($definition['component']['calls'], function (&$call) { $call = (array) $call; });
+        array_walk(
+            $definition['component']['calls'],
+            function (&$call) {
+                $call = (array) $call;
+            }
+        );
 
         return $definition;
     }

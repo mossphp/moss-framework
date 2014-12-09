@@ -17,11 +17,13 @@ class DispatcherFactoryTest extends \PHPUnit_Framework_TestCase
     public function testBuild()
     {
         $definition = [
-            'for' => function () { },
-            'bar' => [
-                'component' => 'bar',
-                'method' => null,
-                'arguments' => []
+            'event' => [
+                'for' => function () { },
+                'bar' => [
+                    'component' => 'bar',
+                    'method' => null,
+                    'arguments' => []
+                ]
             ]
         ];
 
@@ -47,7 +49,7 @@ class DispatcherFactoryTest extends \PHPUnit_Framework_TestCase
 
     public function testDoNotApplyDefaultsToCallable()
     {
-        $expected = function() {};
+        $expected = function () { };
 
         $factory = new DispatcherFactory();
         $result = $factory->applyDefaults($expected);

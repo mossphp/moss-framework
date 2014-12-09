@@ -155,11 +155,11 @@ class ExceptionHandler
         $tpl = '<span %s>%u</span>';
 
         $lines = [];
-        for($i = 0; $i < $count; $i++) {
+        for ($i = 0; $i < $count; $i++) {
             $lines[] = sprintf($tpl, '', $i + 1);
         }
 
-        $lines[$mark - 1] = sprintf($tpl, 'id="mark"', $i + 1);
+        $lines[$mark - 1] = sprintf($tpl, 'id="mark"', $mark);
 
         return sprintf('<table><tr><td>%s</td><td>%s</td></tr></table>', implode($lineSeparator, $lines), $source);
     }
@@ -175,6 +175,7 @@ class ExceptionHandler
     {
         ob_start();
         var_dump($var);
+
         return ob_get_clean();
     }
 }
