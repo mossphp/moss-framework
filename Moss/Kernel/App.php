@@ -66,7 +66,7 @@ class App implements AppInterface
 
         // components
         $dispatcherFactory = new DispatcherFactory();
-        $dispatcher = $dispatcherFactory->build((array) $config['dispatcher']);
+        $dispatcher = $dispatcherFactory->build((array) $config['dispatcher'], $this->container);
 
         $routerFactory = new RouterFactory();
         $router = $routerFactory->build((array) $config['router']);

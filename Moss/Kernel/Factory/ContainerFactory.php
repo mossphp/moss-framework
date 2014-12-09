@@ -16,6 +16,11 @@ use Moss\Container\Component;
 use Moss\Container\Container;
 use Moss\Kernel\AppException;
 
+/**
+ * Class ContainerFactory
+ *
+ * @package Moss\Kernel
+ */
 class ContainerFactory
 {
     protected $callableDefaults = [
