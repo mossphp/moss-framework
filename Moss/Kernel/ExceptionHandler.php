@@ -159,7 +159,7 @@ class ExceptionHandler
             $lines[] = sprintf($tpl, '', $i + 1);
         }
 
-        $lines[$mark - 1] = sprintf($tpl, 'id="mark"', $i + 1);
+        $lines[$mark - 1] = sprintf($tpl, 'id="mark"', $mark);
 
         return sprintf('<table><tr><td>%s</td><td>%s</td></tr></table>', implode($lineSeparator, $lines), $source);
     }
