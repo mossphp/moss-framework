@@ -23,7 +23,7 @@ If `ForbiddenException` is thrown, `kernel.403` event is fired, in case of `NotF
 
 Every other exception fires `kernel.500` event.
 
-Internal kernel events must return `null` or `ResponseInterface`.
+Internal kernel event handlers must return `null` or `ResponseInterface`.
 If `null` is returned, nothing happens and frameworks works as mentioned above.
 In case when `ResponseInterface` is returned - `App` jumps to last step (just before `kernel.send`) and sends returned `Response` to user.
 If not, defined exception handler ... handles exception.
