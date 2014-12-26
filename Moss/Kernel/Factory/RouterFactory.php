@@ -13,6 +13,7 @@ namespace Moss\Kernel\Factory;
 
 
 use Moss\Http\Router\Route;
+use Moss\Http\Router\RouteInterface;
 use Moss\Http\Router\Router;
 use Moss\Kernel\AppException;
 
@@ -40,6 +41,11 @@ class RouterFactory
     {
         $router = new Router();
         foreach ($config as $name => $route) {
+            if ($route instanceof RouteInterface) {
+                $router->register($name, $route);
+                continue;
+            }
+
             $route = $this->applyDefaults($route);
 
             $router->register(
