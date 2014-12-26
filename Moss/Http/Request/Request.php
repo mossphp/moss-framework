@@ -86,8 +86,8 @@ class Request implements RequestInterface
             $cookie = new Bag();
         }
 
-        $this->session = & $session;
-        $this->cookie = & $cookie;
+        $this->session = $session;
+        $this->cookie = $cookie;
 
         $this->initialize($_GET, $_POST, $_FILES, $_SERVER);
     }

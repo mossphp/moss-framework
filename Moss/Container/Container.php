@@ -43,7 +43,7 @@ class Container implements ContainerInterface
     public function register($id, $definition, $shared = false)
     {
         if (is_object($definition) && !is_callable($definition)) {
-            $this->instances[$id] = & $definition;
+            $this->instances[$id] = $definition;
 
             return $this;
         }
