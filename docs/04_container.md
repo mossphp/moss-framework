@@ -86,7 +86,7 @@ Just call `$component = $container->get('componentIdentifier');` and that's it.
 E.g.:
 
 	$container = new \Moss\Container\Container();
-	$container->set('request', new Request());
+	$container->register('request', new Request());
 	$request = $container->get('Request');
 	if($Request->isAjax()) {
 		echo 'Its Ajax request';
@@ -95,13 +95,13 @@ E.g.:
 To access some values stored in container:
 
 	$container = new \Moss\Container\Container();
-	$container->set('database', array('user' => 'foo', 'pass' => 'bar', 'table' => 'yada'));
+	$container->register('database', array('user' => 'foo', 'pass' => 'bar', 'table' => 'yada'));
 	$db = $container->get('database'); // array('user' => 'foo', 'pass' => 'bar', 'table' => 'yada');
 
 Or go even deeper:
 
 	$container = new \Moss\Container\Container();
-    $container->set('database', array('user' => 'foo', 'pass' => 'bar', 'table' => 'yada'));
+    $container->register('database', array('user' => 'foo', 'pass' => 'bar', 'table' => 'yada'));
     $dbUser = $container->get('database.user'); // foo
 
 ## Framework components

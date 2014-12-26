@@ -4,7 +4,7 @@
 This the place where all defined components live and this is the thing that will be used to handle incoming requests.
 
 Generally all configuration ie routes, components etc. will be read from configuration but sometime it is convenient to add it manually.
-`Kernel` providers few methods for fast definitions:
+`App` providers few methods for fast definitions:
 
  * `::route($name, $pattern, $controller, $arguments = array(), $methods = array())` - to define routes
  * `::component($name, $definition, $shared = false)` - defines component or property stored in container
@@ -13,14 +13,14 @@ Generally all configuration ie routes, components etc. will be read from configu
 And there is most important method `::run()` that will handle received request and return response (`ResponseInterface`).
 So, handling request looks like this:
 
-	$moss = new \Moss\Kernel\Kernel($config, $mode);
+	$moss = new \Moss\Kernel\App($config, $mode);
 	$moss->run()->send();
 
 Where `$config` is array containing your applications configuration and `$mode` is name of runtime mode (can be `null`).
 
 In PHP >=5.4 it looks quite fancy
 
-	(new \Moss\Kernel\Kernel($config, $mode))->run()->send();
+	(new \Moss\Kernel\App($config, $mode))->run()->send();
 
 ## Components & methods
 
