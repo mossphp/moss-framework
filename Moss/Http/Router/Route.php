@@ -412,6 +412,33 @@ class Route implements RouteInterface
      */
     public function make($host, array $arguments = [])
     {
+        return $host === null ? $this->makeRelative($arguments) : $this->makeAbsolute($host, $arguments);
+    }
+
+    /**
+     * Creates relative url
+     *
+     * @param array $arguments
+     *
+     * @return string
+     */
+    protected function makeRelative(array $arguments = [])
+    {
+        $url = $url = $this->buildUrl($arguments);
+
+        return './' . $url;
+    }
+
+    /**
+     * Creates absolute url
+     *
+     * @param string $host
+     * @param array  $arguments
+     *
+     * @return string
+     */
+    protected function makeAbsolute($host, array $arguments = [])
+    {
         list($schema, $host) = $this->resolveHost($host);
         $url = $this->buildUrl($arguments);
 
