@@ -73,6 +73,13 @@ interface RequestInterface
     public function body();
 
     /**
+     * Returns raw body content
+     *
+     * @return string
+     */
+    public function rawBody();
+
+    /**
      * Returns files bag
      *
      * @return FilesBag

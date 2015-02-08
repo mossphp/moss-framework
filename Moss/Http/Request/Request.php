@@ -53,6 +53,8 @@ class Request implements RequestInterface
      */
     protected $body;
 
+    protected $raw;
+
     /**
      * @var BagInterface|FilesBag
      */
@@ -295,10 +297,11 @@ class Request implements RequestInterface
      */
     protected function resolveBody(array $post = [])
     {
+        $this->raw = file_get_contents('php://input');
         $rest = [];
 
         if (in_array($this->method(), ['OPTIONS', 'HEAD', 'PUT', 'DELETE', 'TRACE'])) {
-            parse_str(file_get_contents('php://input'), $rest);
+            parse_str($this->raw, $rest);
         }
 
         return array_merge($post, $rest);
@@ -368,6 +371,16 @@ class Request implements RequestInterface
     public function body()
     {
         return $this->body;
+    }
+
+    /**
+     * Returns raw body content
+     *
+     * @return string
+     */
+    public function rawBody()
+    {
+        return $this->raw;
     }
 
     /**
