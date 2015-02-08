@@ -80,14 +80,6 @@ class Request implements RequestInterface
     {
         $this->removeSlashes();
 
-        if ($session === null) {
-            $session = new Bag();
-        }
-
-        if ($cookie === null) {
-            $cookie = new Bag();
-        }
-
         $this->session = $session;
         $this->cookie = $cookie;
 

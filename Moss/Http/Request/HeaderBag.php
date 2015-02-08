@@ -153,6 +153,4 @@ class HeaderBag extends Bag
 
         return $this->getFromArray($this->storage, explode(self::SEPARATOR, $offset), $default);
     }
-
-
 }

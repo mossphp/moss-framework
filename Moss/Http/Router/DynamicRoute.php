@@ -29,9 +29,27 @@ namespace Moss\Http\Router;
 class DynamicRoute extends Route
 {
     /**
+     * @var string
+     */
+    protected $controller;
+
+    /**
+     * Constructor
+     *
+     * @param string $pattern
+     * @param string $controller
+     * @param array  $arguments
+     * @param array  $methods
+     */
+    public function __construct($pattern, $controller, array $arguments = [], array $methods = [])
+    {
+        parent::__construct($pattern, $controller, $arguments, $methods);
+    }
+
+    /**
      * Returns controller
      *
-     * @return string|callable
+     * @return string
      */
     public function controller()
     {
@@ -62,6 +80,4 @@ class DynamicRoute extends Route
 
         return parent::make($host, $arguments);
     }
-
-
 }
