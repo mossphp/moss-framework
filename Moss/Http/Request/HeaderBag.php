@@ -134,4 +134,25 @@ class HeaderBag extends Bag
 
         return $codes;
     }
+
+    /**
+     * Retrieves offset value
+     *
+     * @param string $offset
+     * @param mixed  $default
+     *
+     * @return mixed
+     */
+    public function get($offset = null, $default = null)
+    {
+        if ($offset === null) {
+            return $this->all();
+        }
+
+        $offset = str_replace('-', '_', strtolower($offset));
+
+        return $this->getFromArray($this->storage, explode(self::SEPARATOR, $offset), $default);
+    }
+
+
 }
