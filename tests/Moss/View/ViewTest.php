@@ -1,94 +1,75 @@
 <?php
 namespace Moss\View;
 
-class MockView extends View
-{
-    public function render()
-    {
-        return json_encode([parent::translate($this->template), $this->storage]);
-    }
-}
-
 class ViewTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @expectedException \Moss\View\ViewException
+     * @expectedExceptionMessage Invalid or missing "bundle" node in view filename "foo"
+     */
+    public function testMissingRequiredPatternValue()
+    {
+        $view = new View();
+        $view->template('foo');
+        $view->render();
+    }
+
+    /**
+     * @expectedException \Moss\View\ViewException
+     * @expectedExceptionMessage Unable to load template file "foo:bar:yada"
+     */
+    public function testMissingTemplateFile()
+    {
+        $view = new View();
+        $view->template('foo:bar:yada');
+        $view->render();
+    }
 
     public function testTemplate()
     {
-        $view = new MockView();
-        $view->template('foo:bar:yada');
-        $this->assertEquals('["..\/src\/foo\/bar\/View\/yada.php",[]]', $view->render());
+        $view = new View(['var' => 'Yup!'], __DIR__ . '/{bundle}.{file}.phtml');
+        $view->template('foo:bar');
+        $this->assertEquals('Renders template? Yup!', $view->render());
     }
 
     /**
      * @dataProvider setProvider
      */
-    public function testSet($result, $key, $value = null)
+    public function testGetSet($key, $value, $result)
     {
-        $view = new MockView();
-        $view
-            ->template('foo:bar:yada')
+        $view = new View([], __DIR__ . '/{bundle}.{file}.phtml');
+        $view->template('foo:bar')
             ->set($key, $value);
 
-        $this->assertEquals($result, $view->render());
+        $this->assertEquals($result, $view->get());
     }
 
     public function setProvider()
     {
         return [
-            ['["..\/src\/foo\/bar\/View\/yada.php",{"a":null}]', 'a'],
-            ['["..\/src\/foo\/bar\/View\/yada.php",{"b":"c"}]', 'b', 'c'],
-            ['["..\/src\/foo\/bar\/View\/yada.php",["d","e"]]', ['d', 'e']],
-            ['["..\/src\/foo\/bar\/View\/yada.php",{"f":["g","h"]}]', 'f', ['g', 'h']],
-            ['["..\/src\/foo\/bar\/View\/yada.php",{"i":"j","k":"l"}]', ['i' => 'j', 'k' => 'l']],
-            ['["..\/src\/foo\/bar\/View\/yada.php",{"m":{"n":"o"}}]', 'm', ['n' => 'o']],
-            ['["..\/src\/foo\/bar\/View\/yada.php",{"m":{"n":"o"}}]', 'm.n', 'o']
-        ];
-    }
-
-    /**
-     * @dataProvider getProvider
-     */
-    public function testGet($result, $name, $key, $value = null)
-    {
-        $view = new MockView();
-        $view
-            ->template('foo:bar:yada')
-            ->set($key, $value);
-
-        $this->assertEquals($result, $view->get($name));
-    }
-
-    public function getProvider()
-    {
-        return [
-            [null, 'a', 'a'],
-            ['c', 'b', 'b', 'c'],
-            [0, 'd', ['d', 'e']],
-            [['g', 'h'], 'f', 'f', ['g', 'h']],
-            ['j', 'i', ['i' => 'j', 'k' => 'l']],
-            ['o', 'm.n', 'm', ['n' => 'o']],
-            ['o', 'm.n', ['m' => ['n' => 'o']]]
+            ['foo', 1, ['foo' => 1]],
+            ['bar', 'lorem', ['bar' => 'lorem']],
+            ['yada', ['yada' => 'yada'], ['yada' => ['yada' => 'yada']]],
+            ['dada', new \stdClass(), ['dada' => new \stdClass()]]
         ];
     }
 
     public function testRender()
     {
-        $view = new MockView();
-        $result = $view
-            ->template('foo:bar:yada')
+        $view = new View(['var' => 'Yup'], __DIR__ . '/{bundle}.{file}.phtml');
+        $result = $view->template('foo:bar')
             ->render();
 
-        $this->assertEquals('["..\/src\/foo\/bar\/View\/yada.php",[]]', $result);
+        $this->assertEquals('Renders template? Yup', $result);
     }
 
     public function testToString()
     {
-        $view = new MockView();
-        $result = $view
-            ->template('foo:bar:yada')
+        $view = new View(['var' => 'Yup'], __DIR__ . '/{bundle}.{file}.phtml');
+        $result = $view->template('foo:bar')
             ->__toString();
 
-        $this->assertEquals('["..\/src\/foo\/bar\/View\/yada.php",[]]', $result);
+        $this->assertEquals('Renders template? Yup', $result);
     }
 
     /**
@@ -96,7 +77,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
      */
     public function testOffsetUnset($offset, $value)
     {
-        $view = new MockView();
+        $view = new View();
         $view[$offset] = $value;
         unset($view[$offset]);
         $this->assertEquals(0, $view->count());
@@ -107,7 +88,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
      */
     public function testOffsetGetSet($offset, $value)
     {
-        $view = new MockView();
+        $view = new View();
         $view[$offset] = $value;
         $this->assertEquals($value, $view[$offset]);
     }
@@ -117,7 +98,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
      */
     public function testOffsetGetEmpty($offset)
     {
-        $view = new MockView();
+        $view = new View();
         $this->assertNull(null, $view[$offset]);
     }
 
@@ -126,7 +107,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
      */
     public function testOffsetSetWithoutKey($value)
     {
-        $view = new MockView();
+        $view = new View();
         $view[] = $value;
         $this->assertEquals($value, $view[0]);
     }
@@ -136,7 +117,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
      */
     public function testOffsetExists($offset, $value)
     {
-        $view = new MockView();
+        $view = new View();
         $view[$offset] = $value;
         $this->assertTrue(isset($view[$offset]));
     }
@@ -146,7 +127,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
      */
     public function testCount($offset, $value)
     {
-        $view = new MockView();
+        $view = new View();
         $view[1] = $offset;
         $view[2] = $value;
         $this->assertEquals(2, $view->count());
@@ -157,7 +138,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
      */
     public function testIterator($offset, $value)
     {
-        $view = new MockView();
+        $view = new View();
         $view[$offset] = $value;
 
         foreach ($view as $key => $val) {
