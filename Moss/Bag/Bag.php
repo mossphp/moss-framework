@@ -127,7 +127,7 @@ class Bag implements BagInterface
      *
      * @return mixed
      */
-    private function & getArrayByReference(&$offset)
+    protected function & getArrayByReference(&$offset)
     {
         $offset = explode(self::SEPARATOR, $offset);
 
