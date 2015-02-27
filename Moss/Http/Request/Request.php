@@ -161,7 +161,7 @@ class Request implements RequestInterface
      */
     protected function resolveDir()
     {
-        $dir = substr($this->server('SCRIPT_FILENAME'), strlen($this->server('DOCUMENT_ROOT')));
+        $dir = substr($this->server->get('SCRIPT_FILENAME'), strlen($this->server->get('DOCUMENT_ROOT')));
         $dir = str_replace('\\', '/', $dir);
         $dir = '/' . trim(substr($dir, 0, strrpos($dir, '/')), '/') . '/';
 
@@ -300,7 +300,7 @@ class Request implements RequestInterface
     }
 
     /**
-     * Returns session value for given key or default if key does not exists
+     * Returns bag with session properties
      *
      * @return SessionInterface
      */
@@ -310,7 +310,7 @@ class Request implements RequestInterface
     }
 
     /**
-     * Returns cookie value for given key or default if key does not exists
+     * Returns bag with cookie properties
      *
      * @return CookieInterface
      */
@@ -320,29 +320,23 @@ class Request implements RequestInterface
     }
 
     /**
-     * Returns server param value for given key or null if key does not exists
+     * Returns bag with server properties
      *
-     * @param null|string $key
-     * @param string      $default
-     *
-     * @return null|string
+     * @return BagInterface
      */
-    public function server($key = null, $default = null)
+    public function server()
     {
-        return $this->server->get($key, $default);
+        return $this->server;
     }
 
     /**
-     * Returns header value for given key or null if key does not exists
+     * Returns bag with headers
      *
-     * @param string $key
-     * @param mixed  $default
-     *
-     * @return null|string
+     * @return BagInterface
      */
-    public function header($key = null, $default = null)
+    public function header()
     {
-        return $this->header->get($key, $default);
+        return $this->header;
     }
 
     /**
@@ -392,7 +386,7 @@ class Request implements RequestInterface
      */
     public function isAjax()
     {
-        return strtolower((string) $this->header('x_requested_with')) == 'xmlhttprequest';
+        return strtolower((string) $this->header->get('x_requested_with')) == 'xmlhttprequest';
     }
 
     /**
@@ -402,11 +396,11 @@ class Request implements RequestInterface
      */
     public function isSecure()
     {
-        if ($proto = (string) $this->header('x_forwarded_proto')) {
+        if ($proto = (string) $this->header->get('x_forwarded_proto')) {
             return in_array(strtolower(current(explode(',', $proto))), ['https', 'on', 'ssl', '1']);
         }
 
-        return strtolower($this->server('HTTPS')) == 'on' || $this->server('HTTPS') == 1;
+        return strtolower($this->server->get('HTTPS')) == 'on' || $this->server->get('HTTPS') == 1;
     }
 
     /**
@@ -416,7 +410,7 @@ class Request implements RequestInterface
      */
     public function method()
     {
-        return strtoupper($this->server('REQUEST_METHOD', 'CLI'));
+        return strtoupper($this->server->get('REQUEST_METHOD', 'CLI'));
     }
 
     /**
@@ -436,7 +430,7 @@ class Request implements RequestInterface
      */
     public function host()
     {
-        return $this->header('host');
+        return $this->header->get('host');
     }
 
     /**

@@ -25,38 +25,32 @@ interface RequestInterface
 {
 
     /**
-     * Returns session value for given key or default if key does not exists
+     * Returns bag with session properties
      *
      * @return SessionInterface
      */
     public function session();
 
     /**
-     * Returns cookie value for given key or default if key does not exists
+     * Returns bag with cookie properties
      *
      * @return CookieInterface
      */
     public function cookie();
 
     /**
-     * Returns server param value for given key or default if key does not exists
+     * Returns bag with server properties
      *
-     * @param string $key
-     * @param mixed $default
-     *
-     * @return null|string
+     * @return BagInterface
      */
-    public function server($key = null, $default = null);
+    public function server();
 
     /**
-     * Returns header value for given key or default if key does not exists
+     * Returns bag with headers
      *
-     * @param string $key
-     * @param mixed $default
-     *
-     * @return null|string
+     * @return BagInterface
      */
-    public function header($key = null, $default = null);
+    public function header();
 
     /**
      * Returns query values bag
@@ -163,11 +157,11 @@ interface RequestInterface
     public function clientIp();
 
     /**
-     * Returns requested controller identifier (if available)
+     * Returns requested route name (if successfully resolved)
      *
-     * @param string $route
+     * @param null|string $route
      *
-     * @return null|string
+     * @return string
      */
     public function route($route = null);
 

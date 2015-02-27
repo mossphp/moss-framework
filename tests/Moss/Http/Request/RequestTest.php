@@ -30,7 +30,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
             [$offset => $value]
         );
 
-        $this->assertEquals($expected, $request->server($offset));
+        $this->assertEquals($expected, $request->server()->get($offset));
     }
 
     public function serverProvider()
@@ -75,6 +75,34 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         ];
     }
 
+    /**
+     * @dataProvider headerProvider
+     */
+    public function testHeader($header, $offset, $value, $expected)
+    {
+        $request = new Request();
+        $request->initialize(
+            [],
+            [],
+            [],
+            [$header => $value]
+        );
+
+        $this->assertEquals($expected, $request->header()->get($offset));
+    }
+
+    public function headerProvider()
+    {
+        return [
+            ['HTTP_CONTENT_LENGTH', 'Content-Length', 123456, 123456],
+            ['HTTP_CONTENT_LENGTH', 'CONTENT-LENGTH', 123456, 123456],
+            ['HTTP_CONTENT_LENGTH', 'content-length', 123456, 123456],
+            ['HTTP_CONTENT_LENGTH', 'content_length', 123456, 123456],
+            ['HTTP_CONTENT_MD5', 'Content-MD5', 'someMD5', 'someMD5'],
+            ['HTTP_CONTENT_TYPE', 'Content-Type', 'text/plain', 'text/plain'],
+            ['HTTP_ACCEPT_LANGUAGE', 'Accept-Language', 'en-US,en;q=0.8,pl;q=0.6', 'en-US,en;q=0.8,pl;q=0.6'],
+        ];
+    }
 
     public function testLocale()
     {
