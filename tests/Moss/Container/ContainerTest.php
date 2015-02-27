@@ -36,8 +36,8 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
         $container = new Container();
         $container->register(
             'foo', function () {
-                return new \stdClass();
-            }, false
+            return new \stdClass();
+        }, false
         );
 
         $this->assertEquals(new \stdClass(), $container->get('foo'));
@@ -48,8 +48,8 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
         $container = new Container();
         $container->register(
             'foo', function () {
-                return new \stdClass();
-            }, true
+            return new \stdClass();
+        }, true
         );
 
         $obj = $container->get('foo');
@@ -134,5 +134,18 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
         $component = $container->get('foo');
         $container->register('foo', new \stdClass());
         $this->assertNotSame($component, $container->get('foo'));
+    }
+
+    public function testRetrieve()
+    {
+        $expected = [
+            'foo' => 'foo',
+            'bar' => function () { }
+        ];
+
+        $container = new Container();
+        $container->register('foo', $expected['foo']);
+        $container->register('bar', $expected['bar']);
+        $this->assertEquals($expected, $container->retrieve());
     }
 }

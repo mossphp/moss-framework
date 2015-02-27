@@ -50,7 +50,7 @@ class Container implements ContainerInterface
 
         $this->components[$id] = $definition;
 
-        if ($shared) {
+        if ($shared || isset($this->instances[$id])) {
             $this->instances[$id] = null;
         }
 
@@ -76,6 +76,17 @@ class Container implements ContainerInterface
 
         return $this;
     }
+
+    /**
+     * Returns array registered components and parameters
+     *
+     * @return array
+     */
+    public function retrieve()
+    {
+        return $this->components;
+    }
+
 
     /**
      * Returns true if component exists in container
