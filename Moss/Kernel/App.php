@@ -46,13 +46,10 @@ class App implements AppInterface
     /**
      * Constructor
      *
-     * @param array  $config
-     * @param string $mode
+     * @param ConfigInterface  $config
      */
-    public function __construct(array $config = [], $mode = null)
+    public function __construct(ConfigInterface $config)
     {
-        $config = new Config($config, $mode);
-
         // error handling
         $errHandler = new ErrorHandler($config['framework']['error']['level']);
         $errHandler->register();
@@ -129,7 +126,10 @@ class App implements AppInterface
     public function route($name, $pattern, $controller, array $arguments = [], array $methods = [])
     {
         $this->router()
-            ->register($name, new Route($pattern, $controller, $arguments, $methods));
+            ->register(
+                $name,
+                new Route($pattern, $controller, $arguments, $methods)
+            );
 
         return $this;
     }
