@@ -49,8 +49,7 @@ class BagTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetAll($offset, $value, $expected)
     {
-        $bag = new Bag();
-        $bag->set($offset, $value);
+        $bag = new Bag([$offset => $value]);
         $this->assertEquals($expected, $bag->get());
     }
 
@@ -79,8 +78,7 @@ class BagTest extends \PHPUnit_Framework_TestCase
      */
     public function testAll($offset, $value, $expected)
     {
-        $bag = new Bag();
-        $bag->set($offset, $value);
+        $bag = new Bag([$offset => $value]);
         $this->assertEquals($expected, $bag->all());
     }
 
@@ -211,8 +209,31 @@ class BagTest extends \PHPUnit_Framework_TestCase
             ['foo', 1, ['foo' => 1]],
             ['bar', 'lorem', ['bar' => 'lorem']],
             ['yada', ['yada' => 'yada'], ['yada' => ['yada' => 'yada']]],
-            ['dada', new \stdClass(), ['dada' => new \stdClass()]],
-            ['foo.bar', 'yada', ['foo' => ['bar' => 'yada']], ['foo' => []]]
+            ['dada', new \stdClass(), ['dada' => new \stdClass()]]
         ];
+    }
+
+    public function testSettersWithDotNotation()
+    {
+        $bag = new Bag();
+        $bag->set('foo.bar', 'yada');
+
+        $this->assertEquals(['foo' => ['bar' => 'yada']], $bag->all());
+        $this->assertEquals(['bar' => 'yada'], $bag->get('foo'));
+        $this->assertEquals('yada', $bag->get('foo.bar'));
+    }
+
+    public function testRemoveWithDotNotation()
+    {
+        $bag = new Bag();
+        $bag->set('foo.bar', 'yada');
+
+        $this->assertEquals(['foo' => ['bar' => 'yada']], $bag->all());
+
+        $bag->remove('foo.bar');
+        $this->assertEquals(['foo' => []], $bag->all());
+
+        $bag->remove('foo');
+        $this->assertEquals([], $bag->all());
     }
 }

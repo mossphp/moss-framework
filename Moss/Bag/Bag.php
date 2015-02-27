@@ -153,12 +153,8 @@ class Bag implements BagInterface
      */
     public function all(array $array = [])
     {
-        if ($array !== array()) {
-            $this->reset();
-
-            foreach ($array as $key => $value) {
-                $this->setIntoArray($this->storage, explode(self::SEPARATOR, $key), $value);
-            }
+        if ($array !== []) {
+            $this->storage = $array;
         }
 
         return $this->storage;
