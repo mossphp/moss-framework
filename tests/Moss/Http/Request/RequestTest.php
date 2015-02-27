@@ -199,8 +199,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
             ['controller', '\Foo\Bar::yada', ['controller' => '\Foo\Bar::yada']],
             ['locale', 'pl', ['locale' => 'pl']],
             ['format', 'json', ['format' => 'json']],
-            ['foo.bar', 'yada', ['foo' => ['bar' => 'yada']]],
-            ['f.o.o.b.a.r', 'deep', ['f' => ['o' => ['o' => ['b' => ['a' => ['r' => 'deep']]]]]]],
+            ['foo.bar', 'yada', ['foo.bar' => 'yada']]
         ];
     }
 
@@ -229,8 +228,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
             ['foo', 'bar', ['foo' => 'bar']],
             ['locale', 'pl', ['locale' => 'pl']],
             ['format', 'json', ['format' => 'json']],
-            ['foo.bar', 'yada', ['foo' => ['bar' => 'yada']]],
-            ['f.o.o.b.a.r', 'deep', ['f' => ['o' => ['o' => ['b' => ['a' => ['r' => 'deep']]]]]]],
+            ['foo.bar', 'yada', ['foo.bar' => 'yada']],
         ];
     }
 
