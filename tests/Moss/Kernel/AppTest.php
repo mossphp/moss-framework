@@ -91,7 +91,6 @@ class AppTest extends \PHPUnit_Framework_TestCase
             'router' => $this->getMock('\Moss\Http\Router\RouterInterface'),
             'dispatcher' => $this->getMock('\Moss\Dispatcher\DispatcherInterface'),
             'session' => $this->getMock('\Moss\Http\Session\SessionInterface'),
-            'cookie' => $this->getMock('\Moss\Http\Cookie\CookieInterface'),
             'request' => $this->getMock('\Moss\Http\Request\RequestInterface')
         ];
 
@@ -100,7 +99,6 @@ class AppTest extends \PHPUnit_Framework_TestCase
             ['router', & $this->components['router']],
             ['dispatcher', & $this->components['dispatcher']],
             ['session', & $this->components['session']],
-            ['cookie', & $this->components['cookie']],
             ['request', & $this->components['request']]
         ];
 
@@ -168,14 +166,6 @@ class AppTest extends \PHPUnit_Framework_TestCase
 
         $app = new MockApp($this->container);
         $this->assertInstanceOf('\Moss\Http\Session\SessionInterface', $app->session());
-    }
-
-    public function testRetrievingCookie()
-    {
-        $this->container->expects($this->once())->method('get')->with('cookie');
-
-        $app = new MockApp($this->container);
-        $this->assertInstanceOf('\Moss\Http\Cookie\CookieInterface', $app->cookie());
     }
 
     public function testAddingRoute()

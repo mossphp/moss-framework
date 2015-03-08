@@ -11,12 +11,9 @@
 
 namespace Moss\Kernel;
 
-use Moss\Config\Config;
 use Moss\Config\ConfigInterface;
 use Moss\Container\ContainerInterface;
 use Moss\Dispatcher\DispatcherInterface;
-use Moss\Http\Cookie\Cookie;
-use Moss\Http\Cookie\CookieInterface;
 use Moss\Http\Request\Request;
 use Moss\Http\Request\RequestInterface;
 use Moss\Http\Response\ResponseInterface;
@@ -71,10 +68,7 @@ class App implements AppInterface
         $conf = $config['framework']['session'];
         $session = new Session($conf['name'], $conf['cacheLimiter']);
 
-        $conf = $config['framework']['cookie'];
-        $cookie = new Cookie($conf['domain'], $conf['path'], $conf['http'], $conf['ttl']);
-
-        $request = new Request($session, $cookie);
+        $request = new Request($session);
 
         // registering components
         $this->container
@@ -82,7 +76,6 @@ class App implements AppInterface
             ->register('router', $router)
             ->register('dispatcher', $dispatcher)
             ->register('session', $session)
-            ->register('cookie', $cookie)
             ->register('request', $request);
     }
 
@@ -239,16 +232,6 @@ class App implements AppInterface
     public function session()
     {
         return $this->get('session');
-    }
-
-    /**
-     * Returns cookie instance
-     *
-     * @return CookieInterface
-     */
-    public function cookie()
-    {
-        return $this->get('cookie');
     }
 
     /**

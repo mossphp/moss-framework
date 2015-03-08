@@ -13,7 +13,6 @@ namespace Moss\Http\Request;
 
 use Moss\Bag\Bag;
 use Moss\Bag\BagInterface;
-use Moss\Http\Cookie\CookieInterface;
 use Moss\Http\Session\SessionInterface;
 
 /**
@@ -66,7 +65,7 @@ class Request implements RequestInterface
     protected $session;
 
     /**
-     * @var CookieInterface
+     * @var BagInterface
      */
     protected $cookie;
 
@@ -74,14 +73,12 @@ class Request implements RequestInterface
      * Constructor
      *
      * @param SessionInterface $session
-     * @param CookieInterface  $cookie
      */
-    public function __construct(SessionInterface $session = null, CookieInterface $cookie = null)
+    public function __construct(SessionInterface $session = null)
     {
         $this->removeSlashes();
 
         $this->session = $session;
-        $this->cookie = $cookie;
 
         $this->initialize($_GET, $_POST, $_FILES, $_SERVER);
     }
@@ -93,10 +90,12 @@ class Request implements RequestInterface
      * @param array $post
      * @param array $files
      * @param array $server
+     * @param array $cookie
      */
-    public function initialize(array $get = [], array $post = [], array $files = [], array $server = [])
+    public function initialize(array $get = [], array $post = [], array $files = [], array $server = [], array $cookie = [])
     {
         $this->server = new Bag($server);
+        $this->cookie = new Bag($cookie);
 
         $this->header = new HeaderBag(array_merge($get, $post, $server));
         $this->language = $this->header->languages();
@@ -312,7 +311,7 @@ class Request implements RequestInterface
     /**
      * Returns bag with cookie properties
      *
-     * @return CookieInterface
+     * @return BagInterface
      */
     public function cookie()
     {

@@ -232,24 +232,26 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         ];
     }
 
+    public function testRawBody()
+    {
+        $request = new Request();
+        $this->assertEquals('', $request->rawBody());
+    }
+
     public function testSession()
     {
-        $request = new Request(
-            $this->getMock('\Moss\Http\Session\SessionInterface'),
-            $this->getMock('\Moss\Http\Cookie\CookieInterface')
-        );
+        $request = new Request($this->getMock('\Moss\Http\Session\SessionInterface'));
 
         $this->assertInstanceOf('\Moss\Http\Session\SessionInterface', $request->session());
     }
 
     public function testCookie()
     {
-        $request = new Request(
-            $this->getMock('\Moss\Http\Session\SessionInterface'),
-            $this->getMock('\Moss\Http\Cookie\CookieInterface')
-        );
+        $request = new Request($this->getMock('\Moss\Http\Session\SessionInterface'));
+        $request->initialize([], [], [], [], ['foo' => 'bar']);
 
-        $this->assertInstanceOf('\Moss\Http\Cookie\CookieInterface', $request->cookie());
+        $this->assertInstanceOf('\Moss\Bag\BagInterface', $request->cookie());
+        $this->assertEquals(['foo' => 'bar'], $request->cookie()->all());
     }
 
     public function testFiles()

@@ -12,7 +12,6 @@
 namespace Moss\Http\Request;
 
 use Moss\Bag\BagInterface;
-use Moss\Http\Cookie\CookieInterface;
 use Moss\Http\Session\SessionInterface;
 
 /**
@@ -34,7 +33,7 @@ interface RequestInterface
     /**
      * Returns bag with cookie properties
      *
-     * @return CookieInterface
+     * @return BagInterface
      */
     public function cookie();
 

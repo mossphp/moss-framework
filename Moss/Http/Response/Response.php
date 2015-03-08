@@ -23,7 +23,12 @@ class Response implements ResponseInterface
     /**
      * @var HeaderBag
      */
-    public $header;
+    protected $header;
+
+    /**
+     * @var CookieBag
+     */
+    protected $cookie;
 
     protected $content = 'OK';
     protected $status = 200;
@@ -83,6 +88,7 @@ class Response implements ResponseInterface
     public function __construct($content = 'OK', $status = 200, $contentType = 'text/html; charset=UTF-8')
     {
         $this->header = new HeaderBag();
+        $this->cookie = new CookieBag();
 
         $this->content($content);
         $this->status($status);
@@ -100,6 +106,16 @@ class Response implements ResponseInterface
     public function header()
     {
         return $this->header;
+    }
+
+    /**
+     * Retrieves cookie bag
+     *
+     * @return CookieBag
+     */
+    public function cookie()
+    {
+        return $this->cookie;
     }
 
     /**
@@ -232,6 +248,18 @@ class Response implements ResponseInterface
             header($header);
         }
 
+        foreach ($this->cookie->all() as $cookie) {
+            setcookie(
+                $cookie->name(),
+                $cookie->value(),
+                $cookie->ttl(),
+                $cookie->path(),
+                $cookie->domain(),
+                $cookie->isSecure(),
+                $cookie->isHttpOnly()
+            );
+        }
+
         return $this;
     }
 
@@ -266,8 +294,13 @@ class Response implements ResponseInterface
      */
     public function __toString()
     {
-        $headers = implode(PHP_EOL, $this->header->asArray());
+        $output = array_merge(
+            [sprintf('%s %s %s', $this->protocol, $this->status, $this->statusTexts[$this->status])],
+            $this->header->asArray(),
+            $this->cookie->asArray(),
+            [$this->content]
+        );
 
-        return $this->protocol . ' ' . $this->status . ' ' . $this->statusTexts[$this->status] . PHP_EOL . $headers . PHP_EOL . $this->content;
+        return implode(PHP_EOL, $output);
     }
 }
