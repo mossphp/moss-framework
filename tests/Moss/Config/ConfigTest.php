@@ -15,8 +15,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
         $default = [
             'framework' => [
                 'error' => ['display' => true, 'level' => -1, 'detail' => true],
-                'session' => ['name' => 'PHPSESSID', 'cacheLimiter' => ''],
-                'cookie' => ['domain' => null, 'path' => '/', 'http' => true, 'ttl' => 2592000]
+                'session' => ['name' => 'PHPSESSID', 'cacheLimiter' => '']
             ],
             'container' => [],
             'dispatcher' => [],
@@ -36,8 +35,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
                 [
                     'framework' => [
                         'error' => ['display' => true, 'level' => E_ALL | E_NOTICE, 'detail' => true],
-                        'session' => ['name' => 'PHPSESSID', 'cacheLimiter' => ''],
-                        'cookie' => ['domain' => null, 'path' => '/', 'http' => true, 'ttl' => 2592000]
+                        'session' => ['name' => 'PHPSESSID', 'cacheLimiter' => '']
                     ],
                 ]
             ],
@@ -122,8 +120,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
         $default = [
             'framework' => [
                 'error' => ['display' => true, 'level' => -1, 'detail' => true],
-                'session' => ['name' => 'PHPSESSID', 'cacheLimiter' => ''],
-                'cookie' => ['domain' => null, 'path' => '/', 'http' => true, 'ttl' => 2592000]
+                'session' => ['name' => 'PHPSESSID', 'cacheLimiter' => '']
             ],
             'container' => [],
             'dispatcher' => [],
@@ -310,8 +307,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
         $expected = [
             'framework' => [
                 'error' => ['display' => true, 'level' => -1, 'detail' => true],
-                'session' => ['name' => 'PHPSESSID', 'cacheLimiter' => ''],
-                'cookie' => ['domain' => null, 'path' => '/', 'http' => true, 'ttl' => 2592000]
+                'session' => ['name' => 'PHPSESSID', 'cacheLimiter' => '']
             ],
             'container' => [],
             'dispatcher' => [],

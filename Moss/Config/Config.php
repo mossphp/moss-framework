@@ -32,12 +32,6 @@ class Config extends Bag implements ConfigInterface
             'session' => [
                 'name' => 'PHPSESSID',
                 'cacheLimiter' => ''
-            ],
-            'cookie' => [
-                'domain' => null,
-                'path' => '/',
-                'http' => true,
-                'ttl' => 2592000 // one month
             ]
         ],
         'container' => [],
