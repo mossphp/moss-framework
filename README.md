@@ -9,51 +9,66 @@ Documentation is available in ./docs/
 
 ## About
 
-_**Moss** - to relax or chill, the act of chilling_
-
-`Moss` is a small almost micro (but not another Sinatra wannabe) framework, providing basic tools that can be used to build simple web pages or APIs.
+Welcome to `Moss` a micro framework, that provides basic tools for building simple web pages or APIs it can also handle something bigger.
 
 So what's the difference between other micro-frameworks?
+
 `Moss` isn't some kind of cropped full stack framework, that was cut down to fit into _micro_ segment.
-Neither one of those minimalistic, closure lovers :)
 
-`Moss` was developed a solution with small footprint, easily to extend, with as small dependencies as possible (actually - none).
+`Moss` was developed as a solution with small footprint, that is easy to extend and with as little dependencies as possible - and still simple to use.
 
-But still, `Moss framework` wants to be _fashionable_ and follows trends: `closures`, `event dispatching`, `dependency injection`, `aspect oriented programming`.
-Why there's no mention about `MVC`? Because `Moss` does not implement it. Instead - gives freedom to do it in your favorite way.
+`Moss` also wants to be _fashionable_ and follows trends: `dependency injection`, `event dispatching`, `request-response objects`, `clean code`.
+ Not because its fancy to be _trendy_, but because it makes sense and code benefits from them. 
 
-## Features
+# Features
 
  * fully grown `Router` (not powerful but working :) ),
  * `Request` and `Response` objects (got http auth, and easy header management),
- * easy file upload trough `Request::file` methods
  * flash messages
  * dependency injection container
  * event dispatcher with `AOP`
  * closure and class controllers (that can be organized into bundles with fluent directory structure),
- * simple view that can be easily extended to use `Twig` (as package in composer)
- * and clean code and very loose coupling
- * and more to come
+ * simple view that can be easily extended with bridge to use `Twig` (as package in composer)
+ * and clean code
+ * and more
+ 
+# Documentation
 
-## Quickstart
+Documentation is available on Wiki : [https://github.com/potfur/moss-framework/wiki](https://github.com/potfur/moss-framework/wiki)
+
+# Quickstart
 
 Add to `composer.json`:
 
+```json
 	{
 	    "require": {
-	        "moss/framework": ">=1.0"
+	        "moss/framework": "*"
 	    }
 	}
+```
+
+Or from console
+
+```
+	php composer.phar require moss/framework
+```
 
 Then create entry file, eg `./web/index.php` containing:
 
+```php
 	<?php
-	require __DIR__ . '/../vendor/autoload.php';
-
-	$moss = new \Moss\Kernel\App();
-	$moss->route('main', '/', function () { return 'Hello world'; });
-	$moss->run()
-	    ->send();
+	use Moss\Config\Config;
+	use Moss\Container\ContainerInterface;
+	use Moss\Http\Response\Response;
+	use Moss\Kernel\App;
+	
+	require __DIR__ . '/vendor/autoload.php';
+	
+	$app = new App(new Config());
+	$app->route('main', '/', function () { return new Response('Hello World'); });
+	$app->run()->send();
+```
 
 Or download simple sample app from [github](https://github.com/potfur/moss-demo-app)
 
