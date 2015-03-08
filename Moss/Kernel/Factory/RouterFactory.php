@@ -11,7 +11,6 @@
 
 namespace Moss\Kernel\Factory;
 
-
 use Moss\Http\Router\Route;
 use Moss\Http\Router\RouteInterface;
 use Moss\Http\Router\Router;

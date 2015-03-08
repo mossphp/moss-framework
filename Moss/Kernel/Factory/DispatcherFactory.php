@@ -11,7 +11,6 @@
 
 namespace Moss\Kernel\Factory;
 
-
 use Moss\Container\ContainerInterface;
 use Moss\Dispatcher\Dispatcher;
 use Moss\Dispatcher\Listener;

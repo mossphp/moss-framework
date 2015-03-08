@@ -11,7 +11,6 @@
 
 namespace Moss\Kernel\Factory;
 
-
 use Moss\Container\Component;
 use Moss\Container\Container;
 use Moss\Kernel\AppException;
