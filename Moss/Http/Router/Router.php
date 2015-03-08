@@ -147,14 +147,14 @@ class Router implements RouterInterface
     /**
      * Resolves controller from passed value or from defaults
      *
-     * @param null|string $name
+     * @param string $name
      *
      * @return string
      * @throws RouterException
      */
     private function resolveName($name)
     {
-        if ($name) {
+        if ($name !== null) {
             return $name;
         }
 
