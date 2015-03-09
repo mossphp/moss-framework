@@ -29,14 +29,16 @@ class ResponseRedirect extends Response
      * Sets redirection address and delay
      *
      * @param string $address redirection address
+     * @param int    $delay   redirection delay in seconds
      * @param int    $status  redirect status
      */
-    public function __construct($address, $status = 302)
+    public function __construct($address, $delay = 0, $status = 302)
     {
         parent::__construct('Redirecting...');
 
         $this->header->all([]);
         $this->address($address);
+        $this->delay($delay);
         $this->status($status);
     }
 
@@ -65,8 +67,43 @@ class ResponseRedirect extends Response
             $this->address = str_replace('&amp;', '&', $address);
         }
 
-        $this->header->set('Location', $this->address);
+        $this->setRedirectHeaders();
 
         return $this->address;
+    }
+
+    /**
+     * Sets redirection delay
+     *
+     * @param int $delay redirection delay in seconds
+     *
+     * @return int
+     */
+    public function delay($delay = null)
+    {
+        if ($delay !== null) {
+            $this->delay = (int) $delay;
+        }
+
+        $this->setRedirectHeaders();
+
+        return $this->delay;
+    }
+
+    /**
+     * Sets/updated redirect headers
+     */
+    protected function setRedirectHeaders()
+    {
+        $this->header->remove('Location');
+        $this->header->remove('Refresh');
+
+        if ($this->delay) {
+            $this->header->set('Refresh', $this->delay . '; URL=' . $this->address);
+
+            return;
+        }
+
+        $this->header->set('Location', $this->address);
     }
 }

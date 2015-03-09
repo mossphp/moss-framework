@@ -36,6 +36,21 @@ class ResponseRedirectTest extends \PHPUnit_Framework_TestCase
         $response->sendHeaders();
     }
 
+    public function testSendHeadersWithDelay()
+    {
+        $expected = [
+            'HTTP/1.1 302 Found',
+            'Content-Type: text/html; charset=UTF-8',
+            'Cache-Control: no-cache',
+            'Pragma: no-cache',
+            'Refresh: 10; URL=http://127.0.0.1/'
+        ];
+        $this->expectOutputString(implode(PHP_EOL, $expected) . PHP_EOL);
+
+        $response = new ResponseRedirect('http://127.0.0.1/', 10);
+        $response->sendHeaders();
+    }
+
     public function testSendContent()
     {
         $expected = ['Redirecting...'];
@@ -58,6 +73,22 @@ class ResponseRedirectTest extends \PHPUnit_Framework_TestCase
         $this->expectOutputString(implode(PHP_EOL, $expected));
 
         $response = new ResponseRedirect('http://127.0.0.1/');
+        $response->send();
+    }
+
+    public function testSendWithDelay()
+    {
+        $expected = [
+            'HTTP/1.1 302 Found',
+            'Content-Type: text/html; charset=UTF-8',
+            'Cache-Control: no-cache',
+            'Pragma: no-cache',
+            'Refresh: 10; URL=http://127.0.0.1/',
+            'Redirecting...'
+        ];
+        $this->expectOutputString(implode(PHP_EOL, $expected));
+
+        $response = new ResponseRedirect('http://127.0.0.1/', 10);
         $response->send();
     }
 
