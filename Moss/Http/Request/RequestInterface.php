@@ -176,7 +176,7 @@ interface RequestInterface
      *
      * @return array
      */
-    public function language();
+    public function languages();
 
     /**
      * Returns locale
@@ -185,7 +185,7 @@ interface RequestInterface
      *
      * @return Request
      */
-    public function locale($locale = null);
+    public function language($locale = null);
 
     /**
      * Returns requested format

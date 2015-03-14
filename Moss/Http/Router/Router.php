@@ -26,7 +26,7 @@ class Router implements RouterInterface
     protected $defaults = [
         'host' => null,
         'route' => null,
-        'locale' => null,
+        'language' => null,
         'format' => null
     ];
 
@@ -91,21 +91,15 @@ class Router implements RouterInterface
                     ->set($key, $value);
             }
 
-            $request->locale(
-                $request->query()
-                    ->get('locale')
-            );
-            $request->format(
-                $request->query()
-                    ->get('format')
-            );
+            $request->language($request->query()->get('language'));
+            $request->format($request->query()->get('format'));
 
             $request->route($name);
 
             $this->defaults = [
                 'host' => $request->baseName(),
                 'route' => $name,
-                'locale' => $request->locale(),
+                'language' => $request->language(),
                 'format' => $request->format()
             ];
 

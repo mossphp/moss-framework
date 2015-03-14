@@ -24,7 +24,6 @@ use Moss\Http\Session\SessionInterface;
 class Request implements RequestInterface
 {
     protected $route;
-    protected $locale;
     protected $format;
 
     protected $dir;
@@ -40,6 +39,7 @@ class Request implements RequestInterface
      * @var HeaderBag
      */
     protected $header;
+    protected $languages;
     protected $language;
 
     /**
@@ -74,11 +74,12 @@ class Request implements RequestInterface
      *
      * @param SessionInterface $session
      */
-    public function __construct(SessionInterface $session = null)
+    public function __construct(SessionInterface $session = null, array $cookie = [])
     {
         $this->removeSlashes();
 
-        $this->session = $session;
+        $this->session = $session ?: new Bag($_SESSION);
+        $this->cookie = new Bag($cookie ?: $_COOKIE);
 
         $this->initialize($_GET, $_POST, $_FILES, $_SERVER);
     }
@@ -90,19 +91,14 @@ class Request implements RequestInterface
      * @param array $post
      * @param array $files
      * @param array $server
-     * @param array $cookie
      */
-    public function initialize(array $get = [], array $post = [], array $files = [], array $server = [], array $cookie = [])
+    public function initialize(array $get = [], array $post = [], array $files = [], array $server = [])
     {
         $this->server = new Bag($server);
-        $this->cookie = new Bag($cookie);
-
         $this->header = new HeaderBag(array_merge($get, $post, $server));
-        $this->language = $this->header->languages();
 
-        if ($this->locale() === null) {
-            $this->locale(reset($this->language));
-        }
+        $this->languages = $this->header->languages();
+        $this->language = reset($this->languages);
 
         $this->dir = $this->resolveDir();
         $this->path = $this->resolvePath();
@@ -113,7 +109,7 @@ class Request implements RequestInterface
         $this->files = new FilesBag($files);
 
         if (!empty($this->query['locale'])) {
-            $this->locale($this->query['locale']);
+            $this->language($this->query['locale']);
         }
 
         if (!empty($this->query['format'])) {
@@ -535,9 +531,9 @@ class Request implements RequestInterface
      *
      * @return array
      */
-    public function language()
+    public function languages()
     {
-        return $this->language;
+        return $this->languages;
     }
 
     /**
@@ -547,25 +543,13 @@ class Request implements RequestInterface
      *
      * @return Request
      */
-    public function locale($locale = null)
+    public function language($locale = null)
     {
         if ($locale !== null) {
-            $this->locale = $locale;
+            $this->language = $locale;
         }
 
-        if (!empty($this->locale)) {
-            return $this->locale;
-        }
-
-        if (!empty($this->session['locale'])) {
-            return $this->session['locale'];
-        }
-
-        if (!empty($this->language[0])) {
-            return $this->language[0];
-        }
-
-        return null;
+        return $this->language;
     }
 
     /**

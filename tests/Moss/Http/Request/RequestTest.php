@@ -22,7 +22,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
      */
     public function testServer($offset, $value, $expected)
     {
-        $request = new Request();
+        $request = new Request($this->getMock('\Moss\Http\Session\SessionInterface'));
         $request->initialize(
             [],
             [],
@@ -80,7 +80,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
      */
     public function testHeader($header, $offset, $value, $expected)
     {
-        $request = new Request();
+        $request = new Request($this->getMock('\Moss\Http\Session\SessionInterface'));
         $request->initialize(
             [],
             [],
@@ -106,7 +106,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
     public function testLocale()
     {
-        $request = new Request();
+        $request = new Request($this->getMock('\Moss\Http\Session\SessionInterface'));
         $request->initialize(
             [],
             [],
@@ -116,7 +116,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
             ]
         );
 
-        $this->assertEquals('en', $request->locale());
+        $this->assertEquals('en', $request->language());
     }
 
     /**
@@ -127,7 +127,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $GLOBALS['argc'] = count($arg);
         $GLOBALS['argv'] = $arg;
 
-        $request = new Request();
+        $request = new Request($this->getMock('\Moss\Http\Session\SessionInterface'));
         $request->initialize(
             [],
             [],
@@ -178,7 +178,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
      */
     public function testQuery($offset, $value, $expected)
     {
-        $request = new Request();
+        $request = new Request($this->getMock('\Moss\Http\Session\SessionInterface'));
         $request->initialize(
             [$offset => $value],
             [],
@@ -208,7 +208,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
      */
     public function testBody($offset, $value, $expected)
     {
-        $request = new Request();
+        $request = new Request($this->getMock('\Moss\Http\Session\SessionInterface'));
         $request->initialize(
             [],
             [$offset => $value],
@@ -234,7 +234,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
     public function testRawBody()
     {
-        $request = new Request();
+        $request = new Request($this->getMock('\Moss\Http\Session\SessionInterface'));
         $this->assertEquals('', $request->rawBody());
     }
 
@@ -247,8 +247,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
     public function testCookie()
     {
-        $request = new Request($this->getMock('\Moss\Http\Session\SessionInterface'));
-        $request->initialize([], [], [], [], ['foo' => 'bar']);
+        $request = new Request($this->getMock('\Moss\Http\Session\SessionInterface'), ['foo' => 'bar']);
 
         $this->assertInstanceOf('\Moss\Bag\BagInterface', $request->cookie());
         $this->assertEquals(['foo' => 'bar'], $request->cookie()->all());
@@ -256,7 +255,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
     public function testFiles()
     {
-        $request = new Request();
+        $request = new Request($this->getMock('\Moss\Http\Session\SessionInterface'));
         $request->initialize();
 
         $this->assertInstanceOf('\Moss\Http\Request\FilesBag', $request->files());
@@ -264,7 +263,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
     public function testIsAjax()
     {
-        $request = new Request();
+        $request = new Request($this->getMock('\Moss\Http\Session\SessionInterface'));
         $request->initialize(
             [],
             [],
@@ -280,7 +279,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
      */
     public function testIsSecure($server)
     {
-        $request = new Request();
+        $request = new Request($this->getMock('\Moss\Http\Session\SessionInterface'));
         $request->initialize(
             [],
             [],
@@ -308,7 +307,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
      */
     public function testMethod($method)
     {
-        $request = new Request();
+        $request = new Request($this->getMock('\Moss\Http\Session\SessionInterface'));
         $request->initialize(
             [],
             [],
@@ -338,7 +337,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
      */
     public function testSchema($server, $expected)
     {
-        $request = new Request();
+        $request = new Request($this->getMock('\Moss\Http\Session\SessionInterface'));
         $request->initialize(
             [],
             [],
@@ -362,13 +361,13 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
     public function testBaseName()
     {
-        $request = new Request();
+        $request = new Request($this->getMock('\Moss\Http\Session\SessionInterface'));
         $this->assertEquals('http://foo.test.com/bar/yada/', $request->baseName('http://foo.test.com/bar/yada'));
     }
 
     public function testPathsWithQueryString()
     {
-        $request = new Request();
+        $request = new Request($this->getMock('\Moss\Http\Session\SessionInterface'));
         $request->initialize(
             [
                 'foo' => 'bar'
@@ -397,7 +396,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
     public function testPathsWithProperDomainRedirect()
     {
-        $request = new Request();
+        $request = new Request($this->getMock('\Moss\Http\Session\SessionInterface'));
         $request->initialize(
             [
                 'foo' => 'bar'
@@ -426,7 +425,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
     public function testPathsWithInvalidDomainRedirect()
     {
-        $request = new Request();
+        $request = new Request($this->getMock('\Moss\Http\Session\SessionInterface'));
         $request->initialize(
             [
                 'foo' => 'bar'
@@ -458,7 +457,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
      */
     public function testIp($header)
     {
-        $request = new Request();
+        $request = new Request($this->getMock('\Moss\Http\Session\SessionInterface'));
         $request->initialize(
             [],
             [],
@@ -480,7 +479,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
     public function testRoute()
     {
-        $request = new Request();
+        $request = new Request($this->getMock('\Moss\Http\Session\SessionInterface'));
         $request->route('route_name');
 
         $this->assertEquals('route_name', $request->route());
@@ -488,7 +487,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
     public function testFormat()
     {
-        $request = new Request();
+        $request = new Request($this->getMock('\Moss\Http\Session\SessionInterface'));
         $request->initialize(
             ['format' => 'json'],
             [],
@@ -501,7 +500,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
     public function testReferrer()
     {
-        $request = new Request();
+        $request = new Request($this->getMock('\Moss\Http\Session\SessionInterface'));
         $request->initialize(
             [],
             [],

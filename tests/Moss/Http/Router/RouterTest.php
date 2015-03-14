@@ -210,7 +210,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
 
         $request
             ->expects($this->any())
-            ->method('locale')
+            ->method('language')
             ->will($this->returnValue('fr'));
 
         $request
@@ -225,7 +225,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         $expected = [
             'host' => 'http://test.com',
             'route' => 'router',
-            'locale' => 'fr',
+            'language' => 'fr',
             'format' => 'yml'
         ];
 
