@@ -21,6 +21,8 @@ use Moss\Bag\Bag;
  */
 class Config extends Bag implements ConfigInterface
 {
+    const PREFIX_GLUE = ':';
+
     protected $mode;
     protected $storage = [
         'framework' => [
@@ -138,7 +140,7 @@ class Config extends Bag implements ConfigInterface
             return $key;
         }
 
-        return $prefix . ':' . $key;
+        return $prefix . self::PREFIX_GLUE . $key;
     }
 
     /**
