@@ -170,44 +170,42 @@ class AppTest extends \PHPUnit_Framework_TestCase
 
     public function testAddingRoute()
     {
+        $fnc = function() {};
+
         $this->components['router']->expects($this->once())
             ->method('register')
-            ->with(
-                'route',
-                new Route(
-                    '/route/',
-                    function () {
-
-                    }
-                )
-            );
+            ->with('route', new Route('/route/', $fnc));
 
         $app = new MockApp($this->container);
-        $app->route('route', '/route/', function () { });
+        $app->route('route', '/route/', $fnc);
     }
 
     public function testAddingComponent()
     {
+        $fnc = function() {};
+
         $this->container->expects($this->any())
             ->method('exists')
             ->will($this->returnValue(true));
 
         $this->container->expects($this->once())
             ->method('register')
-            ->with('component', function () { });
+            ->with('component', $fnc);
 
         $app = new MockApp($this->container);
-        $app->component('component', function () { }, true);
+        $app->component('component', $fnc, true);
     }
 
     public function testAddingListener()
     {
+        $fnc = function() {};
+
         $this->components['dispatcher']->expects($this->once())
             ->method('register')
-            ->with('event.name', function () { }, 0);
+            ->with('event.name', $fnc, 0);
 
         $app = new MockApp($this->container);
-        $app->listener('event.name', function () { }, 0);
+        $app->listener('event.name', $fnc, 0);
     }
 
     /**

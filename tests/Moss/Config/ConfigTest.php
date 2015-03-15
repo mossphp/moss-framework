@@ -30,11 +30,13 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
 
     public function importProvider()
     {
+        $fnc = function () { };
+
         return [
             [
                 [
                     'framework' => [
-                        'error' => ['display' => true, 'level' => E_ALL | E_NOTICE, 'detail' => true],
+                        'error' => ['display' => true, 'level' => -1, 'detail' => true],
                         'session' => ['name' => 'PHPSESSID', 'cacheLimiter' => '']
                     ],
                 ]
@@ -44,7 +46,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
                     'container' => [
                         'foo' => 'bar',
                         'name' => [
-                            'component' => function () { },
+                            'component' => $fnc,
                             'shared' => false
                         ]
                     ]
@@ -53,9 +55,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
             [
                 [
                     'dispatcher' => [
-                        'foo' => [
-                            function () { },
-                        ]
+                        'foo' => [$fnc]
                     ]
                 ]
             ],
@@ -76,18 +76,14 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
                     'import' => [
                         [
                             'dispatcher' => [
-                                'foo' => [
-                                    function () { }
-                                ]
+                                'foo' => [$fnc]
                             ]
                         ]
                     ]
                 ],
                 [
                     'dispatcher' => [
-                        'foo' => [
-                            function () { }
-                        ]
+                        'foo' => [$fnc]
                     ],
                 ]
             ]
