@@ -26,7 +26,7 @@ interface RequestInterface
     /**
      * Returns bag with session properties
      *
-     * @return SessionInterface
+     * @return BagInterface|SessionInterface
      */
     public function session();
 
