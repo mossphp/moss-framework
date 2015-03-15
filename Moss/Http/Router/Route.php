@@ -49,6 +49,7 @@ class Route implements RouteInterface
         $this->controller = $controller;
         $this->pattern = $pattern;
 
+        $matches = [];
         preg_match_all(self::REGEX, $this->pattern, $matches, \PREG_SET_ORDER);
 
         $this->regex = $this->buildRegexp($this->pattern, $matches);
