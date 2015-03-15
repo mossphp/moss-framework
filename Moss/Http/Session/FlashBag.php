@@ -26,8 +26,6 @@ class FlashBag implements FlashBagInterface
     protected $session;
     protected $prefix;
 
-    protected $storage;
-
     /**
      * Constructor
      * Binds flashbag with container array
@@ -53,7 +51,6 @@ class FlashBag implements FlashBagInterface
     public function reset()
     {
         $this->session[$this->prefix] = [];
-        $this->storage = &$this->session[$this->prefix];
 
         return $this;
     }
@@ -68,7 +65,7 @@ class FlashBag implements FlashBagInterface
      */
     public function add($message, $type = 'error')
     {
-        $this->storage[] = ['message' => $message, 'type' => $type];
+        $this->session[$this->prefix][] = ['message' => $message, 'type' => $type];
 
         return $this;
     }
@@ -83,10 +80,10 @@ class FlashBag implements FlashBagInterface
     public function has($type = null)
     {
         if (!$type) {
-            return !empty($this->storage);
+            return !empty($this->session[$this->prefix]);
         }
 
-        foreach ($this->storage as $message) {
+        foreach ($this->session[$this->prefix] as $message) {
             if ($message['type'] === $type) {
                 return true;
             }
@@ -106,10 +103,10 @@ class FlashBag implements FlashBagInterface
     {
         $result = [];
 
-        foreach ($this->storage as $i => $message) {
+        foreach ($this->session[$this->prefix] as $offset => $message) {
             if ($type === null || $message['type'] === $type) {
                 $result[] = $message;
-                unset($this->storage[$i]);
+                unset($this->session[$this->prefix][$offset]);
             }
         }
 
@@ -123,7 +120,7 @@ class FlashBag implements FlashBagInterface
      */
     public function retrieve()
     {
-        return array_shift($this->storage);
+        return array_shift($this->session[$this->prefix]);
     }
 
     /**
@@ -135,7 +132,7 @@ class FlashBag implements FlashBagInterface
      */
     public function offsetExists($offset)
     {
-        return isset($this->storage[$offset]);
+        return isset($this->session[$this->prefix][$offset]);
     }
 
     /**
@@ -147,11 +144,11 @@ class FlashBag implements FlashBagInterface
      */
     public function offsetGet($offset)
     {
-        if (!isset($this->storage[$offset])) {
+        if (!isset($this->session[$this->prefix][$offset])) {
             return null;
         }
 
-        $result = $this->storage[$offset];
+        $result = $this->session[$this->prefix][$offset];
         unset($this->session[$this->prefix][$offset]);
 
         return $result;
