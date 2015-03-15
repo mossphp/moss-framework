@@ -253,6 +253,24 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('http://test.com/router/foo/123/', $router->make(null, ['foo' => 'foo', 'bar' => 123]));
     }
 
+    /**
+     * @expectedException \Moss\Http\Router\RouterException
+     * @expectedExceptionMessage Unable to make url, matching route for
+     */
+    public function testUnableToMakeBecauseNoMatchingRoute()
+    {
+        $router = new Router();
+
+        $route = new Route('/router/{foo:\w}/({bar:\d})/', 'foo');
+        $router->register('route', $route);
+
+        $route = new Route('/router/', 'bar');
+        $router->register('domain_router', $route);
+
+        $router->match($this->mockRequest('/router/foo/123/', 'test.com'));
+        $this->assertEquals('http://domain.test.com/router/', $router->make('yadayada'));
+    }
+
     public function testMakeByName()
     {
         $router = new Router();

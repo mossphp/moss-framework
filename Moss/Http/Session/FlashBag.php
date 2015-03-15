@@ -211,6 +211,7 @@ class FlashBag implements FlashBagInterface
 
     /**
      * Return the key of the current element
+     * And since iteration removes elements from beginning of array - key is always 0
      *
      * @return mixed
      */

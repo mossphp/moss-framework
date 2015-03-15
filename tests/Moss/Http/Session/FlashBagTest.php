@@ -143,10 +143,13 @@ class FlashBagTest extends \PHPUnit_Framework_TestCase
         $bag->add('foo4', 'bar4');
 
         $i = 0;
-        foreach ($bag as $val) {
+        foreach ($bag as $key => $val) {
+            $this->assertEmpty(0, $key);
             $this->assertEquals(['message' => 'foo'.$i, 'type' => 'bar'.$i], $val);
             $i++;
         }
+
+        $this->assertEmpty($bag->get());
     }
 
     protected function sessionMock()

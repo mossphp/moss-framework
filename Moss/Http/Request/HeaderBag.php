@@ -41,6 +41,13 @@ class HeaderBag extends Bag
         $this->languages = $this->resolveLanguages();
     }
 
+    /**
+     * Resolves header from $_SERVER
+     *
+     * @param array $parameters
+     *
+     * @return array
+     */
     protected function resolveHeaders(array $parameters)
     {
         $headers = [];
