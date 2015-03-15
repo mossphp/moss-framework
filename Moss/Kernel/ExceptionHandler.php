@@ -145,7 +145,7 @@ class ExceptionHandler
      *
      * @param string $lineSeparator
      * @param string $source
-     * @param null   $mark
+     * @param int   $mark
      *
      * @return string
      */
@@ -174,7 +174,14 @@ class ExceptionHandler
     public function colorify($var)
     {
         ob_start();
-        var_dump($var);
+
+        if (!extension_loaded('xdebug')) {
+            xdebug_var_dump($var);
+        } else {
+            echo '<pre>';
+            var_dump($var);
+            echo '</pre>';
+        }
 
         return ob_get_clean();
     }
