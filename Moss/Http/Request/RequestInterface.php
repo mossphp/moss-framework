@@ -22,14 +22,6 @@ use Moss\Http\Session\SessionInterface;
  */
 interface RequestInterface
 {
-
-    /**
-     * Returns bag with session properties
-     *
-     * @return BagInterface|SessionInterface
-     */
-    public function session();
-
     /**
      * Returns bag with cookie properties
      *

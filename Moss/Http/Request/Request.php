@@ -72,34 +72,35 @@ class Request implements RequestInterface
     /**
      * Constructor
      *
-     * @param SessionInterface $session
-     * @param array            $cookies
-     * @param array            $get
-     * @param array            $post
-     * @param array            $files
-     * @param array            $server
+     * @param array  $get
+     * @param array  $post
+     * @param array  $files
+     * @param array  $server
+     * @param array  $cookie
+     * @param string $rawBody
      */
-    public function __construct(SessionInterface $session, array $cookies = [], array $get = [], array $post = [], array $files = [], array $server = [])
+    public function __construct(array $get = [], array $post = [], array $cookie = [], array $files = [], array $server = [], $rawBody = null)
     {
-        $this->removeSlashes();
-
-        $this->initialize($session, $cookies, $get, $post, $files, $server);
+        $this->initialize($get, $post, $cookie, $files, $server, $rawBody);
     }
 
     /**
      * Initializes request properties
      *
-     * @param SessionInterface $session
-     * @param array            $cookies
-     * @param array            $get
-     * @param array            $post
-     * @param array            $files
-     * @param array            $server
+     * @param array $get
+     * @param array $post
+     * @param array $cookie
+     * @param array $files
+     * @param array $server
+     * @param string $rawBody
      */
-    public function initialize(SessionInterface $session, array $cookies = [], array $get = [], array $post = [], array $files = [], array $server = [])
+    public function initialize(array $get = [], array $post = [], array $cookie = [], array $files = [], array $server = [], $rawBody = null)
     {
-        $this->session = $session;
-        $this->cookie = new Bag($cookies);
+        $cookie = $this->removeSlashes($cookie);
+        $get = $this->removeSlashes($get);
+        $post = $this->removeSlashes($post);
+
+        $this->cookie = new Bag($cookie);
 
         $this->server = new Bag($server);
         $this->header = new HeaderBag(array_merge($get, $post, $server));
@@ -112,7 +113,10 @@ class Request implements RequestInterface
         $this->baseName = $this->resolveBaseName();
 
         $this->query = new Bag($this->resolveParameters($get));
+
+        $this->raw = (string) $rawBody;
         $this->body = new Bag($this->resolveBody($post));
+
         $this->files = new FilesBag($files);
 
         if (!empty($this->query['locale'])) {
@@ -125,35 +129,28 @@ class Request implements RequestInterface
     }
 
     /**
-     * Removes slashes from POST, GET and COOKIE
+     * Removes slashes from array
      *
-     * @return Request
+     * @param array $array
+     *
+     * @return array
      */
-    protected function removeSlashes()
+    protected function removeSlashes($array)
     {
         if (version_compare(phpversion(), '6.0.0-dev', '<') && get_magic_quotes_gpc()) {
-            $_POST = array_map([$this, 'removeSlashed'], $_POST);
-            $_GET = array_map([$this, 'removeSlashed'], $_GET);
-            $_COOKIE = array_map([$this, 'removeSlashed'], $_COOKIE);
+            $array = array_map(
+                function ($value) {
+                    if (is_array($value)) {
+                        return array_map([$this, 'removeSlashed'], $value);
+                    }
+
+                    return stripslashes($value);
+                },
+                $array
+            );
         }
 
-        return $this;
-    }
-
-    /**
-     * Removes slashes from string
-     *
-     * @param array|string $value
-     *
-     * @return array|string
-     */
-    protected function removeSlashed($value)
-    {
-        if (is_array($value)) {
-            return array_map([$this, 'removeSlashed'], $value);
-        }
-
-        return stripslashes($value);
+        return $array;
     }
 
     /**
@@ -291,7 +288,6 @@ class Request implements RequestInterface
      */
     protected function resolveBody(array $post = [])
     {
-        $this->raw = file_get_contents('php://input');
         $rest = [];
 
         if (in_array($this->method(), ['OPTIONS', 'HEAD', 'PUT', 'DELETE', 'TRACE'])) {
@@ -299,16 +295,6 @@ class Request implements RequestInterface
         }
 
         return array_merge($post, $rest);
-    }
-
-    /**
-     * Returns bag with session properties
-     *
-     * @return BagInterface|SessionInterface
-     */
-    public function session()
-    {
-        return $this->session;
     }
 
     /**
