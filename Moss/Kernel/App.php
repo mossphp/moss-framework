@@ -68,7 +68,7 @@ class App implements AppInterface
         $conf = $config['framework']['session'];
         $session = new Session($conf['name'], $conf['cacheLimiter']);
 
-        $request = new Request($session);
+        $request = new Request($session, $_COOKIE, $_GET, $_POST, $_FILES, $_SERVER);
 
         // registering components
         $this->container
