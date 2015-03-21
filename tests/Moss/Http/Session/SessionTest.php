@@ -1,7 +1,7 @@
 <?php
 namespace Moss\Http\Session;
 
-class MockContainer
+class FunctionMockSession
 {
     public static $ini;
     public static $headersSent;
@@ -11,21 +11,21 @@ class MockContainer
     public static $sessionId;
 }
 
-function ini_get($varname) { return isset(MockContainer::$ini[$varname]) ? MockContainer::$ini[$varname] : null; }
+function ini_get($varname) { return isset(FunctionMockSession::$ini[$varname]) ? FunctionMockSession::$ini[$varname] : null; }
 
-function headers_sent(&$file = null, &$line = null) { return MockContainer::$headersSent; }
+function headers_sent(&$file = null, &$line = null) { return FunctionMockSession::$headersSent; }
 
-function session_status() { return MockContainer::$sessionStatus; }
+function session_status() { return FunctionMockSession::$sessionStatus; }
 
-function session_start() { return MockContainer::$sessionStart; }
+function session_start() { return FunctionMockSession::$sessionStart; }
 
 function session_id($id = null)
 {
     if ($id) {
-        MockContainer::$sessionId = $id;
+        FunctionMockSession::$sessionId = $id;
     }
 
-    return MockContainer::$sessionId;
+    return FunctionMockSession::$sessionId;
 }
 
 ;
@@ -45,10 +45,10 @@ class SessionTest extends \PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
-        MockContainer::$headersSent = false;
-        MockContainer::$sessionStatus = \PHP_SESSION_NONE;
-        MockContainer::$sessionStart = true;
-        MockContainer::$sessionId = 'SessionId';
+        FunctionMockSession::$headersSent = false;
+        FunctionMockSession::$sessionStatus = \PHP_SESSION_NONE;
+        FunctionMockSession::$sessionStart = true;
+        FunctionMockSession::$sessionId = 'SessionId';
     }
 
     /**
@@ -57,8 +57,8 @@ class SessionTest extends \PHPUnit_Framework_TestCase
      */
     public function testSessionAlreadyStarted()
     {
-        MockContainer::$sessionId = null;
-        MockContainer::$sessionStatus = \PHP_SESSION_ACTIVE;
+        FunctionMockSession::$sessionId = null;
+        FunctionMockSession::$sessionStatus = \PHP_SESSION_ACTIVE;
 
         new Session();
     }
@@ -69,9 +69,9 @@ class SessionTest extends \PHPUnit_Framework_TestCase
      */
     public function testHeadersSent()
     {
-        MockContainer::$sessionId = null;
-        MockContainer::$ini['session.use_cookies'] = true;
-        MockContainer::$headersSent = true;
+        FunctionMockSession::$sessionId = null;
+        FunctionMockSession::$ini['session.use_cookies'] = true;
+        FunctionMockSession::$headersSent = true;
 
         new Session();
     }
@@ -82,8 +82,8 @@ class SessionTest extends \PHPUnit_Framework_TestCase
      */
     public function testUnableToStartSession()
     {
-        MockContainer::$sessionId = null;
-        MockContainer::$sessionStart = false;
+        FunctionMockSession::$sessionId = null;
+        FunctionMockSession::$sessionStart = false;
 
         new Session();
     }
