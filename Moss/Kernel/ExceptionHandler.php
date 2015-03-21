@@ -175,7 +175,7 @@ class ExceptionHandler
     {
         ob_start();
 
-        if (!extension_loaded('xdebug')) {
+        if (extension_loaded('xdebug')) {
             xdebug_var_dump($var);
         } else {
             echo '<pre>';
