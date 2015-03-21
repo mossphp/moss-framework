@@ -93,7 +93,7 @@ class ExceptionHandlerTest extends \PHPUnit_Framework_TestCase
 
         $this->expectOutputRegex('/HTTP\/1.1 500 Internal Server Error/');
         $this->expectOutputRegex('/Content-type: text\/plain; charset=UTF-8/');
-        $this->expectOutputRegex('/Bad Moss: Exception message \( ' . preg_quote($exception->getFile()) . ' at line: ' . $exception->getLine() . ' \)/');
+        $this->expectOutputRegex('/Bad Moss: Exception message \( ' . preg_quote($exception->getFile(), '/') . ' at line: ' . $exception->getLine() . ' \)/');
     }
 
     public function testLineNumbers()
