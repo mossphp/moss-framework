@@ -14,7 +14,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
     {
         $default = [
             'framework' => [
-                'error' => ['display' => true, 'level' => -1, 'detail' => true],
+                'error' => ['level' => -1, 'detail' => true],
                 'session' => ['name' => 'PHPSESSID', 'cacheLimiter' => '']
             ],
             'container' => [],
@@ -36,7 +36,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
             [
                 [
                     'framework' => [
-                        'error' => ['display' => true, 'level' => -1, 'detail' => true],
+                        'error' => ['level' => -1, 'detail' => true],
                         'session' => ['name' => 'PHPSESSID', 'cacheLimiter' => '']
                     ],
                 ]
@@ -115,7 +115,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
     {
         $default = [
             'framework' => [
-                'error' => ['display' => true, 'level' => -1, 'detail' => true],
+                'error' => ['level' => -1, 'detail' => true],
                 'session' => ['name' => 'PHPSESSID', 'cacheLimiter' => '']
             ],
             'container' => [],
@@ -302,7 +302,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
 
         $expected = [
             'framework' => [
-                'error' => ['display' => true, 'level' => -1, 'detail' => true],
+                'error' => ['level' => -1, 'detail' => true],
                 'session' => ['name' => 'PHPSESSID', 'cacheLimiter' => '']
             ],
             'container' => [],

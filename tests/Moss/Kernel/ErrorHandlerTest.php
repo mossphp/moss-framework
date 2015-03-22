@@ -36,7 +36,7 @@ class ErrorHandlerTest extends \PHPUnit_Framework_TestCase
      */
     public function testRegister($level)
     {
-        $handler = new ErrorHandler(true, $level);
+        $handler = new ErrorHandler($level);
         $handler->register();
 
         $this->assertEquals($level, FunctionMockErrorHandler::$level);
@@ -69,7 +69,7 @@ class ErrorHandlerTest extends \PHPUnit_Framework_TestCase
 
     public function testUnregister()
     {
-        $handler = new ErrorHandler(true, -1);
+        $handler = new ErrorHandler(-1);
         $handler->register();
         $handler->unregister();
 
@@ -81,7 +81,7 @@ class ErrorHandlerTest extends \PHPUnit_Framework_TestCase
      */
     public function testHandler()
     {
-        $handler = new ErrorHandler(true, -1);
+        $handler = new ErrorHandler(-1);
         $handler->handler(1, 'str', 'file', '123');
     }
 }

@@ -26,7 +26,7 @@ function restore_exception_handler() { FunctionMockExceptionHandler::$handler_re
 
 function extension_loaded() { return FunctionMockExceptionHandler::$xdebug_extension; }
 
-function var_dump($var) { echo $var; }
+function var_dump($var) { echo print_r($var, true); }
 
 function headers_sent() { return false; }
 
@@ -89,11 +89,11 @@ class ExceptionHandlerTest extends \PHPUnit_Framework_TestCase
         $exception = new \Exception('Exception message');
 
         $handler = new ExceptionHandler();
-        $handler->handlerTerse($exception);
+        $handler->handlerVerbose($exception);
 
         $this->expectOutputRegex('/HTTP\/1.1 500 Internal Server Error/');
         $this->expectOutputRegex('/Content-type: text\/plain; charset=UTF-8/');
-        $this->expectOutputRegex('/Bad Moss: Exception message \( ' . preg_quote($exception->getFile(), '/') . ' at line: ' . $exception->getLine() . ' \)/');
+        $this->expectOutputRegex('/Bad Moss: Exception - Exception message - ' . preg_quote($exception->getFile(), '/') . ':' . $exception->getLine() . '/m');
     }
 
     public function testLineNumbers()

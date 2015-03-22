@@ -27,7 +27,6 @@ class Config extends Bag implements ConfigInterface
     protected $storage = [
         'framework' => [
             'error' => [
-                'display' => true,
                 'level' => -1,
                 'detail' => true
             ],
@@ -92,7 +91,7 @@ class Config extends Bag implements ConfigInterface
                 continue;
             }
 
-            $this->storage[$key] = array_merge($this->storage[$key], $this->applyPrefix($node, $prefix));
+            $this->storage[$key] = $this->merge($this->storage[$key], $this->applyPrefix($node, $prefix));
         }
 
         foreach ($importKeys as $key) {
@@ -105,10 +104,31 @@ class Config extends Bag implements ConfigInterface
     }
 
     /**
+     * Merges arrays without changing duplicated keys into arrays
+     *
+     * @param array $merged
+     * @param array $array
+     *
+     * @return array
+     */
+    private function merge(array $merged, array $array)
+    {
+        foreach ($array as $key => $value) {
+            if (is_array($value) && isset ($merged[$key]) && is_array($merged[$key])) {
+                $merged[$key] = $this->merge($merged[$key], $value);
+            } else {
+                $merged[$key] = $value;
+            }
+        }
+
+        return $merged;
+    }
+
+    /**
      * Applies prefix to array keys
      *
-     * @param array $array
-     * @param null|string  $prefix
+     * @param array       $array
+     * @param null|string $prefix
      *
      * @return array
      */
@@ -129,7 +149,7 @@ class Config extends Bag implements ConfigInterface
     /**
      * Prefixes key
      *
-     * @param string $key
+     * @param string      $key
      * @param null|string $prefix
      *
      * @return string
