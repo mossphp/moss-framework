@@ -26,7 +26,7 @@ function restore_exception_handler() { FunctionMockExceptionHandler::$handler_re
 
 function extension_loaded() { return FunctionMockExceptionHandler::$xdebug_extension; }
 
-function var_dump($var) { echo print_r($var, true); }
+function var_dump($var) { echo 'var_dump'; }
 
 function headers_sent() { return false; }
 
@@ -113,7 +113,7 @@ class ExceptionHandlerTest extends \PHPUnit_Framework_TestCase
         $handler = new ExceptionHandler();
         $result = $handler->prettyCode('var');
 
-        $this->assertEquals('var', $result);
+        $this->assertEquals('var_dump', $result);
     }
 
     public function testPrettyCodeWithoutXdebug()
@@ -123,6 +123,6 @@ class ExceptionHandlerTest extends \PHPUnit_Framework_TestCase
         $handler = new ExceptionHandler();
         $result = $handler->prettyCode('var');
 
-        $this->assertEquals('<pre>var</pre>', $result);
+        $this->assertEquals('<pre>var_dump</pre>', $result);
     }
 }
