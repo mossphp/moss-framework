@@ -8,89 +8,6 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
 {
 
     /**
-     * @dataProvider importProvider
-     */
-    public function testImportExport($import, $expected = [])
-    {
-        $default = [
-            'framework' => [
-                'error' => ['level' => -1, 'detail' => true],
-                'session' => ['name' => 'PHPSESSID', 'cacheLimiter' => '']
-            ],
-            'container' => [],
-            'dispatcher' => [],
-            'router' => [],
-        ];
-
-        $config = new Config();
-        $config->import($import);
-
-        $this->assertEquals(array_replace_recursive($default, $expected ? $expected : $import), $config->export());
-    }
-
-    public function importProvider()
-    {
-        $fnc = function () { };
-
-        return [
-            [
-                [
-                    'framework' => [
-                        'error' => ['level' => -1, 'detail' => true],
-                        'session' => ['name' => 'PHPSESSID', 'cacheLimiter' => '']
-                    ],
-                ]
-            ],
-            [
-                [
-                    'container' => [
-                        'foo' => 'bar',
-                        'name' => [
-                            'component' => $fnc,
-                            'shared' => false
-                        ]
-                    ]
-                ]
-            ],
-            [
-                [
-                    'dispatcher' => [
-                        'foo' => [$fnc]
-                    ]
-                ]
-            ],
-            [
-                [
-                    'router' => [
-                        'routeName' => [
-                            'pattern' => '/{foo}/({bar})/',
-                            'controller' => 'Moss:sample:Sample:index',
-                            'arguments' => [],
-                            'methods' => []
-                        ]
-                    ]
-                ]
-            ],
-            [
-                [
-                    'import' => [
-                        [
-                            'dispatcher' => [
-                                'foo' => [$fnc]
-                            ]
-                        ]
-                    ]
-                ],
-                [
-                    'dispatcher' => [
-                        'foo' => [$fnc]
-                    ],
-                ]
-            ]
-        ];
-    }
-
-    /**
      * @dataProvider modeProvider
      */
     public function testMode($mode)
@@ -108,14 +25,18 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
         ];
     }
 
-    /**
-     * @dataProvider importModeProvider
-     */
-    public function testImportExportWithMode($import, $expected)
+    public function testImportExport()
     {
-        $default = [
+        $import = [
             'framework' => [
-                'error' => ['level' => -1, 'detail' => true],
+                'error' => ['level' => 0, 'detail' => false],
+                'session' => ['name' => 'PHPSESSID', 'cacheLimiter' => '']
+            ],
+        ];
+
+        $expected = [
+            'framework' => [
+                'error' => ['level' => 0, 'detail' => false],
                 'session' => ['name' => 'PHPSESSID', 'cacheLimiter' => '']
             ],
             'container' => [],
@@ -124,74 +45,53 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
         ];
 
         $config = new Config();
-        $config->mode('dev');
         $config->import($import);
 
-        $this->assertEquals(array_replace_recursive($default, $expected), $config->export());
+        $this->assertEquals($expected, $config->export());
     }
 
-    public function importModeProvider()
+    public function testImportExportWithMode()
     {
-        return [
-            [
-                [
-                    'import' => [
-                        [
-                            'container' => [
-                                'foo' => 'bar',
-                            ]
-                        ]
-                    ]
-                ],
-                [
-                    'container' => [
-                        'foo' => 'bar',
-                    ]
+        $import = [
+            'import_dev' => [
+                'framework' => [
+                    'error' => ['level' => 0, 'detail' => false],
+                    'session' => ['name' => 'PHPSESSID', 'cacheLimiter' => '']
                 ]
             ],
-            [
-                [
-                    'import_prod' => [
-                        [
-                            'container' => [
-                                'foo' => 'bar'
-                            ],
-                        ]
-                    ]
-                ],
-                []
-            ],
-            [
-                [
-                    'import_dev' => [
-                        [
-                            'container' => [
-                                'foo' => 'bar'
-                            ]
-                        ]
-                    ]
-                ],
-                [
-                    'container' => [
-                        'foo' => 'bar'
-                    ]
+            'import_ignored' => [
+                'framework' => [
+                    'error' => ['level' => -1, 'detail' => true],
+                    'session' => ['name' => 'PHPSESSID', 'cacheLimiter' => '']
                 ]
             ]
         ];
+
+        $expected = [
+            'framework' => [
+                'error' => ['level' => 0, 'detail' => false],
+                'session' => ['name' => 'PHPSESSID', 'cacheLimiter' => '']
+            ],
+            'container' => [],
+            'dispatcher' => [],
+            'router' => []
+        ];
+
+        $config = new Config($import, 'dev');
+
+        $this->assertEquals($expected, $config->export());
     }
 
     public function testPrefixedImport()
     {
         $data = [
             'import' => [
-                'prefix' => [
-                    'container' => ['var' => 'value']
-                ]
+                'container' => ['var' => 'value']
             ]
         ];
 
         $config = new Config();
-        $config->import($data);
+        $config->import($data, 'prefix');
         $this->assertEquals('value', $config->get('container.prefix:var'));
     }
 

@@ -80,12 +80,12 @@ class Config extends Bag implements ConfigInterface
      */
     public function import(array $arr, $prefix = null)
     {
-        $importKeys = [];
+        $imports = [];
         foreach ($arr as $key => $node) {
             if (strpos($key, 'import') === 0) {
                 $mode = substr($key, 7);
                 if ($mode == '' || $mode == $this->mode) {
-                    $importKeys[] = $key;
+                    $imports[] = $key;
                 }
 
                 continue;
@@ -94,10 +94,9 @@ class Config extends Bag implements ConfigInterface
             $this->storage[$key] = $this->merge($this->storage[$key], $this->applyPrefix($node, $prefix));
         }
 
-        foreach ($importKeys as $key) {
-            foreach ($arr[$key] as $key => $value) {
-                $this->import($value, $this->prefixKey($key, $prefix));
-            }
+        foreach ($imports as $key) {
+            $this->import($arr[$key], $prefix);
+
         }
 
         return $this;
@@ -134,46 +133,16 @@ class Config extends Bag implements ConfigInterface
      */
     private function applyPrefix(array $array, $prefix = null)
     {
-        if (!$this->checkPrefix($prefix)) {
+        if ($prefix === null) {
             return $array;
         }
 
         $result = [];
         foreach ($array as $key => $value) {
-            $result[$this->prefixKey($key, $prefix)] = $value;
+            $result[$prefix . self::PREFIX_GLUE . $key] = $value;
         }
 
         return $result;
-    }
-
-    /**
-     * Prefixes key
-     *
-     * @param string      $key
-     * @param null|string $prefix
-     *
-     * @return string
-     */
-    private function prefixKey($key, $prefix = null)
-    {
-        if (!$this->checkPrefix($prefix)) {
-            return $key;
-        }
-
-        return $prefix . self::PREFIX_GLUE . $key;
-    }
-
-    /**
-     * Checks if key needs to be prefixed
-     * Only strings are prefixed
-     *
-     * @param string $prefix
-     *
-     * @return bool
-     */
-    private function checkPrefix($prefix)
-    {
-        return !empty($prefix) && !is_numeric($prefix);
     }
 
     /**
