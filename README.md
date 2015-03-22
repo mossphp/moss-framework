@@ -1,8 +1,8 @@
 # MOSS Micro Framework
 
-[![Build Status](https://travis-ci.org/potfur/moss-framework.png?branch=master)](https://travis-ci.org/potfur/moss-framework)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/potfur/moss-framework/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/potfur/moss-framework/?branch=master)
-[![Code Coverage](https://scrutinizer-ci.com/g/potfur/moss-framework/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/potfur/moss-framework/?branch=master)
+[![Build Status](https://travis-ci.org/mossphp/moss-framework.png?branch=master)](https://travis-ci.org/mossphp/moss-framework)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/mossphp/moss-framework/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/mossphp/moss-framework/?branch=master)
+[![Code Coverage](https://scrutinizer-ci.com/g/mossphp/moss-framework/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/mossphp/moss-framework/?branch=master)
 
 For licence details see LICENCE.md
 Documentation is available in ./docs/
@@ -34,7 +34,7 @@ So what's the difference between other micro-frameworks?
  
 # Documentation
 
-Documentation is available on Wiki : [https://github.com/potfur/moss-framework/wiki](https://github.com/potfur/moss-framework/wiki)
+Documentation is available on Wiki : [https://github.com/mossphp/moss-framework/wiki](https://github.com/mossphp/moss-framework/wiki)
 
 # Quickstart
 
@@ -70,7 +70,7 @@ Then create entry file, eg `./web/index.php` containing:
 	$app->run()->send();
 ```
 
-Or download simple sample app from [github](https://github.com/potfur/moss-demo-app)
+Or download simple sample app from [github](https://github.com/mossphp/moss-demo-app)
 
 ## Contribute
  
