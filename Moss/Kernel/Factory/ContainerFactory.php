@@ -14,6 +14,7 @@ namespace Moss\Kernel\Factory;
 use Moss\Container\Component;
 use Moss\Container\Container;
 use Moss\Kernel\AppException;
+use Moss\Kernel\GetTypeTrait;
 
 /**
  * Class ContainerFactory
@@ -22,6 +23,8 @@ use Moss\Kernel\AppException;
  */
 class ContainerFactory
 {
+    use GetTypeTrait;
+
     protected $callableDefaults = [
         'component' => null,
         'shared' => false
@@ -118,6 +121,6 @@ class ContainerFactory
             );
         }
 
-        throw new AppException(sprintf('Invalid component format, must be callable or array with class key, got "%s"', gettype($definition)));
+        throw new AppException(sprintf('Invalid component format, must be callable or array with class key, got "%s"', $this->getType($definition)));
     }
 }
