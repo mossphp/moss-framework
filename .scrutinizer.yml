@@ -1,7 +1,8 @@
 imports:
     - php
 filter:
-    excluded_paths: [cache/*, compile/*, docs/*, tests/*, vendor/*, web/* ]
+    excluded_paths:
+        - tests/*
 tools:
     php_sim: true
     php_pdepend: true
