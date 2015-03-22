@@ -2,6 +2,7 @@ imports:
     - php
 filter:
     excluded_paths:
+        - bin/*
         - tests/*
         - vendor/*
 tools:
