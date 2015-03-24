@@ -17,7 +17,6 @@ class FunctionMockExceptionHandler
     public static $handler_restored = false;
 
     public static $xdebug_extension = false;
-    public static $xdebug_var_dump = false;
 }
 
 function set_exception_handler($callback) { FunctionMockExceptionHandler::$handler_callback = $callback; }
@@ -26,11 +25,13 @@ function restore_exception_handler() { FunctionMockExceptionHandler::$handler_re
 
 function extension_loaded() { return FunctionMockExceptionHandler::$xdebug_extension; }
 
-function var_dump($var) { echo 'var_dump'; }
-
-function headers_sent() { return false; }
-
-function header($header) { echo $header . PHP_EOL; }
+class MockExceptionHandler extends ExceptionHandler
+{
+    public function prettyCode($var)
+    {
+        return 'code';
+    }
+}
 
 class ExceptionHandlerTest extends \PHPUnit_Framework_TestCase
 {
@@ -72,27 +73,19 @@ class ExceptionHandlerTest extends \PHPUnit_Framework_TestCase
     {
         $exception = new \Exception('Exception message');
 
-        $handler = new ExceptionHandler();
+        $handler = new MockExceptionHandler();
         $handler->handlerTerse($exception);
 
-        $expected = [
-            'HTTP/1.1 500 Internal Server Error',
-            'Content-type: text/plain; charset=UTF-8',
-            'Bad Moss: Exception message ( ' . $exception->getFile() . ' at line: ' . $exception->getLine() . ' )'
-        ];
-
-        $this->expectOutputString(implode(PHP_EOL, $expected));
+        $this->expectOutputString('Bad Moss: Exception message ( ' . $exception->getFile() . ' at line: ' . $exception->getLine() . ' )');
     }
 
     public function testVerboseHandler()
     {
         $exception = new \Exception('Exception message');
 
-        $handler = new ExceptionHandler();
+        $handler = new MockExceptionHandler();
         $handler->handlerVerbose($exception);
 
-        $this->expectOutputRegex('/HTTP\/1.1 500 Internal Server Error/');
-        $this->expectOutputRegex('/Content-type: text\/plain; charset=UTF-8/');
         $this->expectOutputRegex('/Bad Moss: Exception - Exception message - ' . preg_quote($exception->getFile(), '/') . ':' . $exception->getLine() . '/m');
     }
 
@@ -113,7 +106,7 @@ class ExceptionHandlerTest extends \PHPUnit_Framework_TestCase
         $handler = new ExceptionHandler();
         $result = $handler->prettyCode('var');
 
-        $this->assertEquals('var_dump', $result);
+        $this->assertEquals('string(3) "var"', str_replace(["\n", "\r"], '', $result));
     }
 
     public function testPrettyCodeWithoutXdebug()
@@ -123,6 +116,6 @@ class ExceptionHandlerTest extends \PHPUnit_Framework_TestCase
         $handler = new ExceptionHandler();
         $result = $handler->prettyCode('var');
 
-        $this->assertEquals('<pre>var_dump</pre>', $result);
+        $this->assertEquals('<pre>string(3) "var"</pre>', str_replace(["\n", "\r"], '', $result));
     }
 }
