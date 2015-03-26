@@ -5,7 +5,7 @@
 [![Code Coverage](https://scrutinizer-ci.com/g/mossphp/moss-framework/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/mossphp/moss-framework/?branch=master)
 
 For licence details see LICENCE.md
-Documentation is available in ./docs/
+Documentation is available on Wiki : [https://github.com/mossphp/moss-framework/wiki](https://github.com/mossphp/moss-framework/wiki)
 
 ## About
 
