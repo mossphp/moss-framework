@@ -27,7 +27,7 @@ class View extends Bag implements ViewInterface
 
     /**
      * Creates View instance
-     * Sample pattern: './src/{bundle}/{directory}/View/{file}.php'
+     * Sample pattern: './src/{bundle}/{directory}/View/{file}.phtml'
      *
      * @param string $pattern
      * @param array $vars

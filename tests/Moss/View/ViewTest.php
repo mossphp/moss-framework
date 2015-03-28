@@ -9,7 +9,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
      */
     public function testMissingRequiredPatternValue()
     {
-        $view = new View();
+        $view = new View('/{bundle}.{file}.phtml');
         $view->template('foo');
         $view->render();
     }
@@ -20,14 +20,14 @@ class ViewTest extends \PHPUnit_Framework_TestCase
      */
     public function testMissingTemplateFile()
     {
-        $view = new View();
+        $view = new View('/{bundle}.{file}.phtml');
         $view->template('foo:bar:yada');
         $view->render();
     }
 
     public function testTemplate()
     {
-        $view = new View(['var' => 'Yup!'], __DIR__ . '/{bundle}.{file}.phtml');
+        $view = new View(__DIR__ . '/{bundle}.{file}.phtml', ['var' => 'Yup!']);
         $view->template('foo:bar');
         $this->assertEquals('Renders template? Yup!', $view->render());
     }
@@ -37,7 +37,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetSet($key, $value, $result)
     {
-        $view = new View([], __DIR__ . '/{bundle}.{file}.phtml');
+        $view = new View(__DIR__ . '/{bundle}.{file}.phtml');
         $view->template('foo:bar')
             ->set($key, $value);
 
@@ -56,7 +56,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 
     public function testRender()
     {
-        $view = new View(['var' => 'Yup'], __DIR__ . '/{bundle}.{file}.phtml');
+        $view = new View(__DIR__ . '/{bundle}.{file}.phtml', ['var' => 'Yup']);
         $result = $view->template('foo:bar')
             ->render();
 
@@ -65,7 +65,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 
     public function testToString()
     {
-        $view = new View(['var' => 'Yup'], __DIR__ . '/{bundle}.{file}.phtml');
+        $view = new View(__DIR__ . '/{bundle}.{file}.phtml', ['var' => 'Yup']);
         $result = $view->template('foo:bar')
             ->__toString();
 
@@ -77,7 +77,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
      */
     public function testOffsetUnset($offset, $value)
     {
-        $view = new View();
+        $view = new View('/{bundle}.{file}.phtml');
         $view[$offset] = $value;
         unset($view[$offset]);
         $this->assertEquals(0, $view->count());
@@ -88,7 +88,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
      */
     public function testOffsetGetSet($offset, $value)
     {
-        $view = new View();
+        $view = new View('/{bundle}.{file}.phtml');
         $view[$offset] = $value;
         $this->assertEquals($value, $view[$offset]);
     }
@@ -98,7 +98,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
      */
     public function testOffsetGetEmpty($offset)
     {
-        $view = new View();
+        $view = new View('/{bundle}.{file}.phtml');
         $this->assertNull(null, $view[$offset]);
     }
 
@@ -107,7 +107,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
      */
     public function testOffsetSetWithoutKey($value)
     {
-        $view = new View();
+        $view = new View('/{bundle}.{file}.phtml');
         $view[] = $value;
         $this->assertEquals($value, $view[0]);
     }
@@ -117,7 +117,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
      */
     public function testOffsetExists($offset, $value)
     {
-        $view = new View();
+        $view = new View('/{bundle}.{file}.phtml');
         $view[$offset] = $value;
         $this->assertTrue(isset($view[$offset]));
     }
@@ -127,7 +127,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
      */
     public function testCount($offset, $value)
     {
-        $view = new View();
+        $view = new View('/{bundle}.{file}.phtml');
         $view[1] = $offset;
         $view[2] = $value;
         $this->assertEquals(2, $view->count());
@@ -138,7 +138,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
      */
     public function testIterator($offset, $value)
     {
-        $view = new View();
+        $view = new View('/{bundle}.{file}.phtml');
         $view[$offset] = $value;
 
         foreach ($view as $key => $val) {
