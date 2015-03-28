@@ -530,7 +530,7 @@ class Request implements RequestInterface
     }
 
     /**
-     * Returns locale
+     * Returns language
      *
      * @param null|string $locale
      *
