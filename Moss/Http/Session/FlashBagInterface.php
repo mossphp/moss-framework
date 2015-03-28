@@ -48,6 +48,7 @@ interface FlashBagInterface extends \Iterator, \ArrayAccess, \Countable
 
     /**
      * Returns array containing messages of set type
+     * Removes message after returning it
      *
      * @param null|string $type
      *
@@ -57,6 +58,7 @@ interface FlashBagInterface extends \Iterator, \ArrayAccess, \Countable
 
     /**
      * Returns next message
+     * Removes message after returning it
      *
      * @return mixed
      */

@@ -23,8 +23,8 @@ class FlashBag implements FlashBagInterface
     /**
      * @var SessionInterface
      */
-    private $session;
-    private $prefix;
+    protected $session;
+    protected $prefix;
 
     /**
      * Constructor
@@ -33,16 +33,13 @@ class FlashBag implements FlashBagInterface
      * @param SessionInterface $session
      * @param string           $prefix
      */
-    public function __construct(SessionInterface $session = null, $prefix = 'FlashBag')
+    public function __construct(SessionInterface $session, $prefix = 'FlashBag')
     {
-        if ($session === null) {
-            $session = & $_SESSION;
-        }
-
-        $this->session = & $session;
+        $this->session = $session;
         $this->prefix = $prefix;
+
         if (!isset($this->session[$this->prefix])) {
-            $this->session[$this->prefix] = [];
+            $this->reset();
         }
     }
 
@@ -106,10 +103,10 @@ class FlashBag implements FlashBagInterface
     {
         $result = [];
 
-        foreach ($this->session[$this->prefix] as $i => $message) {
+        foreach ($this->session[$this->prefix] as $offset => $message) {
             if ($type === null || $message['type'] === $type) {
                 $result[] = $message;
-                unset($this->session[$this->prefix][$i]);
+                unset($this->session[$this->prefix][$offset]);
             }
         }
 
@@ -211,6 +208,7 @@ class FlashBag implements FlashBagInterface
 
     /**
      * Return the key of the current element
+     * And since iteration removes elements from beginning of array - key is always 0
      *
      * @return mixed
      */

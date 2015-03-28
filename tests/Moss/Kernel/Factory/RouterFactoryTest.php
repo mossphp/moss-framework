@@ -14,21 +14,33 @@ namespace Moss\Kernel\Factory;
 
 class RouterFactoryTest extends \PHPUnit_Framework_TestCase
 {
-    public function testBuild()
+    /**
+     * @dataProvider configRouteProvider
+     */
+    public function testBuild($definition)
     {
-        $config = [
-            'foo' => [
-                'pattern' => '/',
-                'controller' => 'foo',
-                'arguments' => [],
-                'methods' => []
-            ]
-        ];
-
         $factory = new RouterFactory();
-        $result = $factory->build($config);
+        $result = $factory->build(['foo' => $definition]);
 
         $this->assertInstanceOf('\Moss\Http\Router\Router', $result);
+        $this->assertInstanceOf('\Moss\Http\Router\RouteInterface', $result->retrieve()['foo']);
+    }
+
+    public function configRouteProvider()
+    {
+        return [
+            [
+                [
+                    'pattern' => '/',
+                    'controller' => 'foo',
+                    'arguments' => [],
+                    'methods' => []
+                ]
+            ],
+            [
+                $this->getMock('\Moss\Http\Router\RouteInterface')
+            ]
+        ];
     }
 
     public function applyDefaults()

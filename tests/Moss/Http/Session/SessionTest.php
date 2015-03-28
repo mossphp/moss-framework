@@ -1,15 +1,103 @@
 <?php
 namespace Moss\Http\Session;
 
-function headers_sent(&$file = null, &$line = null) { return false; }
-function session_start() { return true; }
-function session_regenerate_id() { session_id('newRandomSID'); return true; }
+class FunctionMockSession
+{
+    public static $ini;
+    public static $headersSent;
+
+    public static $sessionStatus;
+    public static $sessionStart;
+    public static $sessionId;
+}
+
+function ini_get($varname) { return isset(FunctionMockSession::$ini[$varname]) ? FunctionMockSession::$ini[$varname] : null; }
+
+function headers_sent(&$file = null, &$line = null) { return FunctionMockSession::$headersSent; }
+
+function session_status() { return FunctionMockSession::$sessionStatus; }
+
+function session_start() { return FunctionMockSession::$sessionStart; }
+
+function session_id($id = null)
+{
+    if ($id) {
+        FunctionMockSession::$sessionId = $id;
+    }
+
+    return FunctionMockSession::$sessionId;
+}
+
+;
+function session_regenerate_id()
+{
+    session_id('newRandomSID');
+
+    return true;
+}
+
+function session_destroy() {}
 
 /**
  * @package Moss Test
  */
 class SessionTest extends \PHPUnit_Framework_TestCase
 {
+    public function setUp()
+    {
+        FunctionMockSession::$headersSent = false;
+        FunctionMockSession::$sessionStatus = \PHP_SESSION_NONE;
+        FunctionMockSession::$sessionStart = true;
+        FunctionMockSession::$sessionId = 'SessionId';
+    }
+
+    /**
+     * @expectedException \RuntimeException
+     * @expectedExceptionMessage Session already started by PHP
+     */
+    public function testSessionAlreadyStarted()
+    {
+        FunctionMockSession::$sessionId = null;
+        FunctionMockSession::$sessionStatus = \PHP_SESSION_ACTIVE;
+
+        new Session();
+    }
+
+    /**
+     * @expectedException \RuntimeException
+     * @expectedExceptionMessage Unable to start session, headers have already been sent by
+     */
+    public function testHeadersSent()
+    {
+        FunctionMockSession::$sessionId = null;
+        FunctionMockSession::$ini['session.use_cookies'] = true;
+        FunctionMockSession::$headersSent = true;
+
+        new Session();
+    }
+
+    /**
+     * @expectedException \RuntimeException
+     * @expectedExceptionMessage Unable to start session
+     */
+    public function testUnableToStartSession()
+    {
+        FunctionMockSession::$sessionId = null;
+        FunctionMockSession::$sessionStart = false;
+
+        new Session();
+    }
+
+    public function testDestroy()
+    {
+        $_SESSION = ['foo', 'bar'];
+
+        $session = new Session();
+        $session->destroy();
+
+        $this->assertEquals([], $_SESSION);
+    }
+
     public function testRegenerate()
     {
         $session = new Session();
@@ -18,6 +106,17 @@ class SessionTest extends \PHPUnit_Framework_TestCase
         $session->regenerate();
         $this->assertNotEquals($id, $session->identify());
         $this->assertEquals('bar', $session->get('foo'));
+    }
+
+    public function testRegenerateWithoutSESSION()
+    {
+        $session = new Session();
+        $id = $session->identify();
+
+        unset($_SESSION);
+
+        $session->regenerate();
+        $this->assertNotEquals($id, $session->identify());
     }
 
     public function testIdentify()

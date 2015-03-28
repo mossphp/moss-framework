@@ -28,15 +28,11 @@ class HeaderBag extends Bag
      */
     public function asArray()
     {
-        $headers = array_filter($this->storage);
+        $headers = [];
+        foreach (array_filter($this->storage) as $header => $value) {
+            $headers[] = $header . ': ' . $value;
+        }
 
-        array_walk(
-            $headers,
-            function (&$value, $header) {
-                $value = $header . ': ' . $value;
-            }
-        );
-
-        return array_values($headers);
+        return $headers;
     }
 }

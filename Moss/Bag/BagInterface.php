@@ -61,7 +61,7 @@ interface BagInterface extends \ArrayAccess, \Iterator, \Countable
     public function remove($offset = null);
 
     /**
-     * Returns all options
+     * Returns all elements
      * If array passed, becomes bag content
      *
      * @param array $array overwrites values
@@ -71,7 +71,7 @@ interface BagInterface extends \ArrayAccess, \Iterator, \Countable
     public function all(array $array = []);
 
     /**
-     * Removes all options
+     * Removes all elements
      *
      * @return $this
      */

@@ -52,7 +52,7 @@ class Security implements SecurityInterface
      */
     public function __construct(TokenStashInterface $stash, $loginUrl = null)
     {
-        $this->stash = & $stash;
+        $this->stash = $stash;
         $this->loginUrl = $loginUrl;
     }
 

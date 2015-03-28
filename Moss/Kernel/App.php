@@ -11,12 +11,9 @@
 
 namespace Moss\Kernel;
 
-use Moss\Config\Config;
 use Moss\Config\ConfigInterface;
 use Moss\Container\ContainerInterface;
 use Moss\Dispatcher\DispatcherInterface;
-use Moss\Http\Cookie\Cookie;
-use Moss\Http\Cookie\CookieInterface;
 use Moss\Http\Request\Request;
 use Moss\Http\Request\RequestInterface;
 use Moss\Http\Response\ResponseInterface;
@@ -36,6 +33,8 @@ use Moss\Kernel\Factory\RouterFactory;
  */
 class App implements AppInterface
 {
+    use GetTypeTrait;
+
     const SEPARATOR = '@';
 
     /**
@@ -46,13 +45,10 @@ class App implements AppInterface
     /**
      * Constructor
      *
-     * @param array  $config
-     * @param string $mode
+     * @param ConfigInterface $config
      */
-    public function __construct(array $config = [], $mode = null)
+    public function __construct(ConfigInterface $config)
     {
-        $config = new Config($config, $mode);
-
         // error handling
         $errHandler = new ErrorHandler($config['framework']['error']['level']);
         $errHandler->register();
@@ -74,10 +70,14 @@ class App implements AppInterface
         $conf = $config['framework']['session'];
         $session = new Session($conf['name'], $conf['cacheLimiter']);
 
-        $conf = $config['framework']['cookie'];
-        $cookie = new Cookie($conf['domain'], $conf['path'], $conf['http'], $conf['ttl']);
-
-        $request = new Request($session, $cookie);
+        $request = new Request(
+            $_GET,
+            $_POST,
+            $_COOKIE,
+            $_FILES,
+            $_SERVER,
+            file_get_contents('php://input')
+        );
 
         // registering components
         $this->container
@@ -85,7 +85,6 @@ class App implements AppInterface
             ->register('router', $router)
             ->register('dispatcher', $dispatcher)
             ->register('session', $session)
-            ->register('cookie', $cookie)
             ->register('request', $request);
     }
 
@@ -128,8 +127,7 @@ class App implements AppInterface
      */
     public function route($name, $pattern, $controller, array $arguments = [], array $methods = [])
     {
-        $this->router()
-            ->register($name, new Route($pattern, $controller, $arguments, $methods));
+        $this->router()->register($name, new Route($pattern, $controller, $arguments, $methods));
 
         return $this;
     }
@@ -160,8 +158,7 @@ class App implements AppInterface
      */
     public function listener($event, $definition)
     {
-        $this->dispatcher()
-            ->register($event, $definition);
+        $this->dispatcher()->register($event, $definition);
 
         return $this;
     }
@@ -177,8 +174,7 @@ class App implements AppInterface
      */
     public function fire($event, $subject = null, $message = null)
     {
-        return $this->dispatcher()
-            ->fire($event, $subject, $message);
+        return $this->dispatcher()->fire($event, $subject, $message);
     }
 
     /**
@@ -242,16 +238,6 @@ class App implements AppInterface
     }
 
     /**
-     * Returns cookie instance
-     *
-     * @return CookieInterface
-     */
-    public function cookie()
-    {
-        return $this->get('cookie');
-    }
-
-    /**
      * Handles request
      *
      * @return ResponseInterface
@@ -296,8 +282,7 @@ class App implements AppInterface
             return $evtResponse;
         }
 
-        $controller = $this->router()
-            ->match($this->request());
+        $controller = $this->router()->match($this->request());
 
         if (empty($controller)) {
             throw new AppException('No controller was returned from router');
@@ -323,13 +308,13 @@ class App implements AppInterface
     /**
      * Builds event message from exception
      *
-     * @param \Exception $e
+     * @param \Exception $exception
      *
      * @return string
      */
-    private function eventMsg(\Exception $e)
+    private function eventMsg(\Exception $exception)
     {
-        return sprintf('%s (%s line:%s)', $e->getMessage(), $e->getFile(), $e->getLine());
+        return sprintf('%s (%s line:%s)', $exception->getMessage(), $exception->getFile(), $exception->getLine());
     }
 
     /**
@@ -352,39 +337,14 @@ class App implements AppInterface
         }
 
         if (!$response) {
-            throw new AppException(
-                sprintf(
-                    'There was no response returned from the controller handling "%s"',
-                    $this->request()
-                        ->uri(true)
-                )
-            );
+            throw new AppException(sprintf('There was no response returned from the controller handling "%s"', $this->request()->uri(true)));
         }
 
         if (!$response instanceof ResponseInterface) {
-            throw new AppException(
-                sprintf(
-                    'Invalid response returned from handling "%s", expected ResponseInterface, got "%s"',
-                    $this->request()
-                        ->uri(true),
-                    $this->getType($response)
-                )
-            );
+            throw new AppException(sprintf('Invalid response returned from handling "%s", expected ResponseInterface, got "%s"', $this->request()->uri(true), $this->getType($response)));
         }
 
         return $response;
-    }
-
-    /**
-     * Returns variable type or in case of objects, their class
-     *
-     * @param mixed $var
-     *
-     * @return string
-     */
-    private function getType($var)
-    {
-        return is_object($var) ? get_class($var) : gettype($var);
     }
 
     /**

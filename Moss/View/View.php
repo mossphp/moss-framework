@@ -34,6 +34,7 @@ class View extends Bag implements ViewInterface
     public function __construct(array $vars = [], $pattern = '../src/{bundle}/{directory}/View/{file}.php')
     {
         $this->pattern = $pattern;
+        parent::__construct($vars);
     }
 
     /**
@@ -61,7 +62,7 @@ class View extends Bag implements ViewInterface
         $file = $this->translate($this->template);
 
         if (!is_file($file)) {
-            throw new ViewException(sprintf('Unable to load template file %s (%s)', $this->template, $file));
+            throw new ViewException(sprintf('Unable to load template file "%s" (%s)', $this->template, $file));
         }
 
         ob_start();
@@ -83,17 +84,20 @@ class View extends Bag implements ViewInterface
     {
         preg_match_all('/^(?P<bundle>[^:]+):(?P<directory>[^:]*:)?(?P<file>.+)$/', $name, $matches, \PREG_SET_ORDER);
 
-        $r = [];
-        foreach (['bundle', 'directory', 'file'] as $k) {
-            if (empty($matches[0][$k])) {
-                throw new ViewException(sprintf('Invalid or missing "%s" node in view filename "%s"', $k, $name));
+        foreach (['bundle', 'file'] as $offset) {
+            if (empty($matches[0][$offset])) {
+                throw new ViewException(sprintf('Invalid or missing "%s" node in view filename "%s"', $offset, $name));
             }
-
-            $r['{' . $k . '}'] = str_replace(':', '\\', $matches[0][$k]);
         }
 
-        $file = strtr($this->pattern, $r);
-        $file = str_replace(['\\', '_', '//'], '/', $file);
+        $placeholders = [
+            '{bundle}' => $matches[0]['bundle'],
+            '{file}' => $matches[0]['file'],
+            '{directory}' => isset($matches[0]['directory']) ? str_replace(':', '\\', $matches[0]['directory']) : null,
+        ];
+
+        $file = strtr($this->pattern, $placeholders);
+        $file = str_replace(array('\\', '_', '//'), '/', $file);
 
         return $file;
     }

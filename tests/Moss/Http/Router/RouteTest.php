@@ -76,6 +76,25 @@ class RouteTest extends \PHPUnit_Framework_TestCase
         ];
     }
 
+    public function testOverwritingArguments()
+    {
+        $route = new Route('/foo/{bar:\d}/({yada:\w}/)', 'some:controller', ['foo' => 1]);
+        $this->assertEquals(['foo' => 1, 'bar' => null, 'yada' => null], $route->arguments());
+
+        $route->arguments(['bar' => 2, 'yada' => 3, 'daka' => 4]);
+        $this->assertEquals(['foo' => 1, 'bar' => 2, 'yada' => 3, 'daka' => 4], $route->arguments());
+    }
+
+    /**
+     * @expectedException \Moss\Http\Router\RouteException
+     * @expectedExceptionMessage Invalid value for argument "foo" in route
+     */
+    public function testOverwritingRequiredArgument()
+    {
+        $route = new Route('/foo/{bar:\d}/{yada:\w}/', 'some:controller', ['foo' => 1]);
+        $route->arguments(['foo' => 2]);
+    }
+
     /**
      * @dataProvider matchSchemaProvider
      */
@@ -90,10 +109,17 @@ class RouteTest extends \PHPUnit_Framework_TestCase
     {
         return [
             ['http'],
-            ['http'],
+            ['https'],
             ['http', 'http'],
             ['https', 'https'],
         ];
+    }
+
+    public function testDoesNotMatchSchema()
+    {
+        $route = new Route('/foo/', 'some:controller');
+        $route->schema('https');
+        $this->assertFalse($route->match($this->mockRequest('/foo', 'http')));
     }
 
     /**
@@ -119,6 +145,13 @@ class RouteTest extends \PHPUnit_Framework_TestCase
         ];
     }
 
+    public function testDoesNotMatchMethod()
+    {
+        $route = new Route('/foo/', 'some:controller');
+        $route->methods(['POST']);
+        $this->assertFalse($route->match($this->mockRequest('/foo', null, 'GET')));
+    }
+
     /**
      * @dataProvider matchHostProvider
      */
@@ -138,6 +171,19 @@ class RouteTest extends \PHPUnit_Framework_TestCase
             ['localhost', 'localhost'],
             ['sub.localhost', 'sub.localhost'],
         ];
+    }
+
+    public function testDoesNotMatchHost()
+    {
+        $route = new Route('/foo/', 'some:controller');
+        $route->host('foo.com');
+        $this->assertFalse($route->match($this->mockRequest('/foo', null, null, 'bar.com')));
+    }
+
+    public function testPattern()
+    {
+        $route = new Route('/foo/{bar:\d}/({yada:\w})', 'some:controller');
+        $this->assertEquals('/foo/{bar:\d}/({yada:\w})', $route->pattern());
     }
 
     /**
@@ -443,6 +489,34 @@ class RouteTest extends \PHPUnit_Framework_TestCase
         ];
     }
 
+    public function testMakeAbsolute()
+    {
+        $route = new Route('/foo/', 'some:controller');
+        $this->assertEquals('http://foo.com/foo/', $route->make('foo.com'));
+    }
+
+    public function testMakeRelative()
+    {
+        $route = new Route('/foo/', 'some:controller');
+        $this->assertEquals('./foo/', $route->make(null));
+    }
+
+    /**
+     * @expectedException \Moss\Http\Router\RouterException
+     * @expectedExceptionMessage Missing value for argument
+     */
+    public function testMakeWithoutRequiredArguments()
+    {
+        $route = new Route('/{foo:\d}/', 'some:controller');
+        $route->make('foo.com');
+    }
+
+    public function testMakeWithQueryParameters()
+    {
+        $route = new Route('/', 'some:controller');
+        $this->assertEquals('http://foo.com/?foo=bar', $route->make('foo.com', ['foo' => 'bar']));
+    }
+
     /**
      * @dataProvider makeProvider
      */
@@ -524,7 +598,7 @@ class RouteTest extends \PHPUnit_Framework_TestCase
     {
         $route = new Route('/foo/', 'some:controller');
         $route->host('sub.{basename}');
-        $this->assertEquals($schema . '://sub.' . $host . '/foo/', $route->make($schema.'://'.$host));
+        $this->assertEquals($schema . '://sub.' . $host . '/foo/', $route->make($schema . '://' . $host));
     }
 
     public function hostProvider()

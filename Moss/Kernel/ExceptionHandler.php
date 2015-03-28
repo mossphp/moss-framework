@@ -20,7 +20,7 @@ namespace Moss\Kernel;
 class ExceptionHandler
 {
 
-    private $details;
+    private $details = false;
 
     /**
      * Constructor
@@ -37,13 +37,15 @@ class ExceptionHandler
      *
      * @param bool $verbose
      *
-     * @return $this
+     * @return bool
      */
-    public function verbose($verbose = false)
+    public function verbose($verbose = null)
     {
-        $this->details = (bool) $verbose;
+        if ($verbose !== null) {
+            $this->details = (bool) $verbose;
+        }
 
-        return $this;
+        return $this->details;
     }
 
     /**
@@ -75,7 +77,7 @@ class ExceptionHandler
             header('HTTP/1.1 500 Internal Server Error', true, 500);
             header('Content-type: text/plain; charset=UTF-8');
         }
-        echo sprintf('Bad Moss: %s ( %s at line:%s )', $exception->getMessage(), $exception->getFile(), $exception->getLine());
+        echo sprintf('Bad Moss: %s ( %s at line: %u )', $exception->getMessage(), $exception->getFile(), $exception->getLine());
     }
 
     /**
@@ -135,8 +137,8 @@ class ExceptionHandler
             $exception->getMessage(),
             $exception->getFile(),
             $exception->getLine(),
-            $this->lineNum('<br />', highlight_file($exception->getFile(), true), $exception->getLine()),
-            $this->colorify($exception->getTrace())
+            $this->lineNumbers('<br />', highlight_file($exception->getFile(), true), $exception->getLine()),
+            $this->prettyCode($exception->getTrace())
         );
     }
 
@@ -145,11 +147,11 @@ class ExceptionHandler
      *
      * @param string $lineSeparator
      * @param string $source
-     * @param null   $mark
+     * @param int   $mark
      *
      * @return string
      */
-    protected function lineNum($lineSeparator, $source, $mark = null)
+    public function lineNumbers($lineSeparator, $source, $mark = null)
     {
         $count = count(explode($lineSeparator, $source));
         $tpl = '<span %s>%u</span>';
@@ -171,10 +173,17 @@ class ExceptionHandler
      *
      * @return string
      */
-    public function colorify($var)
+    public function prettyCode($var)
     {
         ob_start();
-        var_dump($var);
+
+        if (extension_loaded('xdebug')) {
+            var_dump($var);
+        } else {
+            echo '<pre>';
+            var_dump($var);
+            echo '</pre>';
+        }
 
         return ob_get_clean();
     }

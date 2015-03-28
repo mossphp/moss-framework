@@ -49,12 +49,8 @@ class Session extends Bag implements SessionInterface
      */
     protected function startSession()
     {
-        if (version_compare(phpversion(), '5.4.0', '>=') && \PHP_SESSION_ACTIVE === session_status()) {
+        if (session_status() === \PHP_SESSION_ACTIVE) {
             throw new \RuntimeException('Session already started by PHP.');
-        }
-
-        if (version_compare(phpversion(), '5.4.0', '<') && isset($_SESSION) && session_id()) {
-            throw new \RuntimeException('Session already started by PHP ($_SESSION is set).');
         }
 
         if (ini_get('session.use_cookies') && headers_sent($file, $line)) {

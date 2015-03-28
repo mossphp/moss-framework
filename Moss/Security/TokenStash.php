@@ -34,7 +34,7 @@ class TokenStash implements TokenStashInterface
      */
     public function __construct(SessionInterface $session)
     {
-        $this->stash = & $session;
+        $this->stash = $session;
     }
 
     /**

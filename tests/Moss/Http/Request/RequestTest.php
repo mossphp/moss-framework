@@ -1,6 +1,16 @@
 <?php
 namespace Moss\Http\Request;
 
+class MockContainer
+{
+    public static $magicQuotes;
+    public static $phpVersion;
+}
+
+function get_magic_quotes_gpc() { return (bool) MockContainer::$magicQuotes ?: \get_magic_quotes_gpc(); }
+
+function phpversion() { return MockContainer::$phpVersion ?: \phpversion(); }
+
 /**
  * @package Moss Test
  */
@@ -18,19 +28,49 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @dataProvider escapedQuotesProvider
+     */
+    public function testEscapedQuotes($magicQuotes, $phpVersion, $expected)
+    {
+        MockContainer::$magicQuotes = $magicQuotes;
+        MockContainer::$phpVersion = $phpVersion;
+
+        $request = new Request(
+            [],
+            ['foo' => '\"foo\"']
+        );
+
+        $this->assertEquals($expected, $request->body()->all());
+    }
+
+    public function escapedQuotesProvider()
+    {
+        return [
+            [false, 5.4, ['foo' => '\"foo\"']],
+            [false, 5.5, ['foo' => '\"foo\"']],
+            [false, 5.6, ['foo' => '\"foo\"']],
+            [false, '6.0.0-dev', ['foo' => '\"foo\"']],
+            [true, 5.4, ['foo' => '"foo"']],
+            [true, 5.5, ['foo' => '"foo"']],
+            [true, 5.6, ['foo' => '"foo"']],
+            [true, '6.0.0-dev', ['foo' => '\"foo\"']],
+        ];
+    }
+
+    /**
      * @dataProvider serverProvider
      */
     public function testServer($offset, $value, $expected)
     {
-        $request = new Request();
-        $request->initialize(
+        $request = new Request(
+            [],
             [],
             [],
             [],
             [$offset => $value]
         );
 
-        $this->assertEquals($expected, $request->server($offset));
+        $this->assertEquals($expected, $request->server()->get($offset));
     }
 
     public function serverProvider()
@@ -75,20 +115,46 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         ];
     }
 
+    /**
+     * @dataProvider headerProvider
+     */
+    public function testHeader($header, $offset, $value, $expected)
+    {
+        $request = new Request(
+            [],
+            [],
+            [],
+            [],
+            [$header => $value]
+        );
+
+        $this->assertEquals($expected, $request->header()->get($offset));
+    }
+
+    public function headerProvider()
+    {
+        return [
+            ['HTTP_CONTENT_LENGTH', 'Content-Length', 123456, 123456],
+            ['HTTP_CONTENT_LENGTH', 'CONTENT-LENGTH', 123456, 123456],
+            ['HTTP_CONTENT_LENGTH', 'content-length', 123456, 123456],
+            ['HTTP_CONTENT_LENGTH', 'content_length', 123456, 123456],
+            ['HTTP_CONTENT_MD5', 'Content-MD5', 'someMD5', 'someMD5'],
+            ['HTTP_CONTENT_TYPE', 'Content-Type', 'text/plain', 'text/plain'],
+            ['HTTP_ACCEPT_LANGUAGE', 'Accept-Language', 'en-US,en;q=0.8,pl;q=0.6', 'en-US,en;q=0.8,pl;q=0.6'],
+        ];
+    }
 
     public function testLocale()
     {
-        $request = new Request();
-        $request->initialize(
+        $request = new Request(
             [],
             [],
             [],
-            [
-                'HTTP_ACCEPT_LANGUAGE' => 'en-US,en;q=0.8,pl;q=0.6'
-            ]
+            [],
+            ['HTTP_ACCEPT_LANGUAGE' => 'en-US,en;q=0.8,pl;q=0.6']
         );
 
-        $this->assertEquals('en', $request->locale());
+        $this->assertEquals('en', $request->language());
     }
 
     /**
@@ -99,14 +165,12 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $GLOBALS['argc'] = count($arg);
         $GLOBALS['argv'] = $arg;
 
-        $request = new Request();
-        $request->initialize(
+        $request = new Request(
             [],
             [],
             [],
-            [
-                'REQUEST_METHOD' => 'CLI'
-            ]
+            [],
+            ['REQUEST_METHOD' => 'CLI']
         );
 
         $this->assertEquals($expected, $request->query()->all());
@@ -150,14 +214,12 @@ class RequestTest extends \PHPUnit_Framework_TestCase
      */
     public function testQuery($offset, $value, $expected)
     {
-        $request = new Request();
-        $request->initialize(
+        $request = new Request(
             [$offset => $value],
             [],
             [],
-            [
-                'REQUEST_METHOD' => 'GET'
-            ]
+            [],
+            ['REQUEST_METHOD' => 'GET']
         );
 
         $this->assertInstanceOf('\Moss\Bag\BagInterface', $request->query());
@@ -171,8 +233,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
             ['controller', '\Foo\Bar::yada', ['controller' => '\Foo\Bar::yada']],
             ['locale', 'pl', ['locale' => 'pl']],
             ['format', 'json', ['format' => 'json']],
-            ['foo.bar', 'yada', ['foo' => ['bar' => 'yada']]],
-            ['f.o.o.b.a.r', 'deep', ['f' => ['o' => ['o' => ['b' => ['a' => ['r' => 'deep']]]]]]],
+            ['foo.bar', 'yada', ['foo.bar' => 'yada']]
         ];
     }
 
@@ -181,14 +242,12 @@ class RequestTest extends \PHPUnit_Framework_TestCase
      */
     public function testBody($offset, $value, $expected)
     {
-        $request = new Request();
-        $request->initialize(
+        $request = new Request(
             [],
             [$offset => $value],
             [],
-            [
-                'REQUEST_METHOD' => 'POST'
-            ]
+            [],
+            ['REQUEST_METHOD' => 'POST']
         );
 
         $this->assertInstanceOf('\Moss\Bag\BagInterface', $request->body());
@@ -201,43 +260,41 @@ class RequestTest extends \PHPUnit_Framework_TestCase
             ['foo', 'bar', ['foo' => 'bar']],
             ['locale', 'pl', ['locale' => 'pl']],
             ['format', 'json', ['format' => 'json']],
-            ['foo.bar', 'yada', ['foo' => ['bar' => 'yada']]],
-            ['f.o.o.b.a.r', 'deep', ['f' => ['o' => ['o' => ['b' => ['a' => ['r' => 'deep']]]]]]],
+            ['foo.bar', 'yada', ['foo.bar' => 'yada']],
         ];
     }
 
-    public function testSession()
+    public function testRawBody()
     {
-        $request = new Request(
-            $this->getMock('\Moss\Http\Session\SessionInterface'),
-            $this->getMock('\Moss\Http\Cookie\CookieInterface')
-        );
-
-        $this->assertInstanceOf('\Moss\Http\Session\SessionInterface', $request->session());
+        $request = new Request();
+        $this->assertEquals('', $request->rawBody());
     }
 
     public function testCookie()
     {
         $request = new Request(
-            $this->getMock('\Moss\Http\Session\SessionInterface'),
-            $this->getMock('\Moss\Http\Cookie\CookieInterface')
+            [],
+            [],
+            ['foo' => 'bar'],
+            [],
+            []
         );
 
-        $this->assertInstanceOf('\Moss\Http\Cookie\CookieInterface', $request->cookie());
+        $this->assertInstanceOf('\Moss\Bag\BagInterface', $request->cookie());
+        $this->assertEquals(['foo' => 'bar'], $request->cookie()->all());
     }
 
     public function testFiles()
     {
         $request = new Request();
-        $request->initialize();
 
         $this->assertInstanceOf('\Moss\Http\Request\FilesBag', $request->files());
     }
 
     public function testIsAjax()
     {
-        $request = new Request();
-        $request->initialize(
+        $request = new Request(
+            [],
             [],
             [],
             [],
@@ -252,8 +309,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
      */
     public function testIsSecure($server)
     {
-        $request = new Request();
-        $request->initialize(
+        $request = new Request(
+            [],
             [],
             [],
             [],
@@ -280,8 +337,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
      */
     public function testMethod($method)
     {
-        $request = new Request();
-        $request->initialize(
+        $request = new Request(
+            [],
             [],
             [],
             [],
@@ -310,8 +367,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
      */
     public function testSchema($server, $expected)
     {
-        $request = new Request();
-        $request->initialize(
+        $request = new Request(
+            [],
             [],
             [],
             [],
@@ -340,11 +397,9 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
     public function testPathsWithQueryString()
     {
-        $request = new Request();
-        $request->initialize(
-            [
-                'foo' => 'bar'
-            ],
+        $request = new Request(
+            ['foo' => 'bar'],
+            [],
             [],
             [],
             [
@@ -369,11 +424,9 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
     public function testPathsWithProperDomainRedirect()
     {
-        $request = new Request();
-        $request->initialize(
-            [
-                'foo' => 'bar'
-            ],
+        $request = new Request(
+            ['foo' => 'bar'],
+            [],
             [],
             [],
             [
@@ -398,11 +451,9 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
     public function testPathsWithInvalidDomainRedirect()
     {
-        $request = new Request();
-        $request->initialize(
-            [
-                'foo' => 'bar'
-            ],
+        $request = new Request(
+            ['foo' => 'bar'],
+            [],
             [],
             [],
             [
@@ -430,8 +481,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
      */
     public function testIp($header)
     {
-        $request = new Request();
-        $request->initialize(
+        $request = new Request(
+            [],
             [],
             [],
             [],
@@ -460,9 +511,9 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
     public function testFormat()
     {
-        $request = new Request();
-        $request->initialize(
+        $request = new Request(
             ['format' => 'json'],
+            [],
             [],
             [],
             []
@@ -473,8 +524,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
     public function testReferrer()
     {
-        $request = new Request();
-        $request->initialize(
+        $request = new Request(
+            [],
             [],
             [],
             [],

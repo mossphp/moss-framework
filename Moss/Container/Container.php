@@ -20,6 +20,8 @@ namespace Moss\Container;
 class Container implements ContainerInterface
 {
 
+    const SEPARATOR = '.';
+
     /**
      * @var array|callable[]
      */
@@ -43,14 +45,14 @@ class Container implements ContainerInterface
     public function register($id, $definition, $shared = false)
     {
         if (is_object($definition) && !is_callable($definition)) {
-            $this->instances[$id] = & $definition;
+            $this->instances[$id] = $definition;
 
             return $this;
         }
 
         $this->components[$id] = $definition;
 
-        if ($shared) {
+        if ($shared || isset($this->instances[$id])) {
             $this->instances[$id] = null;
         }
 
@@ -76,6 +78,17 @@ class Container implements ContainerInterface
 
         return $this;
     }
+
+    /**
+     * Returns array registered components and parameters
+     *
+     * @return array
+     */
+    public function retrieve()
+    {
+        return $this->components;
+    }
+
 
     /**
      * Returns true if component exists in container
@@ -115,7 +128,6 @@ class Container implements ContainerInterface
      * @param string $id
      *
      * @return mixed
-     * @throws ContainerException
      */
     public function &get($id)
     {
@@ -123,9 +135,28 @@ class Container implements ContainerInterface
             return $this->instances[$id];
         }
 
-        $keys = explode('.', $id);
+        $result = $this->resolve($id);
 
+        if (array_key_exists($id, $this->instances)) {
+            $this->instances[$id] = & $result;
+        }
+
+        return $result;
+    }
+
+    /**
+     * Resolves component by its id
+     *
+     * @param string $id
+     *
+     * @return mixed
+     * @throws ContainerException
+     */
+    protected function resolve($id)
+    {
+        $keys = explode(self::SEPARATOR, $id);
         $node = & $this->components;
+
         while ($key = array_shift($keys)) {
             if (!is_array($node) || !array_key_exists($key, $node)) {
                 throw new ContainerException(sprintf('Invalid or unknown component/parameter identifier "%s"', $id));
@@ -134,16 +165,6 @@ class Container implements ContainerInterface
             $node = & $node[$key];
         }
 
-        if (is_callable($node)) {
-            $result = $node($this);
-        } else {
-            $result = $node;
-        }
-
-        if (array_key_exists($id, $this->instances)) {
-            $this->instances[$id] = & $result;
-        }
-
-        return $result;
+        return is_callable($node) ? $node($this) : $node;
     }
 }

@@ -40,6 +40,13 @@ interface ContainerInterface
     public function unregister($id);
 
     /**
+     * Returns array registered components and parameters
+     *
+     * @return array
+     */
+    public function retrieve();
+
+    /**
      * Returns true if component exists in container
      *
      * @param string $id

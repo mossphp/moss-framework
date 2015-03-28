@@ -1,16 +1,29 @@
 <?php
 namespace Moss\Http\Session;
 
+use Moss\Bag\Bag;
+
+class MockSessionInterface extends Bag implements SessionInterface
+{
+    public function regenerate() { }
+
+    public function destroy() { }
+
+    public function identify($identifier = null) { }
+
+    public function name($name = null) { }
+}
+
 /**
  * @package Moss Test
  */
 class FlashBagTest extends \PHPUnit_Framework_TestCase
 {
-    protected $session;
+    protected $session = [];
 
     public function testCount()
     {
-        $bag = new FlashBag($this->sessionMock());
+        $bag = new FlashBag(new MockSessionInterface($this->session));
         $bag->add('foo', 'bar');
         $bag->add('yada', 'yada');
         $this->assertEquals(2, $bag->count());
@@ -18,7 +31,7 @@ class FlashBagTest extends \PHPUnit_Framework_TestCase
 
     public function testReset()
     {
-        $bag = new FlashBag($this->sessionMock());
+        $bag = new FlashBag(new MockSessionInterface($this->session));
         $bag->add('foo', 'bar');
         $bag->add('yada', 'yada');
         $bag->reset();
@@ -28,7 +41,7 @@ class FlashBagTest extends \PHPUnit_Framework_TestCase
 
     public function testHasAny()
     {
-        $bag = new FlashBag($this->sessionMock());
+        $bag = new FlashBag(new MockSessionInterface($this->session));
 
         $this->assertFalse($bag->has());
 
@@ -40,7 +53,7 @@ class FlashBagTest extends \PHPUnit_Framework_TestCase
 
     public function testHasType()
     {
-        $bag = new FlashBag($this->sessionMock());
+        $bag = new FlashBag(new MockSessionInterface($this->session));
         $bag->add('foo', 'bar');
         $bag->add('yada', 'yada');
 
@@ -50,7 +63,7 @@ class FlashBagTest extends \PHPUnit_Framework_TestCase
 
     public function testGetAll()
     {
-        $bag = new FlashBag($this->sessionMock());
+        $bag = new FlashBag(new MockSessionInterface($this->session));
         $bag->add('foo', 'bar');
         $bag->add('yada', 'yada');
 
@@ -64,7 +77,7 @@ class FlashBagTest extends \PHPUnit_Framework_TestCase
 
     public function testGetType()
     {
-        $bag = new FlashBag($this->sessionMock());
+        $bag = new FlashBag(new MockSessionInterface($this->session));
         $bag->add('foo', 'bar');
         $bag->add('yada', 'yada');
 
@@ -77,7 +90,7 @@ class FlashBagTest extends \PHPUnit_Framework_TestCase
 
     public function testRetrieve()
     {
-        $bag = new FlashBag($this->sessionMock());
+        $bag = new FlashBag(new MockSessionInterface($this->session));
         $bag->add('foo', 'bar');
         $bag->add('yada', 'yada');
 
@@ -93,7 +106,7 @@ class FlashBagTest extends \PHPUnit_Framework_TestCase
 
     public function testOffsetUnset()
     {
-        $bag = new FlashBag($this->sessionMock());
+        $bag = new FlashBag(new MockSessionInterface($this->session));
         $bag->add('foo', 'bar');
         unset($bag[0]);
         $this->assertFalse(false, $bag->retrieve());
@@ -103,7 +116,7 @@ class FlashBagTest extends \PHPUnit_Framework_TestCase
     {
         $msg = ['message' => 'foo', 'type' => 'bar'];
 
-        $bag = new FlashBag($this->sessionMock());
+        $bag = new FlashBag(new MockSessionInterface($this->session));
         $bag[0] = $msg;
         $this->assertEquals($msg, $bag[0]);
         $this->assertFalse(false, $bag->retrieve());
@@ -111,7 +124,7 @@ class FlashBagTest extends \PHPUnit_Framework_TestCase
 
     public function testOffsetGetEmpty()
     {
-        $bag = new FlashBag($this->sessionMock());
+        $bag = new FlashBag(new MockSessionInterface($this->session));
         $this->assertNull($bag[0]);
     }
 
@@ -119,7 +132,7 @@ class FlashBagTest extends \PHPUnit_Framework_TestCase
     {
         $msg = ['message' => 'foo', 'type' => 'bar'];
 
-        $bag = new FlashBag($this->sessionMock());
+        $bag = new FlashBag(new MockSessionInterface($this->session));
         $bag[] = $msg;
         $this->assertEquals($msg, $bag[0]);
         $this->assertFalse(false, $bag->retrieve());
@@ -127,7 +140,7 @@ class FlashBagTest extends \PHPUnit_Framework_TestCase
 
     public function testOffsetExists()
     {
-        $bag = new FlashBag($this->sessionMock());
+        $bag = new FlashBag(new MockSessionInterface($this->session));
         $bag->add('foo', 'bar');
         $this->assertTrue(isset($bag[0]));
         $this->assertEquals(1, $bag->count());
@@ -135,7 +148,7 @@ class FlashBagTest extends \PHPUnit_Framework_TestCase
 
     public function testIterator()
     {
-        $bag = new FlashBag($this->sessionMock());
+        $bag = new FlashBag(new MockSessionInterface($this->session));
         $bag->add('foo0', 'bar0');
         $bag->add('foo1', 'bar1');
         $bag->add('foo2', 'bar2');
@@ -143,43 +156,12 @@ class FlashBagTest extends \PHPUnit_Framework_TestCase
         $bag->add('foo4', 'bar4');
 
         $i = 0;
-        foreach ($bag as $val) {
-            $this->assertEquals(['message' => 'foo'.$i, 'type' => 'bar'.$i], $val);
+        foreach ($bag as $key => $val) {
+            $this->assertEmpty(0, $key);
+            $this->assertEquals(['message' => 'foo' . $i, 'type' => 'bar' . $i], $val);
             $i++;
         }
+
+        $this->assertEmpty($bag->get());
     }
-
-    protected function sessionMock()
-    {
-        $session = & $this->session;
-
-        $mock = $this->getMock('\Moss\Http\session\SessionInterface');
-        $mock
-            ->expects($this->any())
-            ->method('offsetGet')
-            ->will($this->returnCallback([$this, 'sessionMockGet']));
-
-        $mock = $this->getMock('\Moss\Http\session\SessionInterface');
-        $mock
-            ->expects($this->any())
-            ->method('offsetSet')
-            ->will($this->returnCallback([$this, 'sessionMockSet']));
-
-        return $session;
-    }
-
-    protected function & sessionMockGet($offset = null)
-    {
-        if ($offset === null) {
-            return $this->session;
-        }
-
-        return $this->session[$offset];
-    }
-
-    protected function & sessionMockSet($offset, $value)
-    {
-        return $this->session[$offset] = $value;
-    }
-
 }

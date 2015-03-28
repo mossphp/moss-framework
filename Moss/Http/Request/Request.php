@@ -13,7 +13,6 @@ namespace Moss\Http\Request;
 
 use Moss\Bag\Bag;
 use Moss\Bag\BagInterface;
-use Moss\Http\Cookie\CookieInterface;
 use Moss\Http\Session\SessionInterface;
 
 /**
@@ -25,7 +24,6 @@ use Moss\Http\Session\SessionInterface;
 class Request implements RequestInterface
 {
     protected $route;
-    protected $locale;
     protected $format;
 
     protected $dir;
@@ -41,6 +39,7 @@ class Request implements RequestInterface
      * @var HeaderBag
      */
     protected $header;
+    protected $languages;
     protected $language;
 
     /**
@@ -53,43 +52,36 @@ class Request implements RequestInterface
      */
     protected $body;
 
+    protected $raw;
+
     /**
      * @var BagInterface|FilesBag
      */
     protected $files;
 
     /**
-     * @var SessionInterface
+     * @var BagInterface|SessionInterface
      */
     protected $session;
 
     /**
-     * @var CookieInterface
+     * @var BagInterface
      */
     protected $cookie;
 
     /**
      * Constructor
      *
-     * @param SessionInterface $session
-     * @param CookieInterface  $cookie
+     * @param array  $get
+     * @param array  $post
+     * @param array  $files
+     * @param array  $server
+     * @param array  $cookie
+     * @param string $rawBody
      */
-    public function __construct(SessionInterface $session = null, CookieInterface $cookie = null)
+    public function __construct(array $get = [], array $post = [], array $cookie = [], array $files = [], array $server = [], $rawBody = null)
     {
-        $this->removeSlashes();
-
-        if ($session === null) {
-            $session = new Bag();
-        }
-
-        if ($cookie === null) {
-            $cookie = new Bag();
-        }
-
-        $this->session = & $session;
-        $this->cookie = & $cookie;
-
-        $this->initialize($_GET, $_POST, $_FILES, $_SERVER);
+        $this->initialize($get, $post, $cookie, $files, $server, $rawBody);
     }
 
     /**
@@ -97,30 +89,38 @@ class Request implements RequestInterface
      *
      * @param array $get
      * @param array $post
+     * @param array $cookie
      * @param array $files
      * @param array $server
+     * @param string $rawBody
      */
-    public function initialize(array $get = [], array $post = [], array $files = [], array $server = [])
+    public function initialize(array $get = [], array $post = [], array $cookie = [], array $files = [], array $server = [], $rawBody = null)
     {
+        $cookie = $this->removeSlashes($cookie);
+        $get = $this->removeSlashes($get);
+        $post = $this->removeSlashes($post);
+
+        $this->cookie = new Bag($cookie);
+
         $this->server = new Bag($server);
-
         $this->header = new HeaderBag(array_merge($get, $post, $server));
-        $this->language = $this->header->languages();
 
-        if ($this->locale() === null) {
-            $this->locale(reset($this->language));
-        }
+        $this->languages = $this->header->languages();
+        $this->language = reset($this->languages);
 
         $this->dir = $this->resolveDir();
         $this->path = $this->resolvePath();
         $this->baseName = $this->resolveBaseName();
 
         $this->query = new Bag($this->resolveParameters($get));
+
+        $this->raw = (string) $rawBody;
         $this->body = new Bag($this->resolveBody($post));
+
         $this->files = new FilesBag($files);
 
         if (!empty($this->query['locale'])) {
-            $this->locale($this->query['locale']);
+            $this->language($this->query['locale']);
         }
 
         if (!empty($this->query['format'])) {
@@ -129,35 +129,28 @@ class Request implements RequestInterface
     }
 
     /**
-     * Removes slashes from POST, GET and COOKIE
+     * Removes slashes from array
      *
-     * @return Request
+     * @param array $array
+     *
+     * @return array
      */
-    protected function removeSlashes()
+    protected function removeSlashes($array)
     {
         if (version_compare(phpversion(), '6.0.0-dev', '<') && get_magic_quotes_gpc()) {
-            $_POST = array_map([$this, 'removeSlashed'], $_POST);
-            $_GET = array_map([$this, 'removeSlashed'], $_GET);
-            $_COOKIE = array_map([$this, 'removeSlashed'], $_COOKIE);
+            $array = array_map(
+                function ($value) {
+                    if (is_array($value)) {
+                        return array_map([$this, 'removeSlashed'], $value);
+                    }
+
+                    return stripslashes($value);
+                },
+                $array
+            );
         }
 
-        return $this;
-    }
-
-    /**
-     * Removes slashes from string
-     *
-     * @param array|string $value
-     *
-     * @return array|string
-     */
-    protected function removeSlashed($value)
-    {
-        if (is_array($value)) {
-            return array_map([$this, 'removeSlashed'], $value);
-        }
-
-        return stripslashes($value);
+        return $array;
     }
 
     /**
@@ -167,7 +160,7 @@ class Request implements RequestInterface
      */
     protected function resolveDir()
     {
-        $dir = substr($this->server('SCRIPT_FILENAME'), strlen($this->server('DOCUMENT_ROOT')));
+        $dir = substr($this->server->get('SCRIPT_FILENAME'), strlen($this->server->get('DOCUMENT_ROOT')));
         $dir = str_replace('\\', '/', $dir);
         $dir = '/' . trim(substr($dir, 0, strrpos($dir, '/')), '/') . '/';
 
@@ -298,26 +291,16 @@ class Request implements RequestInterface
         $rest = [];
 
         if (in_array($this->method(), ['OPTIONS', 'HEAD', 'PUT', 'DELETE', 'TRACE'])) {
-            parse_str(file_get_contents('php://input'), $rest);
+            parse_str($this->raw, $rest);
         }
 
         return array_merge($post, $rest);
     }
 
     /**
-     * Returns session value for given key or default if key does not exists
+     * Returns bag with cookie properties
      *
-     * @return SessionInterface
-     */
-    public function session()
-    {
-        return $this->session;
-    }
-
-    /**
-     * Returns cookie value for given key or default if key does not exists
-     *
-     * @return CookieInterface
+     * @return BagInterface
      */
     public function cookie()
     {
@@ -325,29 +308,23 @@ class Request implements RequestInterface
     }
 
     /**
-     * Returns server param value for given key or null if key does not exists
+     * Returns bag with server properties
      *
-     * @param null|string $key
-     * @param string      $default
-     *
-     * @return null|string
+     * @return BagInterface
      */
-    public function server($key = null, $default = null)
+    public function server()
     {
-        return $this->server->get($key, $default);
+        return $this->server;
     }
 
     /**
-     * Returns header value for given key or null if key does not exists
+     * Returns bag with headers
      *
-     * @param string $key
-     * @param mixed  $default
-     *
-     * @return null|string
+     * @return BagInterface
      */
-    public function header($key = null, $default = null)
+    public function header()
     {
-        return $this->header->get($key, $default);
+        return $this->header;
     }
 
     /**
@@ -371,6 +348,16 @@ class Request implements RequestInterface
     }
 
     /**
+     * Returns raw body content
+     *
+     * @return string
+     */
+    public function rawBody()
+    {
+        return $this->raw;
+    }
+
+    /**
      * Returns files bag
      *
      * @return FilesBag|BagInterface
@@ -387,7 +374,7 @@ class Request implements RequestInterface
      */
     public function isAjax()
     {
-        return strtolower((string) $this->header('x_requested_with')) == 'xmlhttprequest';
+        return strtolower((string) $this->header->get('x_requested_with')) == 'xmlhttprequest';
     }
 
     /**
@@ -397,11 +384,11 @@ class Request implements RequestInterface
      */
     public function isSecure()
     {
-        if ($proto = (string) $this->header('x_forwarded_proto')) {
+        if ($proto = (string) $this->header->get('x_forwarded_proto')) {
             return in_array(strtolower(current(explode(',', $proto))), ['https', 'on', 'ssl', '1']);
         }
 
-        return strtolower($this->server('HTTPS')) == 'on' || $this->server('HTTPS') == 1;
+        return strtolower($this->server->get('HTTPS')) == 'on' || $this->server->get('HTTPS') == 1;
     }
 
     /**
@@ -411,7 +398,7 @@ class Request implements RequestInterface
      */
     public function method()
     {
-        return strtoupper($this->server('REQUEST_METHOD', 'CLI'));
+        return strtoupper($this->server->get('REQUEST_METHOD', 'CLI'));
     }
 
     /**
@@ -431,7 +418,7 @@ class Request implements RequestInterface
      */
     public function host()
     {
-        return $this->header('host');
+        return (string) $this->header->get('host');
     }
 
     /**
@@ -537,9 +524,9 @@ class Request implements RequestInterface
      *
      * @return array
      */
-    public function language()
+    public function languages()
     {
-        return $this->language;
+        return $this->languages;
     }
 
     /**
@@ -549,25 +536,13 @@ class Request implements RequestInterface
      *
      * @return Request
      */
-    public function locale($locale = null)
+    public function language($locale = null)
     {
         if ($locale !== null) {
-            $this->locale = $locale;
+            $this->language = $locale;
         }
 
-        if (!empty($this->locale)) {
-            return $this->locale;
-        }
-
-        if (!empty($this->session['locale'])) {
-            return $this->session['locale'];
-        }
-
-        if (!empty($this->language[0])) {
-            return $this->language[0];
-        }
-
-        return null;
+        return $this->language;
     }
 
     /**

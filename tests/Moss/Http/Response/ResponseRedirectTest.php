@@ -1,82 +1,109 @@
 <?php
 namespace Moss\Http\Response;
 
+if (!function_exists('\Moss\Http\Response\headers_sent')) {
+    function headers_sent() { return false; }
+}
+
+if (!function_exists('\Moss\Http\Response\header')) {
+    function header($header) { echo $header . PHP_EOL; }
+}
+
+if (!function_exists('\Moss\Http\Response\setcookie')) {
+    function setcookie() { echo implode(', ', func_get_args()) . PHP_EOL; }
+}
 
 class ResponseRedirectTest extends \PHPUnit_Framework_TestCase
 {
-
-
     public function testAddress()
     {
         $response = new ResponseRedirect('http://127.0.0.1/');
         $this->assertEquals('http://127.0.0.1/', $response->address());
     }
 
-    public function testDelay()
+    public function testSendHeaders()
     {
-        $response = new ResponseRedirect('http://127.0.0.1/', 10);
-        $this->assertEquals(10, $response->delay());
+        $expected = [
+            'HTTP/1.1 302 Found',
+            'Content-Type: text/html; charset=UTF-8',
+            'Cache-Control: no-cache',
+            'Pragma: no-cache',
+            'Location: http://127.0.0.1/'
+        ];
+        $this->expectOutputString(implode(PHP_EOL, $expected) . PHP_EOL);
+
+        $response = new ResponseRedirect('http://127.0.0.1/');
+        $response->sendHeaders();
     }
 
     public function testSendHeadersWithDelay()
     {
-        ob_start();
+        $expected = [
+            'HTTP/1.1 302 Found',
+            'Content-Type: text/html; charset=UTF-8',
+            'Cache-Control: no-cache',
+            'Pragma: no-cache',
+            'Refresh: 10; URL=http://127.0.0.1/'
+        ];
+        $this->expectOutputString(implode(PHP_EOL, $expected) . PHP_EOL);
+
         $response = new ResponseRedirect('http://127.0.0.1/', 10);
         $response->sendHeaders();
-        $result = ob_get_clean();
-
-        $expected = ['HTTP/1.1 302 Found', 'Refresh: 10; URL=http://127.0.0.1/'];
-        $this->assertEquals(implode(PHP_EOL, $expected) . PHP_EOL, $result);
-    }
-
-    public function testSendHeadersWithoutDelay()
-    {
-        ob_start();
-        $response = new ResponseRedirect('http://127.0.0.1/');
-        $response->sendHeaders();
-        $result = ob_get_clean();
-
-        $expected = ['HTTP/1.1 302 Found', 'Location: http://127.0.0.1/'];
-        $this->assertEquals(implode(PHP_EOL, $expected) . PHP_EOL, $result);
     }
 
     public function testSendContent()
     {
-        ob_start();
-        $response = new ResponseRedirect('http://127.0.0.1/', 10);
-        $response->sendContent();
-        $result = ob_get_clean();
-
         $expected = ['Redirecting...'];
-        $this->assertEquals(implode(PHP_EOL, $expected), $result);
+        $this->expectOutputString(implode(PHP_EOL, $expected));
+
+        $response = new ResponseRedirect('http://127.0.0.1/');
+        $response->sendContent();
+    }
+
+    public function testSend()
+    {
+        $expected = [
+            'HTTP/1.1 302 Found',
+            'Content-Type: text/html; charset=UTF-8',
+            'Cache-Control: no-cache',
+            'Pragma: no-cache',
+            'Location: http://127.0.0.1/',
+            'Redirecting...'
+        ];
+        $this->expectOutputString(implode(PHP_EOL, $expected));
+
+        $response = new ResponseRedirect('http://127.0.0.1/');
+        $response->send();
     }
 
     public function testSendWithDelay()
     {
-        ob_start();
+        $expected = [
+            'HTTP/1.1 302 Found',
+            'Content-Type: text/html; charset=UTF-8',
+            'Cache-Control: no-cache',
+            'Pragma: no-cache',
+            'Refresh: 10; URL=http://127.0.0.1/',
+            'Redirecting...'
+        ];
+        $this->expectOutputString(implode(PHP_EOL, $expected));
+
         $response = new ResponseRedirect('http://127.0.0.1/', 10);
         $response->send();
-        $result = ob_get_clean();
-
-        $expected = ['HTTP/1.1 302 Found', 'Refresh: 10; URL=http://127.0.0.1/', 'Redirecting...'];
-        $this->assertEquals(implode(PHP_EOL, $expected), $result);
-    }
-
-    public function testSendWithoutDelay()
-    {
-        ob_start();
-        $response = new ResponseRedirect('http://127.0.0.1/');
-        $response->send();
-        $result = ob_get_clean();
-
-        $expected = ['HTTP/1.1 302 Found', 'Location: http://127.0.0.1/', 'Redirecting...'];
-        $this->assertEquals(implode(PHP_EOL, $expected), $result);
     }
 
     public function testToString()
     {
-        $response = new ResponseRedirect('http://127.0.0.1/', 10);
-        $expected = ['HTTP/1.1 302 Found', 'Refresh: 10; URL=http://127.0.0.1/', 'Redirecting...'];
+        $response = new ResponseRedirect('http://127.0.0.1/');
+        $expected = [
+            'HTTP/1.1 302 Found',
+            'Content-Type: text/html; charset=UTF-8',
+            'Cache-Control: no-cache',
+            'Pragma: no-cache',
+            'Location: http://127.0.0.1/',
+            'Redirecting...'
+        ];
+
         $this->assertEquals(implode(PHP_EOL, $expected), (string) $response);
     }
 }

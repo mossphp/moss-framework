@@ -21,23 +21,18 @@ use Moss\Bag\Bag;
  */
 class Config extends Bag implements ConfigInterface
 {
+    const PREFIX_GLUE = ':';
+
     protected $mode;
     protected $storage = [
         'framework' => [
             'error' => [
-                'display' => true,
                 'level' => -1,
                 'detail' => true
             ],
             'session' => [
                 'name' => 'PHPSESSID',
                 'cacheLimiter' => ''
-            ],
-            'cookie' => [
-                'domain' => null,
-                'path' => '/',
-                'http' => true,
-                'ttl' => 2592000 // one month
             ]
         ],
         'container' => [],
@@ -85,79 +80,69 @@ class Config extends Bag implements ConfigInterface
      */
     public function import(array $arr, $prefix = null)
     {
-        $importKeys = [];
+        $imports = [];
         foreach ($arr as $key => $node) {
             if (strpos($key, 'import') === 0) {
                 $mode = substr($key, 7);
                 if ($mode == '' || $mode == $this->mode) {
-                    $importKeys[] = $key;
+                    $imports[] = $key;
                 }
 
                 continue;
             }
 
-            $this->storage[$key] = array_merge($this->storage[$key], $this->applyPrefix($node, $prefix));
+            $this->storage[$key] = $this->merge($this->storage[$key], $this->applyPrefix($node, $prefix));
         }
 
-        foreach ($importKeys as $key) {
-            foreach ($arr[$key] as $key => $value) {
-                $this->import($value, $this->prefixKey($key, $prefix));
-            }
+        foreach ($imports as $key) {
+            $this->import($arr[$key], $prefix);
+
         }
 
         return $this;
     }
 
     /**
+     * Merges arrays without changing duplicated keys into arrays
+     *
+     * @param array $merged
+     * @param array $array
+     *
+     * @return array
+     */
+    private function merge(array $merged, array $array)
+    {
+        foreach ($array as $key => $value) {
+            if (is_array($value) && isset ($merged[$key]) && is_array($merged[$key])) {
+                $merged[$key] = $this->merge($merged[$key], $value);
+            } else {
+                $merged[$key] = $value;
+            }
+        }
+
+        return $merged;
+    }
+
+    /**
      * Applies prefix to array keys
      *
-     * @param array $array
-     * @param null|string  $prefix
+     * @param array       $array
+     * @param null|string $prefix
      *
      * @return array
      */
     private function applyPrefix(array $array, $prefix = null)
     {
-        if (!$this->checkPrefix($prefix)) {
+        if ($prefix === null) {
             return $array;
         }
 
         $result = [];
         foreach ($array as $key => $value) {
-            $result[$this->prefixKey($key, $prefix)] = $value;
+            $result[$prefix . self::PREFIX_GLUE . $key] = $value;
         }
 
         return $result;
-    }
-
-    /**
-     * Prefixes key
-     *
-     * @param string $key
-     * @param null|string $prefix
-     *
-     * @return string
-     */
-    private function prefixKey($key, $prefix = null)
-    {
-        if (!$this->checkPrefix($prefix)) {
-            return $key;
-        }
-
-        return $prefix . ':' . $key;
-    }
-
-    /**
-     * Checks if key needs to be prefixed
-     * Only strings are prefixed
-     *
-     * @param string $prefix
-     *
-     * @return bool
-     */
-    private function checkPrefix($prefix)
-    {
-        return !empty($prefix) && !is_numeric($prefix);
     }
 
     /**

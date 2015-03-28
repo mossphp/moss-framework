@@ -19,18 +19,15 @@ namespace Moss\Kernel;
  */
 class ErrorHandler
 {
-    protected $display;
     protected $level;
 
     /**
      * Constructor
      *
-     * @param boolean $display
      * @param int     $level
      */
-    public function __construct($display = true, $level = -1)
+    public function __construct($level = -1)
     {
-        $this->display = (bool) $display;
         $this->level = (int) $level;
     }
 

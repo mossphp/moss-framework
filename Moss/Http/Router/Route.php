@@ -49,6 +49,7 @@ class Route implements RouteInterface
         $this->controller = $controller;
         $this->pattern = $pattern;
 
+        $matches = [];
         preg_match_all(self::REGEX, $this->pattern, $matches, \PREG_SET_ORDER);
 
         $this->regex = $this->buildRegexp($this->pattern, $matches);
@@ -411,6 +412,33 @@ class Route implements RouteInterface
      * @throws RouteException
      */
     public function make($host, array $arguments = [])
+    {
+        return $host === null ? $this->makeRelative($arguments) : $this->makeAbsolute($host, $arguments);
+    }
+
+    /**
+     * Creates relative url
+     *
+     * @param array $arguments
+     *
+     * @return string
+     */
+    protected function makeRelative(array $arguments = [])
+    {
+        $url = $url = $this->buildUrl($arguments);
+
+        return './' . $url;
+    }
+
+    /**
+     * Creates absolute url
+     *
+     * @param string $host
+     * @param array  $arguments
+     *
+     * @return string
+     */
+    protected function makeAbsolute($host, array $arguments = [])
     {
         list($schema, $host) = $this->resolveHost($host);
         $url = $this->buildUrl($arguments);

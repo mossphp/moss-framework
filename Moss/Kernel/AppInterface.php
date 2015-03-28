@@ -14,7 +14,6 @@ namespace Moss\Kernel;
 use Moss\Config\ConfigInterface;
 use Moss\Container\ContainerInterface;
 use Moss\Dispatcher\DispatcherInterface;
-use Moss\Http\Cookie\CookieInterface;
 use Moss\Http\Request\RequestInterface;
 use Moss\Http\Response\ResponseInterface;
 use Moss\Http\Router\RouterInterface;
@@ -124,13 +123,6 @@ interface AppInterface
      * @return SessionInterface
      */
     public function session();
-
-    /**
-     * Returns cookie instance
-     *
-     * @return CookieInterface
-     */
-    public function cookie();
 
     /**
      * Handles request

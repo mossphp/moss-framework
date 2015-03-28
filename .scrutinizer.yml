@@ -1,14 +1,21 @@
 imports:
     - php
 filter:
-    excluded_paths: [cache/*, compile/*, docs/*, tests/*, vendor/*, web/* ]
+    excluded_paths:
+        - bin/*
+        - tests/*
+        - vendor/*
 tools:
     php_sim: true
     php_pdepend: true
     php_analyzer: true
+    php_mess_detector: true
     php_code_sniffer:
         config:
             standard: PSR2
+    sensiolabs_security_checker: true
+    php_pdepend: true
+    php_code_coverage: true
     external_code_coverage: true
 checks:
     php:

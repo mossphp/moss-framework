@@ -22,13 +22,44 @@ use Moss\Bag\Bag;
 class HeaderBag extends Bag
 {
     /**
+     * @var array
+     */
+    protected $languages;
+
+    /**
      * Construct
      *
      * @param array $storage
      */
     public function __construct($storage = array())
     {
-        $this->all($this->resolveHeaders($storage));
+        $headers = $this->resolveHeaders($storage);
+        $headers = $this->resolveAuth($storage, $headers);
+
+        $this->all(array_change_key_case($headers, CASE_LOWER));
+
+        $this->languages = $this->resolveLanguages();
+    }
+
+    /**
+     * Resolves header from $_SERVER
+     *
+     * @param array $parameters
+     *
+     * @return array
+     */
+    protected function resolveHeaders(array $parameters)
+    {
+        $headers = [];
+        foreach ($parameters as $key => $value) {
+            if (strpos($key, 'HTTP_') === 0) {
+                $headers[substr($key, 5)] = $value;
+            } elseif (in_array($key, array('CONTENT_LENGTH', 'CONTENT_MD5', 'CONTENT_TYPE'))) {
+                $headers[$key] = $value;
+            }
+        }
+
+        return $headers;
     }
 
     /**
@@ -38,18 +69,8 @@ class HeaderBag extends Bag
      *
      * @return array
      */
-    protected function resolveHeaders(array $parameters)
+    protected function resolveAuth(array $parameters, array $headers)
     {
-        $headers = array();
-
-        foreach ($parameters as $key => $value) {
-            if (strpos($key, 'HTTP_') === 0) {
-                $headers[substr($key, 5)] = $value;
-            } elseif (in_array($key, array('CONTENT_LENGTH', 'CONTENT_MD5', 'CONTENT_TYPE'))) {
-                $headers[$key] = $value;
-            }
-        }
-
         if (isset($parameters['PHP_AUTH_USER'])) {
             $headers['PHP_AUTH_USER'] = $parameters['PHP_AUTH_USER'];
             $headers['PHP_AUTH_PW'] = isset($parameters['PHP_AUTH_PW']) ? $parameters['PHP_AUTH_PW'] : '';
@@ -73,7 +94,7 @@ class HeaderBag extends Bag
             $headers['AUTHORIZATION'] = 'basic ' . base64_encode($headers['PHP_AUTH_USER'] . ':' . $headers['PHP_AUTH_PW']);
         }
 
-        return array_change_key_case($headers, CASE_LOWER);
+        return $headers;
     }
 
     /**
@@ -82,17 +103,17 @@ class HeaderBag extends Bag
      *
      * @return array
      */
-    public function languages()
+    protected function resolveLanguages()
     {
         if (!$this->get('accept_language')) {
-            return array();
+            return [];
         }
 
         $codes = $this->extractHeaders();
 
         $languages = array();
         foreach ($codes as $lang) {
-            if (strstr($lang, '-')) {
+            if (strpos($lang, '-') !== false) {
                 $codes = explode('-', $lang);
                 $lang = strtolower($codes[0]);
             }
@@ -133,5 +154,34 @@ class HeaderBag extends Bag
         sort($codes);
 
         return $codes;
+    }
+
+    /**
+     * Returns array containing languages from Accept-Language sorted by quality (priority)
+     *
+     * @return array
+     */
+    public function languages()
+    {
+        return $this->languages;
+    }
+
+    /**
+     * Retrieves offset value
+     *
+     * @param string $offset
+     * @param mixed  $default
+     *
+     * @return mixed
+     */
+    public function get($offset = null, $default = null)
+    {
+        if ($offset === null) {
+            return $this->all();
+        }
+
+        $offset = str_replace('-', '_', strtolower($offset));
+
+        return $this->getFromArray($this->storage, explode(self::SEPARATOR, $offset), $default);
     }
 }

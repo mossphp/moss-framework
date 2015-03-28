@@ -17,7 +17,7 @@ namespace Moss\Bag;
  * @package  Moss HTTP
  * @author   Michal Wachowski <wachowski.michal@gmail.com>
  */
-class Bag implements BagInterface
+class Bag extends AbstractBag implements BagInterface
 {
     protected $storage = [];
 
@@ -90,7 +90,7 @@ class Bag implements BagInterface
             return $this->count() > 0;
         }
 
-        $arr = & $this->getArrayByReference($offset);
+        $arr = &$this->getArrayByReference($offset);
 
         return is_array($arr) ? array_key_exists($offset, $arr) : false;
     }
@@ -111,7 +111,7 @@ class Bag implements BagInterface
             return $this;
         }
 
-        $arr = & $this->getArrayByReference($offset);
+        $arr = &$this->getArrayByReference($offset);
 
         if (is_array($arr) && array_key_exists($offset, $arr)) {
             unset($arr[$offset]);
@@ -127,14 +127,14 @@ class Bag implements BagInterface
      *
      * @return mixed
      */
-    private function & getArrayByReference(&$offset)
+    protected function & getArrayByReference(&$offset)
     {
         $offset = explode(self::SEPARATOR, $offset);
 
         if (count($offset) > 1) {
-            $arr = & $this->getFromArray($this->storage, array_slice($offset, 0, -1), false);
+            $arr = &$this->getFromArray($this->storage, array_slice($offset, 0, -1), false);
         } else {
-            $arr = & $this->storage;
+            $arr = &$this->storage;
         }
 
         $offset = array_slice($offset, -1);
@@ -144,7 +144,7 @@ class Bag implements BagInterface
     }
 
     /**
-     * Returns all options
+     * Returns all elements
      * If array passed, becomes bag content
      *
      * @param array $array overwrites values
@@ -153,27 +153,11 @@ class Bag implements BagInterface
      */
     public function all(array $array = [])
     {
-        if ($array !== array()) {
-            $this->reset();
-
-            foreach ($array as $key => $value) {
-                $this->setIntoArray($this->storage, explode(self::SEPARATOR, $key), $value);
-            }
+        if ($array !== []) {
+            $this->storage = $array;
         }
 
         return $this->storage;
-    }
-
-    /**
-     * Removes all options
-     *
-     * @return $this
-     */
-    public function reset()
-    {
-        $this->storage = [];
-
-        return $this;
     }
 
     /**
@@ -221,134 +205,9 @@ class Bag implements BagInterface
         }
 
         if (empty($keys)) {
-            return $array[$k] = & $value;
+            return $array[$k] = &$value;
         }
 
         return $this->setIntoArray($array[$k], $keys, $value);
-    }
-
-    /**
-     * Whether a offset exists
-     *
-     * @param mixed $key
-     *
-     * @return boolean true on success or false on failure.
-     */
-    public function offsetExists($key)
-    {
-        return isset($this->storage[$key]);
-    }
-
-    /**
-     * Offset to retrieve
-     *
-     * @param mixed $key
-     *
-     * @return mixed Can return all value types.
-     */
-    public function &offsetGet($key)
-    {
-        if (!isset($this->storage[$key])) {
-            $this->storage[$key] = null;
-        }
-
-        return $this->storage[$key];
-    }
-
-    /**
-     * Offset to set
-     *
-     * @param mixed $key
-     * @param mixed $value
-     *
-     * @return void
-     */
-    public function offsetSet($key, $value)
-    {
-        if ($key === null) {
-            array_push($this->storage, $value);
-
-            return;
-        }
-
-        $this->storage[$key] = $value;
-    }
-
-    /**
-     * Offset to unset
-     *
-     * @param mixed $key
-     *
-     * @return void
-     */
-    public function offsetUnset($key)
-    {
-        unset($this->storage[$key]);
-    }
-
-    /**
-     * Count elements of an object
-     *
-     * @return int
-     */
-    public function count()
-    {
-        return count($this->storage);
-    }
-
-    /**
-     * Return the current element
-     *
-     * @return mixed
-     */
-    public function current()
-    {
-        return current($this->storage);
-    }
-
-    /**
-     * Return the key of the current element
-     *
-     * @return mixed
-     */
-    public function key()
-    {
-        return key($this->storage);
-    }
-
-    /**
-     * Move forward to next element
-     *
-     * @return void
-     */
-    public function next()
-    {
-        next($this->storage);
-    }
-
-    /**
-     * Rewind the Iterator to the first element
-     *
-     * @return void
-     */
-    public function rewind()
-    {
-        reset($this->storage);
-    }
-
-    /**
-     * Checks if current position is valid
-     *
-     * @return bool
-     */
-    public function valid()
-    {
-        $key = key($this->storage);
-
-        if ($key === false || $key === null) {
-            return false;
-        }
-
-        return isset($this->storage[$key]);
     }
 }

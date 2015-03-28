@@ -82,6 +82,13 @@ class Area implements AreaInterface
         return $pattern;
     }
 
+    /**
+     * Regexp callback
+     *
+     * @param string $match
+     *
+     * @return string
+     */
     protected function buildRegExpCallback($match)
     {
         return $match[1] . ($match[1] == '\/' ? '?' : '') . '(?!.*\b(' . $match[2] . ')\b).*';

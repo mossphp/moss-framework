@@ -1,8 +1,17 @@
 <?php
 namespace Moss\Http\Response;
 
-function headers_sent() { return false; }
-function header($string) { echo $string . PHP_EOL; }
+if (!function_exists('\Moss\Http\Response\headers_sent')) {
+    function headers_sent() { return false; }
+}
+
+if (!function_exists('\Moss\Http\Response\header')) {
+    function header($header) { echo $header . PHP_EOL; }
+}
+
+if (!function_exists('\Moss\Http\Response\setcookie')) {
+    function setcookie() { echo implode(', ', func_get_args()) . PHP_EOL; }
+}
 
 class ResponseTest extends \PHPUnit_Framework_TestCase
 {
@@ -62,7 +71,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
     public function testGetHeader()
     {
         $response = new Response('Foo', 200);
-        $this->assertEquals('foo', $response->header->get('foo', 'foo'));
+        $this->assertEquals('foo', $response->header()->get('foo', 'foo'));
     }
 
     public function testRemoveHeader()
@@ -72,7 +81,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
         $response->header()
             ->remove('Cache-Control');
         $this->assertEquals(
-            null, $response->header->get('Cache-Control')
+            null, $response->header()->get('Cache-Control')
         );
     }
 
@@ -80,24 +89,24 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
     {
         $response = new Response('Foo', 200);
         $response->makeNoCache();
-        $this->assertEquals('no-cache', $response->header->get('Cache-Control'));
-        $this->assertEquals('no-cache', $response->header->get('Pragma'));
+        $this->assertEquals('no-cache', $response->header()->get('Cache-Control'));
+        $this->assertEquals('no-cache', $response->header()->get('Pragma'));
     }
 
     public function testPublic()
     {
         $response = new Response('Foo', 200);
         $response->makePublic();
-        $this->assertEquals('public', $response->header->get('Cache-Control'));
-        $this->assertEquals('public', $response->header->get('Pragma'));
+        $this->assertEquals('public', $response->header()->get('Cache-Control'));
+        $this->assertEquals('public', $response->header()->get('Pragma'));
     }
 
     public function testPrivate()
     {
         $response = new Response('Foo', 200);
         $response->makePrivate();
-        $this->assertEquals('private', $response->header->get('Cache-Control'));
-        $this->assertEquals('private', $response->header->get('Pragma'));
+        $this->assertEquals('private', $response->header()->get('Cache-Control'));
+        $this->assertEquals('private', $response->header()->get('Pragma'));
     }
 
     public function testProtocol()
@@ -109,41 +118,65 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 
     public function testSendHeaders()
     {
-        ob_start();
-        $response = new Response('Foo', 200);
-        $response->sendHeaders();
-        $result = ob_get_clean();
+        $cookie = $this->getMock('\Moss\Http\Response\CookieInterface');
+        $cookie->expects($this->any())->method('name')->willReturn('foo');
+        $cookie->expects($this->any())->method('value')->willReturn('bar');
+        $cookie->expects($this->any())->method('ttl')->willReturn(1423559410);
+        $cookie->expects($this->any())->method('path')->willReturn('/');
+        $cookie->expects($this->any())->method('domain')->willReturn('domain');
+        $cookie->expects($this->any())->method('isSecure')->willReturn(true);
+        $cookie->expects($this->any())->method('isHttpOnly')->willReturn(true);
 
-        $expected = ['HTTP/1.1 200 OK', 'Content-Type: text/html; charset=UTF-8', 'Cache-Control: no-cache', 'Pragma: no-cache'];
-        $this->assertEquals(implode(PHP_EOL, $expected) . PHP_EOL, $result);
+        $expected = [
+            'HTTP/1.1 200 OK',
+            'Content-Type: text/html; charset=UTF-8',
+            'Cache-Control: no-cache',
+            'Pragma: no-cache',
+            'foo, bar, 1423559410, /, domain, 1, 1'
+        ];
+
+        $this->expectOutputString(implode(PHP_EOL, $expected) . PHP_EOL);
+
+        $response = new Response('Foo', 200);
+        $response->cookie()->set($cookie);
+        $response->sendHeaders();
     }
 
     public function testSendContent()
     {
-        ob_start();
+        $expected = ['Foo'];
+        $this->expectOutputString(implode(PHP_EOL, $expected));
+
         $response = new Response('Foo', 200);
         $response->sendContent();
-        $result = ob_get_clean();
-
-        $expected = ['Foo'];
-        $this->assertEquals(implode(PHP_EOL, $expected), $result);
     }
 
     public function testSend()
     {
-        ob_start();
+        $expected = ['HTTP/1.1 200 OK', 'Content-Type: text/html; charset=UTF-8', 'Cache-Control: no-cache', 'Pragma: no-cache', 'Foo'];
+        $this->expectOutputString(implode(PHP_EOL, $expected));
+
         $response = new Response('Foo', 200);
         $response->send();
-        $result = ob_get_clean();
-
-        $expected = ['HTTP/1.1 200 OK', 'Content-Type: text/html; charset=UTF-8', 'Cache-Control: no-cache', 'Pragma: no-cache', 'Foo'];
-        $this->assertEquals(implode(PHP_EOL, $expected), $result);
     }
 
     public function testToString()
     {
-        $expected = ['HTTP/1.1 200 OK', 'Content-Type: text/html; charset=UTF-8', 'Cache-Control: no-cache', 'Pragma: no-cache', 'Foo'];
+        $cookie = $this->getMock('\Moss\Http\Response\CookieInterface');
+        $cookie->expects($this->any())->method('__toString')->willReturn('cookieString');
+
+        $expected = [
+            'HTTP/1.1 200 OK',
+            'Content-Type: text/html; charset=UTF-8',
+            'Cache-Control: no-cache',
+            'Pragma: no-cache',
+            'Set-Cookie: cookieString',
+            'Foo'
+        ];
+
         $response = new Response('Foo', 200);
+        $response->cookie()->set($cookie);
+
         $this->assertEquals(implode(PHP_EOL, $expected), (string) $response);
     }
 

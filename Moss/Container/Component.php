@@ -110,7 +110,7 @@ class Component implements ComponentInterface
             }
 
             if ($arg == '@Container') {
-                $result[$k] = & $container;
+                $result[$k] = $container;
                 continue;
             }
 
