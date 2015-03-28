@@ -52,9 +52,9 @@ class Route implements RouteInterface
         $matches = [];
         preg_match_all(self::REGEX, $this->pattern, $matches, \PREG_SET_ORDER);
 
-        $this->regex = $this->buildRegexp($this->pattern, $matches);
-        $this->requirements = $this->buildRequirements($matches);
-        $this->builders = $this->buildBuilders($this->pattern, $matches);
+        $this->regex = $this->buildRegexp($this->pattern, (array) $matches);
+        $this->requirements = $this->buildRequirements((array) $matches);
+        $this->builders = $this->buildBuilders($this->pattern, (array) $matches);
 
         $this->arguments = array_fill_keys(array_keys($this->requirements), null);
 
