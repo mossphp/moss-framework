@@ -137,17 +137,16 @@ class Request implements RequestInterface
      */
     protected function removeSlashes($array)
     {
-        if (version_compare(phpversion(), '6.0.0-dev', '<') && get_magic_quotes_gpc()) {
-            $array = array_map(
-                function ($value) {
-                    if (is_array($value)) {
-                        return array_map([$this, 'removeSlashed'], $value);
-                    }
+        $fnc = function ($value) use (&$fnc) {
+            if (is_array($value)) {
+                return array_map($fnc, $value);
+            }
 
-                    return stripslashes($value);
-                },
-                $array
-            );
+            return stripslashes($value);
+        };
+
+        if (version_compare(phpversion(), '6.0.0-dev', '<') && get_magic_quotes_gpc()) {
+            $array = array_map($fnc, $array);
         }
 
         return $array;
