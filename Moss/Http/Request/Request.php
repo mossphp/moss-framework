@@ -79,9 +79,9 @@ class Request implements RequestInterface
      * @param array  $cookie
      * @param string $rawBody
      */
-    public function __construct(array $get = [], array $post = [], array $cookie = [], array $files = [], array $server = [], $rawBody = null)
+    public function __construct(array $get = [], array $post = [], array $cookie = [], array $files = [], array $server = [], $rawBody = null, array $globals = [])
     {
-        $this->initialize($get, $post, $cookie, $files, $server, $rawBody);
+        $this->initialize($get, $post, $cookie, $files, $server, $rawBody, $globals);
     }
 
     /**
@@ -94,7 +94,7 @@ class Request implements RequestInterface
      * @param array $server
      * @param string $rawBody
      */
-    public function initialize(array $get = [], array $post = [], array $cookie = [], array $files = [], array $server = [], $rawBody = null)
+    public function initialize(array $get = [], array $post = [], array $cookie = [], array $files = [], array $server = [], $rawBody = null, array $globals = [])
     {
         $cookie = $this->removeSlashes($cookie);
         $get = $this->removeSlashes($get);
@@ -112,7 +112,7 @@ class Request implements RequestInterface
         $this->path = $this->resolvePath();
         $this->baseName = $this->resolveBaseName();
 
-        $this->query = new Bag($this->resolveParameters($get));
+        $this->query = new Bag($this->resolveParameters($get, $globals));
 
         $this->raw = (string) $rawBody;
         $this->body = new Bag($this->resolveBody($post));
@@ -137,17 +137,16 @@ class Request implements RequestInterface
      */
     protected function removeSlashes($array)
     {
-        if (version_compare(phpversion(), '6.0.0-dev', '<') && get_magic_quotes_gpc()) {
-            $array = array_map(
-                function ($value) {
-                    if (is_array($value)) {
-                        return array_map([$this, 'removeSlashed'], $value);
-                    }
+        $fnc = function ($value) use (&$fnc) {
+            if (is_array($value)) {
+                return array_map($fnc, $value);
+            }
 
-                    return stripslashes($value);
-                },
-                $array
-            );
+            return stripslashes($value);
+        };
+
+        if (version_compare(phpversion(), '6.0.0-dev', '<') && get_magic_quotes_gpc()) {
+            $array = array_map($fnc, $array);
         }
 
         return $array;
@@ -242,21 +241,22 @@ class Request implements RequestInterface
      * Resolves request parameters from passed array and CLI
      *
      * @param array $get
+     * @param array $globals
      *
      * @return array
      */
-    protected function resolveParameters(array $get = [])
+    protected function resolveParameters(array $get = [], array $globals = [])
     {
-        if ($this->method() != 'CLI' || !isset($GLOBALS['argc']) || !isset($GLOBALS['argv']) || $GLOBALS['argc'] <= 1) {
+        if ($this->method() != 'CLI' || !isset($globals['argc'], $globals['argv']) || $globals['argc'] <= 1) {
             return $get;
         }
 
         $cli = [];
-        for ($i = 1; $i < $GLOBALS['argc']; $i++) {
-            if (preg_match_all('/^-+([^=]+)(=(.+))?$/i', $GLOBALS['argv'][$i], $arg, PREG_SET_ORDER)) {
+        for ($i = 1; $i < $globals['argc']; $i++) {
+            if (preg_match_all('/^-+([^=]+)(=(.+))?$/i', $globals['argv'][$i], $arg, PREG_SET_ORDER)) {
                 $cli[$arg[0][1]] = isset($arg[0][3]) ? $this->unquote($arg[0][3]) : true;
             } else {
-                $cli[] = $this->unquote($GLOBALS['argv'][$i]);
+                $cli[] = $this->unquote($globals['argv'][$i]);
             }
         }
 
@@ -530,7 +530,7 @@ class Request implements RequestInterface
     }
 
     /**
-     * Returns locale
+     * Returns language
      *
      * @param null|string $locale
      *

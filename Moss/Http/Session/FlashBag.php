@@ -79,7 +79,7 @@ class FlashBag implements FlashBagInterface
      */
     public function has($type = null)
     {
-        if (!$type) {
+        if ($type === null) {
             return !empty($this->session[$this->prefix]);
         }
 

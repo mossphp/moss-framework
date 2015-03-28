@@ -27,11 +27,12 @@ class View extends Bag implements ViewInterface
 
     /**
      * Creates View instance
+     * Sample pattern: './src/{bundle}/{directory}/View/{file}.phtml'
      *
-     * @param array  $vars
      * @param string $pattern
+     * @param array $vars
      */
-    public function __construct(array $vars = [], $pattern = '../src/{bundle}/{directory}/View/{file}.php')
+    public function __construct($pattern, array $vars = [])
     {
         $this->pattern = $pattern;
         parent::__construct($vars);
