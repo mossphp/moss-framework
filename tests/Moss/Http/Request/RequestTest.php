@@ -16,17 +16,6 @@ function phpversion() { return MockContainer::$phpVersion ?: \phpversion(); }
  */
 class RequestTest extends \PHPUnit_Framework_TestCase
 {
-    public function tearDown()
-    {
-        if (isset($GLOBALS['argc'])) {
-            unset($GLOBALS['argc']);
-        }
-
-        if (isset($GLOBALS['argv'])) {
-            unset($GLOBALS['argv']);
-        }
-    }
-
     /**
      * @dataProvider escapedQuotesProvider
      */
@@ -162,15 +151,19 @@ class RequestTest extends \PHPUnit_Framework_TestCase
      */
     public function testConsole($arg, $expected, $url = null)
     {
-        $GLOBALS['argc'] = count($arg);
-        $GLOBALS['argv'] = $arg;
+        $globals = [
+            'argc' => count($arg),
+            'argv' => $arg,
+        ];
 
         $request = new Request(
             [],
             [],
             [],
             [],
-            ['REQUEST_METHOD' => 'CLI']
+            ['REQUEST_METHOD' => 'CLI'],
+            null,
+            $globals
         );
 
         $this->assertEquals($expected, $request->query()->all());

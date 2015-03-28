@@ -76,7 +76,8 @@ class App implements AppInterface
             $_COOKIE,
             $_FILES,
             $_SERVER,
-            file_get_contents('php://input')
+            file_get_contents('php://input'),
+            $GLOBALS
         );
 
         // registering components
