@@ -1,31 +1,37 @@
 {
-    "name": "moss/framework",
-    "version": "v1.2",
-    "description": "The PHP micro-framework",
-    "keywords": ["mossphp", "microframework", "framework"],
-    "type": "framework",
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "Michal Wachowski",
-            "email": "wachowski.michal@gmail.com"
-        }
-    ],
-    "require": {
-        "php": ">=5.4"
-    },
-    "require-dev": {
-        "phpunit/phpunit": ">=3.7"
-    },
-    "suggest": {
-        "moss/storage": "Simple ORM (data mapper), accelerates logic development",
-        "moss/locale": "Translation/localisation class based on one from Sf2",
-        "moss/twig-bridge": "Adds Twig as templating engine with additional functionalities"
-    },
-    "autoload": {
-        "psr-4": { "Moss\\": "Moss/" }
-    },
-    "config": {
-        "bin-dir": "bin/"
+  "name": "moss/framework",
+  "version": "v1.2.1",
+  "description": "The PHP micro-framework",
+  "keywords": [
+    "mossphp",
+    "microframework",
+    "framework"
+  ],
+  "type": "framework",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Michal Wachowski",
+      "email": "wachowski.michal@gmail.com"
     }
+  ],
+  "require": {
+    "php": ">=5.4"
+  },
+  "require-dev": {
+    "phpunit/phpunit": ">=3.7",
+    "phpmd/phpmd": "~2.2",
+    "squizlabs/php_codesniffer": "~2.3"
+  },
+  "suggest": {
+    "moss/storage": "Simple ORM (data mapper), accelerates logic development",
+    "moss/locale": "Translation/localisation class based on one from Sf2",
+    "moss/twig-bridge": "Adds Twig as templating engine with additional functionalities"
+  },
+  "autoload": {
+    "psr-4": {"Moss\\": "Moss/"}
+  },
+  "config": {
+    "bin-dir": "bin/"
+  }
 }

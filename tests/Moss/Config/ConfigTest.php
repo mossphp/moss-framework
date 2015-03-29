@@ -54,15 +54,19 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
     {
         $import = [
             'import_dev' => [
-                'framework' => [
-                    'error' => ['level' => 0, 'detail' => false],
-                    'session' => ['name' => 'PHPSESSID', 'cacheLimiter' => '']
+                [
+                    'framework' => [
+                        'error' => ['level' => 0, 'detail' => false],
+                        'session' => ['name' => 'PHPSESSID', 'cacheLimiter' => '']
+                    ]
                 ]
             ],
             'import_ignored' => [
-                'framework' => [
-                    'error' => ['level' => -1, 'detail' => true],
-                    'session' => ['name' => 'PHPSESSID', 'cacheLimiter' => '']
+                [
+                    'framework' => [
+                        'error' => ['level' => -1, 'detail' => true],
+                        'session' => ['name' => 'PHPSESSID', 'cacheLimiter' => '']
+                    ]
                 ]
             ]
         ];
@@ -86,7 +90,9 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
     {
         $data = [
             'import' => [
-                'container' => ['var' => 'value']
+                [
+                    'container' => ['var' => 'value']
+                ]
             ]
         ];
 

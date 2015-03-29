@@ -66,6 +66,7 @@ class HeaderBag extends Bag
      * Resolves headers data
      *
      * @param array $parameters
+     * @param array $headers
      *
      * @return array
      */

@@ -78,6 +78,7 @@ class Request implements RequestInterface
      * @param array  $server
      * @param array  $cookie
      * @param string $rawBody
+     * @param array  $globals
      */
     public function __construct(array $get = [], array $post = [], array $cookie = [], array $files = [], array $server = [], $rawBody = null, array $globals = [])
     {
@@ -87,12 +88,13 @@ class Request implements RequestInterface
     /**
      * Initializes request properties
      *
-     * @param array $get
-     * @param array $post
-     * @param array $cookie
-     * @param array $files
-     * @param array $server
+     * @param array  $get
+     * @param array  $post
+     * @param array  $cookie
+     * @param array  $files
+     * @param array  $server
      * @param string $rawBody
+     * @param array  $globals
      */
     public function initialize(array $get = [], array $post = [], array $cookie = [], array $files = [], array $server = [], $rawBody = null, array $globals = [])
     {

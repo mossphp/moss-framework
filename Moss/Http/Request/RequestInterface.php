@@ -12,7 +12,6 @@
 namespace Moss\Http\Request;
 
 use Moss\Bag\BagInterface;
-use Moss\Http\Session\SessionInterface;
 
 /**
  * Request representation
