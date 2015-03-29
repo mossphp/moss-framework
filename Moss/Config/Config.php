@@ -85,7 +85,7 @@ class Config extends Bag implements ConfigInterface
             if (strpos($key, 'import') === 0) {
                 $mode = substr($key, 7);
                 if ($mode == '' || $mode == $this->mode) {
-                    $imports[] = $key;
+                    $imports = array_merge($imports, $node);
                 }
 
                 continue;
@@ -94,8 +94,8 @@ class Config extends Bag implements ConfigInterface
             $this->storage[$key] = $this->merge($this->storage[$key], $this->applyPrefix($node, $prefix));
         }
 
-        foreach ($imports as $key) {
-            $this->import($arr[$key], $prefix);
+        foreach ($imports as $node) {
+            $this->import($node, $prefix);
 
         }
 
