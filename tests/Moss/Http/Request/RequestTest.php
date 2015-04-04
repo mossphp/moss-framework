@@ -149,7 +149,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider consoleProvider
      */
-    public function testConsole($arg, $expected, $url = null)
+    public function testConsole($arg, $url, $expected)
     {
         $globals = [
             'argc' => count($arg),
@@ -166,8 +166,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
             $globals
         );
 
-        $this->assertEquals($expected, $request->query()->all());
         $this->assertEquals($url, $request->path());
+        $this->assertEquals($expected, $request->query()->all());
     }
 
     public function consoleProvider()
@@ -175,28 +175,32 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         return [
             [
                 ['index.php', 'foo'],
-                [],
-                'foo'
+                'foo',
+                []
             ],
             [
-                ['index.php', '-foo'],
+                ['index.php', 'foo', '-foo'],
+                'foo',
                 ['foo' => true]
             ],
             [
-                ['index.php', '--foo'],
+                ['index.php', 'foo', '--foo'],
+                'foo',
                 ['foo' => true]
             ],
             [
                 ['index.php', 'foo=bar'],
-                [],
-                'foo=bar'
+                'foo=bar',
+                []
             ],
             [
-                ['index.php', '-foo=bar'],
+                ['index.php', 'foo', '-foo=bar'],
+                'foo',
                 ['foo' => 'bar']
             ],
             [
-                ['index.php', '--foo=bar'],
+                ['index.php', 'foo', '--foo=bar'],
+                'foo',
                 ['foo' => 'bar']
             ],
         ];

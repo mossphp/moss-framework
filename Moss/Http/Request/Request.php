@@ -262,9 +262,7 @@ class Request implements RequestInterface
             }
         }
 
-        if (empty($this->path) && isset($cli[0])) {
-            $this->path = array_shift($cli);
-        }
+        $this->path = array_shift($cli);
 
         return array_merge($get, $cli);
     }
