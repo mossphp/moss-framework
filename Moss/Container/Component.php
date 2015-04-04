@@ -107,14 +107,10 @@ class Component implements ComponentInterface
             if (is_array($arg)) {
                 $result[$k] = $this->prepare($container, $arg);
                 continue;
-            }
-
-            if ($arg == '@Container') {
+            } elseif ($arg == '@Container') {
                 $result[$k] = $container;
                 continue;
-            }
-
-            if (strpos($arg, '@') !== 0) {
+            } elseif (strpos($arg, '@') !== 0) {
                 $result[$k] = $arg;
                 continue;
             }
