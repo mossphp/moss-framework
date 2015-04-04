@@ -111,8 +111,7 @@ class HeaderBag extends Bag
         if ($authorizationHeader !== null && stripos($authorizationHeader, 'basic') === 0) {
             $exploded = explode(':', base64_decode(substr($authorizationHeader, 6)));
             if (count($exploded) == 2) {
-                $headers['PHP_AUTH_USER'] = $exploded[0];
-                $headers['PHP_AUTH_PW'] = $exploded[1];
+                list($headers['PHP_AUTH_USER'], $headers['PHP_AUTH_PW']) = $exploded;
             }
         }
     }
