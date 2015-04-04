@@ -99,6 +99,66 @@ class ExceptionHandlerTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $result);
     }
 
+    /**
+     * @dataProvider limitedVarsProvider
+     */
+    public function testPrettyCodeWithLimits($var, $expected)
+    {
+        FunctionMockExceptionHandler::$xdebug_extension = true;
+
+        $handler = new ExceptionHandler();
+        $handler->depthLimit(1);
+
+        $result = $handler->limit($var, 0);
+
+        $this->assertEquals($expected, $result);
+
+    }
+
+    public function limitedVarsProvider()
+    {
+        $object = new \stdClass();
+        $object->foo = new \stdClass();
+        $object->foo->bar = new \stdClass();
+
+        $expectedObject = clone $object;
+        $expectedObject->foo->bar = '*DEPTH LIMIT';
+
+        $recursion = new \stdClass();
+        $recursion->rec = $recursion;
+
+        $expectedRecursion = clone $recursion;
+        $expectedRecursion->rec = '*RECURSION*';
+
+        return [
+            [
+                1,
+                1
+            ],
+            [
+                1.2,
+                1.2
+            ],
+            [
+                'foo bar yada',
+                'foo bar yada'
+            ],
+            [
+                ['foo' => ['bar' => ['yada' => 'daka daka']]],
+                ['foo' => ['bar' => '*DEPTH LIMIT*']],
+            ],
+            [
+                $object,
+                $expectedObject
+            ],
+            [
+                $recursion,
+                $expectedRecursion
+            ]
+        ];
+
+    }
+
     public function testPrettyCodeWithXdebug()
     {
         FunctionMockExceptionHandler::$xdebug_extension = true;
