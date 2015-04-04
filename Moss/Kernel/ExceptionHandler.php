@@ -121,7 +121,7 @@ class ExceptionHandler
                 body, code { font: medium/1.5em monospace; }
 
                 div:nth-child(4) { position: fixed; right: 0.5em; top: 0.5em; width: 100%; padding: 0.25em 1em; }
-                div:nth-child(4) a { text-decoration: none; padding: 0.25em 0.75em; color: #444; background: #aef; border-radius: 1em; }
+                div:nth-child(4) a { text-decoration: none; padding: 0.25em 0.75em; color: #ffe; background: #8c3; border-radius: 1em; }
 
                 table { width: auto; border-collapse: collapse; overflow: hidden; }
 
