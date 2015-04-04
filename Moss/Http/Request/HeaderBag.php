@@ -72,11 +72,7 @@ class HeaderBag extends Bag
      */
     protected function resolveAuth(array $parameters, array $headers)
     {
-        if (isset($parameters['PHP_AUTH_USER'])) {
-            $this->resolvePHPAuth($parameters, $headers);
-        } else {
-            $this->resolveHTTPAuth($parameters, $headers);
-        }
+        isset($parameters['PHP_AUTH_USER']) ? $this->resolvePHPAuth($parameters) : $this->resolveHTTPAuth($parameters, $headers);
 
         if (isset($headers['PHP_AUTH_USER'])) {
             $headers['AUTHORIZATION'] = 'basic ' . base64_encode($headers['PHP_AUTH_USER'] . ':' . $headers['PHP_AUTH_PW']);
@@ -89,9 +85,8 @@ class HeaderBag extends Bag
      * Resolves authorisation header from PHP AUTH headers
      *
      * @param array $parameters
-     * @param array $headers
      */
-    protected function resolvePHPAuth(array &$parameters, array &$headers)
+    protected function resolvePHPAuth(array &$parameters)
     {
         $headers['PHP_AUTH_USER'] = $parameters['PHP_AUTH_USER'];
         $headers['PHP_AUTH_PW'] = isset($parameters['PHP_AUTH_PW']) ? $parameters['PHP_AUTH_PW'] : '';
