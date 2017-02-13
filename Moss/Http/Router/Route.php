@@ -484,6 +484,28 @@ class Route implements RouteInterface
      */
     protected function buildUrl(array $arguments)
     {
+        $url = strtr($this->builders['pattern'], $this->buildUrlRequirements($arguments));
+        $url = str_replace('//', '/', $url);
+
+        $query = array_filter($arguments);
+        if (!empty($query)) {
+            $url .= '?' . http_build_query($query, null, '&');
+        }
+
+        $url = ltrim($url, './');
+
+        return $url;
+    }
+
+    /**
+     * Builds array with url required arguments
+     *
+     * @param array $arguments
+     *
+     * @return array
+     */
+    protected function buildUrlRequirements(array &$arguments)
+    {
         $url = [];
         foreach ($this->requirements as $key => $regex) {
             $this->assertArgumentRequirement($key, $regex, $arguments);
@@ -497,16 +519,6 @@ class Route implements RouteInterface
 
             unset($arguments[$key]);
         }
-
-        $url = strtr($this->builders['pattern'], $url);
-        $url = str_replace('//', '/', $url);
-
-        $query = array_filter($arguments);
-        if (!empty($query)) {
-            $url .= '?' . http_build_query($query, null, '&');
-        }
-
-        $url = ltrim($url, './');
 
         return $url;
     }

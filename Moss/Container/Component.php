@@ -73,6 +73,17 @@ class Component implements ComponentInterface
             $instance = $ref->newInstanceArgs($this->prepare($container, $this->arguments));
         }
 
+        return $this->executeMethods($instance, $container);
+    }
+
+    /**
+     * @param object             $instance
+     * @param ContainerInterface $container
+     *
+     * @return object
+     */
+    protected function executeMethods($instance, ContainerInterface $container = null)
+    {
         if (empty($this->methods)) {
             return $instance;
         }
@@ -80,8 +91,9 @@ class Component implements ComponentInterface
         foreach ($this->methods as $method => $methodArguments) {
             $ref = new \ReflectionMethod($instance, $method);
 
-            if (empty($this->arguments)) {
+            if (empty($methodArguments)) {
                 $ref->invoke($instance);
+                continue;
             }
 
             $ref->invokeArgs($instance, $this->prepare($container, $methodArguments));
@@ -107,14 +119,10 @@ class Component implements ComponentInterface
             if (is_array($arg)) {
                 $result[$k] = $this->prepare($container, $arg);
                 continue;
-            }
-
-            if ($arg == '@Container') {
+            } elseif ($arg == '@Container') {
                 $result[$k] = $container;
                 continue;
-            }
-
-            if (strpos($arg, '@') !== 0) {
+            } elseif (strpos($arg, '@') !== 0) {
                 $result[$k] = $arg;
                 continue;
             }

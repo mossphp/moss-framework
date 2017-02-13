@@ -72,30 +72,48 @@ class HeaderBag extends Bag
      */
     protected function resolveAuth(array $parameters, array $headers)
     {
-        if (isset($parameters['PHP_AUTH_USER'])) {
-            $headers['PHP_AUTH_USER'] = $parameters['PHP_AUTH_USER'];
-            $headers['PHP_AUTH_PW'] = isset($parameters['PHP_AUTH_PW']) ? $parameters['PHP_AUTH_PW'] : '';
-        } else {
-            $authorizationHeader = null;
-            if (isset($parameters['HTTP_AUTHORIZATION'])) {
-                $authorizationHeader = $parameters['HTTP_AUTHORIZATION'];
-            } elseif (isset($parameters['REDIRECT_HTTP_AUTHORIZATION'])) {
-                $authorizationHeader = $parameters['REDIRECT_HTTP_AUTHORIZATION'];
-            }
-
-            if ($authorizationHeader !== null && stripos($authorizationHeader, 'basic') === 0) {
-                $exploded = explode(':', base64_decode(substr($authorizationHeader, 6)));
-                if (count($exploded) == 2) {
-                    list($headers['PHP_AUTH_USER'], $headers['PHP_AUTH_PW']) = $exploded;
-                }
-            }
-        }
+        isset($parameters['PHP_AUTH_USER']) ? $this->resolvePHPAuth($parameters, $headers) : $this->resolveHTTPAuth($parameters, $headers);
 
         if (isset($headers['PHP_AUTH_USER'])) {
             $headers['AUTHORIZATION'] = 'basic ' . base64_encode($headers['PHP_AUTH_USER'] . ':' . $headers['PHP_AUTH_PW']);
         }
 
         return $headers;
+    }
+
+    /**
+     * Resolves authorisation header from PHP AUTH headers
+     *
+     * @param array $parameters
+     * @param array $headers
+     */
+    protected function resolvePHPAuth(array &$parameters, array &$headers)
+    {
+        $headers['PHP_AUTH_USER'] = $parameters['PHP_AUTH_USER'];
+        $headers['PHP_AUTH_PW'] = isset($parameters['PHP_AUTH_PW']) ? $parameters['PHP_AUTH_PW'] : '';
+    }
+
+    /**
+     * Resolves authorisation header from HTTP AUTH headers
+     *
+     * @param array $parameters
+     * @param array $headers
+     */
+    protected function resolveHTTPAuth(array &$parameters, array &$headers)
+    {
+        $authorizationHeader = null;
+        if (isset($parameters['HTTP_AUTHORIZATION'])) {
+            $authorizationHeader = $parameters['HTTP_AUTHORIZATION'];
+        } elseif (isset($parameters['REDIRECT_HTTP_AUTHORIZATION'])) {
+            $authorizationHeader = $parameters['REDIRECT_HTTP_AUTHORIZATION'];
+        }
+
+        if ($authorizationHeader !== null && stripos($authorizationHeader, 'basic') === 0) {
+            $exploded = explode(':', base64_decode(substr($authorizationHeader, 6)));
+            if (count($exploded) == 2) {
+                list($headers['PHP_AUTH_USER'], $headers['PHP_AUTH_PW']) = $exploded;
+            }
+        }
     }
 
     /**

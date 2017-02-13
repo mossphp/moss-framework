@@ -21,15 +21,18 @@ class ExceptionHandler
 {
 
     private $details = false;
+    private $depthLimit;
 
     /**
      * Constructor
      *
      * @param bool $verbose
+     * @param int $depthLimit
      */
-    public function __construct($verbose = false)
+    public function __construct($verbose = false, $depthLimit = 8)
     {
         $this->verbose($verbose);
+        $this->depthLimit($depthLimit);
     }
 
     /**
@@ -46,6 +49,22 @@ class ExceptionHandler
         }
 
         return $this->details;
+    }
+
+    /**
+     * Sets depth limit
+     *
+     * @param int $depthLimit
+     *
+     * @return int
+     */
+    public function depthLimit($depthLimit = null)
+    {
+        if($depthLimit !== null) {
+            $this->depthLimit = (int) $depthLimit;
+        }
+
+        return $this->depthLimit;
     }
 
     /**
@@ -102,7 +121,7 @@ class ExceptionHandler
                 body, code { font: medium/1.5em monospace; }
 
                 div:nth-child(4) { position: fixed; right: 0.5em; top: 0.5em; width: 100%; padding: 0.25em 1em; }
-                div:nth-child(4) a { text-decoration: none; padding: 0.25em 0.75em; color: #444; background: #aef; border-radius: 1em; }
+                div:nth-child(4) a { text-decoration: none; padding: 0.25em 0.75em; color: #ffe; background: #8c3; border-radius: 1em; }
 
                 table { width: auto; border-collapse: collapse; overflow: hidden; }
 
@@ -175,7 +194,10 @@ class ExceptionHandler
      */
     public function prettyCode($var)
     {
+        $var = $this->limit($var, 0);
+
         ob_start();
+
 
         if (extension_loaded('xdebug')) {
             var_dump($var);
@@ -186,5 +208,78 @@ class ExceptionHandler
         }
 
         return ob_get_clean();
+    }
+
+    /**
+     * Limits dumped variable
+     *
+     * @param mixed $var
+     * @param int   $depth
+     * @param array $references
+     *
+     * @return string
+     */
+    public function limit($var, $depth, array &$references = [])
+    {
+        if ($depth > $this->depthLimit) {
+            return '*DEPTH LIMIT*';
+        }
+
+        if (is_array($var)) {
+            return $this->limitArray($var, $depth, $references);
+        }
+
+        if (is_object($var)) {
+            return $this->limitObject($var, $depth, $references);
+        }
+
+        return $var;
+    }
+
+    /**
+     * Limits dumped array
+     *
+     * @param mixed $var
+     * @param int   $depth
+     * @param array $references
+     *
+     * @return string
+     */
+    public function limitArray($var, $depth, array &$references)
+    {
+        foreach ($var as &$value) {
+            $value = $this->limit($value, $depth + 1, $references);
+            unset($value);
+        }
+
+        return $var;
+    }
+
+    /**
+     * Limits dumped object
+     *
+     * @param mixed $var
+     * @param int   $depth
+     * @param array $references
+     *
+     * @return string
+     */
+    public function limitObject($var, $depth, array &$references)
+    {
+        $hash = spl_object_hash($var);
+
+        if (in_array($hash, $references)) {
+            return '*RECURSION*';
+        }
+
+        $references[] = $hash;
+        $ref = new \ReflectionObject($var);
+        foreach ($ref->getProperties() as $prop) {
+            $prop->setAccessible(true);
+
+            $prop->setValue($var, $this->limit($prop->getValue($var), $depth + 1, $references));
+        }
+
+        return $var;
     }
 }

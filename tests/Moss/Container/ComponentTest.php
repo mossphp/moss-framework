@@ -59,7 +59,19 @@ class ComponentTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($result, $component->get($container));
     }
 
-    public function testComponentMethods()
+    public function testComponentMethodWithArguments()
+    {
+        $container = $this->getMock('\Moss\Container\ContainerInterface');
+        $container
+            ->expects($this->any())
+            ->method($this->anything())
+            ->will($this->returnValue('foo'));
+
+        $component = new Component('\Moss\Container\Foobar', ['@foofoo'], ['foo' => ['foo', 'bar', 'yada']]);
+        $this->assertAttributeEquals(['foo', 'bar', 'yada'], 'args', $component->get($container));
+    }
+
+    public function testComponentMethodWithWithout()
     {
         $component = new Component('\Moss\Container\Foobar', [], ['foo' => ['foo', 'bar', 'yada']]);
         $this->assertAttributeEquals(['foo', 'bar', 'yada'], 'args', $component->get());
